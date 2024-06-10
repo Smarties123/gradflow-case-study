@@ -1,0 +1,69 @@
+@import '~rsuite/styles/index.less';
+@import '../components/Frame/styles.less';
+@import '../components/Logo/styles.less';
+@import '../components/ErrorPage/styles.less';
+@import '../components/Header/styles.less';
+@import '../components/RadioTile/styles.less';
+
+@import '../pages/members/styles.less';
+@import '../pages/calendar/styles.less';
+@import '../pages/board-list/styles.less';
+@import '../pages/board/styles.less';
+
+//rewrite base color
+@base-color: #34c3ff;
+
+.text-muted {
+  color: @B700;
+}
+
+.rs-sidebar {
+  position: fixed;
+  height: 100vh;
+  z-index: 3;
+  border-right: 1px solid var(--rs-divider-border);
+}
+
+.page-container {
+  padding-left: 260px;
+  transition: padding 0.5s;
+  &.container-full {
+    padding-left: 60px;
+  }
+}
+
+.bg-gradient-orange {
+  background: linear-gradient(87deg, #fb6340 0, #fbb140 100%);
+}
+
+.bg-gradient-red {
+  background: linear-gradient(87deg, #f5365c 0, #f56036 100%);
+}
+
+.bg-gradient-green {
+  background: linear-gradient(87deg, #2dce89 0, #2dcecc 100%);
+}
+
+.bg-gradient-blue {
+  background: linear-gradient(87deg, #11cdef 0, #1171ef 100%);
+}
+
+.bg-gradient-stripe {
+  background: linear-gradient(to right, #a6ffcb, #12d8fa, #1fa2ff);
+}
+
+.bg-gradient-purple {
+  background: linear-gradient(87deg, #8965e0 0, #d633fc 100%);
+}
+
+.bg-gradient-aubergine {
+  background: linear-gradient(to right, #aa076b, #61045f);
+}
+
+.bg-gradient-mirage {
+  background: linear-gradient(to right, #16222a, #3a6073);
+}
+
+.bg-gradient-mojito {
+  background: linear-gradient(87deg, #93f9b9, #1d976c);
+}

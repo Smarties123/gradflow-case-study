@@ -1,0 +1,85 @@
+.frame {
+  height: 100vh;
+  .rs-sidebar {
+    background: var(--rs-body);
+  }
+  .rs-sidenav {
+    flex: 1 1 auto;
+    transition: none !important;
+    border-top: 1px solid var(--rs-divider-border);
+    width: 100%;
+  }
+
+  .rs-content {
+    padding: 0 10px;
+
+    .rs-panel-header {
+      .title {
+        font-size: 18px;
+      }
+      .rs-breadcrumb {
+        margin-bottom: 0;
+      }
+    }
+  }
+  .nav-toggle {
+    border-top: 1px solid var(--rs-divider-border);
+  }
+
+  .rs-sidenav-item,
+  .rs-dropdown-item {
+    &.active {
+      color: @H500 !important;
+    }
+    &-icon {
+      height: 1.3em !important;
+      width: 1.3em !important;
+      left: 18px !important;
+    }
+  }
+
+  .rs-sidenav-item-panel {
+    padding: 15px 20px;
+    color: #aaa;
+  }
+  .rs-sidenav-collapse-out {
+    .collapse-hide {
+      display: none;
+    }
+  }
+}
+
+.brand {
+  padding: 10px 16px;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+
+  a {
+    font-weight: 600;
+    text-decoration: none;
+    color: #3c3c48;
+    font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  }
+}
+
+.team-picker {
+  .rs-picker-toggle {
+    background: #f7f7fa;
+  }
+}
+
+.page-content {
+  background: var(--rs-body);
+}
+
+.rs-theme-dark {
+  .brand a {
+    color: #fff;
+  }
+
+  .rs-picker-toggle {
+    border: 1px solid var(--rs-border-primary);
+    background: var(--rs-input-bg);
+  }
+}
