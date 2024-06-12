@@ -13,10 +13,11 @@ module.exports = {
   },
   devServer: {
     hot: true,
-    disableHostCheck: true,
     historyApiFallback: true,
-    contentBase: path.resolve(__dirname, ''),
-    publicPath: '/'
+    static: {
+      directory: path.join(__dirname, 'public'), // Assuming your static files are in 'public' directory
+    },
+    allowedHosts: 'all',
   },
   output: {
     path: path.resolve(__dirname, 'assets'),
