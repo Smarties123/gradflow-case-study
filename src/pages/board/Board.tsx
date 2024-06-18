@@ -7,10 +7,8 @@ import {
   List,
   Panel,
   Stack,
-  Avatar,
   Progress,
   ButtonGroup,
-  AvatarGroup,
   Whisper,
   Popover,
   Dropdown
@@ -157,17 +155,7 @@ const Board = (props: BoardProps) => {
                             {item.progress && <Progress percent={item.progress} showInfo={false} />}
 
                             <Stack justifyContent="space-between" style={{ marginTop: 10 }}>
-                              <AvatarGroup stack>
-                                {item.users.map((user, index) => (
-                                  <Avatar
-                                    key={index}
-                                    src={user?.avatar}
-                                    alt={user?.name}
-                                    size="xs"
-                                    circle
-                                  />
-                                ))}
-                              </AvatarGroup>
+
                               <ButtonGroup className="card-actions">
                                 <IconButton
                                   icon={<VscEdit />}
@@ -207,7 +195,7 @@ const Board = (props: BoardProps) => {
             }}
           />
         </Stack>
-      </DragDropContext>
+      </DragDropContext >
       <DrawerView open={showDrawer} onClose={() => setShowDrawer(false)} />
     </>
   );
