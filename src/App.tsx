@@ -4,14 +4,14 @@ import { IntlProvider } from 'react-intl';
 import locales from './locales';
 import Frame from './components/Frame';
 import Error404Page from './pages/authentication/404';
-import MembersPage from './pages/members';
-import CalendarPage from './pages/calendar';
-import BoardsPage from './pages/board-list';
-import BoardPage from './pages/board';
-import CreateBoardPage from './pages/board-create';
+
+
+
+import Page from './pages/board';
 import LandingPage from './components/LandingPage/LandingPage';
 import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
+
 
 
 const App = () => {
@@ -25,14 +25,9 @@ const App = () => {
 
         {/* Main App Layout Wrapped in Frame */}
         <Route path="/main" element={<Frame />}>
-          <Route index element={<BoardsPage />} />
-          <Route path="boards/new" element={<CreateBoardPage />} />
-          <Route path="boards/:id" element={<BoardPage />} />
-          <Route path="boards" element={<BoardsPage />} />
-          <Route path="members" element={<MembersPage />} />
-          <Route path="calendar" element={<CalendarPage />} />
+          <Route index element={<Page />} />
         </Route>
-        
+
         {/* Catch-all for 404 Errors */}
         <Route path="*" element={<Error404Page />} />
       </Routes>
