@@ -7,22 +7,15 @@ import {
   Content,
   Nav,
   DOMHelper,
-  Stack,
-  IconButton,
   CustomProvider
 } from 'rsuite';
 import enGB from 'rsuite/locales/en_GB';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import NavToggle from './NavToggle';
 import Header from '../Header';
 import NavLink from '../NavLink';
 import Brand from '../Brand';
 import { Icon } from '@rsuite/icons';
-import { VscCalendar } from 'react-icons/vsc';
-import { BsKanbanFill } from 'react-icons/bs';
-import { FaUsers } from 'react-icons/fa';
-import PlusIcon from '@rsuite/icons/Plus';
-import boards from '@/data/boards';
 
 // ---------------------------------------------------------- ADDED THESE ICONS FROM REACT-ICONS ----------------------------------------------------------
 import { HiOutlineViewBoards } from "react-icons/hi";
