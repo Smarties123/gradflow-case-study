@@ -41,9 +41,9 @@ export default function LogoCollection() {
         align="center"
         color="text.secondary"
       >
-        Trusted by the best companies
+        Trusted by students across the world
       </Typography>
-      <Grid container justifyContent="center" sx={{ mt: 0.5, opacity: 0.6 }}>
+      {/* <Grid container justifyContent="center" sx={{ mt: 0.5, opacity: 0.6 }}>
         {logos.map((logo, index) => (
           <Grid item key={index}>
             <img
@@ -53,7 +53,7 @@ export default function LogoCollection() {
             />
           </Grid>
         ))}
-      </Grid>
+      </Grid> */}
     </Box>
   );
 }
