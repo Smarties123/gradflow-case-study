@@ -7,8 +7,10 @@ import { FaJsSquare } from 'react-icons/fa';
 export const creatCard = () => {
   return {
     id: uniqueId(),
-    content: faker.lorem.paragraph(1),
-    image: Math.random() > 0.5 ? faker.image.technics(260, 100, true) : null,
+    companyName: 'Company Name',
+    companyPosition: 'Position',
+    icon: <FaJsSquare />,
+    to: faker.internet.url()
   };
 };
 

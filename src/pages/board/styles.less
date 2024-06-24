@@ -18,10 +18,12 @@
       padding: 8px 0;
     }
   }
+
   .card {
     .card-actions {
       opacity: 0;
     }
+
     &:hover .card-actions {
       opacity: 1;
     }
@@ -34,34 +36,39 @@
 
   .rs-input {
     opacity: 0;
-    width: 200px;
+    width: 'auto';
   }
+
+  // Column styling
   .text-view {
     position: absolute;
     width: 100%;
     top: 0;
     height: 100%;
     line-height: 36px;
+    font-size: larger;
+    text-align: center;
   }
 
   &.editable {
     .rs-input {
       opacity: 1;
     }
+
     .text-view {
       z-index: -1;
     }
   }
 }
 
-.board-wrapper > .rs-panel-body {
+.board-wrapper>.rs-panel-body {
   width: calc(100vw - 280px);
   height: calc(100vh - 170px);
   overflow: auto;
 }
 
 .container-full {
-  .board-wrapper > .rs-panel-body {
+  .board-wrapper>.rs-panel-body {
     width: calc(100vw - 76px);
     overflow: auto;
   }
