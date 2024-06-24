@@ -3,10 +3,7 @@ import {
   Drawer,
   DrawerProps,
   Form,
-  Stack,
-  TagPicker,
   ButtonGroup,
-  Avatar,
   DateRangePicker,
   Uploader,
   TagGroup,
@@ -18,12 +15,8 @@ import Textarea from '@/components/Textarea';
 import CameraRetroIcon from '@rsuite/icons/legacy/CameraRetro';
 import { VscSave, VscTrash, VscCopy, VscEllipsis } from 'react-icons/vsc';
 
-import { mockUsers } from '@/data/mock';
 import { Icon } from '@rsuite/icons';
 
-const userList = mockUsers(10).map(item => {
-  return { label: item.name, value: item.id, ...item };
-});
 
 const DrawerView = (props: DrawerProps) => {
   const { onClose, ...rest } = props;
@@ -43,22 +36,7 @@ const DrawerView = (props: DrawerProps) => {
 
       <Drawer.Body>
         <Form fluid>
-          <Form.Group>
-            <Form.ControlLabel>Assignee</Form.ControlLabel>
-            <Form.Control
-              name="assignee"
-              accepter={TagPicker}
-              data={userList}
-              block
-              renderMenuItem={(label, item) => {
-                return (
-                  <Stack spacing={2}>
-                    <Avatar src={item.avatar} size="xs" /> {label}
-                  </Stack>
-                );
-              }}
-            />
-          </Form.Group>
+
 
           <Form.Group>
             <Form.ControlLabel>Due date</Form.ControlLabel>

@@ -7,22 +7,18 @@ import {
   List,
   Panel,
   Stack,
-  Avatar,
-  Progress,
-  ButtonGroup,
-  AvatarGroup,
   Whisper,
   Popover,
   Dropdown
 } from 'rsuite';
 import MoreIcon from '@rsuite/icons/More';
-import { VscEdit, VscTrash } from 'react-icons/vsc';
 
 import { CardList } from '@/data/boards';
 import TextEditor from './TextEditor';
 import DrawerView from './DrawerView';
 import BlankColumn from './BlankColumn';
 import AddCard from './AddCard';
+import Card from './Card';
 
 const renderColumnActions = ({ onClose, left, top, className }: any, ref) => {
   const handleSelect = eventKey => {
@@ -152,39 +148,17 @@ const Board = (props: BoardProps) => {
                             style={provided.draggableProps.style}
                             className="card"
                           >
-                            {item.image && <img src={item.image} alt="image" width="100%" />}
-                            {item.content}
-                            {item.progress && <Progress percent={item.progress} showInfo={false} />}
 
-                            <Stack justifyContent="space-between" style={{ marginTop: 10 }}>
-                              <AvatarGroup stack>
-                                {item.users.map((user, index) => (
-                                  <Avatar
-                                    key={index}
-                                    src={user?.avatar}
-                                    alt={user?.name}
-                                    size="xs"
-                                    circle
-                                  />
-                                ))}
-                              </AvatarGroup>
-                              <ButtonGroup className="card-actions">
-                                <IconButton
-                                  icon={<VscEdit />}
-                                  size="sm"
-                                  onClick={() => setShowDrawer(true)}
-                                />
-                                <IconButton
-                                  icon={<VscTrash />}
-                                  size="sm"
-                                  onClick={() => {
-                                    const newState = [...state];
-                                    newState[ind].splice(index, 1);
-                                    setState(newState.filter(group => group.length));
-                                  }}
-                                />
-                              </ButtonGroup>
-                            </Stack>
+                            <Card
+                              card={item}
+                              onEdit={() => setShowDrawer(true)}
+                              onDelete={() => {
+                                const newState = [...state];
+                                newState[ind].splice(index, 1);
+                                setState(newState.filter(group => group.length));
+                              }}
+                            />
+
                           </List.Item>
                         )}
                       </Draggable>
@@ -207,7 +181,7 @@ const Board = (props: BoardProps) => {
             }}
           />
         </Stack>
-      </DragDropContext>
+      </DragDropContext >
       <DrawerView open={showDrawer} onClose={() => setShowDrawer(false)} />
     </>
   );

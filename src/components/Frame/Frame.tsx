@@ -7,23 +7,27 @@ import {
   Content,
   Nav,
   DOMHelper,
-  SelectPicker,
-  Stack,
-  IconButton,
   CustomProvider
 } from 'rsuite';
 import enGB from 'rsuite/locales/en_GB';
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import NavToggle from './NavToggle';
 import Header from '../Header';
 import NavLink from '../NavLink';
 import Brand from '../Brand';
 import { Icon } from '@rsuite/icons';
-import { VscCalendar } from 'react-icons/vsc';
-import { BsKanbanFill } from 'react-icons/bs';
-import { FaUsers } from 'react-icons/fa';
-import PlusIcon from '@rsuite/icons/Plus';
-import boards from '@/data/boards';
+
+// ---------------------------------------------------------- ADDED THESE ICONS FROM REACT-ICONS ----------------------------------------------------------
+import { HiOutlineViewBoards } from "react-icons/hi";
+import { LuTable2 } from "react-icons/lu";
+import { MdContacts } from "react-icons/md";
+import { MdDashboard } from "react-icons/md";
+import { TbFiles } from "react-icons/tb";
+import { CiSettings } from "react-icons/ci";
+
+// -------------------------------------------------------------------------------------------------------------------------------------------------------- 
+
+
 
 const { getHeight, on } = DOMHelper;
 
@@ -43,14 +47,7 @@ export interface NavItemData {
   to?: string;
   target?: string;
   children?: NavItemData[];
-}
-
-const projects = [
-  { label: 'R&D Department', value: 1 },
-  { label: 'User Experience Center', value: 2 },
-  { label: 'Infrastructure', value: 3 },
-  { label: 'HYPERS Web Team', value: 4 }
-];
+};
 
 const Frame = () => {
   const [expand, setExpand] = useState(true);
@@ -87,53 +84,50 @@ const Frame = () => {
           </Sidenav.Header>
           <Sidenav expanded={expand} appearance="subtle">
             <Sidenav.Body style={navBodyStyle}>
-              <div style={{ margin: 20 }} className="collapse-hide">
-                <SelectPicker
-                  defaultValue={4}
-                  data={projects}
-                  searchable={false}
-                  cleanable={false}
-                  block
-                  size="lg"
-                  appearance="subtle"
-                  className="team-picker"
-                />
-              </div>
 
               <Nav>
                 <NavItem
-                  title="Boards"
-                  to="boards"
-                  eventKey="boards"
-                  icon={<Icon as={BsKanbanFill} />}
+                  title="Panel"
+                  to="panel"
+                  eventKey="panel"
+                  icon={<Icon as={HiOutlineViewBoards} />}
                 />
 
                 <NavItem
-                  title="Members"
-                  to="members"
-                  eventKey="members"
-                  icon={<Icon as={FaUsers} />}
+                  title="Table"
+                  to="table"
+                  eventKey="table"
+                  icon={<Icon as={LuTable2} />}
                 />
 
                 <NavItem
-                  title="Calendar"
-                  to="calendar"
-                  eventKey="calendar"
-                  icon={<Icon as={VscCalendar} />}
+                  title="Contacts"
+                  to="contacts"
+                  eventKey="contacts"
+                  icon={<Icon as={MdContacts} />}
                 />
 
-                <Nav.Item panel className="collapse-hide">
-                  <Stack justifyContent="space-between">
-                    Yous boards
-                    <Link to="/boards/new">
-                      <IconButton icon={<PlusIcon />} size="xs" appearance="subtle" />
-                    </Link>
-                  </Stack>
-                </Nav.Item>
+                <NavItem
+                  title="Dashboard"
+                  to="dashboard"
+                  eventKey="dashboard"
+                  icon={<Icon as={MdDashboard} />}
+                />
 
-                {boards.map((board, index) => (
-                  <NavItem icon={board.icon} to={board.to} key={index} title={board.title} />
-                ))}
+                <NavItem
+                  title="Files"
+                  to="files"
+                  eventKey="files"
+                  icon={<Icon as={TbFiles} />}
+
+                /><NavItem
+                  title="Settings"
+                  to="settings"
+                  eventKey="settings"
+                  icon={<Icon as={CiSettings} />}
+                />
+
+
               </Nav>
             </Sidenav.Body>
           </Sidenav>

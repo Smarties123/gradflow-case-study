@@ -10,16 +10,18 @@ import {
   IconButton,
   List,
   Button,
-  Input,
-  InputGroup
+  ButtonToolbar,
 } from 'rsuite';
 import { Icon } from '@rsuite/icons';
-import NoticeIcon from '@rsuite/icons/Notice';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
-import GithubIcon from '@rsuite/icons/legacy/Github';
-import HeartIcon from '@rsuite/icons/legacy/HeartO';
-import SearchIcon from '@rsuite/icons/Search';
 import { MdOutlineNightlight, MdOutlineLightMode } from 'react-icons/md';
+
+
+// --------------------------------------------------------------Added These Icons ------------------------------------------------
+import { FaRegShareSquare } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa6";
+// --------------------------------------------------------------------------------------------------------------------------------
+
 
 const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
   const handleSelect = eventKey => {
@@ -105,25 +107,35 @@ const Header = (props: HeaderProps) => {
 
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
-      <InputGroup inside size="lg" className="search-input">
+
+      {/* --------------------------------------------- MAYBE CAN BE USED IN FUTURE DEVELOPMENT --------------------------- */}
+      {/* <InputGroup inside size="lg" className="search-input">
         <InputGroup.Button>
           <SearchIcon />
         </InputGroup.Button>
         <Input placeholder="Search " />
-      </InputGroup>
+      </InputGroup> */}
+      {/* ----------------------------------------------------------------------------------------------------------------- */}
 
-      <Stack spacing={8}>
-        <IconButton
-          icon={<HeartIcon style={{ fontSize: 20 }} color="red" />}
-          href="https://opencollective.com/rsuite"
-          target="_blank"
-        />
-        <IconButton
-          icon={<GithubIcon style={{ fontSize: 20 }} />}
-          href="https://github.com/rsuite/rsuite-project-template"
-          target="_blank"
-        />
 
+      <Stack direction="row" spacing={4} alignItems="center">
+        <div style={{ display: 'flex', justifyContent: "space-between", width: "100%", alignItems: "center" }}>
+          <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
+            <Button style={{ backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
+              <FaPlus style={{ fontSize: 18, color: 'white', margin: '1px 7px 1px 1px' }} />
+              Add New
+            </Button>
+            <Button style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
+              <FaRegShareSquare style={{ fontSize: 18, margin: '1px 7px 1px 1px' }} />
+              Share
+            </Button>
+          </ButtonToolbar>
+        </div>
+      </Stack>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+
+        {/* DARKMODE */}
         <IconButton
           icon={
             <Icon
@@ -134,27 +146,20 @@ const Header = (props: HeaderProps) => {
           onClick={() => onChangeTheme(theme === 'dark' ? 'light' : 'dark')}
         />
 
-        <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderNoticeSpeaker}>
-          <IconButton
-            icon={
-              <Badge content={5}>
-                <NoticeIcon style={{ fontSize: 20 }} />
-              </Badge>
-            }
-          />
-        </Whisper>
-
+        {/* USER PROFILE */}
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>
           <Avatar
             size="sm"
             circle
+            // THIS WILL BE USER PROFILE WHEN THEY LOGIN. IT WILL BE AUTOMATICALLY FILLED
             src="https://avatars.githubusercontent.com/u/1203827"
             alt="@simonguo"
             style={{ marginLeft: 8 }}
           />
         </Whisper>
-      </Stack>
-    </Stack>
+
+      </div>
+    </Stack >
   );
 };
 
