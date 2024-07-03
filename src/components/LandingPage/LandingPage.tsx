@@ -15,6 +15,8 @@ import Testimonials from './Testimonials';
 import FAQ from './FAQ';
 import Footer from './Footer';
 import getLPTheme from './getLPTheme';
+import FeedbackButton from './FeedbackButton';
+
 
 export default function LandingPage() {
   const [mode, setMode] = React.useState<PaletteMode>('dark');
@@ -47,6 +49,7 @@ export default function LandingPage() {
         <Divider />
         <Footer />
       </Box>
+      <FeedbackButton />
       {/* Removed ToggleCustomTheme component */}
     </ThemeProvider>
   );

@@ -12,6 +12,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import FeedbackButton from '../LandingPage/FeedbackButton';
 
 function Copyright(props: any) {
   return (
@@ -132,6 +133,7 @@ export default function SignUp() {
           </Box>
         </Grid>
       </Grid>
+      <FeedbackButton />
     </ThemeProvider>
   );
 }
