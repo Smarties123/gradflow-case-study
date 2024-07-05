@@ -12,6 +12,8 @@ import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import ToggleColorMode from './ToggleColorMode';
 
+import logo from './Assets/logo1A.png';
+
 const logoStyle = {
   width: '140px',
   height: 'auto',
@@ -76,7 +78,8 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 theme.palette.mode === 'light'
                   ? `0 0 1px rgba(85, 166, 246, 0.1), 1px 1.5px 2px -1px rgba(85, 166, 246, 0.15), 4px 4px 12px -2.5px rgba(85, 166, 246, 0.15)`
                   : '0 0 1px rgba(2, 31, 59, 0.7), 1px 1.5px 2px -1px rgba(2, 31, 59, 0.65), 4px 4px 12px -2.5px rgba(2, 31, 59, 0.65)',
-            })}
+            
+                })}
           >
             <Box
               sx={{
@@ -88,19 +91,25 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
               }}
             >
               <img
-                src={
-                  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/61f12e6faf73568658154dae_SitemarkDefault.svg'
-                }
+                src={logo}
                 style={logoStyle}
                 alt="logo of sitemark"
               />
               <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                 <MenuItem
-                  onClick={() => scrollToSection('features')}
+                  onClick={() => scrollToSection('student')}
                   sx={{ py: '6px', px: '12px' }}
                 >
                   <Typography variant="body2" color="text.primary">
-                    Features
+                    Student
+                  </Typography>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => scrollToSection('university')}
+                  sx={{ py: '6px', px: '12px' }}
+                >
+                  <Typography variant="body2" color="text.primary">
+                    University
                   </Typography>
                 </MenuItem>
                 <MenuItem
@@ -196,8 +205,11 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   >
                     <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
                   </Box>
-                  <MenuItem onClick={() => scrollToSection('features')}>
-                    Features
+                  <MenuItem onClick={() => scrollToSection('student')}>
+                    Students
+                  </MenuItem>
+                  <MenuItem onClick={() => scrollToSection('university')}>
+                    university
                   </MenuItem>
                   <MenuItem onClick={() => scrollToSection('testimonials')}>
                     Testimonials
