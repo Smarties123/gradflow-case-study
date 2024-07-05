@@ -42,8 +42,9 @@ export default function SignInSide() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: '100vh' }}>
+      <Grid container component="main" sx={{ height: '100vh' , alignItems: 'center', justifyContent: 'center', }}>
         <CssBaseline />
+
         <Grid
           // item
           // xs={false}
@@ -58,17 +59,18 @@ export default function SignInSide() {
           //   backgroundPosition: 'center',
           item
           xs={12}
-          sm={4}
-          md={7}
+          sm={8}
+          md={5}
           component={Paper}
           elevation={6}
           square
           sx={{
-            background: 'linear-gradient(to bottom, #FF6200, #000000)',
-
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
-        />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+        >
           <Box
             sx={{
               my: 8,
