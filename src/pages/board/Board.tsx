@@ -1,189 +1,140 @@
-import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
+import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import {
-  Divider,
-  IconButton,
-  List,
-  Panel,
-  Stack,
-  Whisper,
-  Popover,
-  Dropdown
-} from 'rsuite';
-import MoreIcon from '@rsuite/icons/More';
-
-import { CardList } from '@/data/boards';
-import TextEditor from './TextEditor';
+import { Column as ColumnType, Card } from './types';
+import Modal from './Modal';
+import CardComponent from './CardComponent';
+import './Board.less';
 import DrawerView from './DrawerView';
-import BlankColumn from './BlankColumn';
-import AddCard from './AddCard';
-import Card from './Card';
 
-const renderColumnActions = ({ onClose, left, top, className }: any, ref) => {
-  const handleSelect = eventKey => {
-    onClose();
-    console.log(eventKey);
-  };
-  return (
-    <Popover
-      ref={ref}
-      className={className}
-      style={{ left, top }}
-      full
-      title={<div style={{ padding: 10 }}>List actions</div>}
-    >
-      <Dropdown.Menu onSelect={handleSelect}>
-        <Dropdown.Item eventKey={1}>Add card</Dropdown.Item>
-        <Dropdown.Item eventKey={2}>Copy list</Dropdown.Item>
-        <Dropdown.Item eventKey={3}>Move list</Dropdown.Item>
-        <Dropdown.Item eventKey={4}>Watch</Dropdown.Item>
 
-        <Dropdown.Item divider />
-        <Dropdown.Item eventKey={5}>Sort By...</Dropdown.Item>
-        <Dropdown.Item eventKey={5}>Archive this list</Dropdown.Item>
-      </Dropdown.Menu>
-    </Popover>
-  );
-};
+const initialColumns: ColumnType[] = [
+  { id: 1, title: 'Applied', cards: [] },
+  { id: 2, title: 'Assessment', cards: [] },
+  { id: 3, title: 'Rejected', cards: [] },
+  { id: 4, title: 'Accepted', cards: [] }
+];
 
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
+const Board = () => {
+  const [columns, setColumns] = useState(initialColumns);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
 
-  return result;
-};
 
-/**
- * Moves an item from one list to another list.
- */
-const move = (source, destination, droppableSource, droppableDestination) => {
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
-  const [removed] = sourceClone.splice(droppableSource.index, 1);
 
-  destClone.splice(droppableDestination.index, 0, removed);
-
-  const result = {};
-  result[droppableSource.droppableId] = sourceClone;
-  result[droppableDestination.droppableId] = destClone;
-
-  return result;
-};
-
-interface BoardProps {
-  data: CardList;
-}
-
-const Board = (props: BoardProps) => {
-  const { data } = props;
-
-  const [state, setState] = useState(data?.map(item => item.cards) || []);
-  const [columns, setColumns] = useState(data?.map(item => item.title) || []);
-  const [showDrawer, setShowDrawer] = useState(false);
-
-  useEffect(() => {
-    setState(data?.map(item => item.cards) || []);
-    setColumns(data?.map(item => item.title) || []);
-  }, [data]);
-
-  function onDragEnd(result) {
+  const onDragEnd = (result) => {
     const { source, destination } = result;
+    if (!destination) return; // Dropped outside the list
 
-    // dropped outside the list
-    if (!destination) {
-      return;
+    if (source.droppableId === destination.droppableId && source.index === destination.index) {
+      return; // Dropped in the same place
     }
 
-    const sInd = +source.droppableId;
-    const dInd = +destination.droppableId;
+    const start = columns.find(col => col.id === parseInt(source.droppableId));
+    const finish = columns.find(col => col.id === parseInt(destination.droppableId));
+    if (!start || !finish) return;
 
-    if (sInd === dInd) {
-      const items = reorder(state[sInd], source.index, destination.index);
-      const newState: any = [...state];
-      newState[sInd] = items;
-      setState(newState);
+    const startCards = Array.from(start.cards);
+    const [movedCard] = startCards.splice(source.index, 1);
+
+    if (start === finish) {
+      startCards.splice(destination.index, 0, movedCard);
+      const newColumn = { ...start, cards: startCards };
+      setColumns(prev => prev.map(col => col.id === newColumn.id ? newColumn : col));
     } else {
-      const result = move(state[sInd], state[dInd], source, destination);
-      const newState = [...state];
-      newState[sInd] = result[sInd];
-      newState[dInd] = result[dInd];
+      const finishCards = Array.from(finish.cards);
+      finishCards.splice(destination.index, 0, movedCard);
+      const newStart = { ...start, cards: startCards };
+      const newFinish = { ...finish, cards: finishCards };
 
-      setState(newState.filter(group => group.length));
+      const updatedMovedCard = { ...movedCard, columnId: finish.id };
+
+      setColumns(prev => {
+        const updatedColumns = prev.map(col => {
+          if (col.id === newStart.id) return newStart;
+          if (col.id === newFinish.id) return {
+            ...newFinish,
+            cards: newFinish.cards.map(card => card.id === movedCard.id ? updatedMovedCard : card)
+          };
+          return col;
+        });
+
+        // Print columns when a card has been moved to a different column
+        console.log('Columns after moving card:', updatedColumns);
+
+        return updatedColumns;
+      });
+
     }
-  }
+  };
+
+  const handleCardSelect = (card) => {
+    setSelectedCard(card);
+    setIsDrawerOpen(true);
+  };
+
+  const handleAddButtonClick = (column: ColumnType) => {
+    setActiveColumn(column);
+    setIsModalOpen(true);
+  };
+
+  const addCardToColumn = (columnId: number, card: Card) => {
+    const updatedColumns = columns.map(col => {
+      if (col.id === columnId) {
+        return { ...col, cards: [...col.cards, { ...card, id: Date.now() }] };
+      }
+      return col;
+    });
+    setColumns(updatedColumns);
+  };
+
+  const updateCard = (id, updatedData) => {
+    const updatedColumns = columns.map(col => {
+      const updatedCards = col.cards.map(card => card.id === id ? { ...card, ...updatedData } : card);
+      return { ...col, cards: updatedCards };
+    });
+    setColumns(updatedColumns);
+  };
 
   return (
-    <>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <Stack spacing={20} direction="row" alignItems="flex-start">
-          {state.map((el, ind) => (
-            <Droppable key={ind} droppableId={`${ind}`}>
-              {(provided, snapshot) => (
-                <Panel
-                  className={classNames('board-column', {
-                    'dragging-over': snapshot.isDraggingOver
-                  })}
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  header={
-                    <Stack justifyContent="space-between">
-                      <TextEditor defaultValue={columns[ind]} />
-
-                      <Whisper speaker={renderColumnActions} placement="rightStart" trigger="click">
-                        <IconButton icon={<MoreIcon />} appearance="subtle" />
-                      </Whisper>
-                    </Stack>
-                  }
-                >
-                  <List>
-                    {el.map((item, index) => (
-                      <Draggable key={item.id} draggableId={item.id} index={index}>
-                        {provided => (
-                          <List.Item
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            style={provided.draggableProps.style}
-                            className="card"
-                          >
-
-                            <Card
-                              card={item}
-                              onEdit={() => setShowDrawer(true)}
-                              onDelete={() => {
-                                const newState = [...state];
-                                newState[ind].splice(index, 1);
-                                setState(newState.filter(group => group.length));
-                              }}
-                            />
-
-                          </List.Item>
-                        )}
-                      </Draggable>
-                    ))}
-                  </List>
+    <DragDropContext onDragEnd={onDragEnd}>
+      <div className="board">
+        {columns.map(column => (
+          <div key={column.id} className="column-container">
+            <h2>{column.title}</h2>
+            <button onClick={() => handleAddButtonClick(column)}>Add New</button>
+            <Droppable droppableId={String(column.id)}>
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
+                  {column.cards.map((card, index) => (
+                    <Draggable key={card.id} draggableId={String(card.id)} index={index}>
+                      {(provided) => (
+                        <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                          <CardComponent card={card} onSelect={handleCardSelect} />
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
                   {provided.placeholder}
-
-                  <Divider />
-
-                  <AddCard />
-                </Panel>
+                </div>
               )}
             </Droppable>
-          ))}
-
-          <BlankColumn
-            onCreated={title => {
-              setState([...state, []]);
-              setColumns([...columns, title]);
-            }}
+          </div>
+        ))}
+        {isModalOpen && activeColumn && (
+          <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} column={activeColumn} addCardToColumn={addCardToColumn} />
+        )}
+        {isDrawerOpen && selectedCard && (
+          <DrawerView
+            show={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)}
+            card={selectedCard}
+            updateCard={updateCard}
           />
-        </Stack>
-      </DragDropContext >
-      <DrawerView open={showDrawer} onClose={() => setShowDrawer(false)} />
-    </>
+        )}
+      </div>
+    </DragDropContext>
   );
 };
 
