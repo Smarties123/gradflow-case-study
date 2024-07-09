@@ -29,16 +29,69 @@ const Modal = ({ isOpen, onClose, column, addCardToColumn, theme }) => {
                     // Handle form submission logic here
                     onClose(); // Close modal after form submission
                 }}>
-                    <input type="text" value={company} onChange={e => setCompany(e.target.value)} placeholder="Company" />
-                    <input type="text" value={position} onChange={e => setPosition(e.target.value)} placeholder="Position" />
-                    <input type="date" value={deadline} onChange={e => setDeadline(e.target.value)} placeholder="Deadline" />
-                    <input type="text" value={location} onChange={e => setLocation(e.target.value)} placeholder="Location" />
-                    <input type="text" value={url} onChange={e => setUrl(e.target.value)} placeholder="URL" />
-                    <button type="submit">Add Card</button>
+
+                    <div className="input-wrapper">
+                        <label className="bordered-label">Company</label>
+
+                        <input
+                            type="text"
+                            value={company}
+                            onChange={e => setCompany(e.target.value)}
+
+                            placeholder="Ex. Apple"
+                        />
+                    </div>
+                    <div className="input-wrapper">
+                        <label className="bordered-label">Position</label>
+                        <input
+                            type="text"
+                            value={position}
+                            onChange={e => setPosition(e.target.value)}
+                            className="border-input"
+                            placeholder="Ex. Software Engineer"
+                        />
+                    </div>
+                    <div className="input-wrapper">
+                        <label className="bordered-label">Deadline</label>
+                        <input
+                            type="date"
+                            value={deadline}
+                            onChange={e => setDeadline(e.target.value)}
+                            className="border-input"
+                            placeholder=" "
+                        />
+                    </div>
+                    <div className="input-wrapper">
+                        <label className="bordered-label">Location</label>
+
+                        <input
+                            type="text"
+                            value={location}
+                            onChange={e => setLocation(e.target.value)}
+                            className="border-input"
+                            placeholder="London"
+                        />
+                    </div>
+                    <div className="input-wrapper">
+                        <label className="bordered-label">URL</label>
+                        <input
+                            type="text"
+                            value={url}
+                            onChange={e => setUrl(e.target.value)}
+                            className="border-input"
+                            placeholder="https://jobs.apple.com/"
+                        />
+                    </div>
+
+
+
+                    <div className="modal-buttons">
+                        <button type="button" className="cancel-button" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="add-card-button">Save</button>
+                    </div>
                 </form>
-                <button onClick={onClose}>Close</button>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 };
 

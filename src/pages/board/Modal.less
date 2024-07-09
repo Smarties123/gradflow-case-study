@@ -25,12 +25,16 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     /* Shadow for 3D effect */
     min-width: 25%;
-    /* Maximum width of the modal */
+
     z-index: 1001;
     /* Ensures content is above the overlay */
     position: relative;
-    border: 3px solid white;
+    border: 2px solid white;
     /* For positioning close button and other internal items */
+}
+
+.input-wrapper {
+    margin-bottom: 7px;
 }
 
 .close-button {
@@ -77,6 +81,68 @@
     color: black;
 }
 
+/* Button positioning */
+.modal-content .modal-buttons {
+    position: relative;
+    bottom: 0px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-content .modal-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal-content .modal-buttons .add-card-button {
+    background-color: rgb(255, 98, 0);
+    color: #fff;
+}
+
+.modal-content .modal-buttons .cancel-button {
+    background-color: #ccc;
+    color: #333;
+}
+
+// Text on Border
+.input-wrapper {
+    position: relative;
+
+}
+
+input {
+    border: 1.3px solid gray;
+    // border-radius: 6px;
+    // // position: relative;
+    width: 100%;
+
+    // // margin: 10px;
+    // line-height: 6ex;
+}
+
+.bordered-label {
+    position: absolute;
+    top: -1ex;
+    z-index: 1;
+    left: 1em;
+    background-color: white;
+    // padding: 0 5px;
+    padding: 5px 10px;
+    display: inline-block;
+    // margin-bottom: 5px;
+    color: #999;
+    font-weight: bolder;
+}
+
+
+
+
+
+
+
 
 /* Dark mode adjustments */
 .rs-theme-dark .modal-content input[type="text"],
@@ -99,4 +165,15 @@
 .rs-theme-dark .modal-content input::placeholder {
     color: white;
     /* Placeholder text color */
+}
+
+
+.rs-theme-dark .modal-content input:focus {
+    color: black;
+    /* Text color when input is focused */
+}
+
+.rs-theme-dark label {
+    color: white;
+    background-color: #333;
 }
