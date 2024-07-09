@@ -10,6 +10,8 @@
     /* Space between each column */
     align-items: flex-start;
     /* Align columns at the start of their container */
+    // height: max-content;
+    // overflow-x: auto;
 }
 
 /* Styles for each column container that holds the title, button, and cards */
@@ -22,20 +24,23 @@
     /* Rounded corners for the column */
     width: 240px;
     /* Fixed width for each column */
+    // flex-shrink: 0;
     flex-grow: 1;
     /* Allows columns to grow as needed */
     display: flex;
     flex-direction: column;
     /* Stack items vertically within each column */
-    overflow: hidden;
-    /* Ensures no overflow of content outside the column */
+    // height: 100%;
+    // overflow-x: auto;
+    white-space: nowrap;
 }
+
 
 /* Styles specifically for the droppable area within each column */
 .droppable-area {
     padding: 10px;
 
-    min-height: 100px;
+    // min-height: 100px;
     /* Minimum height to ensure droppable area is visible */
     background-color: transparent;
     transition: padding 0.2s ease;
@@ -45,9 +50,10 @@
 
 /* Styling for the title of each column */
 .column-container h2 {
-    padding: 10px;
+    padding: 10px 10px 5px 10px;
     /* Padding around the title for spacing */
     margin: 0;
+    font-size: 30px;
     /* Remove default margin */
     // background-color: #eee;
     /* Slightly gray background for the title area */
