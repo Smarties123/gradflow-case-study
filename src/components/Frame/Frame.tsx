@@ -52,7 +52,7 @@ export interface NavItemData {
 const Frame = () => {
   const [expand, setExpand] = useState(true);
   const [windowHeight, setWindowHeight] = useState(getHeight(window));
-  const [theme, setTheme] = useState<'light' | 'dark' | 'high-contrast'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark' | 'high-contrast'>('dark');
 
   useEffect(() => {
     setWindowHeight(getHeight(window));

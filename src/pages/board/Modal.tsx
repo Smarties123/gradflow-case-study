@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Modal.less';
 
-const Modal = ({ isOpen, onClose, column, addCardToColumn }) => {
+const Modal = ({ isOpen, onClose, column, addCardToColumn, theme }) => {
     if (!isOpen) return null;
 
     // Add Job Form: Company,Position, Deadline, Location, URL
@@ -21,8 +21,8 @@ const Modal = ({ isOpen, onClose, column, addCardToColumn }) => {
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <h2>Add Job: {column.title}</h2>
+            <div className={`modal-content ${theme === 'dark' ? 'rs-theme-dark' : ''}`} onClick={e => e.stopPropagation()}>
+                <h2>Add Job</h2>
                 <form onSubmit={e => {
                     e.preventDefault();
                     handleSubmit(e);

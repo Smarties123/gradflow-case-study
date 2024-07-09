@@ -7,7 +7,6 @@ import {
   Stack,
   Badge,
   Avatar,
-  IconButton,
   List,
   Button,
   ButtonToolbar,
@@ -15,7 +14,9 @@ import {
 import { Icon } from '@rsuite/icons';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
 import { MdOutlineNightlight, MdOutlineLightMode } from 'react-icons/md';
+// --------------------------------------------------------------------------------------------------------------------------------
 
+import ToggleColorMode from '../LandingPage/ToggleColorMode'; // Import the ToggleColorMode component
 
 // --------------------------------------------------------------Added These Icons ------------------------------------------------
 import { FaRegShareSquare } from "react-icons/fa";
@@ -136,15 +137,7 @@ const Header = (props: HeaderProps) => {
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 
         {/* DARKMODE */}
-        <IconButton
-          icon={
-            <Icon
-              as={theme === 'light' ? MdOutlineNightlight : MdOutlineLightMode}
-              style={{ fontSize: 20 }}
-            />
-          }
-          onClick={() => onChangeTheme(theme === 'dark' ? 'light' : 'dark')}
-        />
+        <ToggleColorMode mode={theme === 'light' ? 'light' : 'dark'} toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')} />
 
         {/* USER PROFILE */}
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>

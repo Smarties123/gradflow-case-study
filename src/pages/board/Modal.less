@@ -24,12 +24,12 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     /* Shadow for 3D effect */
-    width: auto;
-    max-width: 500px;
+    min-width: 25%;
     /* Maximum width of the modal */
     z-index: 1001;
     /* Ensures content is above the overlay */
     position: relative;
+    border: 3px solid white;
     /* For positioning close button and other internal items */
 }
 
@@ -66,4 +66,37 @@
 
 .modal-content button:hover {
     background-color: #0056b3;
+}
+
+.modal-content h2 {
+    text-align: center;
+    // color: black;
+}
+
+.modal-content input:focus {
+    color: black;
+}
+
+
+/* Dark mode adjustments */
+.rs-theme-dark .modal-content input[type="text"],
+.rs-theme-dark .modal-content input[type="date"] {
+    color: #fff;
+    /* Text color in dark mode */
+    background-color: #333;
+    /* Background color in dark mode */
+    border-color: #555;
+    /* Border color in dark mode */
+}
+
+.rs-theme-dark .modal-content {
+    background: #333;
+    color: white;
+}
+
+
+
+.rs-theme-dark .modal-content input::placeholder {
+    color: white;
+    /* Placeholder text color */
 }
