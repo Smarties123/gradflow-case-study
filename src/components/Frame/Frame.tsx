@@ -55,11 +55,19 @@ const Frame = () => {
   const [theme, setTheme] = useState<'light' | 'dark' | 'high-contrast'>('dark');
 
   useEffect(() => {
+    const updateExpand = () => {
+      setExpand(window.innerWidth > 768); // Collapse sidebar if window width <= 768px
+    };
+
     setWindowHeight(getHeight(window));
-    const resizeListenner = on(window, 'resize', () => setWindowHeight(getHeight(window)));
+    updateExpand(); // Check initial window width
+    const resizeListener = on(window, 'resize', () => {
+      setWindowHeight(getHeight(window));
+      updateExpand(); // Update expand state on window resize
+    });
 
     return () => {
-      resizeListenner.off();
+      resizeListener.off();
     };
   }, []);
 
@@ -75,7 +83,7 @@ const Frame = () => {
     <CustomProvider theme={theme} locale={enGB}>
       <Container className="frame">
         <Sidebar
-          style={{ display: 'flex', flexDirection: 'column' }}
+          style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
           width={expand ? 260 : 56}
           collapsible
         >
@@ -134,7 +142,7 @@ const Frame = () => {
           <NavToggle expand={expand} onChange={() => setExpand(!expand)} />
         </Sidebar>
 
-        <Container className={containerClasses}>
+        <Container className={containerClasses} style={{ flex: 1, overflow: 'hidden' }}>
           <Header theme={theme} onChangeTheme={setTheme} />
           <Content>
             <Outlet />

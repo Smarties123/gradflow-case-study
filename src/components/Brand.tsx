@@ -6,7 +6,7 @@ import { Stack } from 'rsuite';
 const Brand = ({ showText, ...props }) => {
   return (
     <Stack className="brand" {...props}>
-      <Logo height={26} style={{ marginTop: 6 }} />
+      <Logo height={32} style={{ marginTop: 0 }} />
       {showText && (
         <Link to="/">
           <span style={{ marginLeft: 14 }}>GradFlow</span>

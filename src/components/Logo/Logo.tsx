@@ -23,7 +23,7 @@ export default function Logo({ width, height, style, className = '' }: LogoProps
         preserveAspectRatio="xMidYMin slice"
       >
         {/* ---------------------------------------- ADD GRADFLOW HERE. MAKE SURE ITS IN SVG FORMAT --------------------------------- */}
-        <image href="https://upload.wikimedia.org/wikipedia/commons/2/21/Solid_black.svg" x="0" y="0" width="120" height="138" />
+        <image href="https://upload.wikimedia.org/wikipedia/commons/6/6d/Solid_pink.svg" x="0" y="0" width="120" height="138" />
         {/* ---------------------------------------- --------------------------------------------------- */}
 
       </svg>

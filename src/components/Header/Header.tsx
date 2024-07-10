@@ -11,9 +11,7 @@ import {
   Button,
   ButtonToolbar,
 } from 'rsuite';
-import { Icon } from '@rsuite/icons';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
-import { MdOutlineNightlight, MdOutlineLightMode } from 'react-icons/md';
 // --------------------------------------------------------------------------------------------------------------------------------
 
 import ToggleColorMode from '../LandingPage/ToggleColorMode'; // Import the ToggleColorMode component
