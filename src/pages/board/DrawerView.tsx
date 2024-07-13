@@ -30,9 +30,9 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
         <Drawer open={show} onClose={onClose} size="sm">
             <Drawer.Header>
                 <Drawer.Title>Edit Card</Drawer.Title>
-                <FlexboxGrid justify="space-between">
+                <FlexboxGrid justify="space-between" className="drawer-links">
                     <FlexboxGrid.Item>
-                        <div className="drawer-links">
+                        <div>
                             <a>Details</a>
                             <Divider vertical />
                             <a>Notes</a>
@@ -52,7 +52,7 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                         <Row gutter={20}>
                             <Col xs={12}>
                                 <Form.Group controlId="company" className="form-group">
-                                    <Form.ControlLabel>Company</Form.ControlLabel>
+                                    <Form.ControlLabel className="formControlLabel">Company</Form.ControlLabel>
                                     <Form.Control
                                         name="company"
                                         defaultValue={formData.company}
@@ -65,7 +65,7 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
 
                             <Col xs={12}>
                                 <Form.Group controlId="position" className="form-group">
-                                    <Form.ControlLabel>Position</Form.ControlLabel>
+                                    <Form.ControlLabel className="formControlLabel">Position</Form.ControlLabel>
                                     <Form.Control
                                         name="position"
                                         defaultValue={formData.position}
@@ -74,11 +74,11 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                                     />
                                 </Form.Group>
                             </Col>
-                        </Row>
+                        </Row >
                         <Row gutter={20}>
                             <Col xs={24}>
                                 <Form.Group controlId="notes" className="form-group">
-                                    <Form.ControlLabel>Notes</Form.ControlLabel>
+                                    <Form.ControlLabel className="formControlLabel">Notes</Form.ControlLabel>
                                     <Form.Control
                                         name="notes"
                                         rows={5}
@@ -92,7 +92,7 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                         <Row gutter={20}>
                             <Col xs={24}>
                                 <Form.Group controlId="interviewStage" className="form-group">
-                                    <Form.ControlLabel>Interview Stage</Form.ControlLabel>
+                                    <Form.ControlLabel className="formControlLabel">Interview Stage</Form.ControlLabel>
                                     <Form.Control
                                         name="interviewStage"
                                         defaultValue={formData.interview_stage}
@@ -104,7 +104,7 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                         <Row gutter={20}>
                             <Col xs={12}>
                                 <Form.Group controlId="deadline" className="form-group">
-                                    <Form.ControlLabel>Deadline</Form.ControlLabel>
+                                    <Form.ControlLabel className="formControlLabel">Deadline</Form.ControlLabel>
                                     <DatePicker
                                         oneTap
                                         format="MM-dd-yyyy"
@@ -117,7 +117,7 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
 
                             <Col xs={12}>
                                 <Form.Group controlId="salary" className="form-group">
-                                    <Form.ControlLabel>Salary(£)</Form.ControlLabel>
+                                    <Form.ControlLabel className="formControlLabel">Salary(£)</Form.ControlLabel>
                                     <Form.Control
                                         name="salary"
                                         defaultValue={formData.salary}
@@ -129,7 +129,7 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                         <Row gutter={20}>
                             <Col xs={24}>
                                 <Form.Group controlId="location" className="form-group">
-                                    <Form.ControlLabel>Location</Form.ControlLabel>
+                                    <Form.ControlLabel className="formControlLabel">Location</Form.ControlLabel>
                                     <Form.Control
                                         name="location"
                                         defaultValue={formData.location}
@@ -138,8 +138,8 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                                 </Form.Group>
                             </Col>
                         </Row>
-                    </Grid>
-                </Form>
+                    </Grid >
+                </Form >
 
 
 
@@ -157,9 +157,9 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                         </Col>
                     </Row>
                 </Grid>
-            </Drawer.Body>
+            </Drawer.Body >
 
-        </Drawer>
+        </Drawer >
     );
 };
 
