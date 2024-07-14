@@ -1,5 +1,5 @@
 {
-  "name": "rsuite-project-template",
+  "name": "Gradflow",
   "version": "1.0.0",
   "description": "RSUITE Management System",
   "main": "lib/index.js",

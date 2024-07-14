@@ -49,8 +49,8 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
             <Drawer.Body>
                 <Form fluid>
                     <Grid fluid>
-                        <Row gutter={20}>
-                            <Col xs={12}>
+                        <Row gutter={10}>
+                            <Col xs={24} sm={12}>
                                 <Form.Group controlId="company" className="form-group">
                                     <Form.ControlLabel className="formControlLabel">Company</Form.ControlLabel>
                                     <Form.Control
@@ -58,12 +58,12 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                                         defaultValue={formData.company}
                                         onChange={(value) => handleChange(value, 'company')}
                                         disabled
+                                        className="full-width"
                                     />
-
                                 </Form.Group>
                             </Col>
 
-                            <Col xs={12}>
+                            <Col xs={24} sm={12}>
                                 <Form.Group controlId="position" className="form-group">
                                     <Form.ControlLabel className="formControlLabel">Position</Form.ControlLabel>
                                     <Form.Control
@@ -71,11 +71,12 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                                         defaultValue={formData.position}
                                         onChange={(value) => handleChange(value, 'position')}
                                         disabled
+                                        className="full-width"
                                     />
                                 </Form.Group>
                             </Col>
-                        </Row >
-                        <Row gutter={20}>
+                        </Row>
+                        <Row gutter={10}>
                             <Col xs={24}>
                                 <Form.Group controlId="notes" className="form-group">
                                     <Form.ControlLabel className="formControlLabel">Notes</Form.ControlLabel>
@@ -85,11 +86,12 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                                         accepter={Textarea}
                                         defaultValue={formData.notes}
                                         onChange={(value) => handleChange(value, 'notes')}
+                                        className="full-width"
                                     />
                                 </Form.Group>
                             </Col>
                         </Row>
-                        <Row gutter={20}>
+                        <Row gutter={10}>
                             <Col xs={24}>
                                 <Form.Group controlId="interviewStage" className="form-group">
                                     <Form.ControlLabel className="formControlLabel">Interview Stage</Form.ControlLabel>
@@ -97,12 +99,13 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                                         name="interviewStage"
                                         defaultValue={formData.interview_stage}
                                         onChange={(value) => handleChange(value, 'interviewStage')}
+                                        className="full-width"
                                     />
                                 </Form.Group>
                             </Col>
                         </Row>
-                        <Row gutter={20}>
-                            <Col xs={12}>
+                        <Row gutter={10}>
+                            <Col xs={24} sm={12}>
                                 <Form.Group controlId="deadline" className="form-group">
                                     <Form.ControlLabel className="formControlLabel">Deadline</Form.ControlLabel>
                                     <DatePicker
@@ -115,18 +118,19 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                                 </Form.Group>
                             </Col>
 
-                            <Col xs={12}>
+                            <Col xs={24} sm={12}>
                                 <Form.Group controlId="salary" className="form-group">
                                     <Form.ControlLabel className="formControlLabel">Salary(£)</Form.ControlLabel>
                                     <Form.Control
                                         name="salary"
                                         defaultValue={formData.salary}
                                         onChange={(value) => handleChange(value, 'salary')}
+                                        className="full-width"
                                     />
                                 </Form.Group>
                             </Col>
                         </Row>
-                        <Row gutter={20}>
+                        <Row gutter={10}>
                             <Col xs={24}>
                                 <Form.Group controlId="location" className="form-group">
                                     <Form.ControlLabel className="formControlLabel">Location</Form.ControlLabel>
@@ -134,30 +138,30 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                                         name="location"
                                         defaultValue={formData.location}
                                         onChange={(value) => handleChange(value, 'location')}
+                                        className="full-width"
                                     />
                                 </Form.Group>
                             </Col>
                         </Row>
-                    </Grid >
-                </Form >
-
-
+                    </Grid>
+                </Form>
 
                 <Grid fluid>
-                    <Row>
-                        <Col xs={12}>
+                    <Row gutter={10} className="drawer-buttons">
+                        <Col xs={24} sm={12}>
                             <Button onClick={handleSubmit} appearance="primary" block>
                                 Update
                             </Button>
                         </Col>
-                        <Col xs={12}>
+                        <Col xs={24} sm={12}>
                             <Button onClick={onClose} appearance="subtle" block>
                                 Close
                             </Button>
                         </Col>
                     </Row>
                 </Grid>
-            </Drawer.Body >
+            </Drawer.Body>
+
 
         </Drawer >
     );
