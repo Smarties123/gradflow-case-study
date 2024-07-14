@@ -1,8 +1,10 @@
 .header {
   padding: 20px 30px 0 30px;
+
   .search-input {
     border: none;
     width: 400px;
+
     input {
       background: #f7f7fa;
     }
@@ -20,5 +22,30 @@
       border: 1px solid var(--rs-border-primary);
       background: var(--rs-input-bg);
     }
+  }
+}
+
+
+@media (max-width: 768px) {
+  .header {
+    // width: 100px;
+    padding: 20px 15px 0 15px;
+    // background-color: pink;
+    /* Adjust button width for smaller devices */
+  }
+
+  .header-button {
+    max-width: 15vw;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .visually-hidden {
+    display: none;
+    font-size: 0px;
+  }
+
+  .header-icon {
+    font-size: 20px !important;
   }
 }

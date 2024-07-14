@@ -120,19 +120,21 @@ const Header = (props: HeaderProps) => {
       <Stack direction="row" spacing={4} alignItems="center">
         <div style={{ display: 'flex', justifyContent: "space-between", width: "100%", alignItems: "center" }}>
           <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
-            <Button style={{ backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
-              <FaPlus style={{ fontSize: 18, color: 'white', margin: '1px 7px 1px 1px' }} />
-              Add New
+            <Button className="header-button" style={{ backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
+              <FaPlus className="header-icon" style={{ fontSize: 18, color: 'white', margin: '1px 7px 1px 1px' }} />
+              <span className="visually-hidden">Add New</span> {/* Visually hidden text */}
+
             </Button>
-            <Button style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
-              <FaRegShareSquare style={{ fontSize: 18, margin: '1px 7px 1px 1px' }} />
-              Share
+            <Button className="header-button" style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
+              <FaRegShareSquare className="header-icon" style={{ fontSize: 18, margin: '1px 7px 1px 1px' }} />
+              <span className="visually-hidden">Share</span> {/* Visually hidden text */}
+
             </Button>
           </ButtonToolbar>
         </div>
       </Stack>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 
         {/* DARKMODE */}
         <ToggleColorMode mode={theme === 'light' ? 'light' : 'dark'} toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')} />
