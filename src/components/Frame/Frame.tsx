@@ -84,7 +84,7 @@ const Frame = () => {
       <Container className="frame">
         <Sidebar
           style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
-          width={expand ? 260 : 56}
+          width={expand ? 220 : 56}
           collapsible
         >
           <Sidenav.Header>
