@@ -10,6 +10,8 @@ import {
   List,
   Button,
   ButtonToolbar,
+  Input,
+  InputGroup
 } from 'rsuite';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
 // --------------------------------------------------------------------------------------------------------------------------------
@@ -19,6 +21,9 @@ import ToggleColorMode from '../LandingPage/ToggleColorMode'; // Import the Togg
 // --------------------------------------------------------------Added These Icons ------------------------------------------------
 import { FaRegShareSquare } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
+import { FaSearch } from "react-icons/fa";
+
+
 // --------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -93,18 +98,19 @@ const Header = (props: HeaderProps) => {
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
 
-      {/* --------------------------------------------- MAYBE CAN BE USED IN FUTURE DEVELOPMENT --------------------------- */}
-      {/* <InputGroup inside size="lg" className="search-input">
-        <InputGroup.Button>
-          <SearchIcon />
-        </InputGroup.Button>
-        <Input placeholder="Search " />
-      </InputGroup> */}
-      {/* ----------------------------------------------------------------------------------------------------------------- */}
 
 
-      <Stack direction="row" spacing={4} alignItems="center">
-        <div style={{ display: 'flex', justifyContent: 'end', width: "100%", alignItems: "center" }}>
+      <Stack direction="column" spacing={4} alignItems="flex-start">
+        {/* --------------------------------------------- MAYBE CAN BE USED IN FUTURE DEVELOPMENT --------------------------- */}
+        <InputGroup inside size="lg" className="search-input">
+          <InputGroup.Button>
+            <FaSearch />
+          </InputGroup.Button>
+          <Input placeholder="Search " />
+        </InputGroup>
+        {/* ----------------------------------------------------------------------------------------------------------------- */}
+
+        <div style={{ display: 'flex', justifyContent: 'end', width: "100%", alignItems: "left" }}>
           <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
             <Button className="header-button" style={{ backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
               <FaPlus className="header-icon" style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }} />
