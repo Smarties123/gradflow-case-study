@@ -67,13 +67,13 @@ const FeedbackButton: React.FC = () => {
                     </Box>
                     <Box sx={{ my: 2 }}>
                         <Typography variant="h6">Join Our Discord</Typography>
-                        <Link href="https://discord.gg/YOUR_DISCORD_INVITE" target="_blank" rel="noopener">
+                        <Link href="https://discord.gg/A46Ap24X" target="_blank" rel="noopener">
                             <Button variant="contained" color="primary">Join Discord</Button>
                         </Link>
                     </Box>
                     <Box sx={{ my: 2 }}>
                         <Typography variant="h6">Request Changes & Upvote</Typography>
-                        <Link href="https://discord.gg/YOUR_DISCORD_INVITE" target="_blank" rel="noopener">
+                        <Link href="https://discord.com/channels/1252709313311674419/1262048107907125279" target="_blank" rel="noopener">
                             <Button variant="contained" color="secondary">Request & Upvote</Button>
                         </Link>
                     </Box>
