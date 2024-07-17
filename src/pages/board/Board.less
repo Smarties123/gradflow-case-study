@@ -1,18 +1,22 @@
 /* Board styles to arrange columns horizontally */
 .board {
     display: flex;
+    // background-color: pink;
     flex-direction: row;
     /* Align columns horizontally */
-    justify-content: space-around;
+    justify-content: flex-start;
     /* Distribute space evenly around columns */
-    padding: 20px;
+    padding: 20px 20px 20px 0px;
     gap: 20px;
     /* Space between each column */
     align-items: flex-start;
     /* Align columns at the start of their container */
-    // height: max-content;
-    // overflow-x: auto;
+    height: auto;
+    overflow-x: auto;
+    // background-color: pink;
+    // width: 100%;
 }
+
 
 /* Styles for each column container that holds the title, button, and cards */
 .column-container {
@@ -22,16 +26,21 @@
     /* Border for the column */
     border-radius: 5px;
     /* Rounded corners for the column */
-    width: 240px;
-    /* Fixed width for each column */
+    min-width: 310px;
+    /* Minimum width for each column */
+    // max-width: 340px;
+    /* Maximum width for each column */
+    flex-shrink: 0;
+    /* Prevent columns from shrinking */
     // flex-shrink: 0;
-    flex-grow: 1;
+    flex-grow: 0;
     /* Allows columns to grow as needed */
     display: flex;
     flex-direction: column;
     /* Stack items vertically within each column */
-    // height: 100%;
-    // overflow-x: auto;
+    height: 100%;
+    // width: 20.5%;
+    overflow-y: auto;
     white-space: nowrap;
 }
 
@@ -77,4 +86,55 @@
     /* Rounded corners for the button */
     cursor: pointer;
     /* Cursor indicates button */
+}
+
+
+@media (max-width: 498px) {
+    // .board {
+    //     flex-direction: column;
+    //     /* Stack columns vertically on smaller screens */
+    //     height: auto;
+    //     padding: 0px;
+    //     // border: pink 1px solid;
+    //     overflow-y: hidden;
+    //     // background-color: pink;
+
+
+    // }
+
+    .board {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 0;
+    }
+
+    .column-container {
+        min-width: 190px;
+        /* Ensure columns do not shrink below this width */
+    }
+
+    .column-container {
+        // background: #fff;
+        /* Background color for the column */
+        border: 1px solid #ccc;
+        /* Border for the column */
+        border-radius: 5px;
+        /* Rounded corners for the column */
+        /* Minimum width for each column */
+        // max-width: 340px;
+        /* Maximum width for each column */
+        flex-shrink: 0;
+        /* Prevent columns from shrinking */
+        // flex-shrink: 0;
+        flex-grow: 0;
+        /* Allows columns to grow as needed */
+        display: flex;
+        flex-direction: column;
+        /* Stack items vertically within each column */
+        height: 100%;
+        // width: 20.5%;
+        overflow-y: auto;
+        white-space: nowrap;
+    }
+
 }
