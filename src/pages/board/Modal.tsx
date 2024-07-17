@@ -58,7 +58,7 @@ const Modal = ({ isOpen, onClose, column, addCardToColumn, theme }) => {
                             value={deadline}
                             onChange={e => setDeadline(e.target.value)}
                             className="border-input"
-                            placeholder=" "
+                            placeholder="dd-MM-yyyy"
                         />
                     </div>
                     <div className="input-wrapper">
