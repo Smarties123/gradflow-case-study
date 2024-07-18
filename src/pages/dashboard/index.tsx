@@ -2,12 +2,12 @@ import React from 'react';
 import { Panel } from 'rsuite';
 import Dashboard from './Dashboard';
 import Copyright from '@/components/Copyright';
-import PageToolbar from '@/components/PageToolbar';
+import Frame from '@/components/Frame';
 
 const Page = () => {
   return (
     <Panel header={<h3 className="title">Dashboard</h3>}>
-      <PageToolbar />
+      <Frame />
       <Dashboard />
       <Copyright />
     </Panel>
