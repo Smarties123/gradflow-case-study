@@ -96,7 +96,7 @@ const Frame = () => {
               <Nav>
                 <NavItem
                   title="Panel"
-                  to="panel"
+                  to="/main"
                   eventKey="panel"
                   icon={<Icon as={HiOutlineViewBoards} />}
                 />
@@ -117,7 +117,7 @@ const Frame = () => {
 
                 <NavItem
                   title="Dashboard"
-                  to="dashboard"
+                  to="/main/dashboard"
                   eventKey="dashboard"
                   icon={<Icon as={MdDashboard} />}
                 />
