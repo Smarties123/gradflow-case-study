@@ -10,10 +10,10 @@ import {
   List,
   Button,
   ButtonToolbar,
+  Input,
+  InputGroup
 } from 'rsuite';
-import { Icon } from '@rsuite/icons';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
-import { MdOutlineNightlight, MdOutlineLightMode } from 'react-icons/md';
 // --------------------------------------------------------------------------------------------------------------------------------
 
 import ToggleColorMode from '../LandingPage/ToggleColorMode'; // Import the ToggleColorMode component
@@ -21,6 +21,9 @@ import ToggleColorMode from '../LandingPage/ToggleColorMode'; // Import the Togg
 // --------------------------------------------------------------Added These Icons ------------------------------------------------
 import { FaRegShareSquare } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
+import { FaSearch } from "react-icons/fa";
+
+
 // --------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -57,21 +60,7 @@ const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
 };
 
 const renderNoticeSpeaker = ({ onClose, left, top, className }: any, ref) => {
-  const notifications = [
-    [
-      '7 hours ago',
-      'The charts of the dashboard have been fully upgraded and are more visually pleasing.'
-    ],
-    [
-      '13 hours ago',
-      'The function of virtualizing large lists has been added, and the style of the list can be customized as required.'
-    ],
-    ['2 days ago', 'Upgraded React 18 and Webpack 5.'],
-    [
-      '3 days ago',
-      'Upgraded React Suite 5 to support TypeScript, which is more concise and efficient.'
-    ]
-  ];
+
 
   return (
     <Popover ref={ref} className={className} style={{ left, top, width: 300 }} title="Last updates">
@@ -109,32 +98,35 @@ const Header = (props: HeaderProps) => {
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
 
-      {/* --------------------------------------------- MAYBE CAN BE USED IN FUTURE DEVELOPMENT --------------------------- */}
-      {/* <InputGroup inside size="lg" className="search-input">
-        <InputGroup.Button>
-          <SearchIcon />
-        </InputGroup.Button>
-        <Input placeholder="Search " />
-      </InputGroup> */}
-      {/* ----------------------------------------------------------------------------------------------------------------- */}
 
 
-      <Stack direction="row" spacing={4} alignItems="center">
-        <div style={{ display: 'flex', justifyContent: "space-between", width: "100%", alignItems: "center" }}>
+      <Stack direction="column" spacing={4} alignItems="flex-start">
+        {/* --------------------------------------------- MAYBE CAN BE USED IN FUTURE DEVELOPMENT --------------------------- */}
+        <InputGroup inside size="lg" className="search-input">
+          <InputGroup.Button>
+            <FaSearch />
+          </InputGroup.Button>
+          <Input placeholder="Search " />
+        </InputGroup>
+        {/* ----------------------------------------------------------------------------------------------------------------- */}
+
+        <div style={{ display: 'flex', justifyContent: 'end', width: "100%", alignItems: "left" }}>
           <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
-            <Button style={{ backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
-              <FaPlus style={{ fontSize: 18, color: 'white', margin: '1px 7px 1px 1px' }} />
-              Add New
+            <Button className="header-button" style={{ backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
+              <FaPlus className="header-icon" style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }} />
+              <span className="visually-hidden">Add New</span> {/* Visually hidden text */}
+
             </Button>
-            <Button style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
-              <FaRegShareSquare style={{ fontSize: 18, margin: '1px 7px 1px 1px' }} />
-              Share
+            <Button className="header-button" style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
+              <FaRegShareSquare className="header-icon" style={{ fontSize: 18, margin: '1px 1px 1px 1px' }} />
+              <span className="visually-hidden">Share</span> {/* Visually hidden text */}
+
             </Button>
           </ButtonToolbar>
         </div>
       </Stack>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 
         {/* DARKMODE */}
         <ToggleColorMode mode={theme === 'light' ? 'light' : 'dark'} toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')} />
