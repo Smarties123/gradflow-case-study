@@ -13,7 +13,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ToggleColorMode from './ToggleColorMode';
 
 import logo from './Assets/logo1A.png';
-
 const logoStyle = {
   width: '140px',
   height: 'auto',

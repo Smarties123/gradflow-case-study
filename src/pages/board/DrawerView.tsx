@@ -1,96 +1,166 @@
-import React from 'react';
-import {
-  Drawer,
-  DrawerProps,
-  Form,
-  Stack,
-  TagPicker,
-  ButtonGroup,
-  Avatar,
-  DateRangePicker,
-  Uploader,
-  TagGroup,
-  Tag,
-  IconButton
-} from 'rsuite';
+import React, { useState } from 'react';
+import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Button, Grid, Row, Col } from 'rsuite';
+const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea" ref={ref} />);
+import './DrawerView.less';
 
-import Textarea from '@/components/Textarea';
-import CameraRetroIcon from '@rsuite/icons/legacy/CameraRetro';
-import { VscSave, VscTrash, VscCopy, VscEllipsis } from 'react-icons/vsc';
 
-import { mockUsers } from '@/data/mock';
-import { Icon } from '@rsuite/icons';
+const DrawerView = ({ show, onClose, card, updateCard }) => {
+    // State to manage form inputs
+    const [formData, setFormData] = useState({
+        company: card.company,
+        position: card.position,
+        notes: card.notes,
+        interview_stage: card.interview_stage,
+        salary: card.salary,
+        location: card.location,
+        deadline: card.deadline  // Assuming you have a 'deadline' field in your card data
+    });
 
-const userList = mockUsers(10).map(item => {
-  return { label: item.name, value: item.id, ...item };
-});
+    const handleChange = (value, name) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
-const DrawerView = (props: DrawerProps) => {
-  const { onClose, ...rest } = props;
-  return (
-    <Drawer backdrop="static" size="sm" placement="right" onClose={onClose} {...rest}>
-      <Drawer.Header>
-        <Drawer.Title>Edit Card</Drawer.Title>
-        <Drawer.Actions>
-          <ButtonGroup>
-            <IconButton onClick={onClose} icon={<Icon as={VscSave} />} />
-            <IconButton icon={<Icon as={VscCopy} />} />
-            <IconButton icon={<Icon as={VscTrash} />} />
-            <IconButton icon={<Icon as={VscEllipsis} />} />
-          </ButtonGroup>
-        </Drawer.Actions>
-      </Drawer.Header>
+    // Function to handle form submission
+    const handleSubmit = () => {
+        updateCard(card.id, formData);  // Assuming updateCard is defined to handle the state update
+        onClose();  // Close the drawer after update
+    };
 
-      <Drawer.Body>
-        <Form fluid>
-          <Form.Group>
-            <Form.ControlLabel>Assignee</Form.ControlLabel>
-            <Form.Control
-              name="assignee"
-              accepter={TagPicker}
-              data={userList}
-              block
-              renderMenuItem={(label, item) => {
-                return (
-                  <Stack spacing={2}>
-                    <Avatar src={item.avatar} size="xs" /> {label}
-                  </Stack>
-                );
-              }}
-            />
-          </Form.Group>
+    return (
+        <Drawer open={show} onClose={onClose} size="sm">
+            <Drawer.Header>
+                <Drawer.Title>Edit Card</Drawer.Title>
+                <FlexboxGrid justify="space-between">
+                    <FlexboxGrid.Item>
+                        <div className="drawer-links">
+                            <a>Details</a>
+                            <Divider vertical />
+                            <a>Notes</a>
+                            <Divider vertical />
+                            <a>Tasks</a>
+                            <Divider vertical />
+                            <a>Contacts</a>
+                            <Divider vertical />
+                            <a>Documents</a>
+                        </div>
+                    </FlexboxGrid.Item>
+                </FlexboxGrid>
+            </Drawer.Header>
+            <Drawer.Body>
+                <Form fluid>
+                    <Grid fluid>
+                        <Row gutter={20}>
+                            <Col xs={12}>
+                                <Form.Group controlId="company" className="form-group">
+                                    <Form.ControlLabel>Company</Form.ControlLabel>
+                                    <Form.Control
+                                        name="company"
+                                        defaultValue={formData.company}
+                                        onChange={(value) => handleChange(value, 'company')}
+                                        disabled
+                                    />
 
-          <Form.Group>
-            <Form.ControlLabel>Due date</Form.ControlLabel>
-            <Form.Control name="dueDate" accepter={DateRangePicker} />
-          </Form.Group>
+                                </Form.Group>
+                            </Col>
 
-          <Form.Group>
-            <Form.ControlLabel>Prioritize</Form.ControlLabel>
-            <TagGroup>
-              <Tag color="blue">Low</Tag>
-              <Tag color="orange">Medium</Tag>
-              <Tag color="red">High</Tag>
-            </TagGroup>
-          </Form.Group>
+                            <Col xs={12}>
+                                <Form.Group controlId="position" className="form-group">
+                                    <Form.ControlLabel>Position</Form.ControlLabel>
+                                    <Form.Control
+                                        name="position"
+                                        defaultValue={formData.position}
+                                        onChange={(value) => handleChange(value, 'position')}
+                                        disabled
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row gutter={20}>
+                            <Col xs={24}>
+                                <Form.Group controlId="notes" className="form-group">
+                                    <Form.ControlLabel>Notes</Form.ControlLabel>
+                                    <Form.Control
+                                        name="notes"
+                                        rows={5}
+                                        accepter={Textarea}
+                                        defaultValue={formData.notes}
+                                        onChange={(value) => handleChange(value, 'notes')}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row gutter={20}>
+                            <Col xs={24}>
+                                <Form.Group controlId="interviewStage" className="form-group">
+                                    <Form.ControlLabel>Interview Stage</Form.ControlLabel>
+                                    <Form.Control
+                                        name="interviewStage"
+                                        defaultValue={formData.interview_stage}
+                                        onChange={(value) => handleChange(value, 'interviewStage')}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row gutter={20}>
+                            <Col xs={12}>
+                                <Form.Group controlId="deadline" className="form-group">
+                                    <Form.ControlLabel>Deadline</Form.ControlLabel>
+                                    <DatePicker
+                                        oneTap
+                                        format="MM-dd-yyyy"
+                                        className="full-width"
+                                        value={formData.deadline ? new Date(formData.deadline) : undefined}
+                                        onChange={(value) => handleChange(value, 'deadline')}
+                                    />
+                                </Form.Group>
+                            </Col>
 
-          <Form.Group>
-            <Form.ControlLabel>Description</Form.ControlLabel>
-            <Form.Control name="description" accepter={Textarea} />
-          </Form.Group>
+                            <Col xs={12}>
+                                <Form.Group controlId="salary" className="form-group">
+                                    <Form.ControlLabel>Salary(£)</Form.ControlLabel>
+                                    <Form.Control
+                                        name="salary"
+                                        defaultValue={formData.salary}
+                                        onChange={(value) => handleChange(value, 'salary')}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row gutter={20}>
+                            <Col xs={24}>
+                                <Form.Group controlId="location" className="form-group">
+                                    <Form.ControlLabel>Location</Form.ControlLabel>
+                                    <Form.Control
+                                        name="location"
+                                        defaultValue={formData.location}
+                                        onChange={(value) => handleChange(value, 'location')}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                    </Grid>
+                </Form>
 
-          <Form.Group>
-            <Form.ControlLabel>Attachments</Form.ControlLabel>
-            <Uploader multiple listType="picture" action="//jsonplaceholder.typicode.com/posts/">
-              <button>
-                <CameraRetroIcon />
-              </button>
-            </Uploader>
-          </Form.Group>
-        </Form>
-      </Drawer.Body>
-    </Drawer>
-  );
+
+
+                <Grid fluid>
+                    <Row>
+                        <Col xs={12}>
+                            <Button onClick={handleSubmit} appearance="primary" block>
+                                Update
+                            </Button>
+                        </Col>
+                        <Col xs={12}>
+                            <Button onClick={onClose} appearance="subtle" block>
+                                Close
+                            </Button>
+                        </Col>
+                    </Row>
+                </Grid>
+            </Drawer.Body>
+
+        </Drawer>
+    );
 };
 
 export default DrawerView;

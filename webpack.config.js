@@ -20,7 +20,7 @@ module.exports = {
     allowedHosts: 'all',
   },
   output: {
-    path: path.resolve(__dirname, 'assets'),
+    path: path.resolve(__dirname, 'build'),
     filename: 'bundle.js',
     publicPath: '/'
   },
