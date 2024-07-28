@@ -6,42 +6,46 @@
     /* Align columns horizontally */
     justify-content: flex-start;
     /* Distribute space evenly around columns */
-    padding: 20px 20px 20px 0px;
+    padding: 0px 20px 0px 0px;
     gap: 20px;
     /* Space between each column */
     align-items: flex-start;
     /* Align columns at the start of their container */
     height: auto;
-    overflow-x: auto;
     // background-color: pink;
-    // width: 100%;
+    max-width: 100vw;
+    overflow-x: auto;
+
 }
 
 
 /* Styles for each column container that holds the title, button, and cards */
 .column-container {
-    // background: #fff;
-    /* Background color for the column */
     border: 1px solid #ccc;
-    /* Border for the column */
     border-radius: 5px;
-    /* Rounded corners for the column */
-    min-width: 310px;
-    /* Minimum width for each column */
-    // max-width: 340px;
-    /* Maximum width for each column */
-    flex-shrink: 0;
-    /* Prevent columns from shrinking */
-    // flex-shrink: 0;
-    flex-grow: 0;
-    /* Allows columns to grow as needed */
+
+    // width: 100vw;
+    flex: 1;
+
+    /* Initial size of columns */
+    flex-grow: 1;
+    /* Allow columns to grow if there's extra space */
+    flex-shrink: 1;
+    /* Allow columns to shrink, but not below the min-width */
+    min-width: 320px;
+    /* Prevent columns from shrinking too much */
+
     display: flex;
     flex-direction: column;
-    /* Stack items vertically within each column */
     height: 100%;
-    // width: 20.5%;
-    overflow-y: auto;
+
     white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.input-group {
+    text-align: center;
+    padding-top: 10px;
 }
 
 
@@ -54,7 +58,6 @@
     background-color: transparent;
     transition: padding 0.2s ease;
     /* Smooth transition for padding changes */
-
 }
 
 /* Styling for the title of each column */
@@ -63,11 +66,31 @@
     /* Padding around the title for spacing */
     margin: 0;
     font-size: 30px;
-    /* Remove default margin */
-    // background-color: #eee;
-    /* Slightly gray background for the title area */
+
+
     text-align: center;
-    /* Center-align the title text */
+
+}
+
+
+.column-title-input {
+    // padding: 10px 10px 5px 10px;
+    align-items: center;
+    color: black;
+    height: 100%;
+    font-size: 30px;
+    // padding-top: 10px;
+}
+
+.column-header {
+    display: flex;
+    align-items: center;
+
+    justify-content: center;
+    /* Center the title */
+    position: relative;
+
+    /* Positioning context for absolute positioning of icon button */
 }
 
 /* Button styles within each column */
@@ -87,6 +110,22 @@
     cursor: pointer;
     /* Cursor indicates button */
 }
+
+.icon-button {
+    position: absolute;
+    /* Position the button absolutely within the header */
+    right: 10px;
+    /* Adjust as needed for spacing */
+    top: 50%;
+    margin: 0px !important;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 20px;
+    color: #555;
+}
+
 
 
 @media (max-width: 498px) {

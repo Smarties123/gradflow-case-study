@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Column as ColumnType, Card } from './types';
 import Modal from './Modal';
 import CardComponent from './CardComponent';
 import './Board.less';
 import DrawerView from './DrawerView';
+import { FaCog } from 'react-icons/fa';
+import { CiEdit } from "react-icons/ci";
+
+
+
 
 
 const initialColumns: ColumnType[] = [
@@ -20,6 +25,41 @@ const Board = () => {
   const [activeColumn, setActiveColumn] = useState<ColumnType | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+
+  const [editingColumnId, setEditingColumnId] = useState<number | null>(null);
+  const [newTitle, setNewTitle] = useState<string>('');
+
+  const handleIconClick = (columnId: number, title: string) => {
+
+    setEditingColumnId(columnId);
+    setNewTitle(title);
+
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewTitle(e.target.value);
+  };
+
+  const handleTitleBlur = () => {
+    if (editingColumnId !== null) {
+      setColumns(prev =>
+        prev.map(col =>
+          col.id === editingColumnId ? { ...col, title: newTitle } : col
+        )
+      );
+      setEditingColumnId(null);
+    }
+  };
+
+  const handleTitleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleTitleBlur();
+    }
+  };
+
+  const ref = useRef(null);
+
+
 
 
 
@@ -102,7 +142,47 @@ const Board = () => {
       <div className="board">
         {columns.map(column => (
           <div key={column.id} className="column-container">
-            <h2>{column.title}</h2>
+            <div style={{ maxWidth: '100%' }} className={`column-header ${editingColumnId === column.id ? 'editing' : ''}`}>
+
+              {editingColumnId === column.id ? (
+
+                <div className='column-title-input'>
+                  <input
+                    ref={ref}
+                    type="text"
+                    value={newTitle}
+                    onChange={handleTitleChange}
+                    onBlur={handleTitleBlur}
+                    onKeyPress={handleTitleKeyPress}
+                    autoFocus
+                    maxLength={10}
+                    className='input-group'
+
+                    style={{ fontSize: 'inherit' }}
+                  />
+                </div>
+
+              ) : (
+                <div className="column-title">
+                  <h2>{column.title}</h2>
+                </div>
+              )}
+              {/* <button
+                className="icon-button"
+                onClick={() => handleIconClick(column.id, column.title)}
+              >
+                <CiEdit />
+              </button> */}
+              {editingColumnId !== column.id && (
+                <button
+                  className="icon-button"
+                  onClick={() => handleIconClick(column.id, column.title)}
+                >
+                  <CiEdit />
+                </button>
+              )}
+
+            </div>
             <button onClick={() => handleAddButtonClick(column)}>Add New</button>
             <Droppable droppableId={String(column.id)}>
               {(provided) => (
