@@ -24,6 +24,7 @@
     border: 1px solid #ccc;
     border-radius: 5px;
 
+
     // width: 100vw;
     flex: 1;
 
@@ -64,12 +65,13 @@
 .column-container h2 {
     padding: 10px 10px 5px 10px;
     /* Padding around the title for spacing */
-    margin: 0;
     font-size: 30px;
-
-
     text-align: center;
+}
 
+.column-title {
+    text-align: center;
+    float: right;
 }
 
 
@@ -80,17 +82,6 @@
     height: 100%;
     font-size: 30px;
     // padding-top: 10px;
-}
-
-.column-header {
-    display: flex;
-    align-items: center;
-
-    justify-content: center;
-    /* Center the title */
-    position: relative;
-
-    /* Positioning context for absolute positioning of icon button */
 }
 
 /* Button styles within each column */
@@ -114,10 +105,11 @@
 .icon-button {
     position: absolute;
     /* Position the button absolutely within the header */
-    right: 10px;
+    right: 0px;
     /* Adjust as needed for spacing */
     top: 50%;
-    margin: 0px !important;
+    margin-top: 5px !important;
+    // margin: 0px !important;
     transform: translateY(-50%);
     border: none;
     background: none;
@@ -126,7 +118,43 @@
     color: #555;
 }
 
+//  Counter Styling 
+.column-header-title {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
 
+.column-counter {
+
+    // padding-right: 20px;
+    /* Adjust spacing as needed */
+    font-weight: bold;
+    /* Additional styles for the counter, e.g., color, size */
+    font-size: 20px;
+}
+
+.column-header {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0px 20px 0px 20px;
+    // padding: 10px;
+    //     /* Adjust padding if needed */
+}
+
+.column-header-content {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    /* Allow content to take up remaining space */
+    justify-content: center;
+    /* Center the content (title or input) */
+    position: relative;
+}
 
 @media (max-width: 498px) {
     // .board {

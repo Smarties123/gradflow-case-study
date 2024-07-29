@@ -143,36 +143,44 @@ const Board = () => {
         {columns.map(column => (
           <div key={column.id} className="column-container">
             <div style={{ maxWidth: '100%' }} className={`column-header ${editingColumnId === column.id ? 'editing' : ''}`}>
-
-              {editingColumnId === column.id ? (
-
-                <div className='column-title-input'>
-                  <input
-                    ref={ref}
-                    type="text"
-                    value={newTitle}
-                    onChange={handleTitleChange}
-                    onBlur={handleTitleBlur}
-                    onKeyPress={handleTitleKeyPress}
-                    autoFocus
-                    maxLength={10}
-                    className='input-group'
-
-                    style={{ fontSize: 'inherit' }}
-                  />
-                </div>
-
-              ) : (
-                <div className="column-title">
-                  <h2>{column.title}</h2>
-                </div>
+              {editingColumnId !== column.id && (
+                <p className="column-counter">{column.cards.length}</p>
               )}
-              {/* <button
+
+              <div className="column-header-content">
+
+
+                {editingColumnId === column.id ? (
+
+                  <div className='column-title-input'>
+                    <input
+                      ref={ref}
+                      type="text"
+                      value={newTitle}
+                      onChange={handleTitleChange}
+                      onBlur={handleTitleBlur}
+                      onKeyPress={handleTitleKeyPress}
+                      autoFocus
+                      maxLength={10}
+                      className='input-group'
+
+                      style={{ fontSize: 'inherit' }}
+                    />
+                  </div>
+
+                ) : (
+                  <div className="column-title">
+                    <h2>{column.title}</h2>
+                  </div>
+                )}
+                {/* <button
                 className="icon-button"
                 onClick={() => handleIconClick(column.id, column.title)}
               >
                 <CiEdit />
               </button> */}
+
+              </div>
               {editingColumnId !== column.id && (
                 <button
                   className="icon-button"
