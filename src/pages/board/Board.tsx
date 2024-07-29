@@ -42,6 +42,12 @@ const Board = () => {
 
   const handleTitleBlur = () => {
     if (editingColumnId !== null) {
+      if (newTitle.trim() === '') {
+        // If the new title is empty or just whitespace, do not update
+        setEditingColumnId(null);
+        return;
+      }
+
       setColumns(prev =>
         prev.map(col =>
           col.id === editingColumnId ? { ...col, title: newTitle } : col
