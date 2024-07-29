@@ -4,7 +4,7 @@ const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea
 import './DrawerView.less';
 
 
-const DrawerView = ({ show, onClose, card, updateCard }) => {
+const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
     // State to manage form inputs
     const [formData, setFormData] = useState({
         company: card.company,
@@ -92,7 +92,18 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                             </Col>
                         </Row>
                         <Row gutter={10}>
-                            <Col xs={24}>
+                            <Col xs={24} sm={12}>
+                                <Form.Group controlId="columnName" className="form-group">
+                                    <Form.ControlLabel className="formControlLabel">Status</Form.ControlLabel>
+                                    <Form.Control
+                                        name="columnName"
+                                        value={columnName}
+                                        disabled
+                                        className="full-width"
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col xs={24} sm={12}>
                                 <Form.Group controlId="interviewStage" className="form-group">
                                     <Form.ControlLabel className="formControlLabel">Interview Stage</Form.ControlLabel>
                                     <Form.Control
@@ -103,6 +114,7 @@ const DrawerView = ({ show, onClose, card, updateCard }) => {
                                     />
                                 </Form.Group>
                             </Col>
+
                         </Row>
                         <Row gutter={10}>
                             <Col xs={24} sm={12}>

@@ -116,7 +116,9 @@ const Board = () => {
   };
 
   const handleCardSelect = (card) => {
-    setSelectedCard(card);
+    const column = columns.find(col => col.cards.some(c => c.id === card.id));
+    const columnName = column ? column.title : 'Unknown Column';  // Fallback if not found
+    setSelectedCard({ ...card, columnName });
     setIsDrawerOpen(true);
   };
 
@@ -142,6 +144,7 @@ const Board = () => {
     });
     setColumns(updatedColumns);
   };
+
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -225,6 +228,7 @@ const Board = () => {
             onClose={() => setIsDrawerOpen(false)}
             card={selectedCard}
             updateCard={updateCard}
+            columnName={selectedCard.columnName}
           />
         )}
       </div>
