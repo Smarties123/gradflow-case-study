@@ -13,6 +13,7 @@ const CardComponent = ({ card, onSelect }) => {
     const handleAddClick = () => {
         console.log("Card Clicked", card);
         // alert(`Company: ${card.company}\nPosition: ${card.position}`);
+
     };
 
 

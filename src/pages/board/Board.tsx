@@ -107,7 +107,7 @@ const Board = () => {
         });
 
         // Print columns when a card has been moved to a different column
-        console.log('Columns after moving card:', updatedColumns);
+        // console.log('Columns after moving card:', updatedColumns);
 
         return updatedColumns;
       });
@@ -118,6 +118,7 @@ const Board = () => {
   const handleCardSelect = (card) => {
     const column = columns.find(col => col.cards.some(c => c.id === card.id));
     const columnName = column ? column.title : 'Unknown Column';  // Fallback if not found
+
     setSelectedCard({ ...card, columnName });
     setIsDrawerOpen(true);
   };
