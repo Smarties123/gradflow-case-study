@@ -13,7 +13,8 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
         interview_stage: card.interview_stage,
         salary: card.salary,
         location: card.location,
-        deadline: card.deadline  // Assuming you have a 'deadline' field in your card data
+        deadline: card.deadline,
+        url: card.url
     });
 
     const handleChange = (value, name) => {
@@ -150,6 +151,19 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                         name="location"
                                         defaultValue={formData.location}
                                         onChange={(value) => handleChange(value, 'location')}
+                                        className="full-width"
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <Row gutter={10}>
+                            <Col xs={24}>
+                                <Form.Group controlId="url" className="form-group">
+                                    <Form.ControlLabel className="formControlLabel">Edit URL</Form.ControlLabel>
+                                    <Form.Control
+                                        name="url"
+                                        defaultValue={formData.url}
+                                        onChange={(value) => handleChange(value, 'url')}
                                         className="full-width"
                                     />
                                 </Form.Group>
