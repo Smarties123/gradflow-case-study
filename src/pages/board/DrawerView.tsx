@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Button, Grid, Row, Col } from 'rsuite';
 const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea" ref={ref} />);
+import Github from '@uiw/react-color-github';
 import './DrawerView.less';
+import { GitHub } from '@mui/icons-material';
 
 
 const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
@@ -27,7 +29,8 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
         notes: card.notes,
         salary: card.salary,
         interview_stage: card.interview_stage,
-        date_applied: card.date_applied[0]
+        date_applied: card.date_applied[0],
+        card_color: card.card_color
     });
 
 
@@ -46,6 +49,10 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
 
     const handleChange = (value, name) => {
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleColorChange = card_color => {
+        setFormData(prev => ({ ...prev, card_color: card_color.hex }));
     };
 
     // Function to handle form submission
@@ -203,8 +210,20 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                     <Form.Control
                                         name="url"
                                         defaultValue={formData.url}
-                                        onChange={(value) => handleChange(value, 'url')}
+                                        onChange={value => handleChange(value, 'url')}
                                         className="full-width"
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+
+                        <Row gutter={10}>
+                            <Col xs={24}>
+                                <Form.Group controlId="card_color" className="form-group">
+                                    <Form.ControlLabel className="formControlLabel">Card Color</Form.ControlLabel>
+                                    <Github
+                                        color={formData.card_color}
+                                        onChange={color => handleColorChange(color)}
                                     />
                                 </Form.Group>
                             </Col>

@@ -17,13 +17,14 @@ const Modal = ({ isOpen, onClose, column, addCardToColumn, theme }) => {
         const year = today.getFullYear();
         return `${day}-${month}-${year}`;
     });
+    const card_color = '#ff6200';
 
 
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (company && position) {
-            addCardToColumn(column.id, { company, position, deadline, location, url, date_applied });
+            addCardToColumn(column.id, { company, position, deadline, location, url, date_applied, card_color });
             onClose();
         }
     };
@@ -70,7 +71,7 @@ const Modal = ({ isOpen, onClose, column, addCardToColumn, theme }) => {
                             placeholder="dd-MM-yyyy"
                         />
                     </div>
-                    {/* <div className="input-wrapper">
+                    <div className="input-wrapper">
                         <label className="bordered-label">Location</label>
 
                         <input
@@ -90,7 +91,7 @@ const Modal = ({ isOpen, onClose, column, addCardToColumn, theme }) => {
                             className="border-input"
                             placeholder="https://jobs.apple.com/"
                         />
-                    </div> */}
+                    </div>
 
 
 
