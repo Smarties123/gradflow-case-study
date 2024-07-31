@@ -203,11 +203,12 @@ const Board = () => {
             </div>
             <button onClick={() => handleAddButtonClick(column)}>Add New</button>
             <Droppable droppableId={String(column.id)}>
-              {(provided) => (
+              {provided => (
                 <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
+
                   {column.cards.map((card, index) => (
                     <Draggable key={card.id} draggableId={String(card.id)} index={index}>
-                      {(provided) => (
+                      {provided => (
                         <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                           <CardComponent card={card} onSelect={handleCardSelect} />
                         </div>

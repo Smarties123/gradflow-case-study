@@ -11,10 +11,13 @@
     /* Space between each column */
     align-items: flex-start;
     /* Align columns at the start of their container */
-    height: auto;
+    // height: auto;
     // background-color: pink;
     max-width: 100vw;
     overflow-x: auto;
+    // height: auto;
+    overflow-y: auto;
+    // margin-bottom: 100px;
 
 }
 
@@ -23,7 +26,7 @@
 .column-container {
     border: 1px solid #ccc;
     border-radius: 5px;
-
+    height: 80vh;
 
     // width: 100vw;
     flex: 1;
@@ -38,10 +41,12 @@
 
     display: flex;
     flex-direction: column;
-    height: 100%;
+    // min-height: 0;
 
     white-space: nowrap;
     box-sizing: border-box;
+    overflow-y: auto;
+
 }
 
 .input-group {
@@ -53,13 +58,15 @@
 
 /* Styles specifically for the droppable area within each column */
 .droppable-area {
-    padding: 10px;
+    flex-grow: 1;
+    // height: 70vh;
 
-    // min-height: 100px;
-    /* Minimum height to ensure droppable area is visible */
-    background-color: transparent;
-    transition: padding 0.2s ease;
-    /* Smooth transition for padding changes */
+    /* Adjust this value based on your layout */
+    overflow-y: auto;
+    padding: 10px;
+    // border: 1px solid #ccc;
+    /* Optional: for visual clarity */
+    // background-color: #fff;
 }
 
 /* Styling for the title of each column */
@@ -128,7 +135,6 @@
 }
 
 .column-counter {
-
     // padding-right: 20px;
     /* Adjust spacing as needed */
     font-weight: bold;
