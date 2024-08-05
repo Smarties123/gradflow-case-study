@@ -16,7 +16,8 @@
     max-width: 100vw;
     overflow-x: auto;
     // height: auto;
-    overflow-y: auto;
+    // overflow-y: auto;
+    height: 100vh;
     // margin-bottom: 100px;
 
 }
@@ -26,13 +27,11 @@
 .column-container {
     border: 1px solid #ccc;
     border-radius: 5px;
-    height: 80vh;
-
-    // width: 100vw;
+    height: 82vh; // width: 100vw;
     flex: 1;
 
     /* Initial size of columns */
-    flex-grow: 1;
+    // flex-grow: 1;
     /* Allow columns to grow if there's extra space */
     flex-shrink: 1;
     /* Allow columns to shrink, but not below the min-width */
@@ -212,4 +211,35 @@
         white-space: nowrap;
     }
 
+}
+
+
+
+/* Adjustments for smaller screens */
+@media (max-height: 800px) {
+    .column-container {
+        height: 78vh;
+        /* Adjust height for small screens */
+    }
+}
+
+@media (max-height: 700px) {
+    .column-container {
+        height: 76vh;
+        /* Adjust height for small screens */
+    }
+}
+
+@media (max-height: 600px) {
+    .column-container {
+        height: 72vh;
+        /* Adjust height for small screens */
+    }
+}
+
+@media (max-height: 500px) {
+    .column-container {
+        height: 50vh;
+        /* Further adjust height for very small screens */
+    }
 }
