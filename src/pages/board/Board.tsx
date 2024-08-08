@@ -10,8 +10,6 @@ import { CiEdit } from "react-icons/ci";
 
 
 
-
-
 const initialColumns: ColumnType[] = [
   { id: 1, title: 'Applied', cards: [] },
   { id: 2, title: 'Assessment', cards: [] },

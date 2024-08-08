@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   Dropdown,
   Popover,
@@ -11,7 +11,9 @@ import {
   Button,
   ButtonToolbar,
   Input,
-  InputGroup
+  InputGroup,
+  Modal,
+  Tag
 } from 'rsuite';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
 // --------------------------------------------------------------------------------------------------------------------------------
@@ -23,8 +25,8 @@ import { FaRegShareSquare } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
 
-
 // --------------------------------------------------------------------------------------------------------------------------------
+import './Share.less';
 
 
 const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
@@ -92,8 +94,32 @@ interface HeaderProps {
 }
 
 const Header = (props: HeaderProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [invitedList, setInvitedList] = useState([]);
+
   const { theme, onChangeTheme } = props;
   const trigger = useRef<WhisperInstance>(null);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleShare = () => {
+    if (email) {
+      setInvitedList([...invitedList, email]);
+      setEmail("");
+    }
+  };
+
+  const removeInvite = emailToRemove => {
+    setInvitedList(invitedList.filter(item => item !== emailToRemove));
+  };
+
 
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
@@ -117,13 +143,61 @@ const Header = (props: HeaderProps) => {
               <span className="visually-hidden">Add New</span> {/* Visually hidden text */}
 
             </Button>
-            <Button className="header-button" style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
+            <Button
+              className="header-button"
+              style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}
+              onClick={handleOpenModal}
+            >
               <FaRegShareSquare className="header-icon" style={{ fontSize: 18, margin: '1px 1px 1px 1px' }} />
-              <span className="visually-hidden">Share</span> {/* Visually hidden text */}
-
+              <span className="visually-hidden">Share</span>
             </Button>
+
           </ButtonToolbar>
         </div>
+        {/* Share Modal */}
+
+        <Modal open={isModalOpen} onClose={handleCloseModal}>
+
+          <Modal.Body>
+            <div className="modal-container">
+              <p className="modal-description"><b>Share</b> your board<br />
+                with an advisor,<br /> friends or family</p>
+              <div className="input-group-container">
+                <InputGroup inside size="lg" className="share-input">
+                  <Input
+                    value={email}
+                    onChange={value => setEmail(value)}
+                    placeholder="Enter email address"
+                  />
+                </InputGroup>
+                <Button
+                  onClick={handleShare}
+                  className="share-button"
+                >
+                  Share
+                </Button>
+              </div>
+              <hr></hr>
+              <div className="invited-list">
+                {invitedList.map((invited, index) => (
+                  <Tag
+                    key={index}
+                    closable
+                    onClose={() => removeInvite(invited)}
+                  >
+                    {invited}
+                  </Tag>
+                ))}
+              </div>
+            </div>
+          </Modal.Body>
+
+          <Modal.Footer>
+            <Button onClick={handleCloseModal} appearance="subtle">
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Stack>
 
       <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -144,6 +218,8 @@ const Header = (props: HeaderProps) => {
         </Whisper>
 
       </div>
+
+
     </Stack >
   );
 };
