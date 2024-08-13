@@ -24,9 +24,8 @@ import ToggleColorMode from '../LandingPage/ToggleColorMode'; // Import the Togg
 import { FaRegShareSquare } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
-
 // --------------------------------------------------------------------------------------------------------------------------------
-import './Share.less';
+import ShareModal from '../Share/Share';
 
 
 const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
@@ -120,28 +119,21 @@ const Header = (props: HeaderProps) => {
     setInvitedList(invitedList.filter(item => item !== emailToRemove));
   };
 
-
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
-
-
-
       <Stack direction="column" spacing={4} alignItems="flex-start">
-        {/* --------------------------------------------- MAYBE CAN BE USED IN FUTURE DEVELOPMENT --------------------------- */}
         <InputGroup inside size="lg" className="search-input">
           <InputGroup.Button>
             <FaSearch />
           </InputGroup.Button>
           <Input placeholder="Search " />
         </InputGroup>
-        {/* ----------------------------------------------------------------------------------------------------------------- */}
 
         <div style={{ display: 'flex', justifyContent: 'end', width: "100%", alignItems: "left" }}>
           <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
             <Button className="header-button" style={{ backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
               <FaPlus className="header-icon" style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }} />
-              <span className="visually-hidden">Add New</span> {/* Visually hidden text */}
-
+              <span className="visually-hidden">Add New</span>
             </Button>
             <Button
               className="header-button"
@@ -151,77 +143,29 @@ const Header = (props: HeaderProps) => {
               <FaRegShareSquare className="header-icon" style={{ fontSize: 18, margin: '1px 1px 1px 1px' }} />
               <span className="visually-hidden">Share</span>
             </Button>
-
           </ButtonToolbar>
         </div>
-        {/* Share Modal */}
 
-        <Modal open={isModalOpen} onClose={handleCloseModal}>
-
-          <Modal.Body>
-            <div className="modal-container">
-              <p className="modal-description"><b>Share</b> your board<br />
-                with an advisor,<br /> friends or family</p>
-              <div className="input-group-container">
-                <InputGroup inside size="lg" className="share-input">
-                  <Input
-                    value={email}
-                    onChange={value => setEmail(value)}
-                    placeholder="Enter email address"
-                  />
-                </InputGroup>
-                <Button
-                  onClick={handleShare}
-                  className="share-button"
-                >
-                  Share
-                </Button>
-              </div>
-              <hr></hr>
-              <div className="invited-list">
-                {invitedList.map((invited, index) => (
-                  <Tag
-                    key={index}
-                    closable
-                    onClose={() => removeInvite(invited)}
-                  >
-                    {invited}
-                  </Tag>
-                ))}
-              </div>
-            </div>
-          </Modal.Body>
-
-          <Modal.Footer>
-            <Button onClick={handleCloseModal} appearance="subtle">
-              Close
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <ShareModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} /> {/* Use the ShareModal component */}
       </Stack>
 
       <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-
-        {/* DARKMODE */}
         <ToggleColorMode mode={theme === 'light' ? 'light' : 'dark'} toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')} />
-
-        {/* USER PROFILE */}
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>
           <Avatar
             size="sm"
             circle
-            // THIS WILL BE USER PROFILE WHEN THEY LOGIN. IT WILL BE AUTOMATICALLY FILLED
             src="https://avatars.githubusercontent.com/u/1203827"
             alt="@simonguo"
             style={{ marginLeft: 8 }}
           />
         </Whisper>
-
       </div>
-
-
     </Stack >
   );
 };
+
+
+
 
 export default Header;
