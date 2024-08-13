@@ -11,9 +11,7 @@ import {
   Button,
   ButtonToolbar,
   Input,
-  InputGroup,
-  Modal,
-  Tag
+  InputGroup
 } from 'rsuite';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
 // --------------------------------------------------------------------------------------------------------------------------------
@@ -26,6 +24,8 @@ import { FaPlus } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
 // --------------------------------------------------------------------------------------------------------------------------------
 import ShareModal from '../Share/Share';
+import Modal from '../../pages/board/Modal';
+import { initialColumns } from '../../data/initialColumns';
 
 
 const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
@@ -93,6 +93,12 @@ interface HeaderProps {
 }
 
 const Header = (props: HeaderProps) => {
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // Loading the columns from the initialColumns data
+  const [columns, setColumns] = useState(initialColumns);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [invitedList, setInvitedList] = useState([]);
@@ -107,6 +113,14 @@ const Header = (props: HeaderProps) => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
+  const handleOpenAddModal = () => {
+    setIsAddModalOpen(true);
+  }
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+  }
 
   const handleShare = () => {
     if (email) {
@@ -131,7 +145,12 @@ const Header = (props: HeaderProps) => {
 
         <div style={{ display: 'flex', justifyContent: 'end', width: "100%", alignItems: "left" }}>
           <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
-            <Button className="header-button" style={{ backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
+            <Button className="header-button"
+              style={{
+                backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px',
+              }}
+              onClick={handleOpenAddModal}
+            >
               <FaPlus className="header-icon" style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }} />
               <span className="visually-hidden">Add New</span>
             </Button>
@@ -145,7 +164,13 @@ const Header = (props: HeaderProps) => {
             </Button>
           </ButtonToolbar>
         </div>
-
+        <Modal
+          isOpen={isAddModalOpen}
+          onClose={handleCloseAddModal}
+          columns={columns}
+          addCardToColumn={null}
+          showDropdown={true}
+        />
         <ShareModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} /> {/* Use the ShareModal component */}
       </Stack>
 

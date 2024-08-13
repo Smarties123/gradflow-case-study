@@ -5,17 +5,9 @@ import Modal from './Modal';
 import CardComponent from './CardComponent';
 import './Board.less';
 import DrawerView from './DrawerView';
-import { FaCog } from 'react-icons/fa';
 import { CiEdit } from "react-icons/ci";
+import { initialColumns } from '../../data/initialColumns';
 
-
-
-const initialColumns: ColumnType[] = [
-  { id: 1, title: 'Applied', cards: [] },
-  { id: 2, title: 'Assessment', cards: [] },
-  { id: 3, title: 'Rejected', cards: [] },
-  { id: 4, title: 'Accepted', cards: [] }
-];
 
 const Board = () => {
   const [columns, setColumns] = useState(initialColumns);
@@ -220,7 +212,12 @@ const Board = () => {
           </div>
         ))}
         {isModalOpen && activeColumn && (
-          <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} column={activeColumn} addCardToColumn={addCardToColumn} />
+          <Modal isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            columns={columns}
+            activeColumn={activeColumn}
+            addCardToColumn={addCardToColumn}
+            showDropdown={true} />
         )}
         {isDrawerOpen && selectedCard && (
           <DrawerView

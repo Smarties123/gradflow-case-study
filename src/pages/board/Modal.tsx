@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import './Modal.less';
 
-const Modal = ({ isOpen, onClose, column, addCardToColumn, theme }) => {
+const Modal = ({ isOpen, onClose, activeColumn, addCardToColumn, columns, theme, showDropdown }) => {
     if (!isOpen) return null;
+
 
     // Add Job Form: Company,Position, Deadline, Location, URL
     const [company, setCompany] = useState('');
     const [position, setPosition] = useState('');
     const [deadline, setDeadline] = useState('');
     const [location, setLocation] = useState('');
+    const [selectedColumn, setSelectedColumn] = useState(activeColumn ? activeColumn.id : columns[0]?.id);
+
     const [url, setUrl] = useState('');
     const date_applied = useState(() => {
         const today = new Date();
@@ -24,10 +27,11 @@ const Modal = ({ isOpen, onClose, column, addCardToColumn, theme }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (company && position) {
-            addCardToColumn(column.id, { company, position, deadline, location, url, date_applied, card_color });
+            addCardToColumn(activeColumn.id, { company, position, deadline, location, url, date_applied, card_color });
             onClose();
         }
     };
+
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -39,7 +43,6 @@ const Modal = ({ isOpen, onClose, column, addCardToColumn, theme }) => {
                     // Handle form submission logic here
                     onClose(); // Close modal after form submission
                 }}>
-
                     <div className="input-wrapper">
                         <label className="bordered-label">Company</label>
 
@@ -92,6 +95,35 @@ const Modal = ({ isOpen, onClose, column, addCardToColumn, theme }) => {
                             placeholder="https://jobs.apple.com/"
                         />
                     </div>
+                    {showDropdown && (
+                        activeColumn ? (
+                            <div className="input-wrapper">
+                                <label className="bordered-label">Column</label>
+                                <input
+                                    type="text"
+                                    value={activeColumn.title}
+                                    disabled
+                                    className="border-input"
+                                />
+                            </div>
+                        ) : (
+                            <div className="input-wrapper">
+                                <label className="bordered-label">Column</label>
+                                <select
+                                    value={selectedColumn}
+                                    onChange={e => setSelectedColumn(parseInt(e.target.value))}
+                                    className="border-input dropdown-input"
+                                >
+                                    {columns.map(col => (
+                                        <option key={col.id} value={col.id}>
+                                            {col.title}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )
+                    )}
+
 
 
 
