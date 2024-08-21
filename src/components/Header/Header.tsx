@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import {
   Dropdown,
   Popover,
@@ -14,18 +14,14 @@ import {
   InputGroup
 } from 'rsuite';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
-// --------------------------------------------------------------------------------------------------------------------------------
-
 import ToggleColorMode from '../LandingPage/ToggleColorMode'; // Import the ToggleColorMode component
-
-// --------------------------------------------------------------Added These Icons ------------------------------------------------
 import { FaRegShareSquare } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
-// --------------------------------------------------------------------------------------------------------------------------------
 import ShareModal from '../Share/Share';
-import Modal from '../../pages/board/Modal';
-import { initialColumns } from '../../data/initialColumns';
+import Modal from '../Modal/Modal';
+import { BoardContext } from '../../pages/board/BoardContext';
+
 
 
 const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
@@ -86,18 +82,32 @@ const renderNoticeSpeaker = ({ onClose, left, top, className }: any, ref) => {
   );
 };
 
+
+
 type ThemeType = 'dark' | 'light' | 'high-contrast';
 interface HeaderProps {
   theme: ThemeType;
   onChangeTheme: (theme: ThemeType) => void;
+  // columns: any[];
+  addCardToColumn: (columns: any, setColumns: React.Dispatch<React.SetStateAction<any[]>>, columnId: number, card: any) => void;
 }
+
 
 const Header = (props: HeaderProps) => {
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const context = useContext(BoardContext);
 
-  // Loading the columns from the initialColumns data
-  const [columns, setColumns] = useState(initialColumns);
+  if (!context) {
+    console.error('BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.');
+  }
+
+  const { columns, setColumns, addCardToColumn, updateCard, onDragEnd } = context;
+
+  if (!columns) {
+    console.error('Columns are not defined in context.');
+  }
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -132,6 +142,7 @@ const Header = (props: HeaderProps) => {
   const removeInvite = emailToRemove => {
     setInvitedList(invitedList.filter(item => item !== emailToRemove));
   };
+
 
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
@@ -168,7 +179,7 @@ const Header = (props: HeaderProps) => {
           isOpen={isAddModalOpen}
           onClose={handleCloseAddModal}
           columns={columns}
-          addCardToColumn={null}
+          addCardToColumn={addCardToColumn}
           showDropdown={true}
         />
         <ShareModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} /> {/* Use the ShareModal component */}
