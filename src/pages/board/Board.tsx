@@ -6,6 +6,7 @@ import './Board.less';
 import DrawerView from '../../components/DrawerView/DrawerView';
 import { CiEdit } from "react-icons/ci";
 import { BoardContext } from './BoardContext';
+import FeedbackButton from '../../components/LandingPage/FeedbackButton';
 
 const Board = () => {
   const context = useContext(BoardContext);
@@ -73,88 +74,93 @@ const Board = () => {
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div className="board">
-        {columns.length === 0 ? (
-          <p>No columns available</p>
-        ) : (
-          columns.map(column => (
-            <div key={column.id} className="column-container">
-              <div style={{ maxWidth: '100%' }} className={`column-header ${editingColumnId === column.id ? 'editing' : ''}`}>
-                {editingColumnId !== column.id && (
-                  <p className="column-counter">{column.cards.length}</p>
-                )}
+    <div>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="board">
+          {columns.length === 0 ? (
+            <p>No columns available</p>
+          ) : (
+            columns.map(column => (
+              <div key={column.id} className="column-container">
+                <div style={{ maxWidth: '100%' }} className={`column-header ${editingColumnId === column.id ? 'editing' : ''}`}>
+                  {editingColumnId !== column.id && (
+                    <p className="column-counter">{column.cards.length}</p>
+                  )}
 
-                <div className="column-header-content">
-                  {editingColumnId === column.id ? (
-                    <div className='column-title-input'>
-                      <input
-                        ref={ref}
-                        type="text"
-                        value={newTitle}
-                        onChange={handleTitleChange}
-                        onBlur={handleTitleBlur}
-                        onKeyPress={handleTitleKeyPress}
-                        autoFocus
-                        maxLength={10}
-                        className='input-group'
-                        style={{ fontSize: 'inherit' }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="column-title">
-                      <h2>{column.title}</h2>
-                    </div>
+                  <div className="column-header-content">
+                    {editingColumnId === column.id ? (
+                      <div className='column-title-input'>
+                        <input
+                          ref={ref}
+                          type="text"
+                          value={newTitle}
+                          onChange={handleTitleChange}
+                          onBlur={handleTitleBlur}
+                          onKeyPress={handleTitleKeyPress}
+                          autoFocus
+                          maxLength={10}
+                          className='input-group'
+                          style={{ fontSize: 'inherit' }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="column-title">
+                        <h2>{column.title}</h2>
+                      </div>
+                    )}
+                  </div>
+                  {editingColumnId !== column.id && (
+                    <button
+                      className="icon-button"
+                      onClick={() => handleIconClick(column.id, column.title)}
+                    >
+                      <CiEdit />
+                    </button>
                   )}
                 </div>
-                {editingColumnId !== column.id && (
-                  <button
-                    className="icon-button"
-                    onClick={() => handleIconClick(column.id, column.title)}
-                  >
-                    <CiEdit />
-                  </button>
-                )}
+                <button onClick={() => handleAddButtonClick(column)}>Add New</button>
+                <Droppable droppableId={String(column.id)}>
+                  {provided => (
+                    <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
+                      {column.cards.map((card, index) => (
+                        <Draggable key={card.id} draggableId={String(card.id)} index={index}>
+                          {provided => (
+                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                              <CardComponent card={card} onSelect={handleCardSelect} />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
               </div>
-              <button onClick={() => handleAddButtonClick(column)}>Add New</button>
-              <Droppable droppableId={String(column.id)}>
-                {provided => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
-                    {column.cards.map((card, index) => (
-                      <Draggable key={card.id} draggableId={String(card.id)} index={index}>
-                        {provided => (
-                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                            <CardComponent card={card} onSelect={handleCardSelect} />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          ))
-        )}
-        {isModalOpen && activeColumn && (
-          <Modal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            columns={columns}
-            activeColumn={activeColumn}
-          />
-        )}
-        {isDrawerOpen && selectedCard && (
-          <DrawerView
-            show={isDrawerOpen}
-            onClose={() => setIsDrawerOpen(false)}
-            card={selectedCard}
-            updateCard={updateCard}
-            columnName={selectedCard.columnName}
-          />
-        )}
-      </div>
-    </DragDropContext>
+            ))
+          )}
+          {isModalOpen && activeColumn && (
+            <Modal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              columns={columns}
+              activeColumn={activeColumn}
+            />
+          )}
+          {isDrawerOpen && selectedCard && (
+            <DrawerView
+              show={isDrawerOpen}
+              onClose={() => setIsDrawerOpen(false)}
+              card={selectedCard}
+              updateCard={updateCard}
+              columnName={selectedCard.columnName}
+            />
+          )}
+        </div>
+      </DragDropContext>
+
+
+      <FeedbackButton />
+    </div>
   );
 };
 
