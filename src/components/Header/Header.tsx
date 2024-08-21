@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import {
   Dropdown,
   Popover,
@@ -14,17 +14,14 @@ import {
   InputGroup
 } from 'rsuite';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
-// --------------------------------------------------------------------------------------------------------------------------------
-
 import ToggleColorMode from '../LandingPage/ToggleColorMode'; // Import the ToggleColorMode component
-
-// --------------------------------------------------------------Added These Icons ------------------------------------------------
 import { FaRegShareSquare } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
+import ShareModal from '../Share/Share';
+import Modal from '../Modal/Modal';
+import { BoardContext } from '../../pages/board/BoardContext';
 
-
-// --------------------------------------------------------------------------------------------------------------------------------
 
 
 const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
@@ -85,67 +82,126 @@ const renderNoticeSpeaker = ({ onClose, left, top, className }: any, ref) => {
   );
 };
 
+
+
 type ThemeType = 'dark' | 'light' | 'high-contrast';
 interface HeaderProps {
   theme: ThemeType;
   onChangeTheme: (theme: ThemeType) => void;
+  // columns: any[];
+  addCardToColumn: (columns: any, setColumns: React.Dispatch<React.SetStateAction<any[]>>, columnId: number, card: any) => void;
 }
 
+
 const Header = (props: HeaderProps) => {
+
+  const context = useContext(BoardContext);
+
+  if (!context) {
+    console.error('BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.');
+  }
+
+  const { columns, setColumns, addCardToColumn, updateCard, onDragEnd } = context;
+
+  if (!columns) {
+    console.error('Columns are not defined in context.');
+  }
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [invitedList, setInvitedList] = useState([]);
+
   const { theme, onChangeTheme } = props;
   const trigger = useRef<WhisperInstance>(null);
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleOpenAddModal = () => {
+    setIsAddModalOpen(true);
+  }
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+  }
+
+  const handleShare = () => {
+    if (email) {
+      setInvitedList([...invitedList, email]);
+      setEmail("");
+    }
+  };
+
+  const removeInvite = emailToRemove => {
+    setInvitedList(invitedList.filter(item => item !== emailToRemove));
+  };
+
+
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
-
-
-
       <Stack direction="column" spacing={4} alignItems="flex-start">
-        {/* --------------------------------------------- MAYBE CAN BE USED IN FUTURE DEVELOPMENT --------------------------- */}
         <InputGroup inside size="lg" className="search-input">
           <InputGroup.Button>
             <FaSearch />
           </InputGroup.Button>
           <Input placeholder="Search " />
         </InputGroup>
-        {/* ----------------------------------------------------------------------------------------------------------------- */}
 
         <div style={{ display: 'flex', justifyContent: 'end', width: "100%", alignItems: "left" }}>
           <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
-            <Button className="header-button" style={{ backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
+            <Button className="header-button"
+              style={{
+                backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px',
+              }}
+              onClick={handleOpenAddModal}
+            >
               <FaPlus className="header-icon" style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }} />
-              <span className="visually-hidden">Add New</span> {/* Visually hidden text */}
-
+              <span className="visually-hidden">Add New</span>
             </Button>
-            <Button className="header-button" style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}>
+            <Button
+              className="header-button"
+              style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}
+              onClick={handleOpenModal}
+            >
               <FaRegShareSquare className="header-icon" style={{ fontSize: 18, margin: '1px 1px 1px 1px' }} />
-              <span className="visually-hidden">Share</span> {/* Visually hidden text */}
-
+              <span className="visually-hidden">Share</span>
             </Button>
           </ButtonToolbar>
         </div>
+        <Modal
+          isOpen={isAddModalOpen}
+          onClose={handleCloseAddModal}
+          columns={columns}
+          addCardToColumn={addCardToColumn}
+          showDropdown={true}
+        />
+        <ShareModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} /> {/* Use the ShareModal component */}
       </Stack>
 
       <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-
-        {/* DARKMODE */}
         <ToggleColorMode mode={theme === 'light' ? 'light' : 'dark'} toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')} />
-
-        {/* USER PROFILE */}
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>
           <Avatar
             size="sm"
             circle
-            // THIS WILL BE USER PROFILE WHEN THEY LOGIN. IT WILL BE AUTOMATICALLY FILLED
             src="https://avatars.githubusercontent.com/u/1203827"
             alt="@simonguo"
             style={{ marginLeft: 8 }}
           />
         </Whisper>
-
       </div>
     </Stack >
   );
 };
+
+
+
 
 export default Header;

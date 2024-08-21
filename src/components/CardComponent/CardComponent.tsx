@@ -13,11 +13,12 @@ const CardComponent = ({ card, onSelect }) => {
     const handleAddClick = () => {
         console.log("Card Clicked", card);
         // alert(`Company: ${card.company}\nPosition: ${card.position}`);
+
     };
 
 
     return (
-        <div className="card" onClick={handleAddClick}>
+        <div style={{ backgroundColor: card.card_color }} className="card" onClick={handleAddClick}>
             <div className="left-icons">
                 <SiFacebook className="logo" />
                 <MdShare className="share-icon" />
