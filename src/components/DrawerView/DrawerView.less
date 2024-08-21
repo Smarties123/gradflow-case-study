@@ -27,12 +27,33 @@
     font-weight: bold;
 }
 
-
-
 /* Ensure DatePicker has consistent width */
 .rs-picker-date input {
     width: 100%;
 }
+
+.drawer-links {
+    a {
+        cursor: pointer;
+        padding: 10px;
+        text-decoration: none;
+        color: #787777;
+        font-weight: bold;
+        transition: color 0.3s ease, background-color 0.3s ease;
+    }
+
+    a:hover {
+        color: #ff6200;
+        /* Change color on hover */
+    }
+
+    a.active {
+        color: #ff6200;
+        /* Color for the active link */
+    }
+}
+
+
 
 /* Responsive styles */
 @media (max-width: 600px) {

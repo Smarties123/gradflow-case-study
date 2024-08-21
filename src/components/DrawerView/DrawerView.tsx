@@ -3,10 +3,9 @@ import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Button, Grid, Ro
 const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea" ref={ref} />);
 import Github from '@uiw/react-color-github';
 import './DrawerView.less';
-import { GitHub } from '@mui/icons-material';
-
 
 const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
+    const [currentView, setCurrentView] = useState('details'); // State to track current view
 
     const parseDate = (dateStr) => {
         if (typeof dateStr === 'string' && dateStr) {
@@ -17,7 +16,6 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
         }
         return null;
     };
-
 
     // State to manage form inputs
     const [formData, setFormData] = useState({
@@ -33,7 +31,6 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
         card_color: card.card_color
     });
 
-
     useEffect(() => {
         if (card.deadline) {
             const parsedDeadline = parseDate(card.deadline);
@@ -45,7 +42,6 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
             }
         }
     }, [card.deadline]);
-
 
     const handleChange = (value, name) => {
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -59,15 +55,11 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
     const handleSubmit = () => {
         const updatedData = {
             ...formData,
-            // deadline: formData.deadline ? formatDate(parseDate(formData.deadline)) : '',
-            // date_applied: formData.date_applied ? formatDate(parseDate(formData.date_applied)) : '',
         };
         console.log(updatedData);
-        updateCard(card.id, updatedData);  // Assuming updateCard is defined to handle the state update
-        onClose();  // Close the drawer after update
+        updateCard(card.id, updatedData);
+        onClose();
     };
-
-
 
     return (
         <Drawer open={show} onClose={onClose} size="sm">
@@ -76,160 +68,176 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                 <FlexboxGrid justify="space-between" className="drawer-links">
                     <FlexboxGrid.Item>
                         <div>
-                            <a>Details</a>
+                            <a
+                                onClick={() => setCurrentView('details')}
+                                className={currentView === 'details' ? 'active' : ''}
+                            >
+                                Details
+                            </a>
                             <Divider vertical />
-                            <a>Notes</a>
-                            <Divider vertical />
-                            <a>Tasks</a>
-                            <Divider vertical />
-                            <a>Contacts</a>
-                            <Divider vertical />
-                            <a>Documents</a>
+                            <a
+                                onClick={() => setCurrentView('notes')}
+                                className={currentView === 'notes' ? 'active' : ''}
+                            >
+                                Notes
+                            </a>
                         </div>
                     </FlexboxGrid.Item>
                 </FlexboxGrid>
             </Drawer.Header>
             <Drawer.Body>
-                <Form fluid>
-                    <Grid fluid>
-                        <Row gutter={10}>
-                            <Col xs={24} sm={12}>
-                                <Form.Group controlId="company" className="form-group">
-                                    <Form.ControlLabel className="formControlLabel">Company</Form.ControlLabel>
-                                    <Form.Control
-                                        name="company"
-                                        defaultValue={formData.company}
-                                        onChange={value => handleChange(value, 'company')}
-                                        disabled
-                                        className="full-width"
-                                    />
-                                </Form.Group>
-                            </Col>
+                {currentView === 'details' && (
+                    <Form fluid>
+                        <Grid fluid>
+                            <Row gutter={10}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Group controlId="company" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Company</Form.ControlLabel>
+                                        <Form.Control
+                                            name="company"
+                                            defaultValue={formData.company}
+                                            onChange={value => handleChange(value, 'company')}
+                                            disabled
+                                            className="full-width"
+                                        />
+                                    </Form.Group>
+                                </Col>
 
-                            <Col xs={24} sm={12}>
-                                <Form.Group controlId="position" className="form-group">
-                                    <Form.ControlLabel className="formControlLabel">Position</Form.ControlLabel>
-                                    <Form.Control
-                                        name="position"
-                                        defaultValue={formData.position}
-                                        onChange={value => handleChange(value, 'position')}
-                                        disabled
-                                        className="full-width"
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Row gutter={10}>
-                            <Col xs={24}>
-                                <Form.Group controlId="notes" className="form-group">
-                                    <Form.ControlLabel className="formControlLabel">Notes</Form.ControlLabel>
-                                    <Form.Control
-                                        name="notes"
-                                        rows={5}
-                                        accepter={Textarea}
-                                        defaultValue={formData.notes}
-                                        onChange={value => handleChange(value, 'notes')}
-                                        className="full-width"
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Row gutter={10}>
-                            <Col xs={24} sm={12}>
-                                <Form.Group controlId="columnName" className="form-group">
-                                    <Form.ControlLabel className="formControlLabel">Status</Form.ControlLabel>
-                                    <Form.Control
-                                        name="columnName"
-                                        value={columnName}
-                                        disabled
-                                        className="full-width"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col xs={24} sm={12}>
-                                <Form.Group controlId="interview_stage" className="form-group">
-                                    <Form.ControlLabel className="formControlLabel">Interview Stage</Form.ControlLabel>
-                                    <Form.Control
-                                        name="interview_stage"
-                                        defaultValue={formData.interview_stage}
-                                        onChange={value => handleChange(value, 'interview_stage')}
-                                        className="full-width"
-                                    />
-                                </Form.Group>
-                            </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Group controlId="position" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Position</Form.ControlLabel>
+                                        <Form.Control
+                                            name="position"
+                                            defaultValue={formData.position}
+                                            onChange={value => handleChange(value, 'position')}
+                                            disabled
+                                            className="full-width"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row gutter={10}>
+                                <Col xs={24}>
+                                    <Form.Group controlId="notes" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Notes</Form.ControlLabel>
+                                        <Form.Control
+                                            name="notes"
+                                            rows={5}
+                                            accepter={Textarea}
+                                            defaultValue={formData.notes}
+                                            onChange={value => handleChange(value, 'notes')}
+                                            className="full-width"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row gutter={10}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Group controlId="columnName" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Status</Form.ControlLabel>
+                                        <Form.Control
+                                            name="columnName"
+                                            value={columnName}
+                                            disabled
+                                            className="full-width"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Group controlId="interview_stage" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Interview Stage</Form.ControlLabel>
+                                        <Form.Control
+                                            name="interview_stage"
+                                            defaultValue={formData.interview_stage}
+                                            onChange={value => handleChange(value, 'interview_stage')}
+                                            className="full-width"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row gutter={10}>
+                                <Col xs={24} sm={12}>
+                                    <Form.Group controlId="date_applied" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Date Applied</Form.ControlLabel>
+                                        <Form.Control
+                                            name="date_applied"
+                                            value={formData.date_applied}
+                                            disabled
+                                            className="full-width"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Group controlId="deadline" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Deadline</Form.ControlLabel>
+                                        <DatePicker
+                                            oneTap
+                                            format="dd-MM-yyyy"
+                                            className="full-width"
+                                            value={formData.deadline}
+                                            onChange={value => handleChange(value, 'deadline')}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row gutter={10}>
+                                <Col xs={24}>
+                                    <Form.Group controlId="location" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Location</Form.ControlLabel>
+                                        <Form.Control
+                                            name="location"
+                                            defaultValue={formData.location}
+                                            onChange={value => handleChange(value, 'location')}
+                                            className="full-width"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row gutter={10}>
+                                <Col xs={24}>
+                                    <Form.Group controlId="url" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Edit URL</Form.ControlLabel>
+                                        <Form.Control
+                                            name="url"
+                                            defaultValue={formData.url}
+                                            onChange={value => handleChange(value, 'url')}
+                                            className="full-width"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                            <Row gutter={10}>
+                                <Col xs={24}>
+                                    <Form.Group controlId="card_color" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Card Color</Form.ControlLabel>
+                                        <Github
+                                            color={formData.card_color}
+                                            onChange={color => handleColorChange(color)}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        </Grid>
+                    </Form>
+                )}
 
-                        </Row>
-                        <Row gutter={10}>
-
-                            <Col xs={24} sm={12}>
-                                <Form.Group controlId="date_applied" className="form-group">
-                                    <Form.ControlLabel className="formControlLabel">Date Applied</Form.ControlLabel>
-
-                                    <Form.Control
-                                        name="date_applied"
-                                        // format="dd-MM-yyyy"
-                                        value={formData.date_applied}
-                                        disabled
-                                        className="full-width"
-                                    />
-
-                                </Form.Group>
-
-                            </Col>
-
-                            <Col xs={24} sm={12}>
-                                <Form.Group controlId="deadline" className="form-group">
-                                    <Form.ControlLabel className="formControlLabel">Deadline</Form.ControlLabel>
-                                    <DatePicker
-                                        oneTap
-                                        format="dd-MM-yyyy"
-                                        className="full-width"
-                                        value={(formData.deadline)}
-                                        onChange={value => handleChange((value), 'deadline')}
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Row gutter={10}>
-                            <Col xs={24}>
-                                <Form.Group controlId="location" className="form-group">
-                                    <Form.ControlLabel className="formControlLabel">Location</Form.ControlLabel>
-                                    <Form.Control
-                                        name="location"
-                                        defaultValue={formData.location}
-                                        onChange={value => handleChange(value, 'location')}
-                                        className="full-width"
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Row gutter={10}>
-                            <Col xs={24}>
-                                <Form.Group controlId="url" className="form-group">
-                                    <Form.ControlLabel className="formControlLabel">Edit URL</Form.ControlLabel>
-                                    <Form.Control
-                                        name="url"
-                                        defaultValue={formData.url}
-                                        onChange={value => handleChange(value, 'url')}
-                                        className="full-width"
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-
-                        <Row gutter={10}>
-                            <Col xs={24}>
-                                <Form.Group controlId="card_color" className="form-group">
-                                    <Form.ControlLabel className="formControlLabel">Card Color</Form.ControlLabel>
-                                    <Github
-                                        color={formData.card_color}
-                                        onChange={color => handleColorChange(color)}
-                                    />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                    </Grid>
-                </Form>
+                {currentView === 'notes' && (
+                    <div className="notes-view">
+                        <Form fluid>
+                            <Form.Group controlId="notes" className="form-group">
+                                <Form.ControlLabel className="formControlLabel">Notes</Form.ControlLabel>
+                                <Form.Control
+                                    name="notes"
+                                    rows={5}
+                                    accepter={Textarea}
+                                    defaultValue={formData.notes}
+                                    onChange={value => handleChange(value, 'notes')}
+                                    className="full-width"
+                                />
+                            </Form.Group>
+                        </Form>
+                    </div>
+                )}
 
                 <Grid fluid>
                     <Row gutter={10} className="drawer-buttons">
@@ -246,9 +254,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                     </Row>
                 </Grid>
             </Drawer.Body>
-
-
-        </Drawer >
+        </Drawer>
     );
 };
 
