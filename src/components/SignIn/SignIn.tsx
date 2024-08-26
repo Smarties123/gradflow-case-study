@@ -27,36 +27,48 @@ function Copyright(props: any) {
   );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [error, setError] = React.useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
+    const userData = {
+      username: data.get('email'),
       password: data.get('password'),
-    });
+    };
+
+    try {
+      const response = await fetch('http://localhost:3001/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Login successful:', result);
+        window.location.href = '/main'; // Redirect to main page upon successful login
+      } else {
+        const errorMessage = await response.text();
+        setError(errorMessage);
+        console.error('Login failed:', errorMessage);
+      }
+    } catch (err) {
+      setError('An error occurred during login. Please try again later.');
+      console.error('Login error:', err);
+    }
   };
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Grid container component="main" sx={{ height: '100vh' , alignItems: 'center', justifyContent: 'center', }}>
+      <Grid container component="main" sx={{ height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
         <CssBaseline />
-
         <Grid
-          // item
-          // xs={false}
-          // sm={4}
-          // md={7}
-          // sx={{
-          //   backgroundImage: 'url(https://source.unsplash.com/random?wallpapers)',
-          //   backgroundRepeat: 'no-repeat',
-          //   backgroundColor: (t) =>
-          //     t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
-          //   backgroundSize: 'cover',
-          //   backgroundPosition: 'center',
           item
           xs={12}
           sm={8}
@@ -111,12 +123,16 @@ export default function SignInSide() {
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
               />
+              {error && (
+                <Typography color="error" variant="body2">
+                  {error}
+                </Typography>
+              )}
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                href="/main"
               >
                 Sign In
               </Button>

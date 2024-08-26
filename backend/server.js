@@ -56,32 +56,33 @@ app.post('/signup', async (req, res) => {
   });
   
 
-app.post('/login', async (req, res) => {
+  app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
-        return res.status(400).send('Username and password are required.');
+        return res.status(400).json({ message: 'Email and password are required.' });
     }
 
     try {
-        const query = 'SELECT * FROM "Users" WHERE "Username" = $1';
+        const query = 'SELECT * FROM "Users" WHERE "Email" = $1';
         const values = [username];
 
         const { rows } = await pool.query(query, values);
         if (rows.length === 0) {
-        return res.status(404).send('User not found.');
+            return res.status(404).json({ message: 'User not found.' });
         }
 
         const user = rows[0];
         const match = await bcrypt.compare(password, user.Password);
         if (match) {
-        res.status(200).send('Login successful!');
-        console.log('logged in');
+            res.status(200).json({ message: 'Login successful!' });
+            console.log('Logged in');
         } else {
-        res.status(401).send('Password is incorrect.');
+            res.status(401).json({ message: 'Password is incorrect.' });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).send('Server error.');
+        res.status(500).json({ message: 'Server error.' });
     }
 });
+
   
