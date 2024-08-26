@@ -146,7 +146,7 @@ const Header = (props: HeaderProps) => {
 
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
-      <Stack direction="column" spacing={4} alignItems="flex-start">
+      <Stack direction="row" spacing={4} alignItems="flex-start">
         <InputGroup inside size="lg" className="search-input">
           <InputGroup.Button>
             <FaSearch />
