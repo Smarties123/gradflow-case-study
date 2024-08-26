@@ -39,7 +39,7 @@ node_modules
 .DS_Store
 .idea
 scripts
-# build
+build
 lib
 dist
 assets
