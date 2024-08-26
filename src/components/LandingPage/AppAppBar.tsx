@@ -92,7 +92,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
               <img
                 src={logo}
                 style={logoStyle}
-                alt="logo of sitemark"
+                alt="logo of GradFlow"
               />
               <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                 <MenuItem
@@ -111,7 +111,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                     University
                   </Typography>
                 </MenuItem>
-                <MenuItem
+                {/* <MenuItem
                   onClick={() => scrollToSection('testimonials')}
                   sx={{ py: '6px', px: '12px' }}
                 >
@@ -142,7 +142,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   <Typography variant="body2" color="text.primary">
                     FAQ
                   </Typography>
-                </MenuItem>
+                </MenuItem> */}
               </Box>
             </Box>
             <Box
