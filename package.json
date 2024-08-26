@@ -2,6 +2,7 @@
   "name": "Gradflow",
   "version": "1.0.0",
   "description": "RSUITE Management System",
+  "homepage": "https://Smarties123.github.io/GradFlow2/",
   "main": "lib/index.js",
   "directories": {
     "lib": "lib/"
