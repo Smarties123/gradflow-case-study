@@ -184,7 +184,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 href="/main"
                 // target="_blank"
               >
-                Dashboard
+                Terminal
               </Button> 
 
             </Box>

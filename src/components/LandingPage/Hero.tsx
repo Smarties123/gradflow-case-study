@@ -69,12 +69,12 @@ export default function Hero() {
             sx={{ pt: 2, width: { xs: '100%', sm: 'auto' } }}
           >
             <Button variant="contained" color="primary" href="/SignUp">
-              Sign Up For Free
+              Click to Access Terminal
             </Button>
           </Stack>
           <Typography variant="caption" textAlign="center" sx={{ opacity: 0.8 }}>
             By &quot;Signing up&quot; you agree to our&nbsp;
-            <Link href="#" color="primary">
+            <Link href="/main" color="primary">
               Terms & Conditions
             </Link>
             .
