@@ -80,7 +80,7 @@ export default function Hero() {
             .
           </Typography>
         </Stack>
-        <Box
+        {/* <Box
           id="video"
           sx={{
             mt: { xs: 8, sm: 10 },
@@ -107,8 +107,8 @@ export default function Hero() {
               width: '100%',
               borderRadius: '10px',
             }}
-          />
-        </Box>
+          /> */}
+        {/* </Box>  */}
       </Container>
     </Box>
   );
