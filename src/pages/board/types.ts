@@ -9,6 +9,8 @@ export interface Card {
     notes: string;
     salary: number;
     interview_stage: string;
+    data_applied: string;
+    card_color: string;
 }
 
 export interface Column {

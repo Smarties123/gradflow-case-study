@@ -1,0 +1,91 @@
+.full-width {
+    width: 100%;
+}
+
+.form-group {
+    margin: 5px 0px;
+}
+
+.rs-theme-dark .formControlLabel {
+    color: white !important;
+    background-color: transparent;
+}
+
+.drawer-links a {
+    margin-right: 10px;
+}
+
+.drawer-links .rs-divider {
+    margin: 0 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.formControlLabel {
+    font-weight: bold;
+}
+
+/* Ensure DatePicker has consistent width */
+.rs-picker-date input {
+    width: 100%;
+}
+
+.drawer-links {
+    a {
+        cursor: pointer;
+        padding: 10px;
+        text-decoration: none;
+        color: #787777;
+        font-weight: bold;
+        transition: color 0.3s ease, background-color 0.3s ease;
+    }
+
+    a:hover {
+        color: #ff6200;
+        /* Change color on hover */
+    }
+
+    a.active {
+        color: #ff6200;
+        /* Color for the active link */
+    }
+}
+
+
+
+/* Responsive styles */
+@media (max-width: 600px) {
+
+
+    .form-group,
+    .formControlLabel,
+    .full-width {
+        width: 10% !important;
+        padding: 0;
+        margin: 0;
+    }
+
+    .drawer-links {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .drawer-links a {
+        margin-bottom: 5px;
+    }
+
+    .drawer-links .rs-divider {
+        display: none;
+    }
+
+    .drawer-buttons {
+        flex-direction: column;
+    }
+
+    .drawer-buttons button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}

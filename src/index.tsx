@@ -4,11 +4,15 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
 import './styles/index.less';
+import { BoardProvider } from './pages/board/BoardContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <BrowserRouter>
-    <App />
+    <BoardProvider>
+      <App />
+    </BoardProvider>
+
   </BrowserRouter>
 );
