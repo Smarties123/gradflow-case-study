@@ -2,7 +2,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 /* Apply the font globally with !important */
-body, html {
+body,
+html {
   font-family: 'Inter', sans-serif !important;
   line-height: 1.5 !important;
   font-weight: 400 !important;
@@ -10,13 +11,27 @@ body, html {
 }
 
 /* Override font for specific elements */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Inter', sans-serif !important;
   font-weight: 600 !important;
   /* color: #000 !important; */
 }
 
-p, a, span, li, ul, ol, div, button, input, textarea {
+p,
+a,
+span,
+li,
+ul,
+ol,
+div,
+button,
+input,
+textarea {
   font-family: 'Inter', sans-serif !important;
   font-weight: 400 !important;
   /* color: #333 !important; */
@@ -24,11 +39,12 @@ p, a, span, li, ul, ol, div, button, input, textarea {
 
 /* Customize additional component styles if needed */
 button {
-  font-weight: 600 !important;
+  /* font-weight: 600 !important; */
   /* text-transform: none !important; */
 }
 
-input, textarea {
+input,
+textarea {
   font-family: 'Inter', sans-serif !important;
   /* font-size: 14px !important; */
 }
