@@ -6,7 +6,7 @@ import './Board.less';
 import DrawerView from '../../components/DrawerView/DrawerView';
 import { CiEdit } from "react-icons/ci";
 import { BoardContext } from './BoardContext';
-import FeedbackButton from '../../components/LandingPage/FeedbackButton';
+import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 
 const Board = () => {
   const context = useContext(BoardContext);
