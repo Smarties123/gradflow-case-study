@@ -46,7 +46,7 @@
     "@uiw/react-color-github": "^2.3.0",
     "auto-text-size": "^0.2.3",
     "classnames": "^2.3.1",
-    "date-fns": "^2.29.2",
+    "date-fns": "^2.30.0",
     "lodash": "^4.17.21",
     "prop-types": "^15.6.0",
     "react": "^18.2.0",
@@ -60,6 +60,7 @@
     "react-modal": "^3.16.1",
     "react-router": "6.3.0",
     "react-router-dom": "^6.3.0",
+    "recharts": "^2.12.7",
     "rsuite": "5.23.0"
   },
   "devDependencies": {

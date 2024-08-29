@@ -17,8 +17,8 @@ const App = () => {
       <Routes>
         {/* Landing and Auth Pages */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
+        {/* <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} /> */}
         {/* Main App Layout Wrapped in Frame */}
         <Route path="/main" element={<Frame />}>
           <Route index element={<Page />} />
