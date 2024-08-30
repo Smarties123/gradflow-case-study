@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
 import './Modal.less';
 import { BoardContext } from '@/pages/board/BoardContext';
+import { useUser } from '@/components/User/UserContext'; // Import the user context
 
 const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     const { addCardToColumn } = useContext(BoardContext);
+    const { user } = useUser(); // Access the user context here
 
     if (!isOpen) return null;
 
@@ -17,10 +19,13 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     const date_applied = new Date().toLocaleDateString('en-GB'); // Format as dd-mm-yyyy
     const card_color = '#ff6200';
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (company && position) {
+            // console.log(deadline);
+            const [day, month, year] = date_applied.split('/');
+            const formattedDeadline = `${year}-${month}-${day}`; //Format for PostGRE
             const card = {
                 id: Date.now(), // Unique ID for the card
                 company,
@@ -28,13 +33,34 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 deadline,
                 location,
                 url,
-                date_applied,
+                date_applied: formattedDeadline,
                 card_color,
+                userId: user ? user.id : null, // Attach the user ID from the context
             };
 
             console.log('Adding card to column:', selectedColumn);
 
-            // Add the card to the selected or active column
+            // Send data to the server
+            try {
+                const response = await fetch('http://localhost:3001/addjob', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${user.token}`, // Attach the token for authentication
+                    },
+                    body: JSON.stringify(card),
+                });
+
+                if (response.ok) {
+                    console.log('Job added successfully');
+                } else {
+                    console.error('Failed to add job');
+                }
+            } catch (err) {
+                console.error('Error adding job:', err);
+            }
+
+            // Add the card to the selected or active column locally
             addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card);
 
             // Close the modal after adding the card

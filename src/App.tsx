@@ -9,29 +9,34 @@ import LandingPage from './components/LandingPage/LandingPage';
 import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
 import Dashboard from './pages/dashboard/Dashboard';
-
+import { UserProvider } from './components/User/UserContext';
 
 const App = () => {
   return (
     <IntlProvider locale="en" messages={locales.en}>
       <Routes>
-        {/* Landing and Auth Pages */}
+        {/* Landing and Auth Pages - No UserContext */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signin" element={<UserProvider><SignIn /></UserProvider>} />
         <Route path="/signup" element={<SignUp />} />
-        {/* Main App Layout Wrapped in Frame */}
-        <Route path="/main" element={<Frame />}>
+        
+        {/* Routes that require UserContext */}
+        <Route
+          path="/main"
+          element={
+            <UserProvider>
+              <Frame />
+            </UserProvider>
+          }
+        >
           <Route index element={<Page />} />
-          <Route path="/main/dashboard" element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
         </Route>
-
 
         {/* Catch-all for 404 Errors */}
         <Route path="*" element={<Error404Page />} />
       </Routes>
-
     </IntlProvider>
-
   );
 };
 

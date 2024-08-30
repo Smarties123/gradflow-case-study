@@ -6,9 +6,24 @@ import './Board.less';
 import DrawerView from '../../components/DrawerView/DrawerView';
 import { CiEdit } from "react-icons/ci";
 import { BoardContext } from './BoardContext';
+import { useUser } from '../../components/User/UserContext'; //User context
 
 const Board = () => {
   const context = useContext(BoardContext);
+
+  const { user } = useUser(); // Access the user credentials
+
+  // Need to Find a Better way to prevent unauthorized users to log in here
+  React.useEffect(() => {
+    if (user) {
+      console.log(`Logged in as: ${user.username}`); //curently user name is actually userid
+      console.log(`User Email: ${user.email}`);
+      console.log(`Token: ${user.token}`);
+    } else {
+      console.log('No user logged in');
+      window.location.href = '/signin'; // Redirect to login if not authenticated
+    }
+  }, [user]);
 
   if (!context) {
     console.error('BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.');

@@ -13,6 +13,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import FeedbackButton from '../LandingPage/FeedbackButton';
+import { useUser } from '../../components/User/UserContext'; //User context
 
 function Copyright(props: any) {
   return (
@@ -31,12 +32,13 @@ const defaultTheme = createTheme();
 
 export default function SignInSide() {
   const [error, setError] = React.useState<string | null>(null);
+  const { setUser } = useUser(); // Use the context
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const userData = {
-      username: data.get('email'),
+      email: data.get('email'),
       password: data.get('password'),
     };
 
@@ -51,6 +53,15 @@ export default function SignInSide() {
 
       if (response.ok) {
         const result = await response.json();
+
+        // Extract token and user data from the response
+        const { token, user } = result;
+
+        setUser({
+          email: user.email as string,
+          token: token,
+          username: user.id,
+        });
         console.log('Login successful:', result);
         window.location.href = '/main'; // Redirect to main page upon successful login
       } else {
