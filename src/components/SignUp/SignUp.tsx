@@ -12,6 +12,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+// import FeedbackButton from '..//FeedbackButton';
 import FeedbackButton from '../FeedbackButton/FeedbackButton';
 
 function Copyright(props: any) {
@@ -31,13 +32,39 @@ function Copyright(props: any) {
 const defaultTheme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const [error, setError] = React.useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
+    const userData = {
+      username: data.get('Name'),
       email: data.get('email'),
       password: data.get('password'),
-    });
+    };
+
+    try {
+      const response = await fetch('http://localhost:3001/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Signup successful:', result);
+        window.location.href = '/main'; // Redirect to main page upon successful signup
+      } else {
+        const errorMessage = await response.text();
+        setError(errorMessage);
+        console.error('Signup failed:', errorMessage);
+      }
+    } catch (err) {
+      setError('An error occurred during signup. Please try again later.');
+      console.error('Signup error:', err);
+    }
   };
 
   return (
@@ -113,12 +140,16 @@ export default function SignUp() {
                   />
                 </Grid>
               </Grid>
+              {error && (
+                <Typography color="error" variant="body2">
+                  {error}
+                </Typography>
+              )}
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                href="/main"
               >
                 Sign Up
               </Button>

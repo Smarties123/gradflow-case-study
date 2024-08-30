@@ -17,6 +17,9 @@ import NavLink from '../NavLink';
 import Brand from '../Brand';
 import { Icon } from '@rsuite/icons';
 
+import SettingsView from '../SettingsView/SettingsView.tsx'; // Adjust the path according to your project structure
+
+
 // ---------------------------------------------------------- ADDED THESE ICONS FROM REACT-ICONS ----------------------------------------------------------
 import { HiOutlineViewBoards } from "react-icons/hi";
 import { LuTable2 } from "react-icons/lu";
@@ -53,6 +56,9 @@ const Frame = () => {
   const [expand, setExpand] = useState(true);
   const [windowHeight, setWindowHeight] = useState(getHeight(window));
   const [theme, setTheme] = useState<'light' | 'dark' | 'high-contrast'>('dark');
+  const [showSettings, setShowSettings] = useState(false); // State to manage the visibility of the settings popup
+
+
 
   useEffect(() => {
     const updateExpand = () => {
@@ -130,7 +136,7 @@ const Frame = () => {
 
                 /><NavItem
                   title="Settings"
-                  to="settings"
+                  onClick={() => setShowSettings(true)} // Show the settings drawer
                   eventKey="settings"
                   icon={<Icon as={CiSettings} />}
                 />
@@ -147,6 +153,16 @@ const Frame = () => {
           <Content>
             <Outlet />
           </Content>
+        
+        
+        
+          <SettingsView
+        show={showSettings}
+        onClose={() => setShowSettings(false)} // Close the settings drawer
+        card={{}} // Pass necessary props here, adjust as per your implementation
+        updateCard={() => {}} // Adjust as per your implementation
+          />
+        
         </Container>
       </Container>
     </CustomProvider>

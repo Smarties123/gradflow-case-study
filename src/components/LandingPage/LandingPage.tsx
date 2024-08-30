@@ -15,7 +15,7 @@ import Testimonials from './Testimonials';
 import FAQ from './FAQ';
 import Footer from './Footer';
 import getLPTheme from './getLPTheme';
-import FeedbackButton from '../FeedbackButton/FeedbackButton';
+// import FeedbackButton from '../FeedbackButton/FeedbackButton';
 import './Styles/LandingPageStyles.css';
 
 
@@ -50,7 +50,7 @@ export default function LandingPage() {
         <Divider />
         <Footer />
       </Box>
-      <FeedbackButton />
+      {/* <FeedbackButton /> */}
       {/* Removed ToggleCustomTheme component */}
     </ThemeProvider>
   );
