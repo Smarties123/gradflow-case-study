@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Row, Col, Panel, DateRangePicker } from 'rsuite';
 import './styles.less';
 
@@ -7,14 +7,33 @@ import FunnelChart from './FunnelChart';
 import BarChart from './BarChart';
 import LineChartComponent from './LineChart';
 import HighlightTiles from './HighlightTiles';
-
+import { BoardContext } from '../board/BoardContext'; // Adjust the path as needed
+// src\pages\board\BoardContext.tsx
 const Dashboard: React.FC = () => {
+  // Use the BoardContext to access the columns
+  const { columns } = useContext(BoardContext);
+
+  // Check if columns is defined to avoid accessing it before it's loaded
+  if (!columns) {
+    return <div>Loading...</div>;
+  }
+
   const funnelData1 = [
     { name: 'Jobs Saved', value: 14, percent: 100, color: '#FF6200' },
     { name: 'Applications', value: 12, percent: 85, color: '#FF7433' },
     { name: 'Interviews', value: 8, percent: 66, color: '#FF8666' },
     { name: 'Offers', value: 3, percent: 37, color: '#FF987F' },
   ];
+
+
+const maxCards = Math.max(...columns.map(column => column.cards.length)); // Find the maximum number of cards in any column
+
+const funnelData = columns.map((column, index) => ({
+  name: column.title,
+  value: column.cards.length,
+  percent: Math.round((column.cards.length / maxCards) * 100), // Calculate percentage based on the maximum
+  color: `hsl(24, 100%, ${50 + (index * 10)}%)`, // Dynamic color generation based on index
+}));
 
   const barChartData = [
     { date: 'Jan 2 2023', value: 8 },
@@ -48,12 +67,14 @@ const Dashboard: React.FC = () => {
     { name: 'March 2021', Apply: 1, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
   ];
 
-  const highlightData = [
-    { title: 'Jobs Saved', value: 14, color: '#FF6200', icon: <div>PV</div> },
-    { title: 'Applications', value: 12, color: '#FF7433', icon: <div>AP</div> },
-    { title: 'Interviews', value: 8, color: '#FF8666', icon: <div>IV</div> },
-    { title: 'Offers', value: 3, color: '#FF987F', icon: <div>OF</div> },
-  ];
+  // Construct the highlightData using the columns from BoardContext
+  const highlightData = columns.map((column, index) => ({
+    title: column.title,
+    value: column.cards.length,
+    color: `hsl(24, 100%, ${50 + (index * 10)}%)`, // Dynamic color generation based on index
+    icon: <div>{column.title[0]}</div>,
+  }));
+  
 
   return (
     <div className="scroll-container">
@@ -74,7 +95,7 @@ const Dashboard: React.FC = () => {
       <Row>
         <Col xs={24} md={12}>
           <Panel style={{ background: 'none', boxShadow: 'none' }}>
-            <FunnelChart data={funnelData1} title="Job Search Funnel" />
+            <FunnelChart data={funnelData} title="Job Search Funnel" />
           </Panel>
         </Col>
         <Col xs={24} md={12}>
