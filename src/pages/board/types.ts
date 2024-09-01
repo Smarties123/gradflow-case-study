@@ -11,6 +11,7 @@ export interface Card {
     interview_stage: string;
     data_applied: string;
     card_color: string;
+    job_id: Number;
 }
 
 export interface Column {
