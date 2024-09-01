@@ -11,7 +11,6 @@ import SignUp from './components/SignUp/SignUp';
 import Dashboard from './pages/dashboard/Dashboard';
 
 import TableComponent from './pages/table/Table';
-=======
 import { UserProvider } from './components/User/UserContext';
 
 
@@ -37,7 +36,6 @@ const App = () => {
 
           <Route path="/main/table" element={<TableComponent />} />
           <Route path="/main/dashboard" element={<Dashboard />} />
-=======
           <Route path="dashboard" element={<Dashboard />} />
 
         </Route>
