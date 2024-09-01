@@ -136,9 +136,6 @@ app.post('/addjob', authenticateToken, async (req, res) => {
   }
 
   try {
-    // const [day, month, year] = deadline.split('/');
-    // const formattedDeadline = `${year}-${month}-${day}`;
-    // console.log(formattedDeadline);
 
     const query = `
       INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId")
@@ -154,6 +151,25 @@ app.post('/addjob', authenticateToken, async (req, res) => {
     res.status(201).json({ message: 'Job added successfully', job: addedJob });
   } catch (error) {
     console.error('Error adding job:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+// Endpoint to fetch user's applications
+app.get('/applications', authenticateToken, async (req, res) => {
+  const userId = req.user.userId; // Assuming the user ID is stored in the JWT
+
+  try {
+    const query = `
+      SELECT * FROM "Application" WHERE "UserId" = $1 ORDER BY "Deadline" DESC;
+    `;
+    const values = [userId];
+    const { rows: jobs } = await pool.query(query, values);
+    res.status(200).json(jobs);
+
+  } catch (error) {
+    console.error('Error fetching applications:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
