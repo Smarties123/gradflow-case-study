@@ -15,7 +15,7 @@ import Testimonials from './Testimonials';
 import FAQ from './FAQ';
 import Footer from './Footer';
 import getLPTheme from './getLPTheme';
-import FeedbackButton from './FeedbackButton';
+// import FeedbackButton from '../FeedbackButton/FeedbackButton';
 import './Styles/LandingPageStyles.css';
 
 
@@ -33,7 +33,7 @@ export default function LandingPage() {
     <ThemeProvider theme={showCustomTheme ? LPtheme : defaultTheme}>
       <CssBaseline />
       <AppAppBar mode={mode} toggleColorMode={toggleColorMode} />
-      <Hero /> {/*Fix video box in hero*/} 
+      <Hero /> {/*Fix video box in hero*/}
       <Box sx={{ bgcolor: 'background.default' }}>
         <LogoCollection />
         <Student />
@@ -50,7 +50,7 @@ export default function LandingPage() {
         <Divider />
         <Footer />
       </Box>
-      <FeedbackButton />
+      {/* <FeedbackButton /> */}
       {/* Removed ToggleCustomTheme component */}
     </ThemeProvider>
   );

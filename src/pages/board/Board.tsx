@@ -8,6 +8,7 @@ import { CiEdit } from "react-icons/ci";
 import { BoardContext } from './BoardContext';
 import { useUser } from '../../components/User/UserContext';
 import { Column, Card } from './types'; // Assuming you have types defined
+import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 
 const Board: React.FC = () => {
   const context = useContext(BoardContext);

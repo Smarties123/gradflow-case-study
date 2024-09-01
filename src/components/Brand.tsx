@@ -9,10 +9,11 @@ const Brand = ({ showText, ...props }) => {
       <Logo height={32} style={{ marginTop: 0 }} />
       {showText && (
         <Link to="/">
-          <span style={{ marginLeft: 0 }}>GradFlow</span>
+          <span style={{ marginLeft: 0, color: '#FF6200' }}>GradFlow</span>
         </Link>
-      )}
-    </Stack>
+      )
+      }
+    </Stack >
   );
 };
 

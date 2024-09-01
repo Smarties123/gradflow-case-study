@@ -34,12 +34,11 @@ const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
       <Dropdown.Menu onSelect={handleSelect}>
         <Dropdown.Item panel style={{ padding: 10, width: 160 }}>
           <p>Signed in as</p>
-          <strong>Administrator</strong>
+          <strong>[Username] Field</strong>
         </Dropdown.Item>
         <Dropdown.Item divider />
-        <Dropdown.Item>Set status</Dropdown.Item>
         <Dropdown.Item>Profile & account</Dropdown.Item>
-        <Dropdown.Item>Feedback</Dropdown.Item>
+        <Dropdown.Item as="a" href="https://forms.gle/TzuxcFinXXdRzRZQ8" target="_blank">Feedback</Dropdown.Item>
         <Dropdown.Item divider />
         <Dropdown.Item>Settings</Dropdown.Item>
         <Dropdown.Item>Sign out</Dropdown.Item>
@@ -146,7 +145,7 @@ const Header = (props: HeaderProps) => {
 
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
-      <Stack direction="column" spacing={4} alignItems="flex-start">
+      <Stack direction="row" spacing={4} alignItems="flex-start">
         <InputGroup inside size="lg" className="search-input">
           <InputGroup.Button>
             <FaSearch />
@@ -191,8 +190,7 @@ const Header = (props: HeaderProps) => {
           <Avatar
             size="sm"
             circle
-            src="https://avatars.githubusercontent.com/u/1203827"
-            alt="@simonguo"
+            src="https://i.pravatar.cc/150?u=2"
             style={{ marginLeft: 8 }}
           />
         </Whisper>
