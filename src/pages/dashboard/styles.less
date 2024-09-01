@@ -3,4 +3,41 @@
   overflow-y: auto; /* Enables vertical scrolling */
   padding: 10px;
   box-sizing: border-box;
+
+  /* Scrollbar Styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1e1e1e; /* Dark background for scrollbar track */
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #ff6200; /* Orange color to match your theme */
+    border-radius: 10px;
+    border: 2px solid #1e1e1e; /* Adds padding around the thumb */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #ff7433; /* Lighter orange on hover */
+  }
+
+  /* Firefox Scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #ff6200 #1e1e1e;
+
+  /* Edge Scrollbar */
+  &::-ms-scrollbar {
+    width: 8px;
+  }
+  &::-ms-scrollbar-track {
+    background: #1e1e1e;
+  }
+  &::-ms-scrollbar-thumb {
+    background-color: #ff6200;
+    border-radius: 10px;
+    border: 2px solid #1e1e1e;
+  }
 }
