@@ -9,7 +9,7 @@ import LandingPage from './components/LandingPage/LandingPage';
 import SignIn from './components/SignIn/SignIn';
 import SignUp from './components/SignUp/SignUp';
 import Dashboard from './pages/dashboard/Dashboard';
-
+import TableComponent from './pages/table/Table';
 
 const App = () => {
   return (
@@ -22,6 +22,7 @@ const App = () => {
         {/* Main App Layout Wrapped in Frame */}
         <Route path="/main" element={<Frame />}>
           <Route index element={<Page />} />
+          <Route path="/main/table" element={<TableComponent />} />
           <Route path="/main/dashboard" element={<Dashboard />} />
         </Route>
 
