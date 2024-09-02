@@ -155,7 +155,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
               <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
 
               {/* Uncomment for production */}
-              {/* <Button
+              <Button
                 color="primary"
                 variant="text"
                 size="small"
@@ -175,8 +175,8 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 // target="_blank"
               >
                 Sign up
-              </Button> */}
-               <Button
+              </Button>
+               {/* <Button
                 color="primary"
                 variant="contained"
                 size="medium"
@@ -185,7 +185,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 // target="_blank"
               >
                 Terminal
-              </Button> 
+              </Button>  */}
 
             </Box>
             <Box sx={{ display: { sm: '', md: 'none' } }}>

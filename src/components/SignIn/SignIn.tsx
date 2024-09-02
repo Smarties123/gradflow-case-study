@@ -12,7 +12,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import FeedbackButton from '../LandingPage/FeedbackButton';
+// import FeedbackButton from '../LandingPage/FeedbackButton';
+import FeedbackButton from '../FeedbackButton/FeedbackButton'
 import { useUser } from '../../components/User/UserContext'; //User context
 
 function Copyright(props: any) {
