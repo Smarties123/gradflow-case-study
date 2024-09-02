@@ -1,11 +1,13 @@
 import React, { useContext, useState } from 'react';
 import './Modal.less';
 import { BoardContext } from '@/pages/board/BoardContext';
-import { useUser } from '@/components/User/UserContext'; // Import the user context
+import { useUser } from '@/components/User/UserContext';
+import { FormHelperText } from '@mui/material'; // Import FormHelperText from MUI
+import dayjs from 'dayjs';
 
 const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     const { addCardToColumn } = useContext(BoardContext);
-    const { user } = useUser(); // Access the user context here
+    const { user } = useUser();
 
     if (!isOpen) return null;
 
@@ -16,57 +18,61 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     const [url, setUrl] = useState('');
     const [selectedColumn, setSelectedColumn] = useState(activeColumn ? activeColumn.id : columns[0]?.id);
 
-    const date_applied = new Date().toLocaleDateString('en-GB'); // Format as dd-mm-yyyy
-    const card_color = '#ff6200';
+    const [errors, setErrors] = useState({});
+
+    const validateForm = () => {
+        const newErrors = {};
+        if (!company) newErrors.company = 'Company is required';
+        if (!position) newErrors.position = 'Position is required';
+        if (!deadline) {
+            newErrors.deadline = 'Deadline is required';
+        } else {
+            const selectedDate = dayjs(deadline);
+            if (selectedDate.isBefore(dayjs(), 'day')) {
+                newErrors.deadline = 'Deadline cannot be in the past';
+            }
+        }
+        if (!location) newErrors.location = 'Location is required';
+        if (!url) newErrors.url = 'URL is required';
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        if (company && position) {
-            // console.log(deadline);
-            const [day, month, year] = date_applied.split('/');
-            const formattedDeadline = `${year}-${month}-${day}`; //Format for PostGRE
+        if (validateForm()) {
             const card = {
-                id: Date.now(), // Unique ID for the card
+                id: Date.now(),
                 company,
                 position,
-                deadline,
+                deadline: dayjs(deadline).format('YYYY-MM-DD'),
                 location,
                 url,
-                date_applied: formattedDeadline,
-                card_color,
-                userId: user ? user.id : null, // Attach the user ID from the context
+                date_applied: dayjs().format('YYYY-MM-DD'),
+                card_color: '#ff6200',
+                userId: user ? user.id : null,
             };
 
-            console.log('Adding card to column:', selectedColumn);
-
-            // Send data to the server
             try {
                 const response = await fetch('http://localhost:3001/addjob', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${user.token}`, // Attach the token for authentication
+                        'Authorization': `Bearer ${user.token}`,
                     },
                     body: JSON.stringify(card),
                 });
 
                 if (response.ok) {
-                    console.log('Job added successfully');
+                    addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card);
+                    onClose();
                 } else {
                     console.error('Failed to add job');
                 }
             } catch (err) {
                 console.error('Error adding job:', err);
             }
-
-            // Add the card to the selected or active column locally
-            addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card);
-
-            // Close the modal after adding the card
-            onClose();
-        } else {
-            console.log('Company and position are required.');
         }
     };
 
@@ -83,6 +89,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             onChange={(e) => setCompany(e.target.value)}
                             placeholder="Ex. Apple"
                         />
+                        {errors.company && <FormHelperText error>{errors.company}</FormHelperText>}
                     </div>
                     <div className="input-wrapper">
                         <label className="bordered-label">Position</label>
@@ -93,6 +100,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             className="border-input"
                             placeholder="Ex. Software Engineer"
                         />
+                        {errors.position && <FormHelperText error>{errors.position}</FormHelperText>}
                     </div>
                     <div className="input-wrapper">
                         <label className="bordered-label">Deadline</label>
@@ -101,8 +109,8 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             value={deadline}
                             onChange={(e) => setDeadline(e.target.value)}
                             className="border-input"
-                            placeholder="dd-MM-yyyy"
                         />
+                        {errors.deadline && <FormHelperText error>{errors.deadline}</FormHelperText>}
                     </div>
                     <div className="input-wrapper">
                         <label className="bordered-label">Location</label>
@@ -113,6 +121,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             className="border-input"
                             placeholder="London"
                         />
+                        {errors.location && <FormHelperText error>{errors.location}</FormHelperText>}
                     </div>
                     <div className="input-wrapper">
                         <label className="bordered-label">URL</label>
@@ -123,6 +132,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             className="border-input"
                             placeholder="https://jobs.apple.com/"
                         />
+                        {errors.url && <FormHelperText error>{errors.url}</FormHelperText>}
                     </div>
                     {activeColumn ? (
                         <div className="input-wrapper">
