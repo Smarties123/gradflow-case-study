@@ -27,7 +27,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
         notes: card.notes,
         salary: card.salary,
         interview_stage: card.interview_stage,
-        date_applied: card.date_applied[0],
+        date_applied: card.date_applied,
         card_color: card.card_color
     });
 
