@@ -25,6 +25,9 @@ import { MdDashboard } from "react-icons/md";
 import { TbFiles } from "react-icons/tb";
 import { CiSettings } from "react-icons/ci";
 
+import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
+
+
 const { getHeight, on } = DOMHelper;
 
 const NavItem = props => {
@@ -135,6 +138,14 @@ const Frame = () => {
             <Outlet />
           </Content>
         </Container>
+
+        <SettingsView
+          show={showSettings}
+          onClose={() => setShowSettings(false)} // Close the settings drawer
+          card={{}} // Pass necessary props here, adjust as per your implementation
+          updateCard={() => {}} // Adjust as per your implementation
+          />
+        
       </Container>
     </CustomProvider>
   );

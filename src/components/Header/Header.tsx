@@ -21,6 +21,7 @@ import { FaSearch } from "react-icons/fa";
 import ShareModal from '../Share/Share';
 import Modal from '../Modal/Modal';
 import { BoardContext } from '../../pages/board/BoardContext';
+import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
 
 
 
@@ -40,7 +41,7 @@ const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
         <Dropdown.Item>Profile & account</Dropdown.Item>
         <Dropdown.Item as="a" href="https://forms.gle/TzuxcFinXXdRzRZQ8" target="_blank">Feedback</Dropdown.Item>
         <Dropdown.Item divider />
-        <Dropdown.Item>Settings</Dropdown.Item>
+        <Dropdown.Item onClick={() => setShowSettings(true)} >Settings</Dropdown.Item>
         <Dropdown.Item>Sign out</Dropdown.Item>
         <Dropdown.Item
           icon={<HelpOutlineIcon />}
@@ -113,6 +114,8 @@ const Header = (props: HeaderProps) => {
   const [invitedList, setInvitedList] = useState([]);
 
   const { theme, onChangeTheme } = props;
+  const [showSettings, setShowSettings] = useState(false); // State to manage the settings view
+
   const trigger = useRef<WhisperInstance>(null);
 
   const handleOpenModal = () => {
@@ -195,7 +198,14 @@ const Header = (props: HeaderProps) => {
           />
         </Whisper>
       </div>
-    </Stack >
+    
+        <SettingsView
+          show={showSettings}
+          onClose={() => setShowSettings(false)} // Close the settings drawer
+          card={{}} // Pass necessary props here, adjust as per your implementation
+          updateCard={() => {}} // Adjust as per your implementation
+        />
+    </Stack >    
   );
 };
 
