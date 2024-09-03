@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Drawer, FlexboxGrid, Divider, Input, Form, Button, Avatar } from 'rsuite';
+import { Drawer, FlexboxGrid, Divider, Input, Form, Button, Avatar, Checkbox, Col, Row, Grid } from 'rsuite';
 import './SettingsView.less';
 
 const SettingsView = ({ show, onClose }) => {
@@ -135,7 +135,70 @@ const SettingsView = ({ show, onClose }) => {
                 )}
 
                 {/* Membership and Notifications views go here */}
-
+                {currentView === 'membership' && (
+                    <div className="membership-tab">
+                        <h5 className="subject-title">Current Plan</h5>
+                        <Grid fluid>
+                            <Row>
+                                <Col xs={24}>
+                                    <div className="membership-plan">
+                                        <div className="plan-header">
+                                            <h5>Basic Plan</h5>
+                                            <p>$0 per month</p>
+                                        </div>
+                                        <p className="plan-description">
+                                            You have a GradFlow Basic subscription. Upgrade your plan by clicking the upgrade button below.
+                                        </p>
+                                        <Button appearance="primary" block>Upgrade</Button>
+                                    </div>
+                                </Col>
+                            </Row>
+                            <Divider />
+                            <Row>
+                                <Col xs={24}>
+                                    <div className="usage-section">
+                                    <h5 className="subject-title">Usage</h5>
+                                        <p><strong>Jobs:</strong> 0 of 20</p>
+                                        <p><strong>Data:</strong> 0</p>
+                                        <p><strong>Documents:</strong> 0</p>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </Grid>
+                    </div>
+                )}
+                {currentView === 'notifications' && (
+                    <Form fluid className="notifications-tab">
+                        <h5 className="subject-title">Email Subscriptions</h5>
+                        <Grid fluid>
+                            <Row>
+                                <Col xs={24}>
+                                    <Form.Group controlId="weeklyUpdates">
+                                        <Form.ControlLabel>Weekly Updates</Form.ControlLabel>
+                                        <Checkbox
+                                            name="weeklyUpdates"
+                                            onChange={value => handleChange(value, 'weeklyUpdates')}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group controlId="dailyUpdates">
+                                        <Form.ControlLabel>Daily Updates</Form.ControlLabel>
+                                        <Checkbox
+                                            name="dailyUpdates"
+                                            onChange={value => handleChange(value, 'dailyUpdates')}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group controlId="promotionalContent">
+                                        <Form.ControlLabel>Promotional Content</Form.ControlLabel>
+                                        <Checkbox
+                                            name="promotionalContent"
+                                            onChange={value => handleChange(value, 'promotionalContent')}
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        </Grid>
+                    </Form>
+                )}
             </Drawer.Body>
         </Drawer>
     );
