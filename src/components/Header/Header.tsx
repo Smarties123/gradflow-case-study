@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useContext } from 'react';
+import React, { useRef, useState, useContext } from 'react';
 import {
   Dropdown,
   Popover,
@@ -21,100 +21,23 @@ import { FaSearch } from "react-icons/fa";
 import ShareModal from '../Share/Share';
 import Modal from '../Modal/Modal';
 import { BoardContext } from '../../pages/board/BoardContext';
-import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
+import SettingsView from '../SettingsView/SettingsView.tsx'; 
 
-
-
-const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
-  const handleSelect = eventKey => {
-    onClose();
-    console.log(eventKey);
-  };
-  return (
-    <Popover ref={ref} className={className} style={{ left, top }} full>
-      <Dropdown.Menu onSelect={handleSelect}>
-        <Dropdown.Item panel style={{ padding: 10, width: 160 }}>
-          <p>Signed in as</p>
-          <strong>[Username] Field</strong>
-        </Dropdown.Item>
-        <Dropdown.Item divider />
-        <Dropdown.Item>Profile & account</Dropdown.Item>
-        <Dropdown.Item as="a" href="https://forms.gle/TzuxcFinXXdRzRZQ8" target="_blank">Feedback</Dropdown.Item>
-        <Dropdown.Item divider />
-        <Dropdown.Item onClick={() => setShowSettings(true)} >Settings</Dropdown.Item>
-        <Dropdown.Item>Sign out</Dropdown.Item>
-        <Dropdown.Item
-          icon={<HelpOutlineIcon />}
-          href="https://rsuitejs.com"
-          target="_blank"
-          as="a"
-        >
-          Help{' '}
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Popover>
-  );
-};
-
-const renderNoticeSpeaker = ({ onClose, left, top, className }: any, ref) => {
-
-
-  return (
-    <Popover ref={ref} className={className} style={{ left, top, width: 300 }} title="Last updates">
-      <List>
-        {notifications.map((item, index) => {
-          const [time, content] = item;
-          return (
-            <List.Item key={index}>
-              <Stack spacing={4}>
-                <Badge /> <span style={{ color: '#57606a' }}>{time}</span>
-              </Stack>
-
-              <p>{content}</p>
-            </List.Item>
-          );
-        })}
-      </List>
-      <div style={{ textAlign: 'center', marginTop: 20 }}>
-        <Button onClick={onClose}>More notifications</Button>
-      </div>
-    </Popover>
-  );
-};
-
-
-
-type ThemeType = 'dark' | 'light' | 'high-contrast';
-interface HeaderProps {
-  theme: ThemeType;
-  onChangeTheme: (theme: ThemeType) => void;
-  // columns: any[];
-  addCardToColumn: (columns: any, setColumns: React.Dispatch<React.SetStateAction<any[]>>, columnId: number, card: any) => void;
-}
-
-
-const Header = (props: HeaderProps) => {
-
+const Header = (props) => {
   const context = useContext(BoardContext);
-
   if (!context) {
     console.error('BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.');
   }
 
-  const { columns, setColumns, addCardToColumn, updateCard, onDragEnd } = context;
-
-  if (!columns) {
-    console.error('Columns are not defined in context.');
-  }
+  const { columns, setColumns, addCardToColumn } = context;
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [invitedList, setInvitedList] = useState([]);
+  const [showSettings, setShowSettings] = useState(false); // State to manage the settings view
 
   const { theme, onChangeTheme } = props;
-  const [showSettings, setShowSettings] = useState(false); // State to manage the settings view
 
   const trigger = useRef<WhisperInstance>(null);
 
@@ -128,11 +51,11 @@ const Header = (props: HeaderProps) => {
 
   const handleOpenAddModal = () => {
     setIsAddModalOpen(true);
-  }
+  };
 
   const handleCloseAddModal = () => {
     setIsAddModalOpen(false);
-  }
+  };
 
   const handleShare = () => {
     if (email) {
@@ -145,6 +68,63 @@ const Header = (props: HeaderProps) => {
     setInvitedList(invitedList.filter(item => item !== emailToRemove));
   };
 
+  const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {
+    const handleSelect = eventKey => {
+      onClose();
+      console.log(eventKey);
+      if (eventKey === 'settings') {
+        setShowSettings(true); // Show settings view when "Settings" is selected
+      }
+    };
+
+    return (
+      <Popover ref={ref} className={className} style={{ left, top }} full>
+        <Dropdown.Menu onSelect={handleSelect}>
+          <Dropdown.Item panel style={{ padding: 10, width: 160 }}>
+            <p>Signed in as</p>
+            <strong>[Username] Field</strong>
+          </Dropdown.Item>
+          <Dropdown.Item divider />
+          <Dropdown.Item>Profile & account</Dropdown.Item>
+          <Dropdown.Item as="a" href="https://forms.gle/TzuxcFinXXdRzRZQ8" target="_blank">Feedback</Dropdown.Item>
+          <Dropdown.Item divider />
+          <Dropdown.Item eventKey="settings">Settings</Dropdown.Item> {/* Add eventKey to identify menu item */}
+          <Dropdown.Item>Sign out</Dropdown.Item>
+          <Dropdown.Item
+            icon={<HelpOutlineIcon />}
+            href="https://rsuitejs.com"
+            target="_blank"
+            as="a"
+          >
+            Help{' '}
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Popover>
+    );
+  };
+
+  const renderNoticeSpeaker = ({ onClose, left, top, className }: any, ref) => {
+    return (
+      <Popover ref={ref} className={className} style={{ left, top, width: 300 }} title="Last updates">
+        <List>
+          {notifications.map((item, index) => {
+            const [time, content] = item;
+            return (
+              <List.Item key={index}>
+                <Stack spacing={4}>
+                  <Badge /> <span style={{ color: '#57606a' }}>{time}</span>
+                </Stack>
+                <p>{content}</p>
+              </List.Item>
+            );
+          })}
+        </List>
+        <div style={{ textAlign: 'center', marginTop: 20 }}>
+          <Button onClick={onClose}>More notifications</Button>
+        </div>
+      </Popover>
+    );
+  };
 
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
@@ -198,18 +178,16 @@ const Header = (props: HeaderProps) => {
           />
         </Whisper>
       </div>
-    
+      {showSettings && (
         <SettingsView
           show={showSettings}
           onClose={() => setShowSettings(false)} // Close the settings drawer
           card={{}} // Pass necessary props here, adjust as per your implementation
           updateCard={() => {}} // Adjust as per your implementation
         />
-    </Stack >    
+      )}
+    </Stack>
   );
 };
-
-
-
 
 export default Header;
