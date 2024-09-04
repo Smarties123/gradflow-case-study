@@ -8,6 +8,9 @@ import BarChart from './BarChart';
 import LineChartComponent from './LineChart';
 import HighlightTiles from './HighlightTiles';
 import { BoardContext } from '../board/BoardContext'; // Adjust the path as needed
+import DonutChartComponent from './DonutChartComponent';
+
+
 // src\pages\board\BoardContext.tsx
 const Dashboard: React.FC = () => {
   // Use the BoardContext to access the columns
@@ -26,14 +29,22 @@ const Dashboard: React.FC = () => {
   ];
 
 
-const maxCards = Math.max(...columns.map(column => column.cards.length)); // Find the maximum number of cards in any column
+  const donutData = [
+    { name: 'Jobs Saved', value: 14, color: '#FF6200' },
+    { name: 'Applications', value: 12, color: '#FF7433' },
+    { name: 'Interviews', value: 8, color: '#FF8666' },
+    { name: 'Offers', value: 3, color: '#FF987F' },
+  ];
 
-const funnelData = columns.map((column, index) => ({
-  name: column.title,
-  value: column.cards.length,
-  percent: Math.round((column.cards.length / maxCards) * 100), // Calculate percentage based on the maximum
-  color: `hsl(24, 100%, ${50 + (index * 10)}%)`, // Dynamic color generation based on index
-}));
+
+  const maxCards = Math.max(...columns.map(column => column.cards.length)); // Find the maximum number of cards in any column
+
+  const funnelData = columns.map((column, index) => ({
+    name: column.title,
+    value: column.cards.length,
+    percent: Math.round((column.cards.length / maxCards) * 100), // Calculate percentage based on the maximum
+    color: `hsl(24, 100%, ${50 + (index * 10)}%)`, // Dynamic color generation based on index
+  }));
 
   const barChartData = [
     { date: 'Jan 2 2023', value: 8 },
@@ -70,11 +81,11 @@ const funnelData = columns.map((column, index) => ({
   // Construct the highlightData using the columns from BoardContext
   const highlightData = columns.map((column, index) => ({
     title: column.title,
-    value: column.cards.length,
+    value: 20,
     color: `hsl(24, 100%, ${50 + (index * 10)}%)`, // Dynamic color generation based on index
     icon: <div>{column.title[0]}</div>,
   }));
-  
+
 
   return (
     <div className="scroll-container">
@@ -88,17 +99,15 @@ const funnelData = columns.map((column, index) => ({
         </Col>
       </Row>
       <Row>
-        <Col xs={24}>
+        <Col xs={24} id="border-line">
           <HighlightTiles data={highlightData} />
         </Col>
       </Row>
-      <Row>
-        <Col xs={24} md={12}>
-          <Panel style={{ background: 'none', boxShadow: 'none' }}>
-            <FunnelChart data={funnelData} title="Job Search Funnel" />
-          </Panel>
+      <Row gutter={16} style={{ margin: 0 }}>
+        <Col xs={24} md={12} style={{ padding: 0 }}>
+          <DonutChartComponent data={donutData} />
         </Col>
-        <Col xs={24} md={12}>
+        <Col xs={24} md={12} id="border-line" style={{ padding: 0 }}>
           <Panel style={{ background: 'none', boxShadow: 'none' }}>
             <BarChart data={barChartData} title="Jobs Created" />
           </Panel>
