@@ -146,7 +146,7 @@ const Header = (props) => {
             {/* Replace with Dashboard-specific content */}
             <h5 style={{ marginRight: '15px' }}>Dashboard</h5>
             <h6>Upgrade now to see the GradFlow Graduate dashboard</h6>
-            {/* You can add other Dashboard-specific components or elements here */}
+
             <ButtonToolbar style={{ display: 'flex', gap: '3px', marginLeft: '20px' }}>
               <Button className="header-button"
                 style={{
@@ -169,7 +169,7 @@ const Header = (props) => {
 
           </div>
         ) : (
-          <>
+          <div style={{ display: 'flex', justifyContent: 'end', width: "100%" }}>
             <InputGroup inside size="lg" className="search-input">
               <InputGroup.Button>
                 <FaSearch />
@@ -177,7 +177,7 @@ const Header = (props) => {
               <Input placeholder="Search " />
             </InputGroup>
 
-            <div style={{ display: 'flex', justifyContent: 'end', width: "100%", alignItems: "left" }}>
+            <div style={{ alignItems: "left" }}>
               <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
                 <Button className="header-button"
                   style={{
@@ -198,7 +198,8 @@ const Header = (props) => {
                 </Button>
               </ButtonToolbar>
             </div>
-          </>
+          </div>
+
         )}
         <Modal
           isOpen={isAddModalOpen}
