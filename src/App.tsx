@@ -12,6 +12,8 @@ import Dashboard from './pages/dashboard/Dashboard';
 
 import TableComponent from './pages/table/Table';
 import { UserProvider } from './components/User/UserContext';
+import ForgotPassword from './components/ForgotPassword/ForgotPassword';  // Adjust path if necessary
+
 
 
 const App = () => {
@@ -22,6 +24,7 @@ const App = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/signin" element={<UserProvider><SignIn /></UserProvider>} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/ForgotPassword" element={<ForgotPassword />} /> {/* Add this route */}
         
         {/* Routes that require UserContext */}
         <Route
@@ -33,11 +36,9 @@ const App = () => {
           }
         >
           <Route index element={<Page />} />
-
           <Route path="/main/table" element={<TableComponent />} />
           <Route path="/main/dashboard" element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
-
         </Route>
 
         {/* Catch-all for 404 Errors */}
