@@ -6,6 +6,11 @@ import jwt from 'jsonwebtoken';
 
 
 
+import admin from 'firebase-admin';
+
+
+
+
 const app = express();
 const { Pool } = pg;
 import { config } from "dotenv";
@@ -24,11 +29,33 @@ const pool = new Pool({
     }
   });
 
+admin.initializeApp({
+  credential: admin.credential.cert({
+    "type": "service_account",
+    "project_id": process.env.FIREBASE_PROJECT_ID,
+    "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
+    "private_key": process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    "client_email": process.env.FIREBASE_CLIENT_EMAIL,
+    "client_id": process.env.FIREBASE_CLIENT_ID,
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": process.env.FIREBASE_CLIENT_CERT_URL
+  }),
+});
+
+
+
 
 
 app.use(express.json());
 app.use(cors());
 const port = 3001;
+app.use(cors({
+  origin: 'http://localhost:3001',  // Adjust this to your frontend's URL
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 app.get('/', (req, res) => {
   res.send('Welcome to my server!');
@@ -122,6 +149,62 @@ app.post('/signup', async (req, res) => {
           res.status(500).json({ message: 'Server error.' });
       }
   });
+
+
+
+
+  app.post('/google-login', async (req, res) => {
+    const { token } = req.body;  // Firebase token sent from frontend
+    
+    // Log the received token
+    console.log("Received token:", token);
+  
+    try {
+      // Verify Firebase token using Firebase Admin SDK
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      
+      // Log the decoded token
+      console.log("Decoded token:", decodedToken);
+  
+      const { uid, email, name } = decodedToken;
+  
+      // Now, search or create the user in your PostgreSQL database
+      const query = 'SELECT * FROM "Users" WHERE "Email" = $1';
+      const values = [email];
+      const { rows } = await pool.query(query, values);
+  
+      let user;
+      if (rows.length === 0) {
+        // If user does not exist, create a new user
+        const insertQuery = 'INSERT INTO "Users" ("Username", "Email", "GoogleUID") VALUES ($1, $2, $3) RETURNING *';
+        const insertValues = [name || email, email, uid];
+        const result = await pool.query(insertQuery, insertValues);
+        user = result.rows[0];
+      } else {
+        user = rows[0];  // User exists
+      }
+  
+      // Create a JWT token for your app (backend authentication)
+      const jwtToken = jwt.sign({ userId: user.UserId, email: user.Email }, process.env.JWT_SECRET);
+  
+      // Respond with user data and token
+      res.status(200).json({
+        message: 'Google login successful!',
+        token: jwtToken,
+        user: {
+          id: user.UserId,
+          email: user.Email,
+          username: user.Username,
+        },
+      });
+    } catch (error) {
+      // Log the error for debugging
+      console.error('Error during Google login:', error);
+      res.status(401).json({ message: 'Google login failed' });
+    }
+  });
+  
+  
   
 
 
@@ -173,6 +256,12 @@ app.get('/applications', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+
+
+
+
 
 
   

@@ -17,6 +17,9 @@ import SchoolIcon from '@mui/icons-material/School';
 import FeedbackButton from '../FeedbackButton/FeedbackButton';
 import { useUser } from '../../components/User/UserContext'; // User context
 
+import { auth, provider } from '../../../firebaseConfig'; // Import your Firebase config
+import { signInWithPopup } from 'firebase/auth';
+
 // Google SVG icon using official colors
 function GoogleIcon() {
   return (
@@ -46,8 +49,48 @@ const defaultTheme = createTheme();
 
 export default function SignInSide() {
   const [error, setError] = React.useState<string | null>(null);
-  const { setUser } = useUser();
+  const { setUser } = useUser(); // Accessing the user context
   const isSmallScreen = useMediaQuery('(max-width:600px)'); // Media query for small screens
+
+  // Move handleGoogleSignIn inside the SignInSide component
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const token = await user.getIdToken();  // Get Firebase token
+  
+      // Log the Firebase token
+      console.log("Generated Firebase Token:", token);
+  
+      // Send the token to your backend for verification and login
+      const response = await fetch('http://localhost:3001/google-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),  // Send Firebase token to backend
+      });
+  
+      // Log the backend response
+      console.log("Response from backend:", response);
+  
+      if (response.ok) {
+        const result = await response.json();
+        setUser({
+          email: result.user.email,
+          token: result.token,
+          username: result.user.username,
+        });
+        window.location.href = '/main';  // Redirect after login
+      } else {
+        setError('Google sign-in failed.');
+      }
+    } catch (error) {
+      setError('Google sign-in failed.');
+    }
+  };
+  
+  
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -185,7 +228,8 @@ export default function SignInSide() {
                 <Grid item>
                   <Button
                     variant="outlined"
-                    startIcon={<GoogleIcon />} // Custom Google Icon
+                    startIcon={<GoogleIcon />}
+                    onClick={handleGoogleSignIn}  // Add onClick handler here
                     sx={{
                       width: '200px',
                       borderRadius: '10px',
