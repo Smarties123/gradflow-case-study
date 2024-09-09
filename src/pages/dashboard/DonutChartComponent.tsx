@@ -28,7 +28,7 @@ const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
                     <Tooltip />
                     <Legend
                         layout="vertical"
-                        verticalAlign="middle"
+                        verticalAlign="top"
                         align="right"
                         wrapperStyle={{ padding: 20 }}
                         formatter={(value, entry) => `${value} (${entry.payload.value})`}
