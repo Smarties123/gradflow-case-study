@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import './Modal.less';
 import { BoardContext } from '@/pages/board/BoardContext';
 import { useUser } from '@/components/User/UserContext';
@@ -18,22 +18,55 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     const [url, setUrl] = useState('');
     const [selectedColumn, setSelectedColumn] = useState(activeColumn ? activeColumn.id : columns[0]?.id);
 
+    const [companyLogo, setCompanyLogo] = useState('');
+
     const [errors, setErrors] = useState({});
 
+    const [companySuggestions, setCompanySuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false); // Add this
+
+    useEffect(() => {
+        if (company.length > 2) {
+            const fetchCompanySuggestions = async () => {
+                try {
+                    const response = await fetch(`http://localhost:3001/company-search?q=${company}`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        setCompanySuggestions(data);
+                        setShowSuggestions(true); // Show the suggestions
+                    } else {
+                        console.error('Failed to fetch company suggestions');
+                    }
+                } catch (error) {
+                    console.error('Error fetching company suggestions:', error);
+                }
+            };
+            fetchCompanySuggestions();
+        } else {
+            setCompanySuggestions([]);
+            setShowSuggestions(false); // Hide the suggestions if input is too short
+        }
+    }, [company]);
+    
+    
     const validateForm = () => {
         const newErrors = {};
         if (!company) newErrors.company = 'Company is required';
         if (!position) newErrors.position = 'Position is required';
-        if (!deadline) {
-            newErrors.deadline = 'Deadline is required';
-        } else {
-            const selectedDate = dayjs(deadline);
-            if (selectedDate.isBefore(dayjs(), 'day')) {
-                newErrors.deadline = 'Deadline cannot be in the past';
-            }
-        }
-        if (!location) newErrors.location = 'Location is required';
-        if (!url) newErrors.url = 'URL is required';
+        // if (!deadline) {
+        //     newErrors.deadline = 'Deadline is required';
+        // } else {
+        //     const selectedDate = dayjs(deadline);
+        //     if (selectedDate.isBefore(dayjs(), 'day')) {
+        //         newErrors.deadline = 'Deadline cannot be in the past';
+        //     }
+        // }
+        // if (!location) newErrors.location = 'Location is required';
+        // if (!url) newErrors.url = 'URL is required';
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -49,6 +82,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 deadline: dayjs(deadline).format('YYYY-MM-DD'),
                 location,
                 url,
+                companyLogo,
                 date_applied: dayjs().format('YYYY-MM-DD'),
                 card_color: '#ff6200',
                 userId: user ? user.id : null,
@@ -83,12 +117,40 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 <form onSubmit={handleSubmit}>
                     <div className="input-wrapper">
                         <label className="bordered-label">Company</label>
-                        <input
-                            type="text"
-                            value={company}
-                            onChange={(e) => setCompany(e.target.value)}
-                            placeholder="Ex. Apple"
-                        />
+                        <div className="company-input-wrapper">
+                            <input
+                                type="text"
+                                value={company}
+                                onChange={(e) => setCompany(e.target.value)}
+                                placeholder="Ex. Apple"
+                                autoComplete="off"
+                                // onFocus={() => setShowSuggestions(true)} // Show suggestions on focus
+                                // onBlur={() => setTimeout(() => setShowSuggestions(false), 100)} // Hide suggestions after a short delay
+                            />
+                            {showSuggestions && companySuggestions.length > 0 && (
+                                <ul className="suggestions-list">
+                                    {companySuggestions.slice(0, 5).map((suggestion, index) => (
+                                        <li key={index} onClick={() => {
+                                            setCompany(suggestion.name);
+                                            setUrl(suggestion.domain);
+                                            setCompanyLogo(suggestion.logo_url); // Save the logo URL
+                                            setShowSuggestions(false); // Hide the dropdown
+                                        }}>
+                                            <div className="suggestion-item">
+                                                <img src={suggestion.logo_url} alt={suggestion.name} className="company-logo-modal" />
+                                                <div className="company-details">
+                                                    <span className="company-name-modal">{suggestion.name}</span>
+                                                    <span className="company-domain-modal">{suggestion.domain}</span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                            {companyLogo && (
+                                <img src={companyLogo} alt={company} className="selected-company-logo" />
+                            )}
+                        </div>
                         {errors.company && <FormHelperText error>{errors.company}</FormHelperText>}
                     </div>
                     <div className="input-wrapper">

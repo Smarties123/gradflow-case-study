@@ -26,23 +26,23 @@ export const BoardProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     // Function to add a card to a specific column
     const addCardToColumn = (columnId: number, card: Card) => {
         setColumns(prevColumns =>
-            prevColumns.map(col =>
-                col.id === columnId ? { ...col, cards: [...col.cards, { ...card, id: Date.now() }] } : col
-            )
+          prevColumns.map(col =>
+            col.id === columnId ? { ...col, cards: [...col.cards, { ...card, companyLogo: card.companyLogo || '', id: Date.now() }] } : col
+          )
         );
-    };
+      };
 
     // Function to update a card
     const updateCard = (id: number, updatedData: Partial<Card>) => {
         setColumns(prevColumns =>
-            prevColumns.map(col => {
-                const updatedCards = col.cards.map(card =>
-                    card.id === id ? { ...card, ...updatedData } : card
-                );
-                return { ...col, cards: updatedCards };
-            })
+          prevColumns.map(col => {
+            const updatedCards = col.cards.map(card =>
+              card.id === id ? { ...card, ...updatedData, companyLogo: updatedData.companyLogo || card.companyLogo } : card
+            );
+            return { ...col, cards: updatedCards };
+          })
         );
-    };
+      };
 
     // Function to handle drag and drop
     const onDragEnd = (result: any) => {
