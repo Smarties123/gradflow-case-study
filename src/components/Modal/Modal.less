@@ -187,3 +187,107 @@ input {
     color: white;
     background-color: #333;
 }
+
+
+.company-input-wrapper {
+    position: relative;
+    // z-index: 10; /* Ensure this element sits above other content */
+}
+
+.suggestions-list {
+    position: absolute;
+    top: calc(100% + 5px); /* Position it just below the input field */
+    z-index: 1001;
+    background-color: #333;
+    border: 1px solid white;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 200px; /* Ensure dropdown has a max height */
+    width: calc(100%); /* Adjust to match input field width */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Disable horizontal scrolling */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
+}
+
+/* Customize the scrollbar */
+.suggestions-list::-webkit-scrollbar {
+    width: 6px; /* Set the width of the scrollbar */
+}
+
+.suggestions-list::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.3); /* Subtle color for scrollbar */
+    border-radius: 3px;
+}
+
+/* Hide horizontal scrollbar */
+.suggestions-list::-webkit-scrollbar-horizontal {
+    display: none;
+}
+
+.suggestions-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    cursor: pointer;
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.suggestions-list li:hover {
+    background-color: #4a4a4a;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.company-logo-modal {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.company-details {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.company-name-modal {
+    font-size: 12px; /* Reduce font size */
+    color: white;
+    margin: 0;
+    word-wrap: break-word; /* Allow breaking the text to fit in */
+    word-break: break-word; /* Break long words if necessary */
+    max-width: 80%; /* Limit the width of the text to ensure wrapping */
+    white-space: normal; /* Allow text to wrap onto new lines */
+}
+
+.company-domain-modal {
+    font-size: 10px;
+    color: #888;
+    text-align: right;
+}
+
+
+
+
+.company-input-wrapper {
+    position: relative;
+}
+
+.selected-company-logo {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+

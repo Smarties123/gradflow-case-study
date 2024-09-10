@@ -18,6 +18,8 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 16px;
     // min-width: 193px;
+    overflow: hidden; /* Ensure that no content exceeds the card boundaries */
+
 }
 
 
@@ -34,12 +36,15 @@
     align-items: center;
 }
 
-.logo {
-    font-size: 45px;
-    /* Adjust size as needed */
+.company-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
     margin-bottom: 30px;
-    /* Space between logo and share icon */
 }
+
 
 .card-details {
     flex-grow: 1;
@@ -47,14 +52,33 @@
     margin-left: 5px;
     text-align: left;
     margin-bottom: 50px;
+    overflow: hidden;
     /* Provide some padding around the text */
+    
 }
 
 .company-name {
-    font-size: 28px;
+    font-size: 15px;
     margin: 0;
     font-weight: bold;
+    // max-width: 80%; /* Constrain the width to avoid overflowing */
+    white-space: nowrap; /* Ensure text stays on one line */
+    overflow: hidden; /* Hide overflowed text */
+    text-overflow: ellipsis; /* Add '...' to truncated text */
+    width: fit-content;
 }
+.position {
+    font-size: 10px;
+    margin: 0;
+    // font-weight: bold;
+    // max-width: 80%; /* Constrain the width to avoid overflowing */
+    white-space: nowrap; /* Ensure text stays on one line */
+    overflow: hidden; /* Hide overflowed text */
+    text-overflow: ellipsis; /* Add '...' to truncated text */
+    width: fit-content;
+}
+
+
 
 .position {
     font-size: 14px;

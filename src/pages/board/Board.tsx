@@ -50,6 +50,7 @@ const Board: React.FC = () => {
             interview_stage: job.ApplicationStatus || 'Unknown', // Default to 'Unknown' if null
             date_applied: job.DateApplied,
             card_color: job.Color || '#ffffff', // Default to white if color is not set
+            companyLogo: job.CompanyLogo, // Add this to store the company logo          
           }));
           console.log(mappedJobs);
 
@@ -166,7 +167,7 @@ const Board: React.FC = () => {
   const handleCardSelect = (card: Card) => {
     const column = columns.find(col => col.cards.some(c => c.id === card.id));
     const columnName = column ? column.title : 'Unknown Column';
-    setSelectedCard({ ...card, columnName });
+    setSelectedCard({ ...card, columnName, companyLogo: card.companyLogo });
     setIsDrawerOpen(true);
   };
 
