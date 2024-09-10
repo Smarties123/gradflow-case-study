@@ -94,7 +94,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="scroll-container">
-      <Row>
+      <Row style={{marginRight:'10px'}}>
         <Col xs={24} id="border-line">
           <HighlightTiles data={highlightData} />
         </Col>
@@ -104,20 +104,23 @@ const Dashboard: React.FC = () => {
           <DateRangePicker
             appearance="default"
             placeholder="Select Date Range"
-            style={{ margin: '10px 0px' }}
+            style={{ margin: '10px 10px' }}
           />
         </Col>
       </Row>
-      <Row gutter={16} style={{ margin: 0 }}>
-        <Col xs={24} md={12} id="border-line" style={{ padding: 0 }}>
-          <Panel style={{ background: 'none', boxShadow: 'none' }}>
+      <Row gutter={16} style={{ margin: 0, display: 'flex'}}>
+        <Col id="border-line" xs={24} md={12} style={{ padding: 0 }}>
+          <Panel style={{ background: 'none', boxShadow: 'none', margin: '0px 0px' }}>
             <BarChart
               dropdownType={columns.map(column => column.title)}
               title="Jobs Created" />
           </Panel>
         </Col>
+        
         <Col xs={24} md={12} style={{ padding: 0 }}>
-          <DonutChartComponent data={donutData} />
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin:'10px 0px 10px 10px'}}>
+            <DonutChartComponent data={donutData} />
+          </Panel>
         </Col>
       </Row>
       <Row>

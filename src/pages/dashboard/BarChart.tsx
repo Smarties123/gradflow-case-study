@@ -44,10 +44,10 @@ const BarChart: React.FC<BarChartProps> = ({
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'10px'}}>
         <h4 style={{ color: '#FFF' }}>{title}</h4>
       </div>
-      <div style={{ display: 'flex', gap: '10px' }}>
+      <div style={{ display: 'flex', gap: '10px', marginBottom:'10px' }}>
         <select
           style={{ background: '#333', color: '#FFF', border: '1px solid #FFF', borderRadius: '3px' }}
           value={timeFrame}
@@ -72,7 +72,7 @@ const BarChart: React.FC<BarChartProps> = ({
         </select>
       </div>
 
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={330}>
         <RechartsBarChart data={data} margin={{ top: 20, right: 5, bottom: 5, left: 5 }}>
           <XAxis dataKey="date" />
           <YAxis tickFormatter={(tick) => Math.floor(tick)} // Ensures integer values
