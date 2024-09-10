@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './CardComponent.less'; // Make sure the CSS file is linked
 import { FaStar } from 'react-icons/fa';
 import { MdShare } from 'react-icons/md'; // Assuming use of share icon for external link
@@ -7,9 +7,17 @@ import { VscInfo } from 'react-icons/vsc'; // Assuming use of info icon
 import { IconButton } from 'rsuite';
 
 const CardComponent = ({ card, onSelect }) => {
+    // State to track whether the star is toggled or not
+    const [isFavorited, setIsFavorited] = useState(false);
 
     const handleAddClick = () => {
         console.log("Card Clicked", card);
+    };
+
+    // Handler for toggling the star
+    const handleToggleFavorite = (e) => {
+        e.stopPropagation(); // To prevent triggering the card's onClick event
+        setIsFavorited(!isFavorited);
     };
 
     return (
@@ -29,7 +37,11 @@ const CardComponent = ({ card, onSelect }) => {
             </div>
 
             <div className="right-icons">
-                <FaStar className="star-icon" />
+                <FaStar
+                    className={`star-icon ${isFavorited ? 'favorited' : ''}`}
+                    onClick={handleToggleFavorite}
+                    style={{ color: isFavorited ? 'yellow' : 'grey' }}
+                />
                 <IconButton className="info-icon"
                     icon={<Icon as={VscInfo} />}
                     onClick={() => onSelect(card)}
