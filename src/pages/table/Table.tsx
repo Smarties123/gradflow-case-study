@@ -20,7 +20,7 @@ const TableComponent: React.FC = () => {
   useEffect(() => {
     const newData = columns.flatMap(column => 
       column.cards.map(card => ({
-        logo: 'temporary-logo.png', // Replace with a dynamic logo source if available
+        logo: card.companyLogo, // Replace with a dynamic logo source if available
         name: card.company,
         position: card.position,
         stage: column.title,
@@ -80,12 +80,14 @@ const TableComponent: React.FC = () => {
           <HeaderCell>Logo</HeaderCell>
           <Cell>
             {rowData => (
-              <img
-                src={`/assets/logos/${rowData.logo}`}
-                alt={`${rowData.name} logo`}
-                style={{ width: '40px', borderRadius: '5px', cursor: 'pointer' }}
-                onClick={() => handleCellClick(rowData.originalCard)}
-              />
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <img
+                  src={rowData.logo}
+                  alt={`${rowData.name} logo`}
+                  style={{ width: '30px', height: '30px', borderRadius: '50%', margin: '2px', cursor: 'pointer' }}
+                  onClick={() => handleCellClick(rowData.originalCard)}
+                />
+              </div>
             )}
           </Cell>
         </Column>

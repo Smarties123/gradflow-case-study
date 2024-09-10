@@ -3,13 +3,18 @@ import bcrypt from 'bcrypt';
 import cors from 'cors';
 import pg from 'pg';
 import jwt from 'jsonwebtoken'; 
+import logoDevProxy from './logoDevProxy.js';
+
 
 
 
 const app = express();
 const { Pool } = pg;
-import { config } from "dotenv";
-config({ path: process.ENV }) // all env vars after this initialization
+import dotenv from 'dotenv';
+dotenv.config(); // This loads .env variables globally for the entire application
+// console.log("LOGO_DEV_API_KEY loaded from .env:", process.env.LOGO_DEV_API_KEY);
+
+
 const SECRET_KEY = process.env.JWT_SECRET;
 
 // Configuration for your database
@@ -24,10 +29,17 @@ const pool = new Pool({
     }
   });
 
-
+app.use(cors({
+  origin: 'http://localhost:3100',  // Frontend origin
+  methods: ['GET', 'POST'],          // Allow specific HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization']  // Allow specific headers
+}));
 
 app.use(express.json());
-app.use(cors());
+
+// Your proxy route
+app.use(logoDevProxy)
+
 const port = 3001;
 
 app.get('/', (req, res) => {
@@ -127,23 +139,20 @@ app.post('/signup', async (req, res) => {
 
 //Will need improvements to handle nulls in future
 app.post('/addjob', authenticateToken, async (req, res) => {
-  const { company, position, deadline, location, url, date_applied, card_color } = req.body;
-  console.log(deadline);
-  console.log(date_applied);
+  const { company, position, deadline, location, url, date_applied, card_color, companyLogo } = req.body;
 
   if (!company || !position) {
     return res.status(400).json({ message: 'Company and position are required' });
   }
 
   try {
-
     const query = `
-      INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId")
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId", "CompanyLogo")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *;
     `;
 
-    const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId];
+    const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId, companyLogo];
 
     const result = await pool.query(query, values);
     const addedJob = result.rows[0];
@@ -154,6 +163,7 @@ app.post('/addjob', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
 // Endpoint to fetch user's applications

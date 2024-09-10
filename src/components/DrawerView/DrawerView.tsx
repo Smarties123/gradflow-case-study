@@ -20,6 +20,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
     // State to manage form inputs
     const [formData, setFormData] = useState({
         company: card.company,
+        companyLogo: card.companyLogo,  // Include companyLogo here
         position: card.position,
         deadline: card.deadline ? parseDate(card.deadline) : null,
         location: card.location,
@@ -93,16 +94,19 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                 <Col xs={24} sm={12}>
                                     <Form.Group controlId="company" className="form-group">
                                         <Form.ControlLabel className="formControlLabel">Company</Form.ControlLabel>
-                                        <Form.Control
-                                            name="company"
-                                            defaultValue={formData.company}
-                                            onChange={value => handleChange(value, 'company')}
-                                            disabled
-                                            className="full-width"
-                                        />
+                                        <div className="company-input-wrapper">
+                                            <Form.Control
+                                                name="company"
+                                                defaultValue={formData.company}
+                                                disabled
+                                                className="full-width"
+                                            />
+                                            {formData.companyLogo && (
+                                                <img src={formData.companyLogo} alt={formData.company} className="drawer-company-logo" />
+                                            )}
+                                        </div>
                                     </Form.Group>
                                 </Col>
-
                                 <Col xs={24} sm={12}>
                                     <Form.Group controlId="position" className="form-group">
                                         <Form.ControlLabel className="formControlLabel">Position</Form.ControlLabel>
