@@ -1,27 +1,50 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './CardComponent.less'; // Make sure the CSS file is linked
 import { FaStar } from 'react-icons/fa';
 import { MdShare } from 'react-icons/md'; // Assuming use of share icon for external link
 import { Icon } from '@rsuite/icons';
 import { VscInfo } from 'react-icons/vsc'; // Assuming use of info icon
 import { IconButton } from 'rsuite';
+import { useUser } from '@/components/User/UserContext';
 
-const CardComponent = ({ card, onSelect }) => {
-    // State to track whether the star is toggled or not
-    const [isFavorited, setIsFavorited] = useState(false);
+const CardComponent = ({ card, onSelect, user, onFavoriteToggle }) => {
+    // State should be derived from props and updated when the card prop changes
+    const [isFavorited, setIsFavorited] = useState(card.Favourite || false);
 
-    const handleAddClick = () => {
-        console.log("Card Clicked", card);
+    // Sync state with props when card.Favourite changes
+    useEffect(() => {
+        setIsFavorited(card.Favourite);
+    }, [card.Favourite]);
+
+    const handleToggleFavorite = async (e) => {
+        e.stopPropagation(); // Prevent triggering the card's onClick event
+        const newFavoriteStatus = !isFavorited;
+        setIsFavorited(newFavoriteStatus);
+
+        try {
+            const response = await fetch(`http://localhost:3001/applications/${card.id}/favorite`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({ isFavorited: newFavoriteStatus })
+            });
+
+            if (response.ok) {
+                const updatedCard = await response.json();
+                onFavoriteToggle(updatedCard.application); // Call parent update
+            } else {
+                console.error('Failed to update favorite status');
+            }
+        } catch (error) {
+            console.error('Error updating favorite status:', error);
+        }
     };
 
-    // Handler for toggling the star
-    const handleToggleFavorite = (e) => {
-        e.stopPropagation(); // To prevent triggering the card's onClick event
-        setIsFavorited(!isFavorited);
-    };
 
     return (
-        <div style={{ backgroundColor: card.card_color }} className="card" onClick={handleAddClick}>
+        <div style={{ backgroundColor: card.card_color }} className="card">
             <div className="left-icons">
                 {/* Dynamically render the company logo */}
                 {card.companyLogo ? (

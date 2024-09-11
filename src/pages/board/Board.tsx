@@ -51,6 +51,7 @@ const Board: React.FC = () => {
             date_applied: job.DateApplied,
             card_color: job.Color || '#ffffff', // Default to white if color is not set
             companyLogo: job.CompanyLogo, // Add this to store the company logo          
+            Favourite: job.Favourite || false, // Ensure Favourite is included
           }));
           console.log(mappedJobs);
 
@@ -176,6 +177,17 @@ const Board: React.FC = () => {
     setIsModalOpen(true);
   };
 
+  const handleFavoriteToggle = (updatedCard) => {
+    setColumns((prevColumns) =>
+        prevColumns.map((column) => ({
+            ...column,
+            cards: column.cards.map((card) =>
+                card.id === updatedCard.ApplicationId ? { ...card, Favourite: updatedCard.Favourite } : card
+            ),
+        }))
+    );
+};
+
   return (
     <DragDropContext onDragEnd={onDragEnd as any}>
       <div className="board">
@@ -228,7 +240,7 @@ const Board: React.FC = () => {
                       <Draggable key={card.id} draggableId={String(card.id)} index={index}>
                         {provided => (
                           <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                            <CardComponent card={card} onSelect={handleCardSelect} />
+                            <CardComponent card={card} onSelect={handleCardSelect} user={user} onFavoriteToggle={handleFavoriteToggle}/>
                           </div>
                         )}
                       </Draggable>

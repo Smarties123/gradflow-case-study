@@ -11,6 +11,7 @@ import logoDevProxy from './logoDevProxy.js';
 const app = express();
 const { Pool } = pg;
 import dotenv from 'dotenv';
+import { Favorite } from '@mui/icons-material';
 dotenv.config(); // This loads .env variables globally for the entire application
 // console.log("LOGO_DEV_API_KEY loaded from .env:", process.env.LOGO_DEV_API_KEY);
 
@@ -31,7 +32,7 @@ const pool = new Pool({
 
 app.use(cors({
   origin: 'http://localhost:3100',  // Frontend origin
-  methods: ['GET', 'POST'],          // Allow specific HTTP methods
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],          // Allow specific HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization']  // Allow specific headers
 }));
 
@@ -181,6 +182,45 @@ app.get('/applications', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error fetching applications:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.put('/applications/:id/favorite', authenticateToken, async (req, res) => {
+  // console.log('Something', Favorite);
+  const { id } = req.params;
+  const { isFavorited } = req.body;
+  const userId = req.user.userId; // Ensure the user is correctly fetched from JWT
+
+  // console.log("")
+  console.log('Received favorite status update request:', { id, isFavorited, userId });
+
+  if (typeof isFavorited !== 'boolean') {
+      return res.status(400).json({ message: 'Invalid favorite status' });
+  }
+
+  try {
+      const query = `
+          UPDATE "Application"
+          SET "Favourite" = $1
+          WHERE "UserId" = $2 AND "ApplicationId" = $3
+          RETURNING *;
+      `;
+
+      const values = [isFavorited, userId, id];
+      console.log('Executing query:', query, 'with values:', values); // Log the query and values
+      const { rows } = await pool.query(query, values);
+
+      if (rows.length > 0) {
+        console.log('Favorite status updated:', rows[0]); // Log the updated row
+
+          res.status(200).json({ message: 'Favorite status updated', application: rows[0] });
+      } else {
+        console.error('Application not found or no rows updated');
+          res.status(404).json({ message: 'Application not found' });
+      }
+  } catch (error) {
+      console.error('Error updating favorite status:', error);
+      res.status(500).json({ message: 'Server error' });
   }
 });
 
