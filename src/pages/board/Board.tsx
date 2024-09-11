@@ -188,6 +188,17 @@ const Board: React.FC = () => {
     );
 };
 
+
+//For Deleting Card
+const handleDeleteCard = (cardId) => {
+  setColumns((prevColumns) => 
+      prevColumns.map((column) => ({
+          ...column,
+          cards: column.cards.filter((card) => card.id !== cardId) // Remove the deleted card
+      }))
+  );
+};
+
   return (
     <DragDropContext onDragEnd={onDragEnd as any}>
       <div className="board">
@@ -251,6 +262,7 @@ const Board: React.FC = () => {
                               onFavoriteToggle={handleFavoriteToggle}
                               provided={provided}
                               snapshot={snapshot}  // Pass snapshot to detect drag state
+                              onDelete={handleDeleteCard} // Pass delete handler
                             />
                           </div>
                         )}

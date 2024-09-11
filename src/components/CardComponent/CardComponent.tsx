@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import './CardComponent.less'; 
-import { IoMdStar, IoMdTrash, IoMdLink} from "react-icons/io";
-import { MdShare } from 'react-icons/md'; 
-import { VscInfo } from 'react-icons/vsc'; 
-import { IconButton } from 'rsuite'; 
+import { IoMdStar, IoMdTrash, IoMdLink } from "react-icons/io";
 import { useUser } from '@/components/User/UserContext';
+import DeleteCardModal from './DeleteCardModal'; // Import the new modal
 
-const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snapshot }) => {
+const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snapshot, onDelete }) => {
     const [isFavorited, setIsFavorited] = useState(card.Favourite || false);
     const [isHolding, setIsHolding] = useState(false); 
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Manage modal state
+
     let pressTimer = null;
 
     useEffect(() => {
@@ -41,13 +41,21 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
         }
     };
 
-    const handleMouseDown = () => {
-        pressTimer = setTimeout(() => {
-            setIsHolding(true); 
-        }, 300);
+    const handleMouseDown = (e) => {
+        // Prevent card interaction when modal is open
+        if (isDeleteModalOpen) return;
+
+        if (e.target.tagName !== 'BUTTON' && !e.target.closest('.icon-buttons')) {
+            pressTimer = setTimeout(() => {
+                setIsHolding(true); 
+            }, 300);
+        }
     };
 
     const handleMouseUp = () => {
+        // Prevent card interaction when modal is open
+        if (isDeleteModalOpen) return;
+
         clearTimeout(pressTimer); 
         if (!isHolding) {
             onSelect(card); 
@@ -59,6 +67,38 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
     const stopPropagation = (e) => {
         e.stopPropagation();
     };
+
+    const handleDeleteClick = (e) => {
+        e.stopPropagation();
+        setIsDeleteModalOpen(true); // Show the delete modal
+    };
+
+    // Delete card function (remove any duplicate definition of this)
+    const handleConfirmDelete = async () => {
+        // console.log(card.id);
+
+        try {
+            const response = await fetch(`http://localhost:3001/applications/${card.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${user.token}`,  // Ensure the token is sent for authentication
+                },
+            });
+
+            if (response.ok) {
+                onDelete(card.id); // Call the parent delete function to update the UI
+                setIsDeleteModalOpen(false); // Close the modal
+            } else {
+                console.error('Failed to delete the application');
+            }
+        } catch (error) {
+            console.error('Error deleting the application:', error);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsDeleteModalOpen(false); // Close the modal
+    }
 
     return (
         <div
@@ -82,25 +122,12 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
                 <p className="position">{card.position}</p>
             </div>
 
-                {/* <MdShare 
-                    className="share-icon" 
-                    onClick={stopPropagation}
-                    onMouseDown={stopPropagation} 
-                    onMouseUp={stopPropagation} 
-                /> */}
-            {/* </div> */}
-            {/* <div className="card-details">
-                <h3 className="company-name">{card.company}</h3>
-                <p className="position">{card.position}</p>
-            </div> */}
-
             <div className="right-icons">
                 <IoMdStar  
                     className={`star-icon ${isFavorited ? 'favorited' : ''}`}
                     onClick={handleToggleFavorite}
                     onMouseDown={stopPropagation} 
                     onMouseUp={stopPropagation} 
-                    // style={{ color: isFavorited ? 'yellow' : 'grey' }}
                 />
                 {/* Add wrapper for link and delete icons */}
                 <div className="icon-buttons">
@@ -109,12 +136,9 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
                         onClick={(e) => {
                             stopPropagation(e);
                             if (card.url) {
-                                // Check if the URL already has a scheme (http or https)
                                 const isValidUrl = card.url.startsWith('http://') || card.url.startsWith('https://');
                                 const finalUrl = isValidUrl ? card.url : `https://${card.url}`;
-                                
-                                window.open(finalUrl, '_blank'); // Opens the final URL in a new tab                            } else {
-                                console.log("No URL provided for this card");
+                                window.open(finalUrl, '_blank');
                             }
                         }}
                         onMouseDown={stopPropagation}
@@ -122,16 +146,18 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
                     />
                     <IoMdTrash 
                         className="delete-icon"
-                        onClick={(e) => {
-                            stopPropagation(e);
-                            // Add your delete functionality here
-                            // console.log("Delete button clicked");
-                        }}
-                        onMouseDown={stopPropagation}
-                        onMouseUp={stopPropagation}
+                        onClick={handleDeleteClick}
+                        onMouseDown={(e) => { e.stopPropagation(); }}  // Prevent mouse down from affecting card
+                        onMouseUp={(e) => { e.stopPropagation(); }}    // Prevent mouse up from affecting card
                     />
                 </div>
             </div>
+
+            <DeleteCardModal
+                isOpen={isDeleteModalOpen}
+                onClose={handleCloseModal}
+                onDelete={handleConfirmDelete} // Pass the correct delete handler
+            />
 
         </div>
     );

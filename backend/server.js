@@ -225,4 +225,35 @@ app.put('/applications/:id/favorite', authenticateToken, async (req, res) => {
 });
 
 
+
+// Deleting Card
+// DELETE an application by ID
+app.delete('/applications/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.userId; // Get the user ID from the JWT
+
+  // console.log(`Deleting application with ID: ${id} for user: ${userId}`); // Add this log
+
+  try {
+    const query = `
+      DELETE FROM "Application"
+      WHERE "ApplicationId" = $1 AND "UserId" = $2
+      RETURNING *;
+    `;
+    const values = [id, userId];
+
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Application not found or not authorized to delete' });
+    }
+
+    res.status(200).json({ message: 'Application deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting application:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
   
