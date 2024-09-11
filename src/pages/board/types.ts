@@ -12,6 +12,7 @@ export interface Card {
     data_applied: string;
     card_color: string;
     job_id: Number;
+    Favourite: boolean;
 }
 
 export interface Column {

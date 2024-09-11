@@ -33,15 +33,15 @@ export const BoardProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       };
 
     // Function to update a card
-    const updateCard = (id: number, updatedData: Partial<Card>) => {
-        setColumns(prevColumns =>
-          prevColumns.map(col => {
-            const updatedCards = col.cards.map(card =>
-              card.id === id ? { ...card, ...updatedData, companyLogo: updatedData.companyLogo || card.companyLogo } : card
-            );
-            return { ...col, cards: updatedCards };
-          })
-        );
+      const updateCard = (id: number, updatedData: Partial<Card>) => {
+          setColumns(prevColumns =>
+              prevColumns.map(col => {
+                  const updatedCards = col.cards.map(card =>
+                      card.id === id ? { ...card, ...updatedData, Favourite: updatedData.Favourite || card.Favourite } : card
+                  );
+                  return { ...col, cards: updatedCards };
+              })
+          );
       };
 
     // Function to handle drag and drop
