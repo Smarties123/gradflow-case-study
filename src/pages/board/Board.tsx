@@ -238,9 +238,20 @@ const Board: React.FC = () => {
                   <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
                     {column.cards.map((card, index) => (
                       <Draggable key={card.id} draggableId={String(card.id)} index={index}>
-                        {provided => (
-                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                            <CardComponent card={card} onSelect={handleCardSelect} user={user} onFavoriteToggle={handleFavoriteToggle}/>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <CardComponent
+                              card={card}
+                              onSelect={handleCardSelect}
+                              user={user}
+                              onFavoriteToggle={handleFavoriteToggle}
+                              provided={provided}
+                              snapshot={snapshot}  // Pass snapshot to detect drag state
+                            />
                           </div>
                         )}
                       </Draggable>

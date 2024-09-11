@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import './CardComponent.less'; // Make sure the CSS file is linked
-import { FaStar } from 'react-icons/fa';
-import { MdShare } from 'react-icons/md'; // Assuming use of share icon for external link
-import { Icon } from '@rsuite/icons';
-import { VscInfo } from 'react-icons/vsc'; // Assuming use of info icon
-import { IconButton } from 'rsuite';
+import './CardComponent.less'; 
+import { FaStar } from 'react-icons/fa'; 
+import { MdShare } from 'react-icons/md'; 
+import { VscInfo } from 'react-icons/vsc'; 
+import { IconButton } from 'rsuite'; 
 import { useUser } from '@/components/User/UserContext';
 
-const CardComponent = ({ card, onSelect, user, onFavoriteToggle }) => {
-    // State should be derived from props and updated when the card prop changes
+const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snapshot }) => {
     const [isFavorited, setIsFavorited] = useState(card.Favourite || false);
+    const [isHolding, setIsHolding] = useState(false); 
+    let pressTimer = null;
 
-    // Sync state with props when card.Favourite changes
     useEffect(() => {
         setIsFavorited(card.Favourite);
     }, [card.Favourite]);
@@ -33,7 +32,7 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle }) => {
 
             if (response.ok) {
                 const updatedCard = await response.json();
-                onFavoriteToggle(updatedCard.application); // Call parent update
+                onFavoriteToggle(updatedCard.application); 
             } else {
                 console.error('Failed to update favorite status');
             }
@@ -42,33 +41,76 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle }) => {
         }
     };
 
+    const handleMouseDown = () => {
+        pressTimer = setTimeout(() => {
+            setIsHolding(true); 
+        }, 300);
+    };
+
+    const handleMouseUp = () => {
+        clearTimeout(pressTimer); 
+        if (!isHolding) {
+            onSelect(card); 
+        } else {
+            setIsHolding(false); 
+        }
+    };
+
+    const stopPropagation = (e) => {
+        e.stopPropagation();
+    };
 
     return (
-        <div style={{ backgroundColor: card.card_color }} className="card">
-            <div className="left-icons">
-                {/* Dynamically render the company logo */}
-                {card.companyLogo ? (
-                    <img src={card.companyLogo} alt={card.company} className="company-logo" />
-                ) : null}
-
-                {/* Display the share icon below the company logo */}
-                <MdShare className="share-icon" />
-            </div>
-            <div className="card-details">
-                <h3 className="company-name">{card.company}</h3>
+        <div
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+            style={{ backgroundColor: card.card_color }}
+            className={`card ${snapshot.isDragging ? 'is-dragging' : ''} ${isHolding ? 'is-holding' : ''}`}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onTouchStart={handleMouseDown}
+            onTouchEnd={handleMouseUp}
+        >
+            <div className="card-content">
+                <div className="left-icons">
+                    {card.companyLogo ? (
+                        <img src={card.companyLogo} alt={card.company} className="company-logo-small" />
+                    ) : null}
+                    <h3 className="company-name">{card.company}</h3>
+                </div>
                 <p className="position">{card.position}</p>
             </div>
+
+                {/* <MdShare 
+                    className="share-icon" 
+                    onClick={stopPropagation}
+                    onMouseDown={stopPropagation} 
+                    onMouseUp={stopPropagation} 
+                /> */}
+            {/* </div> */}
+            {/* <div className="card-details">
+                <h3 className="company-name">{card.company}</h3>
+                <p className="position">{card.position}</p>
+            </div> */}
 
             <div className="right-icons">
                 <FaStar
                     className={`star-icon ${isFavorited ? 'favorited' : ''}`}
                     onClick={handleToggleFavorite}
+                    onMouseDown={stopPropagation} 
+                    onMouseUp={stopPropagation} 
                     style={{ color: isFavorited ? 'yellow' : 'grey' }}
                 />
-                <IconButton className="info-icon"
-                    icon={<Icon as={VscInfo} />}
-                    onClick={() => onSelect(card)}
-                />
+                {/* <IconButton className="info-icon"
+                    icon={<VscInfo />}
+                    onClick={(e) => {
+                        stopPropagation(e); // Prevent triggering onSelect
+                        onSelect(card); // Open drawer on info click
+                    }}
+                    onMouseDown={stopPropagation}
+                    onMouseUp={stopPropagation}
+                /> */}
             </div>
         </div>
     );
