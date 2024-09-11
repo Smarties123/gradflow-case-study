@@ -44,12 +44,12 @@ const BarChart: React.FC<BarChartProps> = ({
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom:'10px'}}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
         <h4 style={{ color: '#FFF' }}>{title}</h4>
       </div>
-      <div style={{ display: 'flex', gap: '10px', marginBottom:'10px' }}>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
         <select
-          style={{ background: '#333', color: '#FFF', border: '1px solid #FFF', borderRadius: '3px' }}
+          style={{ border: '1px solid #FFF', borderRadius: '3px' }}
           value={timeFrame}
           onChange={(e) => setTimeFrame(e.target.value)}
         >
@@ -59,7 +59,7 @@ const BarChart: React.FC<BarChartProps> = ({
           <option value="Monthly">Monthly</option>
         </select>
         <select
-          style={{ background: '#333', color: '#FFF', border: '1px solid #FFF', borderRadius: '3px' }}
+          style={{ border: '1px solid #FFF', borderRadius: '3px' }}
           value={stage}
           onChange={(e) => setStage(e.target.value)}
         >

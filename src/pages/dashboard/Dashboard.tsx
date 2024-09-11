@@ -48,40 +48,6 @@ const Dashboard: React.FC = () => {
   }));
 
 
-
-
-
-
-
-
-  // const dailyData = useMemo(() => {
-  // ), [columns]);
-
-  // const monthandAppliedData = useMemo(() => {
-  // ), [columns]);
-
-  // const monthandInternalData = useMemo(() => {
-  // ), [columns]);
-
-
-
-
-  const lineChartData = [
-    { name: 'March 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'April 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'May 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'June 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'July 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'August 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'September 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'October 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'November 2020', Apply: 2, 'Phone Interview': 1, 'Phone Call': 1, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'December 2020', Apply: 6, 'Phone Interview': 4, 'Phone Call': 2, 'On Site Interview': 3, 'Offer Received': 2, 'Received Offer': 1 },
-    { name: 'January 2021', Apply: 12, 'Phone Interview': 10, 'Phone Call': 6, 'On Site Interview': 5, 'Offer Received': 4, 'Received Offer': 3 },
-    { name: 'February 2021', Apply: 6, 'Phone Interview': 5, 'Phone Call': 3, 'On Site Interview': 2, 'Offer Received': 1, 'Received Offer': 0 },
-    { name: 'March 2021', Apply: 1, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-  ];
-
   // Construct the highlightData using the columns from BoardContext
   const highlightData = columns.map((column, index) => ({
     title: column.title,
@@ -94,7 +60,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="scroll-container">
-      <Row style={{marginRight:'10px'}}>
+      <Row style={{ marginRight: '10px' }}>
         <Col xs={24} id="border-line">
           <HighlightTiles data={highlightData} />
         </Col>
@@ -108,7 +74,7 @@ const Dashboard: React.FC = () => {
           />
         </Col>
       </Row>
-      <Row gutter={16} style={{ margin: 0, display: 'flex'}}>
+      <Row gutter={16} style={{ margin: 0, display: 'flex' }}>
         <Col id="border-line" xs={24} md={12} style={{ padding: 0 }}>
           <Panel style={{ background: 'none', boxShadow: 'none', margin: '0px 0px' }}>
             <BarChart
@@ -116,17 +82,17 @@ const Dashboard: React.FC = () => {
               title="Jobs Created" />
           </Panel>
         </Col>
-        
+
         <Col xs={24} md={12} style={{ padding: 0 }}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin:'10px 0px 10px 10px'}}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px 10px 10px' }}>
             <DonutChartComponent data={donutData} />
           </Panel>
         </Col>
       </Row>
       <Row>
         <Col xs={24}>
-          <Panel style={{ background: 'none', boxShadow: 'none' }}>
-            <LineChartComponent data={lineChartData} title="Application Activity" />
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px 10px 0px' }}>
+            <LineChartComponent columns={columns} title="Application Activity" />
           </Panel>
         </Col>
       </Row>
