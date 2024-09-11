@@ -192,7 +192,7 @@ app.put('/applications/:id/favorite', authenticateToken, async (req, res) => {
   const userId = req.user.userId; // Ensure the user is correctly fetched from JWT
 
   // console.log("")
-  console.log('Received favorite status update request:', { id, isFavorited, userId });
+  // console.log('Received favorite status update request:', { id, isFavorited, userId });
 
   if (typeof isFavorited !== 'boolean') {
       return res.status(400).json({ message: 'Invalid favorite status' });
@@ -207,11 +207,11 @@ app.put('/applications/:id/favorite', authenticateToken, async (req, res) => {
       `;
 
       const values = [isFavorited, userId, id];
-      console.log('Executing query:', query, 'with values:', values); // Log the query and values
+      // console.log('Executing query:', query, 'with values:', values); // Log the query and values
       const { rows } = await pool.query(query, values);
 
       if (rows.length > 0) {
-        console.log('Favorite status updated:', rows[0]); // Log the updated row
+        // console.log('Favorite status updated:', rows[0]); // Log the updated row
 
           res.status(200).json({ message: 'Favorite status updated', application: rows[0] });
       } else {

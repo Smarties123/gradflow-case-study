@@ -40,6 +40,8 @@
     cursor: grabbing !important; /* Change to grabbing icon when the card is dragged */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25); /* Enhanced shadow for dragging */
     transform: scale(1.03); /* Slight scale to raise the card visually */
+    border: 5px solid #8A2BE2;
+
 }
 
 .card-content {
@@ -114,40 +116,54 @@
 
 .star-icon {
     font-size: 24px;
-    color: yellow; /* Default star color */
-    margin-bottom: 30px;
+    // color: yellow; /* Default star color */
+    color: white; /*
+    // margin-bottom: ;
     cursor: pointer; /* Changes cursor to pointer when hovering */
     // transition: color 0.3s ease; /* Smooth transition for color change */
+    margin-left: 20px;
+}
+
+.star-icon.favorited {
+    color: yellow; /* Change color to yellow when favorited */
 }
 
 .star-icon:hover {
     color: yellow; /* Change color to yellow when hovered */
 }
 
-.share-icon {
-    font-size: 24px;
-    color: #000;
-    margin: 0px 10px;
-    /* Adjust color as needed */
-}
 
 .right-icons {
     display: flex;
     flex-direction: column;
     align-items: center;
+    opacity: 0; /* Initially hidden */ /* Initially hidden */
+    // transition: opacity 0.3s ease; /* Smooth transition for appearance */
 }
 
-.info-icon {
+.card:hover .right-icons {
+    opacity: 1; /* Show icons on hover */
+}
+
+.delete-icon, .link-icon {
+    margin-top: 15px;
     font-size: 20px;
-    top: 5px;
-    border: black solid 1px;
+    cursor: pointer; /* Show pointer cursor on hover */
+    color: white; /* Icon color */
 }
 
-.info-icon:hover {
-    // background-color: #ff6200;
-    /* Adjust color as needed */
-    color: black;
+.delete-icon:hover {
+    color: red; /* Change to red on hover */
 }
+
+
+.link-icon:hover {
+    color: blue; /* Change to blue on hover */
+}
+
+
+
+
 
 @media (max-width:498px) {
     .card {

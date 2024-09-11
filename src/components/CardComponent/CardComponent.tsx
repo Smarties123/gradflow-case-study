@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './CardComponent.less'; 
-import { FaStar } from 'react-icons/fa'; 
+import { IoMdStar, IoMdTrash, IoMdLink} from "react-icons/io";
 import { MdShare } from 'react-icons/md'; 
 import { VscInfo } from 'react-icons/vsc'; 
 import { IconButton } from 'rsuite'; 
@@ -95,23 +95,44 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
             </div> */}
 
             <div className="right-icons">
-                <FaStar
+                <IoMdStar  
                     className={`star-icon ${isFavorited ? 'favorited' : ''}`}
                     onClick={handleToggleFavorite}
                     onMouseDown={stopPropagation} 
                     onMouseUp={stopPropagation} 
-                    style={{ color: isFavorited ? 'yellow' : 'grey' }}
+                    // style={{ color: isFavorited ? 'yellow' : 'grey' }}
                 />
-                {/* <IconButton className="info-icon"
-                    icon={<VscInfo />}
-                    onClick={(e) => {
-                        stopPropagation(e); // Prevent triggering onSelect
-                        onSelect(card); // Open drawer on info click
-                    }}
-                    onMouseDown={stopPropagation}
-                    onMouseUp={stopPropagation}
-                /> */}
+                {/* Add wrapper for link and delete icons */}
+                <div className="icon-buttons">
+                    <IoMdLink 
+                        className="link-icon"
+                        onClick={(e) => {
+                            stopPropagation(e);
+                            if (card.url) {
+                                // Check if the URL already has a scheme (http or https)
+                                const isValidUrl = card.url.startsWith('http://') || card.url.startsWith('https://');
+                                const finalUrl = isValidUrl ? card.url : `https://${card.url}`;
+                                
+                                window.open(finalUrl, '_blank'); // Opens the final URL in a new tab                            } else {
+                                console.log("No URL provided for this card");
+                            }
+                        }}
+                        onMouseDown={stopPropagation}
+                        onMouseUp={stopPropagation}
+                    />
+                    <IoMdTrash 
+                        className="delete-icon"
+                        onClick={(e) => {
+                            stopPropagation(e);
+                            // Add your delete functionality here
+                            // console.log("Delete button clicked");
+                        }}
+                        onMouseDown={stopPropagation}
+                        onMouseUp={stopPropagation}
+                    />
+                </div>
             </div>
+
         </div>
     );
 };
