@@ -42,7 +42,6 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
     };
 
     const handleMouseDown = (e) => {
-        // Prevent card interaction when modal is open
         if (isDeleteModalOpen) return;
 
         if (e.target.tagName !== 'BUTTON' && !e.target.closest('.icon-buttons')) {
@@ -53,7 +52,6 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
     };
 
     const handleMouseUp = () => {
-        // Prevent card interaction when modal is open
         if (isDeleteModalOpen) return;
 
         clearTimeout(pressTimer); 
@@ -73,21 +71,18 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
         setIsDeleteModalOpen(true); // Show the delete modal
     };
 
-    // Delete card function (remove any duplicate definition of this)
     const handleConfirmDelete = async () => {
-        // console.log(card.id);
-
         try {
             const response = await fetch(`http://localhost:3001/applications/${card.id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${user.token}`,  // Ensure the token is sent for authentication
+                    'Authorization': `Bearer ${user.token}`, 
                 },
             });
 
             if (response.ok) {
-                onDelete(card.id); // Call the parent delete function to update the UI
-                setIsDeleteModalOpen(false); // Close the modal
+                onDelete(card.id); 
+                setIsDeleteModalOpen(false); 
             } else {
                 console.error('Failed to delete the application');
             }
@@ -97,8 +92,13 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
     };
 
     const handleCloseModal = () => {
-        setIsDeleteModalOpen(false); // Close the modal
+        setIsDeleteModalOpen(false); 
     }
+
+    // Truncate logic
+    const truncateText = (text, limit) => {
+        return text.length > limit ? text.substring(0, limit) + '...' : text;
+    };
 
     return (
         <div
@@ -117,9 +117,11 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
                     {card.companyLogo ? (
                         <img src={card.companyLogo} alt={card.company} className="company-logo-small" />
                     ) : null}
-                    <h3 className="company-name">{card.company}</h3>
+                    {/* Truncate company name to 22 characters */}
+                    <h3 className="company-name">{truncateText(card.company, 22)}</h3>
                 </div>
-                <p className="position">{card.position}</p>
+                {/* Truncate position to 25 characters */}
+                <p className="position">{truncateText(card.position, 30)}</p>
             </div>
 
             <div className="right-icons">
@@ -129,7 +131,6 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
                     onMouseDown={stopPropagation} 
                     onMouseUp={stopPropagation} 
                 />
-                {/* Add wrapper for link and delete icons */}
                 <div className="icon-buttons">
                     <IoMdLink 
                         className="link-icon"
@@ -147,8 +148,8 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
                     <IoMdTrash 
                         className="delete-icon"
                         onClick={handleDeleteClick}
-                        onMouseDown={(e) => { e.stopPropagation(); }}  // Prevent mouse down from affecting card
-                        onMouseUp={(e) => { e.stopPropagation(); }}    // Prevent mouse up from affecting card
+                        onMouseDown={(e) => { e.stopPropagation(); }}  
+                        onMouseUp={(e) => { e.stopPropagation(); }}    
                     />
                 </div>
             </div>
@@ -156,7 +157,7 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
             <DeleteCardModal
                 isOpen={isDeleteModalOpen}
                 onClose={handleCloseModal}
-                onDelete={handleConfirmDelete} // Pass the correct delete handler
+                onDelete={handleConfirmDelete} 
             />
 
         </div>

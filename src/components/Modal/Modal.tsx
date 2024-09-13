@@ -24,9 +24,10 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
 
     const [companySuggestions, setCompanySuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false); // Add this
+    const [suggestionSelected, setSuggestionSelected] = useState(false);
 
     useEffect(() => {
-        if (company.length > 2) {
+        if (company.length > 2 && !suggestionSelected) {  // Only fetch suggestions if no suggestion was selected
             const fetchCompanySuggestions = async () => {
                 try {
                     const response = await fetch(`http://localhost:3001/company-search?q=${company}`, {
@@ -37,7 +38,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     if (response.ok) {
                         const data = await response.json();
                         setCompanySuggestions(data);
-                        setShowSuggestions(true); // Show the suggestions
+                        setShowSuggestions(true);  // Show the suggestions
                     } else {
                         console.error('Failed to fetch company suggestions');
                     }
@@ -48,9 +49,51 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             fetchCompanySuggestions();
         } else {
             setCompanySuggestions([]);
-            setShowSuggestions(false); // Hide the suggestions if input is too short
+            setShowSuggestions(false);  // Hide the suggestions if input is too short
         }
-    }, [company]);
+    }, [company, suggestionSelected]);  // Include suggestionSelected in the dependency array
+    
+    // Handle suggestion click to select the suggestion
+    const handleSuggestionClick = (suggestion) => {
+        setCompany(suggestion.name);
+        setCompanyLogo(suggestion.logo_url);  // Save the logo URL
+        setShowSuggestions(false);  // Hide the dropdown
+        setSuggestionSelected(true);  // Set the flag to true once a suggestion is selected
+    };
+       
+    // Handle blur event to save only text without logo and URL when user clicks offscreen
+    const handleBlur = (e) => {
+        if (!companySuggestions.length || !showSuggestions) {
+            setCompanyLogo('');
+            setUrl('');
+        }
+        setTimeout(() => setShowSuggestions(false), 150);  // Hide suggestions after a delay
+    };
+
+    // Handle key press event to select the first suggestion on 'Enter'
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && companySuggestions.length > 0) {
+            e.preventDefault();  // Prevent default 'Enter' behavior
+            const firstSuggestion = companySuggestions[0];
+            setCompany(firstSuggestion.name);
+            setCompanyLogo(firstSuggestion.logo_url);  // Save the logo URL
+            setShowSuggestions(false);  // Hide the dropdown
+            setSuggestionSelected(true);  // Set the flag to true once a suggestion is selected
+        }
+    };
+
+    // Reset the flag when input is cleared or changed significantly
+    const handleInputChange = (e) => {
+        setCompany(e.target.value);
+        if (e.target.value === '') {
+            setSuggestionSelected(false);  // Reset the flag when input is cleared
+            setCompanyLogo('');
+        }
+    };
+
+
+
+
     
     
     const validateForm = () => {
@@ -79,15 +122,15 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 id: Date.now(),
                 company,
                 position,
-                deadline: dayjs(deadline).format('YYYY-MM-DD'),
-                location,
-                url,
-                companyLogo,
+                deadline: deadline ? dayjs(deadline).format('YYYY-MM-DD') : null,  // Optional field
+                location: location || null,  // Optional field
+                url: url || null,  // Optional field
+                companyLogo: companyLogo || null,  // Optional field
                 date_applied: dayjs().format('YYYY-MM-DD'),
                 card_color: '#ff6200',
                 userId: user ? user.id : null,
             };
-
+    
             try {
                 const response = await fetch('http://localhost:3001/addjob', {
                     method: 'POST',
@@ -97,7 +140,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     },
                     body: JSON.stringify(card),
                 });
-
+    
                 if (response.ok) {
                     addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card);
                     onClose();
@@ -121,26 +164,20 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             <input
                                 type="text"
                                 value={company}
-                                onChange={(e) => setCompany(e.target.value)}
+                                onChange={handleInputChange}
                                 placeholder="Ex. Apple"
                                 autoComplete="off"
-                                // onFocus={() => setShowSuggestions(true)} // Show suggestions on focus
-                                // onBlur={() => setTimeout(() => setShowSuggestions(false), 100)} // Hide suggestions after a short delay
+                                onBlur={handleBlur}  // Handle blur event
+                                onKeyDown={handleKeyDown}  // Handle 'Enter' key press
                             />
-                            {showSuggestions && companySuggestions.length > 0 && (
+                            {showSuggestions && companySuggestions.length > 0 && ( // Inside JSX for suggestions dropdown
                                 <ul className="suggestions-list">
                                     {companySuggestions.slice(0, 5).map((suggestion, index) => (
-                                        <li key={index} onClick={() => {
-                                            setCompany(suggestion.name);
-                                            setUrl(suggestion.domain);
-                                            setCompanyLogo(suggestion.logo_url); // Save the logo URL
-                                            setShowSuggestions(false); // Hide the dropdown
-                                        }}>
+                                        <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
                                             <div className="suggestion-item">
                                                 <img src={suggestion.logo_url} alt={suggestion.name} className="company-logo-modal" />
                                                 <div className="company-details">
                                                     <span className="company-name-modal">{suggestion.name}</span>
-                                                    <span className="company-domain-modal">{suggestion.domain}</span>
                                                 </div>
                                             </div>
                                         </li>
