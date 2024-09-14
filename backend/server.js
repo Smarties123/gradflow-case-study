@@ -176,8 +176,8 @@ app.post('/signup', async (req, res) => {
       let user;
       if (rows.length === 0) {
         // If user does not exist, create a new user
-        const insertQuery = 'INSERT INTO "Users" ("Username", "Email", "GoogleUID") VALUES ($1, $2, $3) RETURNING *';
-        const insertValues = [name || email, email, uid];
+        const insertQuery = 'INSERT INTO "Users" ("Username", "Email", "EXTERNAL_ID", "AuthProvider") VALUES ($1, $2, $3, $4) RETURNING *';
+        const insertValues = [name || email, email, uid,"Google"];
         const result = await pool.query(insertQuery, insertValues);
         user = result.rows[0];
       } else {
