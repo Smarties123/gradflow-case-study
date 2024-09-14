@@ -3,18 +3,13 @@ import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Button, Grid, Ro
 const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea" ref={ref} />);
 import Github from '@uiw/react-color-github';
 import './DrawerView.less';
+import dayjs from 'dayjs';
 
 const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
     const [currentView, setCurrentView] = useState('details'); // State to track current view
 
     const parseDate = (dateStr) => {
-        if (typeof dateStr === 'string' && dateStr) {
-            const [year, month, day] = dateStr.split('-').map(Number);
-            if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-                return new Date(Date.UTC(year, month - 1, day));
-            }
-        }
-        return null;
+        return dateStr ? dayjs(dateStr).toDate() : null;
     };
 
     // State to manage form inputs
@@ -28,7 +23,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
         notes: card.notes,
         salary: card.salary,
         interview_stage: card.interview_stage,
-        date_applied: card.date_applied,
+        date_applied: card.date_applied ? dayjs(card.date_applied).format('DD-MM-YYYY') : null, // Format date_applied as DD-MM-YYYY
         card_color: card.card_color
     });
 
