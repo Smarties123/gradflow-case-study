@@ -257,6 +257,30 @@ app.delete('/applications/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// For updating column/application status when card is being moved
+app.put('/applications/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const userId = req.user.userId;
 
+  try {
+    const query = `
+      UPDATE "Application"
+      SET "ApplicationStatus" = $1
+      WHERE "UserId" = $2 AND "ApplicationId" = $3
+      RETURNING *;
+    `;
+    const values = [status, userId, id];
+    const { rows } = await pool.query(query, values);
 
+    if (rows.length > 0) {
+      res.status(200).json({ message: 'Application status updated', application: rows[0] });
+    } else {
+      res.status(404).json({ message: 'Application not found' });
+    }
+  } catch (error) {
+    console.error('Error updating application status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
   
