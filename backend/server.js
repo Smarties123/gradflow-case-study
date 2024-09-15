@@ -140,7 +140,7 @@ app.post('/signup', async (req, res) => {
 
 //Will need improvements to handle nulls in future
 app.post('/addjob', authenticateToken, async (req, res) => {
-  const { company, position, deadline, location, url, date_applied, card_color, companyLogo, status } = req.body;
+  const { company, position, deadline, location, url, date_applied, card_color, companyLogo, statusId } = req.body;
 
   if (!company || !position) {
     return res.status(400).json({ message: 'Company and position are required' });
@@ -148,12 +148,12 @@ app.post('/addjob', authenticateToken, async (req, res) => {
 
   try {
     const query = `
-      INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId", "CompanyLogo", "ApplicationStatus")
+      INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId", "CompanyLogo", "StatusId")
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *;
     `;
 
-    const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId, companyLogo, status];
+    const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId, companyLogo, statusId];
     console.log("Executing query with values:", values); // Log values for debugging
     
     const result = await pool.query(query, values);
@@ -257,20 +257,45 @@ app.delete('/applications/:id', authenticateToken, async (req, res) => {
   }
 });
 
+
+
+// Moving Cards and Column Control
+// to get StatusName (colum) This will ensure that when you fetch the applications, it includes the StatusName for each one.
+app.get('/applications', authenticateToken, async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const query = `
+      SELECT a.*, s."StatusName"
+      FROM "Application" a
+      JOIN "Status" s ON a."StatusId" = s."StatusId"
+      WHERE a."UserId" = $1
+      ORDER BY a."Deadline" DESC;
+    `;
+    const values = [userId];
+    const { rows: jobs } = await pool.query(query, values);
+    res.status(200).json(jobs);
+
+  } catch (error) {
+    console.error('Error fetching applications:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // For updating column/application status when card is being moved
 app.put('/applications/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { statusId } = req.body;  // Pass the statusId from the frontend
   const userId = req.user.userId;
 
   try {
     const query = `
       UPDATE "Application"
-      SET "ApplicationStatus" = $1
+      SET "StatusId" = $1
       WHERE "UserId" = $2 AND "ApplicationId" = $3
       RETURNING *;
     `;
-    const values = [status, userId, id];
+    const values = [statusId, userId, id];
     const { rows } = await pool.query(query, values);
 
     if (rows.length > 0) {
@@ -283,4 +308,8 @@ app.put('/applications/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+
+
   

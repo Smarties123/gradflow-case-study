@@ -76,33 +76,24 @@ const Board: React.FC = () => {
 
   // Function to group jobs into columns based on some status
   const groupJobsIntoColumns = (jobs: Card[]): Column[] => {
-    //we want to group by 'Status'
     const columns: Column[] = [
-      { id: 1, title: 'Applied', cards: [] },
-      { id: 2, title: 'Interview', cards: [] },
-      { id: 3, title: 'Offered', cards: [] },
-      { id: 4, title: 'Rejected', cards: [] },
+      { id: 1, title: 'To Do', cards: [] },
+      { id: 2, title: 'Applied', cards: [] },
+      { id: 3, title: 'Interview', cards: [] },
+      { id: 4, title: 'Offered', cards: [] },
+      { id: 5, title: 'Rejected', cards: [] },
     ];
-
+  
     jobs.forEach(job => {
-      switch (job.interview_stage) {
-        case 'Applied':
-          columns[0].cards.push(job);
-          break;
-        case 'Interview':
-          columns[1].cards.push(job);
-          break;
-        case 'Offered':
-          columns[2].cards.push(job);
-          break;
-        case 'Rejected':
-          columns[3].cards.push(job);
-          break;
-        default:
-          columns[0].cards.push(job); // Default to 'Applied' if status is unknown
+      const statusIndex = columns.findIndex(col => col.title === job.statusName); // Assuming you now get 'statusName' from the API
+  
+      if (statusIndex >= 0) {
+        columns[statusIndex].cards.push(job);
+      } else {
+        columns[0].cards.push(job); // Default to 'To Do' if status is unknown
       }
     });
-
+  
     return columns;
   };
 

@@ -122,14 +122,14 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 id: Date.now(),
                 company,
                 position,
-                deadline: deadline ? dayjs(deadline).format('YYYY-MM-DD') : null, // Optional field
-                location: location || null, // Optional field
-                url: url || null, // Optional field
-                companyLogo: companyLogo || null, // Optional field
+                deadline: deadline ? dayjs(deadline).format('YYYY-MM-DD') : null,
+                location: location || null,
+                url: url || null,
+                companyLogo: companyLogo || null,
                 date_applied: dayjs().format('YYYY-MM-DD'),
                 card_color: '#ff6200',
                 userId: user ? user.id : null,
-                status: activeColumn ? activeColumn.title : columns.find(col => col.id === selectedColumn)?.title, // Add this line to send the selected status
+                statusId: activeColumn ? activeColumn.id : selectedColumn, // Send the statusId (column ID)
             };
     
             try {
@@ -153,6 +153,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             }
         }
     };
+    
     
 
     return (
