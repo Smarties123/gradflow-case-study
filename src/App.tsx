@@ -13,7 +13,7 @@ import Dashboard from './pages/dashboard/Dashboard';
 import TableComponent from './pages/table/Table';
 import { UserProvider } from './components/User/UserContext';
 import ForgotPassword from './components/ForgotPassword/ForgotPassword';  // Adjust path if necessary
-
+import ResetPassword from './components/ForgotPassword/ResetPassword';  // Adjust path if necessary
 
 
 const App = () => {
@@ -25,6 +25,7 @@ const App = () => {
         <Route path="/signin" element={<UserProvider><SignIn /></UserProvider>} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/ForgotPassword" element={<ForgotPassword />} /> {/* Add this route */}
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
         
         {/* Routes that require UserContext */}
         <Route

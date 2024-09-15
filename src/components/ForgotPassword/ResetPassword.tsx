@@ -12,37 +12,53 @@ import Paper from '@mui/material/Paper';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 import FeedbackButton from '../FeedbackButton/FeedbackButton';
+import { useParams } from 'react-router-dom';
 
 const defaultTheme = createTheme();
 
-export default function ForgotPassword() {
+export default function ResetPassword() {
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
+  const { token } = useParams();  // Directly extract token from useParams
   const isSmallScreen = useMediaQuery('(max-width:600px)');
+
+  React.useEffect(() => {
+    if (!token) {
+      setError('Reset token is missing or invalid.');
+    } else {
+      console.log('Token:', token);  // Ensure the token is logged for debugging
+    }
+  }, [token]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get('email') as string;
+    const password = data.get('password') as string;
+    const confirmPassword = data.get('confirmPassword') as string;
 
-      // Basic email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        setError('Please enter a valid email address.');
-        return;
-      }
+    // Basic validations
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    if (!token) {
+      setError('Reset token is missing or invalid.');
+      return;
+    }
 
     try {
-      const response = await fetch('http://localhost:3001/forgot-password', {
+      const response = await fetch('http://localhost:3001/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, token, password }),
       });
 
       if (response.ok) {
-        setSuccess('Password reset link has been sent to your email.');
+        setSuccess('Password has been reset successfully.');
         setError(null);
       } else {
         const errorMessage = await response.text();
@@ -72,17 +88,17 @@ export default function ForgotPassword() {
             display: isSmallScreen ? 'none' : 'block',
           }}
         />
-        <Grid 
-          item 
-          xs={12} 
-          sm={8} 
-          md={5} 
-          component={Paper} 
-          elevation={6} 
+        <Grid
+          item
+          xs={12}
+          sm={8}
+          md={5}
+          component={Paper}
+          elevation={6}
           square
-          sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
             justifyContent: 'center',
             minHeight: '100vh',
           }}
@@ -99,7 +115,7 @@ export default function ForgotPassword() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Forgot Password
+              Reset Password
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
               <TextField
@@ -111,6 +127,26 @@ export default function ForgotPassword() {
                 name="email"
                 autoComplete="email"
                 autoFocus
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label="New Password"
+                type="password"
+                id="password"
+                autoComplete="new-password"
+              />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="confirmPassword"
+                label="Confirm New Password"
+                type="password"
+                id="confirmPassword"
+                autoComplete="new-password"
               />
               {error && (
                 <Typography color="error" variant="body2">
@@ -128,19 +164,12 @@ export default function ForgotPassword() {
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
               >
-                Send Reset Link
+                Reset Password
               </Button>
               <Grid container justifyContent="flex-end">
                 <Grid item>
                   <Link href="/SignIn" variant="body2">
                     Remember your password? Sign In
-                  </Link>
-                </Grid>
-              </Grid>
-              <Grid container justifyContent="flex-end">
-                <Grid item>
-                  <Link href="/SignUp" variant="body2">
-                    {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
               </Grid>

@@ -4,7 +4,9 @@ import cors from 'cors';
 import pg from 'pg';
 import jwt from 'jsonwebtoken'; 
 
-
+import bodyParser from 'body-parser';
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
 import admin from 'firebase-admin';
 
@@ -16,6 +18,12 @@ const { Pool } = pg;
 import { config } from "dotenv";
 config({ path: process.ENV }) // all env vars after this initialization
 const SECRET_KEY = process.env.JWT_SECRET;
+const TOKEN_EXPIRATION_MINUTES = 15;
+const SALT_ROUNDS = 10;
+
+
+const frontendUrl = 'http://localhost:3100'; //needs to be adjusted based on env
+
 
 // Configuration for your database
 const pool = new Pool({
@@ -45,6 +53,16 @@ admin.initializeApp({
 });
 
 
+// Create reusable transporter object using the default SMTP transport (replace with real credentials)
+const transporter = nodemailer.createTransport({
+  service: 'Gmail', // or use a different email service like 'SendGrid', 'Mailgun', etc.
+  auth: {
+    user: process.env.SMTP_EMAIL, // your email address
+    pass: process.env.SMTP_PASSWORD, // your email password or app password
+  },
+});
+
+
 
 
 
@@ -52,7 +70,7 @@ app.use(express.json());
 app.use(cors());
 const port = 3001;
 app.use(cors({
-  origin: 'http://localhost:3001',  // Adjust this to your frontend's URL
+  origin: 'http://localhost:3100',  // Adjust this to your frontend's URL
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
@@ -76,7 +94,7 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ message: 'Invalid token' });
-    req.user = user; // Attach the decoded user information to the request object
+    req.user = user;
     next();
   });
 };
@@ -150,6 +168,110 @@ app.post('/signup', async (req, res) => {
       }
   });
 
+
+  app.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    const query = 'SELECT * FROM "Users" WHERE "Email" = $1';
+    const values = [email];
+  
+    try {
+      const { rows } = await pool.query(query, values);
+      
+      if (rows.length === 1) {
+        // Generate a secure random token
+        const verificationToken = crypto.randomBytes(64).toString('hex');
+        const hashedToken = await bcrypt.hash(verificationToken, SALT_ROUNDS);
+  
+        const expirationTime = new Date();
+        expirationTime.setMinutes(expirationTime.getMinutes() + TOKEN_EXPIRATION_MINUTES);
+  
+        const updateQuery = `
+          UPDATE "Users"
+          SET "PWD_RESET_TOKEN" = $1, "RESET_TKN_TIME" = $2
+          WHERE "Email" = $3
+        `;
+        const updateValues = [hashedToken, expirationTime, email];
+        await pool.query(updateQuery, updateValues);
+  
+        // Send the token (unhashed) to the user's email
+        let mailOptions = {
+          from: process.env.SMTP_EMAIL,
+          to: email, 
+          subject: 'Password Reset Verification Code',
+          // text: `Your password reset token is: ${verificationToken}. It will expire in 15 minutes.`, // plain text body
+          // Optionally send HTML content
+          html: `
+         <p>It will expire in 15 minutes.</p>
+         <p>You can reset your password by clicking the following link:</p>
+         <a href="${frontendUrl}/reset-password/${verificationToken}">${frontendUrl}/reset-password/${verificationToken}</a>`,  // HTML version with clickable link
+        };
+  
+        await transporter.sendMail(mailOptions);
+  
+      } 
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ message: 'An error occurred while processing your request.' });
+    }
+    // Respond back with success
+    res.status(200).json({ message: 'Password reset token sent to your email.' });
+  });
+  
+  
+  app.post('/reset-password', async (req, res) => {
+    const { email, token, password } = req.body;
+    console.log(password);
+  
+    const query = 'SELECT "PWD_RESET_TOKEN", "RESET_TKN_TIME" FROM "Users" WHERE "Email" = $1';
+    const values = [email];
+  
+    try {
+      const { rows } = await pool.query(query, values);
+      
+      if (rows.length === 1) {
+        const { PWD_RESET_TOKEN, RESET_TKN_TIME } = rows[0];
+        console.log(PWD_RESET_TOKEN);
+  
+        // Check if the token has expired
+        // if (new Date() > new Date(RESET_TKN_TIME)) {
+        //   return res.status(400).json({ message: 'Token has expired.' });
+        // }
+  
+        // Compare the provided token with the hashed token in the database
+        const isMatch = await bcrypt.compare(token, PWD_RESET_TOKEN);  // Compare the plain token with the hashed token
+        if (!isMatch) {
+          console.log("Token Mismatch");
+          return res.status(400).json({ message: 'Invalid token.' });
+        }
+
+        console.log(SALT_ROUNDS);
+  
+        // Hash the new password before saving it
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+  
+        // Update the user's password and clear the token fields
+        const updateQuery = `
+          UPDATE "Users"
+          SET "Password" = $1, "PWD_RESET_TOKEN" = NULL, "RESET_TKN_TIME" = NULL
+          WHERE "Email" = $2
+        `;
+        const updateValues = [hashedPassword, email];
+        await pool.query(updateQuery, updateValues);
+  
+        // Respond with success
+        console.log("Reset Works?");
+        res.status(200).json({ message: 'Password has been reset successfully.' });
+      } else {
+        console.log("UNF Error");
+        res.status(404).json({ message: 'User not found.' });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ message: 'An error occurred while processing your request.' });
+    }
+  });
+  
+  
 
 
 
