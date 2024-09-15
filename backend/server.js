@@ -3,11 +3,10 @@ import bcrypt from 'bcrypt';
 import cors from 'cors';
 import pg from 'pg';
 import jwt from 'jsonwebtoken'; 
-
+import logoDevProxy from './logoDevProxy.js';
 import bodyParser from 'body-parser';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
-
 import admin from 'firebase-admin';
 
 
@@ -15,8 +14,12 @@ import admin from 'firebase-admin';
 
 const app = express();
 const { Pool } = pg;
-import { config } from "dotenv";
-config({ path: process.ENV }) // all env vars after this initialization
+import dotenv from 'dotenv';
+import { Favorite } from '@mui/icons-material';
+dotenv.config(); // This loads .env variables globally for the entire application
+// console.log("LOGO_DEV_API_KEY loaded from .env:", process.env.LOGO_DEV_API_KEY);
+
+
 const SECRET_KEY = process.env.JWT_SECRET;
 const TOKEN_EXPIRATION_MINUTES = 15;
 const SALT_ROUNDS = 10;
@@ -65,9 +68,18 @@ const transporter = nodemailer.createTransport({
 
 
 
+app.use(cors({
+  origin: 'http://localhost:3100',  // Frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],          // Allow specific HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization']  // Allow specific headers
+}));
+
 
 app.use(express.json());
-app.use(cors());
+
+// Your proxy route
+app.use(logoDevProxy)
+
 const port = 3001;
 app.use(cors({
   origin: 'http://localhost:3100',  // Adjust this to your frontend's URL
@@ -332,33 +344,33 @@ app.post('/signup', async (req, res) => {
 
 //Will need improvements to handle nulls in future
 app.post('/addjob', authenticateToken, async (req, res) => {
-  const { company, position, deadline, location, url, date_applied, card_color } = req.body;
-  console.log(deadline);
-  console.log(date_applied);
+  const { company, position, deadline, location, url, date_applied, card_color, companyLogo, status } = req.body;
 
   if (!company || !position) {
     return res.status(400).json({ message: 'Company and position are required' });
   }
 
   try {
-
     const query = `
-      INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId")
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId", "CompanyLogo", "ApplicationStatus")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *;
     `;
 
-    const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId];
-
+    const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId, companyLogo, status];
+    console.log("Executing query with values:", values); // Log values for debugging
+    
     const result = await pool.query(query, values);
     const addedJob = result.rows[0];
 
     res.status(201).json({ message: 'Job added successfully', job: addedJob });
   } catch (error) {
     console.error('Error adding job:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+
 
 
 // Endpoint to fetch user's applications
@@ -379,11 +391,99 @@ app.get('/applications', authenticateToken, async (req, res) => {
   }
 });
 
+app.put('/applications/:id/favorite', authenticateToken, async (req, res) => {
+  // console.log('Something', Favorite);
+  const { id } = req.params;
+  const { isFavorited } = req.body;
+  const userId = req.user.userId; // Ensure the user is correctly fetched from JWT
+
+  // console.log("")
+  // console.log('Received favorite status update request:', { id, isFavorited, userId });
+
+  if (typeof isFavorited !== 'boolean') {
+      return res.status(400).json({ message: 'Invalid favorite status' });
+  }
+
+  try {
+      const query = `
+          UPDATE "Application"
+          SET "Favourite" = $1
+          WHERE "UserId" = $2 AND "ApplicationId" = $3
+          RETURNING *;
+      `;
+
+      const values = [isFavorited, userId, id];
+      // console.log('Executing query:', query, 'with values:', values); // Log the query and values
+      const { rows } = await pool.query(query, values);
+
+      if (rows.length > 0) {
+        // console.log('Favorite status updated:', rows[0]); // Log the updated row
+
+          res.status(200).json({ message: 'Favorite status updated', application: rows[0] });
+      } else {
+        console.error('Application not found or no rows updated');
+          res.status(404).json({ message: 'Application not found' });
+      }
+  } catch (error) {
+      console.error('Error updating favorite status:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 
+// Deleting Card
+// DELETE an application by ID
+app.delete('/applications/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.userId; // Get the user ID from the JWT
 
+  // console.log(`Deleting application with ID: ${id} for user: ${userId}`); // Add this log
 
+  try {
+    const query = `
+      DELETE FROM "Application"
+      WHERE "ApplicationId" = $1 AND "UserId" = $2
+      RETURNING *;
+    `;
+    const values = [id, userId];
 
+    const result = await pool.query(query, values);
 
-  
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Application not found or not authorized to delete' });
+    }
+
+    res.status(200).json({ message: 'Application deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting application:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// For updating column/application status when card is being moved
+app.put('/applications/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const userId = req.user.userId;
+
+  try {
+    const query = `
+      UPDATE "Application"
+      SET "ApplicationStatus" = $1
+      WHERE "UserId" = $2 AND "ApplicationId" = $3
+      RETURNING *;
+    `;
+    const values = [status, userId, id];
+    const { rows } = await pool.query(query, values);
+
+    if (rows.length > 0) {
+      res.status(200).json({ message: 'Application status updated', application: rows[0] });
+    } else {
+      res.status(404).json({ message: 'Application not found' });
+    }
+  } catch (error) {
+    console.error('Error updating application status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});

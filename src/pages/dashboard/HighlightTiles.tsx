@@ -1,6 +1,9 @@
 import React from 'react';
 import { Col, Row, Panel } from 'rsuite';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { useSpring, animated } from 'react-spring';
+
+import InfoIcon from '@mui/icons-material/Info'; import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
 
 // Highlight Tile Component
 interface HighlightTileProps {
@@ -11,16 +14,38 @@ interface HighlightTileProps {
 }
 
 const HighlightTile: React.FC<HighlightTileProps> = ({ title, value, color, icon }) => {
+
+  const props = useSpring({
+    from: { number: 0 },
+    to: { number: value },
+    delay: 200,
+    config: { duration: 1000 },
+  });
+
   return (
     <Panel shaded style={{ background: color, color: '#FFF', borderRadius: '8px' }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ marginRight: '10px' }}>{icon}</div>
-        <div>
+        {/* Information Icon with Tooltip */}
+        <div style={{ position: 'absolute', top: 0, right: 0 }}>
+          <Tooltip title={`Number Of ${title} Applications Made`}>
+            <IconButton>
+              <InfoIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
+
+        {/* <div style={{ marginRight: '10px' }}>{icon}</div> */}
+        <div style={{ marginLeft: '8px' }}>
           <h4 style={{ margin: 0 }}>{title}</h4>
-          <h2 style={{ margin: 0 }}>{value}</h2>
+          <h2 style={{ margin: 0 }}>
+            <animated.span>
+              {props.number.to((n) => Math.floor(n))}
+            </animated.span>
+          </h2>
         </div>
       </div>
-    </Panel>
+
+    </Panel >
   );
 };
 
@@ -36,40 +61,10 @@ const HighlightTiles: React.FC<HighlightTilesProps> = ({ data }) => {
           <HighlightTile title={item.title} value={item.value} color={item.color} icon={item.icon} />
         </Col>
       ))}
-      <Col xs={24} sm={12} md={6}>
+      {/* <Col xs={24} sm={12} md={6}>
         <DonutChartComponent data={data} />
-      </Col>
+      </Col> */}
     </Row>
-  );
-};
-
-// Donut Chart Component
-interface DonutChartComponentProps {
-  data: { title: string; value: number; color: string }[];
-}
-
-const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
-  return (
-    <ResponsiveContainer width="100%" height={200}>
-      <PieChart>
-        <Pie
-          data={data}
-          dataKey="value"
-          nameKey="title"
-          cx="50%"
-          cy="50%"
-          innerRadius="60%"
-          outerRadius="80%"
-          fill="#8884d8"
-          paddingAngle={5}
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
-          ))}
-        </Pie>
-        <Tooltip />
-      </PieChart>
-    </ResponsiveContainer>
   );
 };
 

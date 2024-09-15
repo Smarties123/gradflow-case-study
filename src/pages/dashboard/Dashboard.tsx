@@ -1,6 +1,7 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Row, Col, Panel, DateRangePicker } from 'rsuite';
 import './styles.less';
+import useData from "../../data/useData";
 
 /* Chart Imports */
 import FunnelChart from './FunnelChart';
@@ -8,106 +9,116 @@ import BarChart from './BarChart';
 import LineChartComponent from './LineChart';
 import HighlightTiles from './HighlightTiles';
 import { BoardContext } from '../board/BoardContext'; // Adjust the path as needed
-// src\pages\board\BoardContext.tsx
-const Dashboard: React.FC = () => {
-  // Use the BoardContext to access the columns
-  const { columns } = useContext(BoardContext);
+import DonutChartComponent from './DonutChartComponent';
 
-  // Check if columns is defined to avoid accessing it before it's loaded
-  if (!columns) {
+const Dashboard: React.FC = () => {
+  const { columns } = useContext(BoardContext);
+  const [dropdownType, setDropdownTypes] = useState<string[]>([]);
+  const [selectedDateRange, setSelectedDateRange] = useState<[Date, Date] | null>(null);
+
+  if (!columns || columns.length === 0) {
     return <div>Loading...</div>;
   }
 
-  const funnelData1 = [
-    { name: 'Jobs Saved', value: 14, percent: 100, color: '#FF6200' },
-    { name: 'Applications', value: 12, percent: 85, color: '#FF7433' },
-    { name: 'Interviews', value: 8, percent: 66, color: '#FF8666' },
-    { name: 'Offers', value: 3, percent: 37, color: '#FF987F' },
-  ];
+  // Filter columns based on the selected date range
+  const filteredColumns = useMemo(() => {
+    if (!selectedDateRange) return columns;
 
+    const [startDate, endDate] = selectedDateRange;
+    return columns.map(column => ({
+      ...column,
+      cards: column.cards.filter(card => {
+        const cardDate = new Date(card.date_applied);
+        return cardDate >= startDate && cardDate <= endDate;
+      })
+    }));
+  }, [columns, selectedDateRange]);
 
-const maxCards = Math.max(...columns.map(column => column.cards.length)); // Find the maximum number of cards in any column
+  const maxCards = Math.max(...filteredColumns.map(column => column.cards.length), 0);
 
-const funnelData = columns.map((column, index) => ({
-  name: column.title,
-  value: column.cards.length,
-  percent: Math.round((column.cards.length / maxCards) * 100), // Calculate percentage based on the maximum
-  color: `hsl(24, 100%, ${50 + (index * 10)}%)`, // Dynamic color generation based on index
-}));
+  const donutData = filteredColumns.map((column, index) => ({
+    name: column.title,
+    value: column.cards.length,
+    percent: Math.round((column.cards.length / maxCards) * 100),
+    color: `hsl(24, 100%, ${50 + (index * 10)}%)`,
+  }));
 
-  const barChartData = [
-    { date: 'Jan 2 2023', value: 8 },
-    { date: 'Jan 9 2023', value: 12 },
-    { date: 'Jan 16 2023', value: 6 },
-    { date: 'Jan 23 2023', value: 10 },
-    { date: 'Jan 30 2023', value: 7 },
-    { date: 'Feb 6 2023', value: 5 },
-    { date: 'Feb 13 2023', value: 11 },
-    { date: 'Feb 20 2023', value: 9 },
-    { date: 'Feb 27 2023', value: 14 },
-    { date: 'Mar 6 2023', value: 18 },
-    { date: 'Mar 13 2023', value: 7 },
-    { date: 'Mar 20 2023', value: 10 },
-    { date: 'Mar 27 2023', value: 6 },
-  ];
+  const funnelData = filteredColumns.map((column, index) => ({
+    name: column.title,
+    value: column.cards.length,
+    percent: Math.round((column.cards.length / maxCards) * 100),
+    color: `hsl(24, 100%, ${50 + (index * 10)}%)`,
+  }));
 
-  const lineChartData = [
-    { name: 'March 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'April 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'May 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'June 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'July 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'August 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'September 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'October 2020', Apply: 0, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'November 2020', Apply: 2, 'Phone Interview': 1, 'Phone Call': 1, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-    { name: 'December 2020', Apply: 6, 'Phone Interview': 4, 'Phone Call': 2, 'On Site Interview': 3, 'Offer Received': 2, 'Received Offer': 1 },
-    { name: 'January 2021', Apply: 12, 'Phone Interview': 10, 'Phone Call': 6, 'On Site Interview': 5, 'Offer Received': 4, 'Received Offer': 3 },
-    { name: 'February 2021', Apply: 6, 'Phone Interview': 5, 'Phone Call': 3, 'On Site Interview': 2, 'Offer Received': 1, 'Received Offer': 0 },
-    { name: 'March 2021', Apply: 1, 'Phone Interview': 0, 'Phone Call': 0, 'On Site Interview': 0, 'Offer Received': 0, 'Received Offer': 0 },
-  ];
-
-  // Construct the highlightData using the columns from BoardContext
-  const highlightData = columns.map((column, index) => ({
+  const highlightData = filteredColumns.map((column, index) => ({
     title: column.title,
     value: column.cards.length,
-    color: `hsl(24, 100%, ${50 + (index * 10)}%)`, // Dynamic color generation based on index
+    color: `hsl(24, 100%, ${50 + (index * 10)}%)`,
     icon: <div>{column.title[0]}</div>,
   }));
-  
+
+  const keyForCharts = JSON.stringify(filteredColumns.map(column => column.title + column.cards.length));
 
   return (
     <div className="scroll-container">
+      <Row style={{ marginRight: '10px' }}>
+        <Col xs={24} id="border-line">
+          <HighlightTiles data={highlightData} />
+        </Col>
+      </Row>
       <Row>
         <Col xs={24}>
           <DateRangePicker
             appearance="default"
             placeholder="Select Date Range"
-            style={{ marginBottom: '20px', background: '#333', color: '#FFF', border: '1px solid #FFF' }}
+            style={{ margin: '10px 10px' }}
+            onChange={(value: [Date, Date]) => setSelectedDateRange(value)}  // Update the selected date range
           />
         </Col>
       </Row>
-      <Row>
-        <Col xs={24}>
-          <HighlightTiles data={highlightData} />
+      {/* Charts Section */}
+      <Row gutter={16} style={{ margin: 0 }}>
+        <Col xs={24} md={12} style={{ padding: 0 }}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+            <BarChart
+              key={keyForCharts}  // Re-trigger BarChart animation
+              dropdownType={filteredColumns.map(column => column.title)}
+              title="Jobs Created"
+              dateRange={selectedDateRange}
+              filteredColumns={filteredColumns} // Pass the selected date range
+            />
+          </Panel>
+        </Col>
+        <Col xs={24} md={12} style={{ padding: 0 }}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+            <DonutChartComponent
+              key={keyForCharts}  // Re-trigger DonutChart animation
+              data={donutData}
+            />
+          </Panel>
         </Col>
       </Row>
       <Row>
-        <Col xs={24} md={12}>
-          <Panel style={{ background: 'none', boxShadow: 'none' }}>
-            <FunnelChart data={funnelData} title="Job Search Funnel" />
-          </Panel>
-        </Col>
-        <Col xs={24} md={12}>
-          <Panel style={{ background: 'none', boxShadow: 'none' }}>
-            <BarChart data={barChartData} title="Jobs Created" />
+        <Col xs={24}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+            <LineChartComponent
+              key={keyForCharts}  // Re-trigger LineChartComponent animation
+              columns={filteredColumns}
+              title="Application Activity"
+              dateRange={selectedDateRange}  // Pass the selected date range
+            />
           </Panel>
         </Col>
       </Row>
       <Row>
-        <Col xs={24}>
-          <Panel style={{ background: 'none', boxShadow: 'none' }}>
-            <LineChartComponent data={lineChartData} title="Application Activity" />
+        <Col style={{ width: 'auto' }} id="border-line" xs={24} md={12}>
+          <Panel style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+            <FunnelChart
+              key={keyForCharts}  // Re-trigger FunnelChart animation
+              data={funnelData}
+              title="Recruitment Funnel"
+              dateRange={selectedDateRange}  // Pass the selected date range
+            />
           </Panel>
         </Col>
       </Row>

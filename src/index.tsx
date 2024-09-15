@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
 import './styles/index.less';
+import { UserProvider } from './components/User/UserContext';
 import { BoardProvider } from './pages/board/BoardContext';
 
 // Import the functions you need from the SDKs you need
@@ -34,9 +35,8 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <BrowserRouter>
-    <BoardProvider>
+    <UserProvider>
       <App />
-    </BoardProvider>
-
+    </UserProvider>
   </BrowserRouter>
 );

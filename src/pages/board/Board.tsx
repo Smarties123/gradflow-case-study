@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Modal from '../../components/Modal/Modal';
 import CardComponent from '../../components/CardComponent/CardComponent';
 import './Board.less';
 import DrawerView from '../../components/DrawerView/DrawerView';
-import { CiEdit } from "react-icons/ci";
+import { IoMdMore, IoMdMove, IoMdTrash } from "react-icons/io";  // Updated import for the icon
 import { BoardContext } from './BoardContext';
 import { useUser } from '../../components/User/UserContext';
-import { Column, Card } from './types'; // Assuming you have types defined
+import { Column, Card } from './types'; 
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 
 const Board: React.FC = () => {
@@ -50,6 +50,8 @@ const Board: React.FC = () => {
             interview_stage: job.ApplicationStatus || 'Unknown', // Default to 'Unknown' if null
             date_applied: job.DateApplied,
             card_color: job.Color || '#ffffff', // Default to white if color is not set
+            companyLogo: job.CompanyLogo, // Add this to store the company logo          
+            Favourite: job.Favourite || false, // Ensure Favourite is included
           }));
           console.log(mappedJobs);
 
@@ -130,6 +132,9 @@ const Board: React.FC = () => {
   const [editingColumnId, setEditingColumnId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState<string>('');
 
+  const [showDropdown, setShowDropdown] = useState<number | null>(null);  // State to handle dropdown
+
+
   const ref = useRef<HTMLInputElement>(null);
 
   const handleIconClick = (columnId: number, title: string) => {
@@ -163,10 +168,20 @@ const Board: React.FC = () => {
     }
   };
 
+  const handleDropdownClick = (columnId: number) => {
+    setShowDropdown(showDropdown === columnId ? null : columnId);
+  };
+
+  const handleDropdownOptionSelect = (option: number) => {
+    console.log(`Option ${option} selected.`);
+    setShowDropdown(null);  // Close the dropdown after selecting
+  };
+
+
   const handleCardSelect = (card: Card) => {
     const column = columns.find(col => col.cards.some(c => c.id === card.id));
     const columnName = column ? column.title : 'Unknown Column';
-    setSelectedCard({ ...card, columnName });
+    setSelectedCard({ ...card, columnName, companyLogo: card.companyLogo });
     setIsDrawerOpen(true);
   };
 
@@ -174,6 +189,43 @@ const Board: React.FC = () => {
     setActiveColumn(column);
     setIsModalOpen(true);
   };
+
+  const handleFavoriteToggle = (updatedCard) => {
+    setColumns((prevColumns) =>
+        prevColumns.map((column) => ({
+            ...column,
+            cards: column.cards.map((card) =>
+                card.id === updatedCard.ApplicationId ? { ...card, Favourite: updatedCard.Favourite } : card
+            ),
+        }))
+    );
+};
+
+
+  //For Deleting Card
+  const handleDeleteCard = (cardId) => {
+    setColumns((prevColumns) => 
+        prevColumns.map((column) => ({
+            ...column,
+            cards: column.cards.filter((card) => card.id !== cardId) // Remove the deleted card
+        }))
+    );
+  };
+
+  // For Adding new Status
+  const handleAddNewColumn = () => {
+    const newColumnId = columns.length + 1;
+    const newColumn: Column = {
+      id: newColumnId,
+      title: 'New Status', // Default title
+      cards: [],
+    };
+
+    setColumns([...columns, newColumn]); // Add new Status to the existing ones
+  };
+
+
+  
 
   return (
     <DragDropContext onDragEnd={onDragEnd as any}>
@@ -205,7 +257,7 @@ const Board: React.FC = () => {
                       />
                     </div>
                   ) : (
-                    <div className="column-title">
+                    <div className="column-title" onClick={() => handleIconClick(column.id, column.title)}>
                       <h2>{column.title}</h2>
                     </div>
                   )}
@@ -213,10 +265,22 @@ const Board: React.FC = () => {
                 {editingColumnId !== column.id && (
                   <button
                     className="icon-button"
-                    onClick={() => handleIconClick(column.id, column.title)}
+                    onClick={() => handleDropdownClick(column.id)}
                   >
-                    <CiEdit />
+                    <IoMdMore />
                   </button>
+                )}
+                {showDropdown === column.id && (
+                  <div className="dropdown">
+                    <ul>
+                      <li onClick={() => handleDropdownOptionSelect(1)}>
+                        <IoMdMove /> Move Status
+                      </li>
+                      <li onClick={() => handleDropdownOptionSelect(2)}>
+                        <IoMdTrash /> Delete Status
+                      </li>
+                    </ul>
+                  </div>
                 )}
               </div>
               <button onClick={() => handleAddButtonClick(column)}>Add New</button>
@@ -225,9 +289,21 @@ const Board: React.FC = () => {
                   <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
                     {column.cards.map((card, index) => (
                       <Draggable key={card.id} draggableId={String(card.id)} index={index}>
-                        {provided => (
-                          <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                            <CardComponent card={card} onSelect={handleCardSelect} />
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <CardComponent
+                              card={card}
+                              onSelect={handleCardSelect}
+                              user={user}
+                              onFavoriteToggle={handleFavoriteToggle}
+                              provided={provided}
+                              snapshot={snapshot}  // Pass snapshot to detect drag state
+                              onDelete={handleDeleteCard} // Pass delete handler
+                            />
                           </div>
                         )}
                       </Draggable>
@@ -256,8 +332,14 @@ const Board: React.FC = () => {
             columnName={selectedCard.columnName}
           />
         )}
+      {/* Add the Add New Status Button */}
+      <div className="add-new-column">
+        <button className="add-new-button" onClick={handleAddNewColumn}>
+          Add New Status
+        </button>
       </div>
-    </DragDropContext>
+    </div>
+  </DragDropContext>
   );
 };
 
