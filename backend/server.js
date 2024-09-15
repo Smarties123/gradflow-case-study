@@ -140,7 +140,7 @@ app.post('/signup', async (req, res) => {
 
 //Will need improvements to handle nulls in future
 app.post('/addjob', authenticateToken, async (req, res) => {
-  const { company, position, deadline, location, url, date_applied, card_color, companyLogo } = req.body;
+  const { company, position, deadline, location, url, date_applied, card_color, companyLogo, status } = req.body;
 
   if (!company || !position) {
     return res.status(400).json({ message: 'Company and position are required' });
@@ -148,22 +148,24 @@ app.post('/addjob', authenticateToken, async (req, res) => {
 
   try {
     const query = `
-      INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId", "CompanyLogo")
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId", "CompanyLogo", "ApplicationStatus")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *;
     `;
 
-    const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId, companyLogo];
-
+    const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId, companyLogo, status];
+    console.log("Executing query with values:", values); // Log values for debugging
+    
     const result = await pool.query(query, values);
     const addedJob = result.rows[0];
 
     res.status(201).json({ message: 'Job added successfully', job: addedJob });
   } catch (error) {
     console.error('Error adding job:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
 
 
 
@@ -254,6 +256,7 @@ app.delete('/applications/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 
   

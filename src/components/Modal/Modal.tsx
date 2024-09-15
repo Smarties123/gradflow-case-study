@@ -122,13 +122,14 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 id: Date.now(),
                 company,
                 position,
-                deadline: deadline ? dayjs(deadline).format('YYYY-MM-DD') : null,  // Optional field
-                location: location || null,  // Optional field
-                url: url || null,  // Optional field
-                companyLogo: companyLogo || null,  // Optional field
+                deadline: deadline ? dayjs(deadline).format('YYYY-MM-DD') : null, // Optional field
+                location: location || null, // Optional field
+                url: url || null, // Optional field
+                companyLogo: companyLogo || null, // Optional field
                 date_applied: dayjs().format('YYYY-MM-DD'),
                 card_color: '#ff6200',
                 userId: user ? user.id : null,
+                status: activeColumn ? activeColumn.title : columns.find(col => col.id === selectedColumn)?.title, // Add this line to send the selected status
             };
     
             try {
@@ -152,6 +153,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             }
         }
     };
+    
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -235,7 +237,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     </div>
                     {activeColumn ? (
                         <div className="input-wrapper">
-                            <label className="bordered-label">Column</label>
+                            <label className="bordered-label">Status</label>
                             <input
                                 type="text"
                                 value={activeColumn.title}
@@ -246,7 +248,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                         </div>
                     ) : (
                         <div className="input-wrapper">
-                            <label className="bordered-label">Choose a Column</label>
+                            <label className="bordered-label">Choose a Status</label>
                             <select
                                 value={selectedColumn}
                                 onChange={(e) => setSelectedColumn(parseInt(e.target.value))}
