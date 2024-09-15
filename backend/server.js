@@ -140,7 +140,7 @@ app.post('/signup', async (req, res) => {
 
 //Will need improvements to handle nulls in future
 app.post('/addjob', authenticateToken, async (req, res) => {
-  const { company, position, deadline, location, url, date_applied, card_color, companyLogo } = req.body;
+  const { company, position, deadline, location, url, date_applied, card_color, companyLogo, status } = req.body;
 
   if (!company || !position) {
     return res.status(400).json({ message: 'Company and position are required' });
@@ -148,22 +148,24 @@ app.post('/addjob', authenticateToken, async (req, res) => {
 
   try {
     const query = `
-      INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId", "CompanyLogo")
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      INSERT INTO "Application" ("CompanyName", "JobName", "Deadline", "Location", "CompanyURL", "DateApplied", "Color", "UserId", "CompanyLogo", "ApplicationStatus")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *;
     `;
 
-    const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId, companyLogo];
-
+    const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId, companyLogo, status];
+    console.log("Executing query with values:", values); // Log values for debugging
+    
     const result = await pool.query(query, values);
     const addedJob = result.rows[0];
 
     res.status(201).json({ message: 'Job added successfully', job: addedJob });
   } catch (error) {
     console.error('Error adding job:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
 
 
 
@@ -255,5 +257,30 @@ app.delete('/applications/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// For updating column/application status when card is being moved
+app.put('/applications/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const userId = req.user.userId;
 
+  try {
+    const query = `
+      UPDATE "Application"
+      SET "ApplicationStatus" = $1
+      WHERE "UserId" = $2 AND "ApplicationId" = $3
+      RETURNING *;
+    `;
+    const values = [status, userId, id];
+    const { rows } = await pool.query(query, values);
+
+    if (rows.length > 0) {
+      res.status(200).json({ message: 'Application status updated', application: rows[0] });
+    } else {
+      res.status(404).json({ message: 'Application not found' });
+    }
+  } catch (error) {
+    console.error('Error updating application status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
   
