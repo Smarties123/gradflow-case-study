@@ -10,7 +10,8 @@
     font-family: 'Arial', sans-serif;
     height: 70px;
     transition: transform 0.3s ease, box-shadow 0.2s ease, margin 0.3s ease;
-    cursor: pointer !important; /* Default to pointer (hand) cursor on hover */
+    cursor: pointer !important;
+    /* Default to pointer (hand) cursor on hover */
     /* Smooth transitions */
 
     /* Transitions for smooth visual effects */
@@ -26,7 +27,8 @@
 
 /* This is the class that will be applied when holding for 300ms */
 .card.is-holding {
-    cursor: grabbing; /* Change to grabbing icon after holding */
+    cursor: grabbing;
+    /* Change to grabbing icon after holding */
 }
 
 // .card.is-dragging {
@@ -37,9 +39,12 @@
 // }
 
 .card.is-dragging {
-    cursor: grabbing !important; /* Change to grabbing icon when the card is dragged */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25); /* Enhanced shadow for dragging */
-    transform: scale(1.03); /* Slight scale to raise the card visually */
+    cursor: grabbing !important;
+    /* Change to grabbing icon when the card is dragged */
+    box-shadow: 0 5px 15px rgb(255, 255, 255);
+    /* Enhanced shadow for dragging */
+    transform: scale(1.03);
+    /* Slight scale to raise the card visually */
     border: 5px solid #8A2BE2;
 
 }
@@ -55,14 +60,17 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    margin-bottom: 5px; /* Add space between icons and position */
+    margin-bottom: 5px;
+    /* Add space between icons and position */
 }
 
 .company-logo-small {
-    width: 25px; /* Smaller logo */
+    width: 25px;
+    /* Smaller logo */
     height: 25px;
     border-radius: 20%;
-    margin-right: 10px; /* Space between logo and name */
+    margin-right: 10px;
+    /* Space between logo and name */
     object-fit: cover;
 }
 
@@ -86,13 +94,31 @@
     /* Ensure text stays on one line */
     overflow: hidden;
     /* Hide overflowed text */
-    text-overflow: ellipsis;
+    // text-overflow: ellipsis;
     /* Add '...' to truncated text */
     width: fit-content;
+    position: relative;
+    -webkit-transition: 0.5s ease-in;
+    -moz-transition: 0.5s ease-in;
+    -o-transition: 0.5s ease-in;
+    transition: 0.5s ease-in;
 }
 
+
+.card-content:hover .company-name.scroll {
+    -webkit-transition: 4s ease-in;
+    -moz-transition: 4s ease-in;
+    -o-transition: 4s ease-in;
+    transition: 4s ease-in;
+    text-indent: -300px;
+    /* Adjust based on the text length to scroll */
+}
+
+
+
 .position {
-    margin-top: 5px; /* Space between company name and position */
+    margin-top: 5px;
+    /* Space between company name and position */
     font-size: 14px;
     // color: #333;
 
@@ -117,7 +143,8 @@
 .star-icon {
     font-size: 24px;
     // color: yellow; /* Default star color */
-    color: white; /*
+    color: white;
+    /*
     // margin-bottom: ;
     cursor: pointer; /* Changes cursor to pointer when hovering */
     // transition: color 0.3s ease; /* Smooth transition for color change */
@@ -125,11 +152,13 @@
 }
 
 .star-icon.favorited {
-    color: yellow; /* Change color to yellow when favorited */
+    color: yellow;
+    /* Change color to yellow when favorited */
 }
 
 .star-icon:hover {
-    color: yellow; /* Change color to yellow when hovered */
+    color: yellow;
+    /* Change color to yellow when hovered */
 }
 
 
@@ -137,28 +166,36 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    opacity: 0; /* Initially hidden */ /* Initially hidden */
+    opacity: 0;
+    /* Initially hidden */
+    /* Initially hidden */
     // transition: opacity 0.3s ease; /* Smooth transition for appearance */
 }
 
 .card:hover .right-icons {
-    opacity: 1; /* Show icons on hover */
+    opacity: 1;
+    /* Show icons on hover */
 }
 
-.delete-icon, .link-icon {
+.delete-icon,
+.link-icon {
     margin-top: 15px;
     font-size: 20px;
-    cursor: pointer; /* Show pointer cursor on hover */
-    color: white; /* Icon color */
+    cursor: pointer;
+    /* Show pointer cursor on hover */
+    color: white;
+    /* Icon color */
 }
 
 .delete-icon:hover {
-    color: red; /* Change to red on hover */
+    color: red;
+    /* Change to red on hover */
 }
 
 
 .link-icon:hover {
-    color: blue; /* Change to blue on hover */
+    color: blue;
+    /* Change to blue on hover */
 }
 
 
