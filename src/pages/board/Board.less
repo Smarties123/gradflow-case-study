@@ -19,7 +19,7 @@
     // overflow-y: auto;
     height: 86vh;
     // margin-bottom: 100px;
-    
+
 
 }
 
@@ -46,7 +46,7 @@
     white-space: nowrap;
     box-sizing: border-box;
     overflow-y: auto;
-    cursor: auto;
+    // cursor: auto;
 }
 
 .input-group {
@@ -127,44 +127,49 @@
     cursor: pointer;
     font-size: 20px;
     color: #555;
-    
+
 }
 
 .dropdown {
     position: absolute;
     top: 60px;
     right: 10px;
-    background-color: #333;  /* Dropdown background color */
+    background-color: #333;
+    /* Dropdown background color */
     border-radius: 4px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     padding: 5px 0;
     z-index: 100;
-  }
-  
-  .dropdown ul {
+}
+
+.dropdown ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
-  }
-  
-  .dropdown ul li {
-    display: flex;
-    
-    padding: 10px 15px;
-    align-items: center;  /* Align icons and text vertically */
+}
 
-    color: #fff;  /* Dropdown text color */
+.dropdown ul li {
+    display: flex;
+
+    padding: 10px 15px;
+    align-items: center;
+    /* Align icons and text vertically */
+
+    color: #fff;
+    /* Dropdown text color */
     cursor: pointer;
     font-size: 14px;
-  }
-  
-  .dropdown ul li:hover {
-    background-color: #555;  /* Hover color for dropdown items */
-  }
+}
 
-  .dropdown ul li svg {
-    margin-right: 8px;  /* Add space between the icon and the text */
-  }
+.dropdown ul li:hover {
+    background-color: #555;
+    /* Hover color for dropdown items */
+}
+
+.dropdown ul li svg {
+    margin-right: 8px;
+    /* Add space between the icon and the text */
+}
 
 
 
@@ -225,11 +230,6 @@
     }
 
     .column-container {
-        // min-width: 190px;
-        /* Ensure columns do not shrink below this width */
-    }
-
-    .column-container {
         // background: #fff;
         /* Background color for the column */
         border: 1px solid #ccc;
@@ -259,60 +259,58 @@
 
 /* Adjustments for smaller screens */
 @media (max-height: 800px) {
-    .column-container, .add-new-column {
+
+    .column-container {
         height: 82vh;
         /* Adjust height for small screens */
     }
 }
 
 @media (max-height: 700px) {
-    .column-container, .add-new-column {
+
+    .column-container {
         height: 80vh;
         /* Adjust height for small screens */
     }
 }
 
 @media (max-height: 600px) {
-    .column-container, .add-new-column {
+
+    .column-container {
         // height: 74vh;
         /* Adjust height for small screens */
     }
 }
 
 @media (max-height: 500px) {
-    .column-container, .add-new-column {
+
+    .column-container {
         height: 56vh;
         /* Further adjust height for very small screens */
     }
 }
 
 
-.add-new-column {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    min-width: 320px;
-    height: inherit;
-    border: 1px dashed #007bff;  // Dashed border for the placeholder
-    border-radius: 5px;
-    cursor: pointer;
-    
-    
-  }
+#add-new-column {
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 20px !important;
+    border: 1px dashed #007bff !important; // Dashed border for the placeholder
 
-    
-  
-  .add-new-button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .add-new-button:hover {
-    background-color: #0056b3;
-  }
+}
+
+
+
+.add-new-button {
+    padding: 10px 20px !important;
+    background-color: #007bff !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 5px !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+}
+
+.add-new-button:hover {
+    background-color: #0056b3 !important;
+}
