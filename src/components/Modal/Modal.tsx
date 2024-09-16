@@ -119,16 +119,16 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
         e.preventDefault();
         if (validateForm()) {
             const card = {
-                id: Date.now(),
                 company,
                 position,
-                deadline: deadline ? dayjs(deadline).format('YYYY-MM-DD') : null,  // Optional field
-                location: location || null,  // Optional field
-                url: url || null,  // Optional field
-                companyLogo: companyLogo || null,  // Optional field
+                deadline: deadline ? dayjs(deadline).format('YYYY-MM-DD') : null,
+                location: location || null,
+                url: url || null,
+                companyLogo: companyLogo || null,
                 date_applied: dayjs().format('YYYY-MM-DD'),
                 card_color: '#ff6200',
                 userId: user ? user.id : null,
+                statusId: activeColumn ? activeColumn.id : selectedColumn, // Get the correct statusId
             };
     
             try {
@@ -142,8 +142,8 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 });
     
                 if (response.ok) {
-                    addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card);
-                    onClose();
+                    addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card); // Add card to the correct column
+                    onClose(); // Close the modal after successful submission
                 } else {
                     console.error('Failed to add job');
                 }
@@ -152,6 +152,11 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             }
         }
     };
+    
+    
+    
+    
+    
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -235,7 +240,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     </div>
                     {activeColumn ? (
                         <div className="input-wrapper">
-                            <label className="bordered-label">Column</label>
+                            <label className="bordered-label">Status</label>
                             <input
                                 type="text"
                                 value={activeColumn.title}
@@ -246,7 +251,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                         </div>
                     ) : (
                         <div className="input-wrapper">
-                            <label className="bordered-label">Choose a Column</label>
+                            <label className="bordered-label">Choose a Status</label>
                             <select
                                 value={selectedColumn}
                                 onChange={(e) => setSelectedColumn(parseInt(e.target.value))}
