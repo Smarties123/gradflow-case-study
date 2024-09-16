@@ -108,6 +108,9 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
         }
       };
       
+      
+      
+      
 
     return (
         <BoardContext.Provider value={{ columns, setColumns, addCardToColumn, updateCard, onDragEnd }}>

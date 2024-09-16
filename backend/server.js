@@ -70,24 +70,37 @@ const authenticateToken = (req, res, next) => {
   
 
 app.post('/signup', async (req, res) => {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
-      return res.status(400).send('Username, email, and password are required.');
-    }
-  
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const query = 'INSERT INTO "Users" ("Username", "Email", "Password") VALUES ($1, $2, $3) RETURNING "UserId"';
-      const values = [username, email, hashedPassword];
-  
-      const result = await pool.query(query, values);
-      res.status(201).send({ userId: result.rows[0].UserId, userName: result.rows[0].Username  });
-      console.log("Signed Up Sucessfully");
-    } catch (error) {
-      console.error(error);
-      res.status(500).send('Server error.');
-    }
-  });
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(400).send('Username, email, and password are required.');
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password") VALUES ($1, $2, $3) RETURNING "UserId"';
+    const values = [username, email, hashedPassword];
+
+    const result = await pool.query(userQuery, values);
+    const userId = result.rows[0].UserId;
+
+    // Insert default columns for the user
+    const statusQuery = `
+      INSERT INTO "Status" ("StatusName", "StatusOrder", "UserId")
+      VALUES
+        ('To Do', 1, $1),
+        ('Applied', 2, $1),
+        ('Interview', 3, $1),
+        ('Offered', 4, $1),
+        ('Rejected', 5, $1);
+    `;
+    await pool.query(statusQuery, [userId]);
+
+    res.status(201).send({ userId: userId, message: 'User created successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error.');
+  }
+});
   
 
   
@@ -154,8 +167,6 @@ app.post('/addjob', authenticateToken, async (req, res) => {
     `;
 
     const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId, companyLogo, statusId];
-    console.log("Executing query with values:", values); // Log values for debugging
-
     const result = await pool.query(query, values);
     const addedJob = result.rows[0];
 
@@ -166,6 +177,23 @@ app.post('/addjob', authenticateToken, async (req, res) => {
   }
 });
 
+
+
+// Endpoint to fetch user's statuses (columns)
+app.get('/status', authenticateToken, async (req, res) => {
+  const userId = req.user.userId; // Assuming the user ID is stored in the JWT
+
+  try {
+    const query = `SELECT * FROM "Status" WHERE "UserId" = $1 ORDER BY "StatusOrder" ASC`;
+    const values = [userId];
+    const { rows: statuses } = await pool.query(query, values);
+
+    res.status(200).json(statuses);
+  } catch (error) {
+    console.error('Error fetching statuses:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 
@@ -186,6 +214,10 @@ app.get('/applications', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+
+
 
 app.put('/applications/:id/favorite', authenticateToken, async (req, res) => {
   // console.log('Something', Favorite);
@@ -275,16 +307,22 @@ app.get('/applications', authenticateToken, async (req, res) => {
     const values = [userId];
     const { rows: jobs } = await pool.query(query, values);
     res.status(200).json(jobs);
+
   } catch (error) {
     console.error('Error fetching applications:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 // For updating column/application status when card is being moved
 app.put('/applications/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { statusId } = req.body;  // Pass the statusId from the frontend
   const userId = req.user.userId;
+
+  if (!statusId) {
+    return res.status(400).json({ message: 'StatusId is required' });
+  }
 
   try {
     const query = `
@@ -306,6 +344,106 @@ app.put('/applications/:id', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+
+
+// PUT route to update StatusName in Status table
+app.put('/status/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params; // Get StatusId from route params
+  const { statusName } = req.body; // Get new StatusName from request body
+  const userId = req.user.userId; // Get the user ID from the JWT
+
+  if (!statusName) {
+    return res.status(400).json({ message: 'StatusName is required' });
+  }
+
+  try {
+    const query = `
+      UPDATE "Status"
+      SET "StatusName" = $1
+      WHERE "StatusId" = $2 AND "UserId" = $3
+      RETURNING *;
+    `;
+    const values = [statusName, id, userId];
+
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Status not found or not authorized to update' });
+    }
+
+    res.status(200).json({ message: 'StatusName updated successfully', status: result.rows[0] });
+  } catch (error) {
+    console.error('Error updating StatusName:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
+// POST route to create a new Status (Column)
+app.post('/status', authenticateToken, async (req, res) => {
+  const { statusName } = req.body;
+  const userId = req.user.userId; // Get user ID from JWT
+
+  if (!statusName) {
+    return res.status(400).json({ message: 'StatusName is required' });
+  }
+
+  try {
+    const query = `
+      INSERT INTO "Status" ("StatusName", "StatusOrder", "UserId")
+      VALUES ($1, (SELECT COALESCE(MAX("StatusOrder"), 0) + 1 FROM "Status" WHERE "UserId" = $2), $2)
+      RETURNING *;
+    `;
+    const values = [statusName, userId];
+
+    const result = await pool.query(query, values);
+    const newStatus = result.rows[0];
+
+    res.status(201).json({ message: 'Status created successfully', status: newStatus });
+  } catch (error) {
+    console.error('Error creating new Status:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// DELETE route to remove a status (column)
+app.delete('/status/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.userId; // Get the user ID from the JWT
+
+  try {
+    // Check if the status has any associated cards
+    const queryCheck = `
+      SELECT COUNT(*) AS count FROM "Application" WHERE "StatusId" = $1 AND "UserId" = $2;
+    `;
+    const valuesCheck = [id, userId];
+    const resultCheck = await pool.query(queryCheck, valuesCheck);
+
+    const cardCount = parseInt(resultCheck.rows[0].count, 10);
+    if (cardCount > 0) {
+      return res.status(400).json({ message: 'Cannot delete status with associated cards' });
+    }
+
+    // Delete the status if there are no cards
+    const queryDelete = `
+      DELETE FROM "Status" WHERE "StatusId" = $1 AND "UserId" = $2 RETURNING *;
+    `;
+    const valuesDelete = [id, userId];
+    const resultDelete = await pool.query(queryDelete, valuesDelete);
+
+    if (resultDelete.rowCount === 0) {
+      return res.status(404).json({ message: 'Status not found or not authorized to delete' });
+    }
+
+    res.status(200).json({ message: 'Status deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting status:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 
