@@ -142,8 +142,8 @@ app.post('/signup', async (req, res) => {
 app.post('/addjob', authenticateToken, async (req, res) => {
   const { company, position, deadline, location, url, date_applied, card_color, companyLogo, statusId } = req.body;
 
-  if (!company || !position) {
-    return res.status(400).json({ message: 'Company and position are required' });
+  if (!company || !position || !statusId) {
+    return res.status(400).json({ message: 'Company, position, and status are required' });
   }
 
   try {
@@ -155,7 +155,7 @@ app.post('/addjob', authenticateToken, async (req, res) => {
 
     const values = [company, position, deadline, location, url, date_applied, card_color, req.user.userId, companyLogo, statusId];
     console.log("Executing query with values:", values); // Log values for debugging
-    
+
     const result = await pool.query(query, values);
     const addedJob = result.rows[0];
 
@@ -262,7 +262,7 @@ app.delete('/applications/:id', authenticateToken, async (req, res) => {
 // Moving Cards and Column Control
 // to get StatusName (colum) This will ensure that when you fetch the applications, it includes the StatusName for each one.
 app.get('/applications', authenticateToken, async (req, res) => {
-  const userId = req.user.userId;
+  const userId = req.user.userId; // Assuming the user ID is stored in the JWT
 
   try {
     const query = `
@@ -275,13 +275,11 @@ app.get('/applications', authenticateToken, async (req, res) => {
     const values = [userId];
     const { rows: jobs } = await pool.query(query, values);
     res.status(200).json(jobs);
-
   } catch (error) {
     console.error('Error fetching applications:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 // For updating column/application status when card is being moved
 app.put('/applications/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;

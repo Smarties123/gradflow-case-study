@@ -33,10 +33,10 @@ const Board: React.FC = () => {
             'Authorization': `Bearer ${user?.token}`, // Attach the token
           },
         });
-
+  
         if (response.ok) {
           const jobs = await response.json();
-
+  
           // Map the server data to match the Card interface
           const mappedJobs: Card[] = jobs.map((job: any) => ({
             id: String(job.ApplicationId),
@@ -47,15 +47,15 @@ const Board: React.FC = () => {
             url: job.CompanyURL,
             notes: job.Notes || '',
             salary: job.Salary || 0, // Default to 0 if salary is null
-            interview_stage: job.ApplicationStatus || 'Unknown', // Default to 'Unknown' if null
+            StatusId: job.StatusId,  // Use StatusId instead of ApplicationStatus or StatusName
             date_applied: job.DateApplied,
             card_color: job.Color || '#ffffff', // Default to white if color is not set
             companyLogo: job.CompanyLogo, // Add this to store the company logo          
             Favourite: job.Favourite || false, // Ensure Favourite is included
           }));
           console.log(mappedJobs);
-
-          // Group jobs into columns based on some logic (e.g., job status)
+  
+          // Group jobs into columns based on StatusId
           const groupedColumns = groupJobsIntoColumns(mappedJobs);
           setColumns(groupedColumns);
         } else {
@@ -68,7 +68,7 @@ const Board: React.FC = () => {
         setLoading(false);
       }
     };
-
+  
     if (user) {
       fetchApplications();
     }
@@ -76,6 +76,7 @@ const Board: React.FC = () => {
 
   // Function to group jobs into columns based on some status
   const groupJobsIntoColumns = (jobs: Card[]): Column[] => {
+    // Initialize the columns with their IDs (StatusId)
     const columns: Column[] = [
       { id: 1, title: 'To Do', cards: [] },
       { id: 2, title: 'Applied', cards: [] },
@@ -84,18 +85,20 @@ const Board: React.FC = () => {
       { id: 5, title: 'Rejected', cards: [] },
     ];
   
+    // Group jobs into the appropriate column based on StatusId
     jobs.forEach(job => {
-      const statusIndex = columns.findIndex(col => col.title === job.statusName); // Assuming you now get 'statusName' from the API
+      const statusIndex = columns.findIndex(col => col.id === job.StatusId); // Now we're using StatusId
   
       if (statusIndex >= 0) {
         columns[statusIndex].cards.push(job);
       } else {
-        columns[0].cards.push(job); // Default to 'To Do' if status is unknown
+        columns[0].cards.push(job); // Default to 'To Do' if StatusId is unknown
       }
     });
   
     return columns;
   };
+  
 
   //TO DO: SPINNERS FOR LOADING and Proper ERROR Pages
   // if (loading) {

@@ -155,6 +155,8 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     };
     
     
+    
+    
 
     return (
         <div className="modal-overlay" onClick={onClose}>
