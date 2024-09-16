@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-export const useData = ({ columns, timeFrame, stage }: UseDataParams) => {
+export const useData = ({ columns, timeFrame, stage, dateRange }: UseDataParams) => {
 
     const allData = useMemo(() => {
         const dataMap: { [key: string]: number } = {};

@@ -1,22 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import './CardComponent.less'; 
+import './CardComponent.less';
 import { IoMdStar, IoMdTrash, IoMdLink } from "react-icons/io";
-import { useUser } from '@/components/User/UserContext';
-import DeleteCardModal from './DeleteCardModal'; // Import the new modal
+import DeleteCardModal from './DeleteCardModal';
 
 const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snapshot, onDelete }) => {
     const [isFavorited, setIsFavorited] = useState(card.Favourite || false);
-    const [isHolding, setIsHolding] = useState(false); 
-    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false); // Manage modal state
+    const [isHolding, setIsHolding] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isLongCompanyName, setIsLongCompanyName] = useState(false);
 
     let pressTimer = null;
 
     useEffect(() => {
         setIsFavorited(card.Favourite);
-    }, [card.Favourite]);
+
+        // Check if the company name is longer than 22 characters
+        if (card.company.length > 22) {
+            setIsLongCompanyName(true);
+        } else {
+            setIsLongCompanyName(false);
+        }
+    }, [card.Favourite, card.company]);
 
     const handleToggleFavorite = async (e) => {
-        e.stopPropagation(); // Prevent triggering the card's onClick event
+        e.stopPropagation();
         const newFavoriteStatus = !isFavorited;
         setIsFavorited(newFavoriteStatus);
 
@@ -32,7 +39,7 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
 
             if (response.ok) {
                 const updatedCard = await response.json();
-                onFavoriteToggle(updatedCard.application); 
+                onFavoriteToggle(updatedCard.application);
             } else {
                 console.error('Failed to update favorite status');
             }
@@ -46,7 +53,7 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
 
         if (e.target.tagName !== 'BUTTON' && !e.target.closest('.icon-buttons')) {
             pressTimer = setTimeout(() => {
-                setIsHolding(true); 
+                setIsHolding(true);
             }, 300);
         }
     };
@@ -54,11 +61,11 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
     const handleMouseUp = () => {
         if (isDeleteModalOpen) return;
 
-        clearTimeout(pressTimer); 
+        clearTimeout(pressTimer);
         if (!isHolding) {
-            onSelect(card); 
+            onSelect(card);
         } else {
-            setIsHolding(false); 
+            setIsHolding(false);
         }
     };
 
@@ -68,7 +75,7 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
 
     const handleDeleteClick = (e) => {
         e.stopPropagation();
-        setIsDeleteModalOpen(true); // Show the delete modal
+        setIsDeleteModalOpen(true);
     };
 
     const handleConfirmDelete = async () => {
@@ -76,13 +83,13 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
             const response = await fetch(`http://localhost:3001/applications/${card.id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${user.token}`, 
+                    'Authorization': `Bearer ${user.token}`,
                 },
             });
 
             if (response.ok) {
-                onDelete(card.id); 
-                setIsDeleteModalOpen(false); 
+                onDelete(card.id);
+                setIsDeleteModalOpen(false);
             } else {
                 console.error('Failed to delete the application');
             }
@@ -92,12 +99,7 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
     };
 
     const handleCloseModal = () => {
-        setIsDeleteModalOpen(false); 
-    }
-
-    // Truncate logic
-    const truncateText = (text, limit) => {
-        return text.length > limit ? text.substring(0, limit) + '...' : text;
+        setIsDeleteModalOpen(false);
     };
 
     return (
@@ -117,22 +119,23 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
                     {card.companyLogo ? (
                         <img src={card.companyLogo} alt={card.company} className="company-logo-small" />
                     ) : null}
-                    {/* Truncate company name to 22 characters */}
-                    <h3 className="company-name">{truncateText(card.company, 22)}</h3>
+                    {/* Apply 'scroll' class only if company name exceeds 22 characters */}
+                    <h3 className={`company-name ${isLongCompanyName ? 'scroll' : ''}`}>
+                        {card.company}
+                    </h3>
                 </div>
-                {/* Truncate position to 25 characters */}
-                <p className="position">{truncateText(card.position, 30)}</p>
+                <p className="position">{card.position}</p>
             </div>
 
             <div className="right-icons">
-                <IoMdStar  
+                <IoMdStar
                     className={`star-icon ${isFavorited ? 'favorited' : ''}`}
                     onClick={handleToggleFavorite}
-                    onMouseDown={stopPropagation} 
-                    onMouseUp={stopPropagation} 
+                    onMouseDown={stopPropagation}
+                    onMouseUp={stopPropagation}
                 />
                 <div className="icon-buttons">
-                    <IoMdLink 
+                    <IoMdLink
                         className="link-icon"
                         onClick={(e) => {
                             stopPropagation(e);
@@ -145,11 +148,11 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
                         onMouseDown={stopPropagation}
                         onMouseUp={stopPropagation}
                     />
-                    <IoMdTrash 
+                    <IoMdTrash
                         className="delete-icon"
                         onClick={handleDeleteClick}
-                        onMouseDown={(e) => { e.stopPropagation(); }}  
-                        onMouseUp={(e) => { e.stopPropagation(); }}    
+                        onMouseDown={stopPropagation}
+                        onMouseUp={stopPropagation}
                     />
                 </div>
             </div>
@@ -157,9 +160,8 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
             <DeleteCardModal
                 isOpen={isDeleteModalOpen}
                 onClose={handleCloseModal}
-                onDelete={handleConfirmDelete} 
+                onDelete={handleConfirmDelete}
             />
-
         </div>
     );
 };

@@ -4,6 +4,10 @@ import cors from 'cors';
 import pg from 'pg';
 import jwt from 'jsonwebtoken'; 
 import logoDevProxy from './logoDevProxy.js';
+import bodyParser from 'body-parser';
+import nodemailer from 'nodemailer';
+import crypto from 'crypto';
+import admin from 'firebase-admin';
 
 
 
@@ -17,6 +21,12 @@ dotenv.config(); // This loads .env variables globally for the entire applicatio
 
 
 const SECRET_KEY = process.env.JWT_SECRET;
+const TOKEN_EXPIRATION_MINUTES = 15;
+const SALT_ROUNDS = 10;
+
+
+const frontendUrl = 'http://localhost:3100'; //needs to be adjusted based on env
+
 
 // Configuration for your database
 const pool = new Pool({
@@ -30,11 +40,40 @@ const pool = new Pool({
     }
   });
 
+admin.initializeApp({
+  credential: admin.credential.cert({
+    "type": "service_account",
+    "project_id": process.env.FIREBASE_PROJECT_ID,
+    "private_key_id": process.env.FIREBASE_PRIVATE_KEY_ID,
+    "private_key": process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    "client_email": process.env.FIREBASE_CLIENT_EMAIL,
+    "client_id": process.env.FIREBASE_CLIENT_ID,
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": process.env.FIREBASE_CLIENT_CERT_URL
+  }),
+});
+
+
+// Create reusable transporter object using the default SMTP transport (replace with real credentials)
+const transporter = nodemailer.createTransport({
+  service: 'Gmail', // or use a different email service like 'SendGrid', 'Mailgun', etc.
+  auth: {
+    user: process.env.SMTP_EMAIL, // your email address
+    pass: process.env.SMTP_PASSWORD, // your email password or app password
+  },
+});
+
+
+
+
 app.use(cors({
   origin: 'http://localhost:3100',  // Frontend origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'],          // Allow specific HTTP methods
   allowedHeaders: ['Content-Type', 'Authorization']  // Allow specific headers
 }));
+
 
 app.use(express.json());
 
@@ -42,6 +81,11 @@ app.use(express.json());
 app.use(logoDevProxy)
 
 const port = 3001;
+app.use(cors({
+  origin: 'http://localhost:3100',  // Adjust this to your frontend's URL
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 app.get('/', (req, res) => {
   res.send('Welcome to my server!');
@@ -62,7 +106,7 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ message: 'Invalid token' });
-    req.user = user; // Attach the decoded user information to the request object
+    req.user = user;
     next();
   });
 };
@@ -148,6 +192,166 @@ app.post('/signup', async (req, res) => {
           res.status(500).json({ message: 'Server error.' });
       }
   });
+
+
+  app.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    const query = 'SELECT * FROM "Users" WHERE "Email" = $1';
+    const values = [email];
+  
+    try {
+      const { rows } = await pool.query(query, values);
+      
+      if (rows.length === 1) {
+        // Generate a secure random token
+        const verificationToken = crypto.randomBytes(64).toString('hex');
+        const hashedToken = await bcrypt.hash(verificationToken, SALT_ROUNDS);
+  
+        const expirationTime = new Date();
+        expirationTime.setMinutes(expirationTime.getMinutes() + TOKEN_EXPIRATION_MINUTES);
+  
+        const updateQuery = `
+          UPDATE "Users"
+          SET "PWD_RESET_TOKEN" = $1, "RESET_TKN_TIME" = $2
+          WHERE "Email" = $3
+        `;
+        const updateValues = [hashedToken, expirationTime, email];
+        await pool.query(updateQuery, updateValues);
+  
+        // Send the token (unhashed) to the user's email
+        let mailOptions = {
+          from: process.env.SMTP_EMAIL,
+          to: email, 
+          subject: 'Password Reset Verification Code',
+          // text: `Your password reset token is: ${verificationToken}. It will expire in 15 minutes.`, // plain text body
+          // Optionally send HTML content
+          html: `
+         <p>It will expire in 15 minutes.</p>
+         <p>You can reset your password by clicking the following link:</p>
+         <a href="${frontendUrl}/reset-password/${verificationToken}">${frontendUrl}/reset-password/${verificationToken}</a>`,  // HTML version with clickable link
+        };
+  
+        await transporter.sendMail(mailOptions);
+  
+      } 
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ message: 'An error occurred while processing your request.' });
+    }
+    // Respond back with success
+    res.status(200).json({ message: 'Password reset token sent to your email.' });
+  });
+  
+  
+  app.post('/reset-password', async (req, res) => {
+    const { email, token, password } = req.body;
+    console.log(password);
+  
+    const query = 'SELECT "PWD_RESET_TOKEN", "RESET_TKN_TIME" FROM "Users" WHERE "Email" = $1';
+    const values = [email];
+  
+    try {
+      const { rows } = await pool.query(query, values);
+      
+      if (rows.length === 1) {
+        const { PWD_RESET_TOKEN, RESET_TKN_TIME } = rows[0];
+        console.log(PWD_RESET_TOKEN);
+  
+        // Check if the token has expired
+        // if (new Date() > new Date(RESET_TKN_TIME)) {
+        //   return res.status(400).json({ message: 'Token has expired.' });
+        // }
+  
+        // Compare the provided token with the hashed token in the database
+        const isMatch = await bcrypt.compare(token, PWD_RESET_TOKEN);  // Compare the plain token with the hashed token
+        if (!isMatch) {
+          console.log("Token Mismatch");
+          return res.status(400).json({ message: 'Invalid token.' });
+        }
+
+        console.log(SALT_ROUNDS);
+  
+        // Hash the new password before saving it
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+  
+        // Update the user's password and clear the token fields
+        const updateQuery = `
+          UPDATE "Users"
+          SET "Password" = $1, "PWD_RESET_TOKEN" = NULL, "RESET_TKN_TIME" = NULL
+          WHERE "Email" = $2
+        `;
+        const updateValues = [hashedPassword, email];
+        await pool.query(updateQuery, updateValues);
+  
+        // Respond with success
+        console.log("Reset Works?");
+        res.status(200).json({ message: 'Password has been reset successfully.' });
+      } else {
+        console.log("UNF Error");
+        res.status(404).json({ message: 'User not found.' });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ message: 'An error occurred while processing your request.' });
+    }
+  });
+  
+  
+
+
+
+  app.post('/google-login', async (req, res) => {
+    const { token } = req.body;  // Firebase token sent from frontend
+    
+    // Log the received token
+    console.log("Received token:", token);
+  
+    try {
+      // Verify Firebase token using Firebase Admin SDK
+      const decodedToken = await admin.auth().verifyIdToken(token);
+      
+      // Log the decoded token
+      console.log("Decoded token:", decodedToken);
+  
+      const { uid, email, name } = decodedToken;
+  
+      // Now, search or create the user in your PostgreSQL database
+      const query = 'SELECT * FROM "Users" WHERE "Email" = $1';
+      const values = [email];
+      const { rows } = await pool.query(query, values);
+  
+      let user;
+      if (rows.length === 0) {
+        // If user does not exist, create a new user
+        const insertQuery = 'INSERT INTO "Users" ("Username", "Email", "EXTERNAL_ID", "AuthProvider") VALUES ($1, $2, $3, $4) RETURNING *';
+        const insertValues = [name || email, email, uid,"Google"];
+        const result = await pool.query(insertQuery, insertValues);
+        user = result.rows[0];
+      } else {
+        user = rows[0];  // User exists
+      }
+  
+      // Create a JWT token for your app (backend authentication)
+      const jwtToken = jwt.sign({ userId: user.UserId, email: user.Email }, process.env.JWT_SECRET);
+  
+      // Respond with user data and token
+      res.status(200).json({
+        message: 'Google login successful!',
+        token: jwtToken,
+        user: {
+          id: user.UserId,
+          email: user.Email,
+          username: user.Username,
+        },
+      });
+    } catch (error) {
+      // Log the error for debugging
+      console.error('Error during Google login:', error);
+      res.status(401).json({ message: 'Google login failed' });
+    }
+  });
+  
+  
   
 
 
@@ -348,6 +552,7 @@ app.put('/applications/:id', authenticateToken, async (req, res) => {
 
 
 
+
 // PUT route to update StatusName in Status table
 app.put('/status/:id', authenticateToken, async (req, res) => {
   const { id } = req.params; // Get StatusId from route params
@@ -449,3 +654,4 @@ app.delete('/status/:id', authenticateToken, async (req, res) => {
 
 
   
+

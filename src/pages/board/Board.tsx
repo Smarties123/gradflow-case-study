@@ -7,7 +7,7 @@ import DrawerView from '../../components/DrawerView/DrawerView';
 import { IoMdMore, IoMdMove, IoMdTrash } from "react-icons/io";  // Updated import for the icon
 import { BoardContext } from './BoardContext';
 import { useUser } from '../../components/User/UserContext';
-import { Column, Card } from './types'; 
+import { Column, Card } from './types';
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 
 const Board: React.FC = () => {
@@ -254,23 +254,23 @@ const Board: React.FC = () => {
 
   const handleFavoriteToggle = (updatedCard) => {
     setColumns((prevColumns) =>
-        prevColumns.map((column) => ({
-            ...column,
-            cards: column.cards.map((card) =>
-                card.id === updatedCard.ApplicationId ? { ...card, Favourite: updatedCard.Favourite } : card
-            ),
-        }))
+      prevColumns.map((column) => ({
+        ...column,
+        cards: column.cards.map((card) =>
+          card.id === updatedCard.ApplicationId ? { ...card, Favourite: updatedCard.Favourite } : card
+        ),
+      }))
     );
-};
+  };
 
 
   //For Deleting Card
   const handleDeleteCard = (cardId) => {
-    setColumns((prevColumns) => 
-        prevColumns.map((column) => ({
-            ...column,
-            cards: column.cards.filter((card) => card.id !== cardId) // Remove the deleted card
-        }))
+    setColumns((prevColumns) =>
+      prevColumns.map((column) => ({
+        ...column,
+        cards: column.cards.filter((card) => card.id !== cardId) // Remove the deleted card
+      }))
     );
   };
 
@@ -310,7 +310,7 @@ const Board: React.FC = () => {
   
 
 
-  
+
 
   return (
     <DragDropContext onDragEnd={onDragEnd as any}>
@@ -419,14 +419,14 @@ const Board: React.FC = () => {
             columnName={selectedCard.columnName}
           />
         )}
-      {/* Add the Add New Status Button */}
-      <div className="add-new-column">
-        <button className="add-new-button" onClick={handleAddNewColumn}>
-          Add New Status
-        </button>
+        {/* Add the Add New Status Button */}
+        <div className="column-container" id="add-new-column">
+          <button className="add-new-button" onClick={handleAddNewColumn}>
+            Add New Status
+          </button>
+        </div>
       </div>
-    </div>
-  </DragDropContext>
+    </DragDropContext>
   );
 };
 
