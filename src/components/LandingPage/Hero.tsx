@@ -1,11 +1,23 @@
 import * as React from 'react';
-import { alpha } from '@mui/material';
+import { alpha, keyframes } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+
+// Define keyframes for the animation
+const fadeSlideIn = keyframes`
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 export default function Hero() {
   return (
@@ -39,6 +51,7 @@ export default function Hero() {
               alignSelf: 'center',
               textAlign: 'center',
               fontSize: 'clamp(3.5rem, 10vw, 4rem)',
+              animation: `${fadeSlideIn} 1.2s ease-out`, // Apply animation
             }}
           >
             Track Apply&nbsp;
@@ -49,6 +62,7 @@ export default function Hero() {
                 fontSize: 'clamp(3rem, 10vw, 4rem)',
                 color: (theme) =>
                   theme.palette.mode === 'light' ? 'primary.main' : 'primary.light',
+                animation: `${fadeSlideIn} 1.5s ease-out`, // Apply animation with delay
               }}
             >
               Succeed
@@ -80,35 +94,6 @@ export default function Hero() {
             .
           </Typography>
         </Stack>
-        {/* <Box
-          id="video"
-          sx={{
-            mt: { xs: 8, sm: 10 },
-            alignSelf: 'center',
-            height: { xs: 200, sm: 700 },
-            width: '100%',
-            borderRadius: '10px',
-            outline: '1px solid',
-            outlineColor: (theme) =>
-              theme.palette.mode === 'light'
-                ? alpha('#BFCCD9', 0.5)
-                : alpha('#9CCCFC', 0.1),
-            boxShadow: (theme) =>
-              theme.palette.mode === 'light'
-                ? `0 0 12px 8px ${alpha('#9CCCFC', 0.2)}`
-                : `0 0 24px 12px ${alpha('#033363', 0.2)}`,
-          }}
-        >
-          <video
-            src="./Assets/Kanban Board - Sample 1.mp4"
-            controls
-            style={{
-              height: '100%',
-              width: '100%',
-              borderRadius: '10px',
-            }}
-          /> */}
-        {/* </Box>  */}
       </Container>
     </Box>
   );
