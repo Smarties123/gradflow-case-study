@@ -58,4 +58,13 @@ a:hover {
   /* color: #0056b3 !important; */
 }
 
-/* Add any other custom overrides as necessary */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #ff6200;
+  transform-origin: 0%;
+  z-index: 1000;
+}
