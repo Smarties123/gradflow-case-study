@@ -46,3 +46,4 @@ assets
 
 # local env
 backend/.env
+.env

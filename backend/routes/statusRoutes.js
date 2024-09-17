@@ -1,0 +1,19 @@
+import express from 'express';
+import { getStatuses, updateStatusName, createStatus, deleteStatus } from '../controllers/statusController.js';
+import { authenticateToken } from '../middleware/authMiddleware.js';
+
+const router = express.Router();
+
+// Fetch all statuses for the authenticated user
+router.get('/status', authenticateToken, getStatuses);
+
+// Update a status (column) name
+router.put('/status/:id', authenticateToken, updateStatusName);
+
+// Create a new status (column)
+router.post('/status', authenticateToken, createStatus);
+
+// Delete a status (column)
+router.delete('/status/:id', authenticateToken, deleteStatus);
+
+export default router;
