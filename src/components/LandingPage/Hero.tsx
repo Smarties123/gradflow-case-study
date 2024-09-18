@@ -6,6 +6,7 @@ import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { motion } from 'framer-motion';
 
 // Define keyframes for the animation
 const fadeSlideIn = keyframes`
@@ -20,17 +21,21 @@ const fadeSlideIn = keyframes`
 `;
 
 export default function Hero() {
+  const text = 'Your one-stop platform to manage, track and succeed in all your applications'.split(
+    ' '
+  );
+
   return (
     <Box
       id="hero"
-      sx={(theme) => ({
+      sx={theme => ({
         width: '100%',
         backgroundImage:
           theme.palette.mode === 'light'
             ? 'linear-gradient(180deg, #CEE5FD, #FFF)'
             : `linear-gradient(#02294F, ${alpha('#090E10', 0.0)})`,
         backgroundSize: '100% 20%',
-        backgroundRepeat: 'no-repeat',
+        backgroundRepeat: 'no-repeat'
       })}
     >
       <Container
@@ -39,7 +44,7 @@ export default function Hero() {
           flexDirection: 'column',
           alignItems: 'center',
           pt: { xs: 14, sm: 20 },
-          pb: { xs: 8, sm: 12 },
+          pb: { xs: 8, sm: 12 }
         }}
       >
         <Stack spacing={2} useFlexGap sx={{ width: { xs: '100%', sm: '70%' } }}>
@@ -51,7 +56,7 @@ export default function Hero() {
               alignSelf: 'center',
               textAlign: 'center',
               fontSize: 'clamp(3.5rem, 10vw, 4rem)',
-              animation: `${fadeSlideIn} 1.2s ease-out`, // Apply animation
+              animation: `${fadeSlideIn} 1.2s ease-out` // Apply animation
             }}
           >
             Track Apply&nbsp;
@@ -60,21 +65,34 @@ export default function Hero() {
               variant="h1"
               sx={{
                 fontSize: 'clamp(3rem, 10vw, 4rem)',
-                color: (theme) =>
-                  theme.palette.mode === 'light' ? 'primary.main' : 'primary.light',
-                animation: `${fadeSlideIn} 1.5s ease-out`, // Apply animation with delay
+                color: theme => (theme.palette.mode === 'light' ? 'primary.main' : 'primary.light'),
+                animation: `${fadeSlideIn} 1.5s ease-out` // Apply animation with delay
               }}
             >
               Succeed
             </Typography>
           </Typography>
+
           <Typography
             textAlign="center"
             color="text.secondary"
             sx={{ alignSelf: 'center', width: { sm: '100%', md: '80%' } }}
           >
-            Your one-stop platform to manage, track and succeed in all your applications
+            {text.map((el, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{
+                  duration: 0.5, // Increased duration for slower fade-in
+                  delay: i * 0.3 // Increased delay for a more gradual appearance
+                }}
+              >
+                {el}{' '}
+              </motion.span>
+            ))}
           </Typography>
+
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
             alignSelf="center"
