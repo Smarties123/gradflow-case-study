@@ -16,24 +16,20 @@ import Header from '../Header';
 import NavLink from '../NavLink';
 import Brand from '../Brand';
 import { Icon } from '@rsuite/icons';
-
-// Icons from react-icons
 import { HiOutlineViewBoards } from "react-icons/hi";
 import { LuTable2 } from "react-icons/lu";
 import { MdContacts } from "react-icons/md";
 import { MdDashboard } from "react-icons/md";
 import { TbFiles } from "react-icons/tb";
 import { CiSettings } from "react-icons/ci";
-
 import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
-
 
 const { getHeight, on } = DOMHelper;
 
 const NavItem = props => {
   const { title, eventKey, ...rest } = props;
   return (
-    <Nav.Item eventKey={eventKey} as={NavLink} {...rest}>
+    <Nav.Item eventKey={eventKey} as={NavLink} className="nav-item" {...rest}>
       {title}
     </Nav.Item>
   );
@@ -119,15 +115,15 @@ const Frame = () => {
 
             {/* Settings item placed here, above NavToggle */}
             <Nav>
-            <Nav.Item
-              title="Settings"
-              onClick={() => setShowSettings(true)}
-              eventKey="settings"
-              icon={<Icon as={CiSettings} />}
-            >
-              Settings
-            </Nav.Item>
-           </Nav>
+              <Nav.Item
+                title="Settings"
+                onClick={() => setShowSettings(true)}
+                eventKey="settings"
+                icon={<Icon as={CiSettings} />}
+              >
+                Settings
+              </Nav.Item>
+            </Nav>
             <NavToggle expand={expand} onChange={() => setExpand(!expand)} />
           </Sidenav>
         </Sidebar>
@@ -143,9 +139,9 @@ const Frame = () => {
           show={showSettings}
           onClose={() => setShowSettings(false)} // Close the settings drawer
           card={{}} // Pass necessary props here, adjust as per your implementation
-          updateCard={() => {}} // Adjust as per your implementation
-          />
-        
+          updateCard={() => { }} // Adjust as per your implementation
+        />
+
       </Container>
     </CustomProvider>
   );

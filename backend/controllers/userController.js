@@ -10,21 +10,6 @@ const TOKEN_EXPIRATION_MINUTES = 15;
 const SALT_ROUNDS = 10; // Adjust this value as necessary
 
 
-// Middleware to authenticate token (in case you need it)
-export const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Token is missing' });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: 'Invalid token' });
-    req.user = user;
-    next();
-  });
-};
 
 // Sign up
 export const signUp = async (req, res) => {
@@ -202,3 +187,66 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while processing your request.' });
   }
 };
+
+
+// In userController.js
+export const getUserDetails = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const query = 'SELECT "Username", "Email" FROM "Users" WHERE "UserId" = $1';
+    const { rows } = await pool.query(query, [userId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+// In userController.js
+export const updateUserDetails = async (req, res) => {
+  const userId = req.user.userId;
+  const { name, email } = req.body;
+
+  try {
+    const query = 'UPDATE "Users" SET "Username" = $1, "Email" = $2 WHERE "UserId" = $3';
+    await pool.query(query, [name, email, userId]);
+
+    res.status(200).json({ message: 'User details updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Delete User Account
+export const deleteUserAccount = async (req, res) => {
+  const userId = req.user.userId; // Extract userId from the token
+
+  try {
+      // First, delete related entries in the Application table
+      await pool.query('DELETE FROM "Application" WHERE "UserId" = $1', [userId]);
+
+      // Then, delete related entries in the Status table
+      await pool.query('DELETE FROM "Status" WHERE "UserId" = $1', [userId]);
+
+      // Finally, delete the user from the Users table
+      const result = await pool.query('DELETE FROM "Users" WHERE "UserId" = $1', [userId]);
+
+      if (result.rowCount > 0) {
+          res.status(200).json({ message: 'User account deleted successfully' });
+      } else {
+          res.status(404).json({ message: 'User not found' });
+      }
+  } catch (error) {
+      console.error('Error deleting user account:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+};
+

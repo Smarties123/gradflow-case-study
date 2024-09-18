@@ -1,0 +1,11 @@
+/* Fade in and fade out animations */
+.fade-out {
+  opacity: 0;
+  animation: fadeOut ease-out;
+  animation-duration: 1.5s;
+}
+
+.fade-in {
+  opacity: 1;
+  animation: fadeInLeft 0.8s ease-in;
+}
