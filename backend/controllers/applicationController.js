@@ -28,9 +28,10 @@ export const getApplications = async (req, res) => {
 
   try {
     const query = `
-      SELECT a.*, s."StatusName"
+      SELECT a.*, sn."StatusName"
       FROM "Application" a
       JOIN "Status" s ON a."StatusId" = s."StatusId"
+      JOIN "StatusName" sn ON s."StatusNameId" = sn."StatusNameId"
       WHERE a."UserId" = $1
       ORDER BY a."Deadline" DESC;
     `;

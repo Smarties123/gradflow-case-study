@@ -9,6 +9,9 @@ import { BoardContext } from './BoardContext';
 import { useUser } from '../../components/User/UserContext';
 import { Column, Card } from './types';
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
+import MoveStatusModal from '../../components/MoveStatusModal/MoveStatusModal';  // Import the modal
+
+
 
 const Board: React.FC = () => {
   const context = useContext(BoardContext);
@@ -143,6 +146,10 @@ const Board: React.FC = () => {
 
   const [showDropdown, setShowDropdown] = useState<number | null>(null);  // State to handle dropdown
 
+  // const { columns, setColumns } = useContext(BoardContext);
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
+
 
   const ref = useRef<HTMLInputElement>(null);
 
@@ -152,7 +159,8 @@ const Board: React.FC = () => {
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTitle(e.target.value);
+    const capitalizedTitle = e.target.value.toUpperCase();
+    setNewTitle(capitalizedTitle);  // Always capitalize input
   };
 
   const handleTitleBlur = async () => {
@@ -207,7 +215,10 @@ const Board: React.FC = () => {
   };
 
   const handleDropdownOptionSelect = async (option: number, columnId: number) => {
-    if (option === 2) { // Delete option
+    if (option === 1) {  // Move option
+      setSelectedColumnId(columnId);  // Set the column ID that is being moved
+      setShowMoveModal(true);  // Show the modal
+    } else if (option === 2) {  // Delete option
       const column = columns.find(col => col.id === columnId);
       if (!column || column.cards.length > 0) {
         alert('Cannot delete a column with cards.');
@@ -234,6 +245,36 @@ const Board: React.FC = () => {
       }
     }
     setShowDropdown(null);
+  };
+  
+
+  const handleMove = (newPosition: number) => {
+    if (selectedColumnId !== null) {
+      // Call backend to update the status order
+      fetch(`http://localhost:3001/status/${selectedColumnId}/move`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify({ newPosition }),
+      })
+      .then(response => {
+        if (response.ok) {
+          // Update frontend state accordingly
+          setColumns((prevColumns) => {
+            const newColumns = [...prevColumns];
+            const movingColumn = newColumns.find(col => col.id === selectedColumnId);
+            if (movingColumn) {
+              newColumns.splice(movingColumn.StatusOrder - 1, 1); // Remove from current position
+              newColumns.splice(newPosition - 1, 0, movingColumn); // Insert in new position
+              newColumns.forEach((col, index) => col.StatusOrder = index + 1); // Recalculate order
+            }
+            return newColumns;
+          });
+        }
+      });
+    }
   };
   
 
@@ -276,8 +317,8 @@ const Board: React.FC = () => {
 
   // For Adding new Status
   const handleAddNewColumn = async () => {
-    const newColumnTitle = 'New Status'; // Default title for new status
-  
+    const newColumnTitle = 'NEW STATUS';  // Ensure default title is capitalized
+    
     try {
       // Send a request to the backend to create the new column in the database
       const response = await fetch('http://localhost:3001/status', {
@@ -298,7 +339,7 @@ const Board: React.FC = () => {
       // Add the new column to the frontend's state
       const newColumn: Column = {
         id: newStatus.status.StatusId,  // Use the ID returned from the backend
-        title: newStatus.status.StatusName,
+        title: newStatus.status.StatusName, // Use the StatusName returned from the backend
         cards: [], // No cards in the new column yet
       };
   
@@ -307,6 +348,7 @@ const Board: React.FC = () => {
       console.error('Error creating new column:', error);
     }
   };
+  
   
 
 
@@ -324,7 +366,7 @@ const Board: React.FC = () => {
                 {editingColumnId !== column.id && (
                   <p className="column-counter">{column.cards.length}</p>
                 )}
-
+  
                 <div className="column-header-content">
                   {editingColumnId === column.id ? (
                     <div className='column-title-input'>
@@ -355,20 +397,20 @@ const Board: React.FC = () => {
                     <IoMdMore />
                   </button>
                 )}
-                  {showDropdown === column.id && (
-                    <div className="dropdown">
-                      <ul>
-                        <li onClick={() => handleDropdownOptionSelect(1, column.id)}>
-                          <IoMdMove /> Move Status
+                {showDropdown === column.id && (
+                  <div className="dropdown">
+                    <ul>
+                      <li onClick={() => handleDropdownOptionSelect(1, column.id)}>
+                        <IoMdMove /> Move Status
+                      </li>
+                      {column.cards.length === 0 && ( // Only show "Delete" if column has no cards
+                        <li onClick={() => handleDropdownOptionSelect(2, column.id)}>
+                          <IoMdTrash /> Delete Status
                         </li>
-                        {column.cards.length === 0 && ( // Only show "Delete" if column has no cards
-                          <li onClick={() => handleDropdownOptionSelect(2, column.id)}>
-                            <IoMdTrash /> Delete Status
-                          </li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
+                      )}
+                    </ul>
+                  </div>
+                )}
               </div>
               <button onClick={() => handleAddButtonClick(column)}>Add New</button>
               <Droppable droppableId={String(column.id)}>
@@ -419,7 +461,15 @@ const Board: React.FC = () => {
             columnName={selectedCard.columnName}
           />
         )}
-        {/* Add the Add New Status Button */}
+        {showMoveModal && selectedColumnId && (
+          <MoveStatusModal
+            isOpen={showMoveModal}
+            onClose={() => setShowMoveModal(false)}
+            currentOrder={columns.find(col => col.id === selectedColumnId)?.StatusOrder || 1}
+            totalColumns={columns.length}
+            onMove={handleMove}
+          />
+        )}
         <div className="column-container" id="add-new-column">
           <button className="add-new-button" onClick={handleAddNewColumn}>
             Add New Status
@@ -428,6 +478,7 @@ const Board: React.FC = () => {
       </div>
     </DragDropContext>
   );
+  
 };
 
 export default Board;

@@ -41,24 +41,43 @@ export const signUp = async (req, res) => {
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
 
-    // Insert default columns for the user (statuses)
-    const statusQuery = `
-      INSERT INTO "Status" ("StatusName", "StatusOrder", "UserId")
-      VALUES
-        ('To Do', 1, $1),
-        ('Applied', 2, $1),
-        ('Interview', 3, $1),
-        ('Offered', 4, $1),
-        ('Rejected', 5, $1);
-    `;
-    await pool.query(statusQuery, [userId]);
+    // Predefined StatusNameIds for default statuses (1-5) in uppercase
+    const defaultStatusNames = ['TO DO', 'APPLIED', 'INTERVIEW', 'OFFERED', 'REJECTED'];
 
-    res.status(201).json({ userId: userId, message: 'User created successfully' });
+    // Insert or fetch StatusNameIds for each default status
+    for (const [index, status] of defaultStatusNames.entries()) {
+      let statusNameId;
+
+      const statusNameResult = await pool.query(`
+        INSERT INTO "StatusName" ("StatusName")
+        VALUES ($1)
+        ON CONFLICT ("StatusName") DO NOTHING
+        RETURNING "StatusNameId";
+      `, [status]);
+
+      if (statusNameResult.rows.length > 0) {
+        statusNameId = statusNameResult.rows[0].StatusNameId;
+      } else {
+        const existingStatusResult = await pool.query('SELECT "StatusNameId" FROM "StatusName" WHERE "StatusName" = $1', [status]);
+        statusNameId = existingStatusResult.rows[0].StatusNameId;
+      }
+
+      // Insert into Status with the retrieved StatusNameId
+      await pool.query(`
+        INSERT INTO "Status" ("StatusNameId", "StatusOrder", "UserId")
+        VALUES ($1, $2, $3);
+      `, [statusNameId, index + 1, userId]);
+    }
+
+    res.status(201).json({ userId, message: 'User created successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error.' });
   }
 };
+
+
+
 
 // Login
 export const login = async (req, res) => {
