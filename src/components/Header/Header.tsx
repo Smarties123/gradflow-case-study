@@ -89,7 +89,7 @@ const Header = (props) => {
     // Clear user data in context
     setUser(null);
     // Redirect to login page
-    navigate('/sign-in');
+    navigate('/signin');
   };
 
   const renderAdminSpeaker = ({ onClose, left, top, className }: any, ref) => {

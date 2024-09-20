@@ -16,6 +16,11 @@ import { useMediaQuery } from '@mui/material'; // For responsive layout
 import SchoolIcon from '@mui/icons-material/School'; // University icon
 import FeedbackButton from '../FeedbackButton/FeedbackButton'; // Feedback button
 
+
+
+// const [promotionalEmails, setPromotionalEmails] = React.useState(false); // New state for checkbox
+
+
 // Google SVG icon using official colors
 function GoogleIcon() {
   return (
@@ -45,6 +50,7 @@ const defaultTheme = createTheme();
 
 export default function SignUp() {
   const [error, setError] = React.useState<string | null>(null);
+  const [promotionalEmails, setPromotionalEmails] = React.useState(false); // New state for checkbox
   const isSmallScreen = useMediaQuery('(max-width:600px)'); // Media query for small screens
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -54,6 +60,7 @@ export default function SignUp() {
       username: data.get('Name'),
       email: data.get('email'),
       password: data.get('password'),
+      promotionalEmails: promotionalEmails,  // Use the state directly
     };
 
     try {
@@ -94,7 +101,7 @@ export default function SignUp() {
           square
           sx={{
             background: 'linear-gradient(to bottom, #FF6200, #000000)',
-            display: isSmallScreen ? 'none' : 'block', // Hide on small screens
+            display: isSmallScreen ? 'none' : 'block',
           }}
         />
         <Grid 
@@ -162,7 +169,13 @@ export default function SignUp() {
                 </Grid>
                 <Grid item xs={12}>
                   <FormControlLabel
-                    control={<Checkbox value="allowExtraEmails" color="primary" />}
+                    control={
+                      <Checkbox 
+                        checked={promotionalEmails}
+                        onChange={(e) => setPromotionalEmails(e.target.checked)}  // Capture checkbox value
+                        color="primary"
+                      />
+                    }
                     label="I want to receive inspiration, marketing promotions and updates via email."
                   />
                 </Grid>

@@ -13,15 +13,15 @@ const SALT_ROUNDS = 10; // Adjust this value as necessary
 
 // Sign up
 export const signUp = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, promotionalEmails } = req.body;
   if (!username || !email || !password) {
     return res.status(400).json({ message: 'Username, email, and password are required.' });
   }
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password") VALUES ($1, $2, $3) RETURNING "UserId"';
-    const values = [username, email, hashedPassword];
+    const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password", "PromotionalEmail") VALUES ($1, $2, $3, $4) RETURNING "UserId"';
+    const values = [username, email, hashedPassword, promotionalEmails];  // Include the promotionalEmails flag
 
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
@@ -194,36 +194,45 @@ export const getUserDetails = async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    const query = 'SELECT "Username", "Email" FROM "Users" WHERE "UserId" = $1';
-    const { rows } = await pool.query(query, [userId]);
+      const query = 'SELECT "Username", "Email", "PromotionalEmail", "ApplicationEmail" FROM "Users" WHERE "UserId" = $1';
+      const { rows } = await pool.query(query, [userId]);
 
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+      if (rows.length === 0) {
+          return res.status(404).json({ message: 'User not found' });
+      }
 
-    res.status(200).json(rows[0]);
+      res.status(200).json({
+          Username: rows[0].Username,
+          Email: rows[0].Email,
+          PromotionalEmail: rows[0].PromotionalEmail,  
+          ApplicationEmail: rows[0].ApplicationEmail  // Ensure it's included
+      });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
   }
 };
+
+
 
 
 // In userController.js
 export const updateUserDetails = async (req, res) => {
   const userId = req.user.userId;
-  const { name, email } = req.body;
+  const { name, email, promotionalEmails, applicationUpdates } = req.body;
 
   try {
-    const query = 'UPDATE "Users" SET "Username" = $1, "Email" = $2 WHERE "UserId" = $3';
-    await pool.query(query, [name, email, userId]);
+      const query = 'UPDATE "Users" SET "Username" = $1, "Email" = $2, "PromotionalEmail" = $3, "ApplicationEmail" = $4 WHERE "UserId" = $5';
+      await pool.query(query, [name, email, promotionalEmails, applicationUpdates, userId]);
 
-    res.status(200).json({ message: 'User details updated successfully' });
+      res.status(200).json({ message: 'User details updated successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
   }
 };
+
+
 
 // Delete User Account
 export const deleteUserAccount = async (req, res) => {
