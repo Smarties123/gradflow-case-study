@@ -15,6 +15,8 @@ import EdgesensorHighRoundedIcon from '@mui/icons-material/EdgesensorHighRounded
 import ViewQuiltRoundedIcon from '@mui/icons-material/ViewQuiltRounded';
 import './Styles/Student.css';
 import 'animate.css';
+import useMediaQuery from '@mui/material/useMediaQuery';
+
 
 const items = [
   {
@@ -96,12 +98,15 @@ export default function Student() {
 
 function AnimatedItem({ icon, title, description, index, selectedItemIndex, handleItemClick }) {
   const { ref, inView } = useInView({ threshold: 0.1 });
+  const isMobile = useMediaQuery('(max-width:600px)'); // Check if screen size is mobile
+
+
 
   return (
     <Card
       ref={ref}
       variant="outlined"
-      className={inView ? 'fade-in' : 'fade-out'}
+      className={isMobile ? '' : inView ? 'fade-in' : 'fade-out'} // Disable animation for mobile
       onClick={() => handleItemClick(index)}
       sx={{
         p: 3,
