@@ -10,6 +10,7 @@ import { useUser } from '../../components/User/UserContext';
 import { Column, Card } from './types';
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 import MoveStatusModal from '../../components/MoveStatusModal/MoveStatusModal';  // Import the modal
+import BinPopup from '../../components/BinPopup/BinPopup';
 
 
 
@@ -19,6 +20,7 @@ const Board: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(true); // State to manage loading
   const [error, setError] = useState<string | null>(null); // State to manage errors
+  const [isDraggingCard, setIsDraggingCard] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -276,7 +278,50 @@ const Board: React.FC = () => {
       });
     }
   };
+
+
+
+
+
+
+  const onDragStart = () => {
+    setIsDraggingCard(true);  // Ensure the bin popup appears when dragging starts
+  };
   
+  const handleDragEnd = async (result) => {
+    setIsDraggingCard(false);  // Hide the bin icon when dragging ends
+  
+    if (!result.destination) {
+      return;  // Dropped outside any column or droppable
+    }
+  
+    // Check if the card is dropped over the bin
+    const binDropped = result.destination.droppableId === 'bin';
+  
+    if (binDropped) {
+      // Trigger the delete function here
+      const cardId = result.draggableId;
+      try {
+        const response = await fetch(`http://localhost:3001/applications/${cardId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${user.token}`,  // Ensure you are using the correct token
+          },
+        });
+  
+        if (response.ok) {
+          handleDeleteCard(cardId);  // Update state to remove the card
+        } else {
+          console.error('Failed to delete the card.');
+        }
+      } catch (error) {
+        console.error('Error deleting the card:', error);
+      }
+    } else {
+      // Handle card movement logic as usual
+      context.onDragEnd(result);
+    }
+  };
 
   
 
@@ -310,10 +355,11 @@ const Board: React.FC = () => {
     setColumns((prevColumns) =>
       prevColumns.map((column) => ({
         ...column,
-        cards: column.cards.filter((card) => card.id !== cardId) // Remove the deleted card
+        cards: column.cards.filter((card) => card.id !== cardId),  // Remove the deleted card
       }))
     );
   };
+  
 
   // For Adding new Status
   const handleAddNewColumn = async () => {
@@ -355,7 +401,7 @@ const Board: React.FC = () => {
 
 
   return (
-    <DragDropContext onDragEnd={onDragEnd as any}>
+    <DragDropContext onDragStart={onDragStart} onDragEnd={handleDragEnd}>
       <div className="board">
         {columns.length === 0 ? (
           <p>No columns available</p>
@@ -476,6 +522,18 @@ const Board: React.FC = () => {
           </button>
         </div>
       </div>
+
+
+      {/* Add the bin as a droppable area */}
+      <Droppable droppableId="bin">
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps} className="bin-drop-area">
+            <BinPopup isDragging={isDraggingCard} />
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+
     </DragDropContext>
   );
   

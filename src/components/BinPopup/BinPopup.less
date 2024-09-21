@@ -1,0 +1,26 @@
+// BinPopup.less
+.bin-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 80px;
+    height: 80px;
+    background-color: #ff6200;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .bin-popup.show {
+    opacity: 1; /* Visible when dragging */
+  }
+  
+  .trash-icon {
+    color: white;
+    font-size: 40px;
+  }
+  
