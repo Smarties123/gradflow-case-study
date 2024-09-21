@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import FacebookIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import TwitterIcon from '@mui/icons-material/X';
-import logo from './Assets/logo1A.png';
+import LandingPageBrand from '../LandingPageBrand/LandingPageBrand';
 
 const logoStyle = {
   width: '140px',
@@ -57,12 +57,9 @@ export default function Footer() {
           }}
         >
           <Box sx={{ width: { xs: '100%', sm: '60%' } }}>
-            <Box sx={{ ml: '-15px' }}>
-              <img
-                src={logo}
-                style={logoStyle}
-                alt="logo of GradFlow"
-              />
+            <Box sx={{ ml: '-15px', mb: '10px' }}>
+              <LandingPageBrand />
+
             </Box>
             <Typography variant="body2" fontWeight={600} gutterBottom>
               Newsletter
