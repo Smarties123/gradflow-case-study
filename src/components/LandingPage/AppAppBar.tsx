@@ -11,8 +11,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import ToggleColorMode from './ToggleColorMode';
+import LandingPageBrand from '../LandingPageBrand/LandingPageBrand';
 
-import logo from './Assets/logo1A.png';
 const logoStyle = {
   width: '140px',
   height: 'auto',
@@ -77,8 +77,8 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 theme.palette.mode === 'light'
                   ? `0 0 1px rgba(85, 166, 246, 0.1), 1px 1.5px 2px -1px rgba(85, 166, 246, 0.15), 4px 4px 12px -2.5px rgba(85, 166, 246, 0.15)`
                   : '0 0 1px rgba(2, 31, 59, 0.7), 1px 1.5px 2px -1px rgba(2, 31, 59, 0.65), 4px 4px 12px -2.5px rgba(2, 31, 59, 0.65)',
-            
-                })}
+
+            })}
           >
             <Box
               sx={{
@@ -89,11 +89,8 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 px: 0,
               }}
             >
-              <img
-                src={logo}
-                style={logoStyle}
-                alt="logo of GradFlow"
-              />
+              <LandingPageBrand />
+
               <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                 <MenuItem
                   onClick={() => scrollToSection('student')}
@@ -161,8 +158,8 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 size="small"
                 component="a"
                 href="/SignIn"
-                // target="_blank"
-                // not target is used to open a new page every time
+              // target="_blank"
+              // not target is used to open a new page every time
               >
                 Sign in
               </Button>
@@ -172,11 +169,11 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 size="small"
                 component="a"
                 href="/SignUp"
-                // target="_blank"
+              // target="_blank"
               >
                 Sign up
               </Button>
-               {/* <Button
+              {/* <Button
                 color="primary"
                 variant="contained"
                 size="medium"

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useInView } from 'react-intersection-observer'; // Importing useInView
+import { useInView } from 'react-intersection-observer';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
@@ -14,6 +14,8 @@ import DevicesRoundedIcon from '@mui/icons-material/DevicesRounded';
 import EdgesensorHighRoundedIcon from '@mui/icons-material/EdgesensorHighRounded';
 import ViewQuiltRoundedIcon from '@mui/icons-material/ViewQuiltRounded';
 import './Styles/University.css';
+import useMediaQuery from '@mui/material/useMediaQuery';
+
 
 const items = [
   {
@@ -146,12 +148,14 @@ export default function University() {
 
 function AnimatedItem({ icon, title, description, index, selectedItemIndex, handleItemClick }) {
   const { ref, inView } = useInView({ threshold: 0.1 });
+  const isMobile = useMediaQuery('(max-width:600px)'); // Check if screen size is mobile
+
 
   return (
     <Card
       ref={ref}
       variant="outlined"
-      className={inView ? 'fade-in' : 'fade-out'}
+      className={isMobile ? '' : inView ? 'fade-in' : 'fade-out'} // Disable animation for mobile
       onClick={() => handleItemClick(index)}
       sx={{
         p: 3,
@@ -163,8 +167,8 @@ function AnimatedItem({ icon, title, description, index, selectedItemIndex, hand
           selectedItemIndex === index
             ? 'primary.light'
             : theme.palette.mode === 'light'
-            ? 'grey.200'
-            : 'grey.800'
+              ? 'grey.200'
+              : 'grey.800'
       }}
     >
       <Box
