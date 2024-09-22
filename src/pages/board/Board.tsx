@@ -10,7 +10,11 @@ import { useUser } from '../../components/User/UserContext';
 import { Column, Card } from './types';
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 import MoveStatusModal from '../../components/MoveStatusModal/MoveStatusModal';  // Import the modal
+
 import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
+
+import BinPopup from '../../components/BinPopup/BinPopup';
+
 
 
 
@@ -20,6 +24,7 @@ const Board: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(true); // State to manage loading
   const [error, setError] = useState<string | null>(null); // State to manage errors
+  const [isDraggingCard, setIsDraggingCard] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -33,7 +38,7 @@ const Board: React.FC = () => {
     const fetchApplications = async () => {
       try {
         // Fetch the user's statuses (columns)
-        const statusResponse = await fetch('http://localhost:3001/status', {
+        const statusResponse = await fetch(`${process.env.REACT_APP_API_URL}/status`, {
           headers: {
             'Authorization': `Bearer ${user?.token}`, // Attach the token
           },
@@ -46,7 +51,7 @@ const Board: React.FC = () => {
         const statuses = await statusResponse.json();
 
         // Fetch the user's applications
-        const jobResponse = await fetch('http://localhost:3001/applications', {
+        const jobResponse = await fetch(`${process.env.REACT_APP_API_URL}/applications`, {
           headers: {
             'Authorization': `Bearer ${user?.token}`, // Attach the token
           },
@@ -182,7 +187,7 @@ const Board: React.FC = () => {
 
       // Send the updated column name (StatusName) to the backend
       try {
-        const response = await fetch(`http://localhost:3001/status/${editingColumnId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/status/${editingColumnId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -229,7 +234,7 @@ const Board: React.FC = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:3001/status/${columnId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/status/${columnId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${user?.token}`,
@@ -254,7 +259,7 @@ const Board: React.FC = () => {
   const handleMove = (newPosition: number) => {
     if (selectedColumnId !== null) {
       // Call backend to update the status order
-      fetch(`http://localhost:3001/status/${selectedColumnId}/move`, {
+      fetch(`${process.env.REACT_APP_API_URL}/status/${selectedColumnId}/move`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -279,6 +284,52 @@ const Board: React.FC = () => {
         });
     }
   };
+
+
+
+
+
+
+
+  const onDragStart = () => {
+    setIsDraggingCard(true);  // Ensure the bin popup appears when dragging starts
+  };
+  
+  const handleDragEnd = async (result) => {
+    setIsDraggingCard(false);  // Hide the bin icon when dragging ends
+  
+    if (!result.destination) {
+      return;  // Dropped outside any column or droppable
+    }
+  
+    // Check if the card is dropped over the bin
+    const binDropped = result.destination.droppableId === 'bin';
+  
+    if (binDropped) {
+      // Trigger the delete function here
+      const cardId = result.draggableId;
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${cardId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${user.token}`,  // Ensure you are using the correct token
+          },
+        });
+  
+        if (response.ok) {
+          handleDeleteCard(cardId);  // Update state to remove the card
+        } else {
+          console.error('Failed to delete the card.');
+        }
+      } catch (error) {
+        console.error('Error deleting the card:', error);
+      }
+    } else {
+      // Handle card movement logic as usual
+      context.onDragEnd(result);
+    }
+  };
+
 
 
 
@@ -326,10 +377,11 @@ const Board: React.FC = () => {
     setColumns((prevColumns) =>
       prevColumns.map((column) => ({
         ...column,
-        cards: column.cards.filter((card) => card.id !== cardId) // Remove the deleted card
+        cards: column.cards.filter((card) => card.id !== cardId),  // Remove the deleted card
       }))
     );
   };
+  
 
   // For Adding new Status
   const handleAddNewColumn = async () => {
@@ -337,7 +389,7 @@ const Board: React.FC = () => {
 
     try {
       // Send a request to the backend to create the new column in the database
-      const response = await fetch('http://localhost:3001/status', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -371,7 +423,7 @@ const Board: React.FC = () => {
 
 
   return (
-    <DragDropContext onDragEnd={onDragEnd as any}>
+    <DragDropContext onDragStart={onDragStart} onDragEnd={handleDragEnd}>
       <div className="board">
         {columns.length === 0 ? (
           <p>No columns available</p>
@@ -507,6 +559,18 @@ const Board: React.FC = () => {
           </button>
         </div>
       </div>
+
+
+      {/* Add the bin as a droppable area */}
+      <Droppable droppableId="bin">
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps} className="bin-drop-area">
+            <BinPopup isDragging={isDraggingCard} />
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+
     </DragDropContext>
   );
 

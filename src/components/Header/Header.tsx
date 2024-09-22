@@ -34,18 +34,20 @@ const Header = (props) => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/users/profile', {
-          headers: {
-            'Authorization': `Bearer ${user.token}`,  // Ensure you have a valid token
-            'Content-Type': 'application/json',
-          }
-        });
-        const data = await response.json();
-        setFormData({ email: data.Email, name: data.Username }); // Make sure to use correct case for `Email` and `Username`
-      } catch (error) {
-        console.error('Failed to fetch user data', error);
-      }
+
+        try {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
+            headers: {
+                    'Authorization': `Bearer ${user.token}`,  // Ensure you have a valid token
+                    'Content-Type': 'application/json',
+                }
+            });
+            const data = await response.json();
+            setFormData({ email: data.Email, name: data.Username }); // Make sure to use correct case for `Email` and `Username`
+        } catch (error) {
+            console.error('Failed to fetch user data', error);
+        }
+
     };
     fetchUserData();
   }, [user.token]);

@@ -63,7 +63,7 @@ export default function SignInSide() {
       console.log("Generated Firebase Token:", token);
   
       // Send the token to your backend for verification and login
-      const response = await fetch('http://localhost:3001/google-login', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/google-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ export default function SignInSide() {
     };
 
     try {
-      const response = await fetch('http://localhost:3001/api/users/login', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
