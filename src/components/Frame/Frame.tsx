@@ -16,12 +16,15 @@ import Header from '../Header';
 import NavLink from '../NavLink';
 import Brand from '../Brand';
 import { Icon } from '@rsuite/icons';
+
+// Icons from react-icons
 import { HiOutlineViewBoards } from "react-icons/hi";
 import { LuTable2 } from "react-icons/lu";
 import { MdContacts } from "react-icons/md";
 import { MdDashboard } from "react-icons/md";
 import { TbFiles } from "react-icons/tb";
 import { CiSettings } from "react-icons/ci";
+
 import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
 
 const { getHeight, on } = DOMHelper;
