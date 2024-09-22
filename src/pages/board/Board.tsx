@@ -1,34 +1,157 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Modal from '../../components/Modal/Modal';
 import CardComponent from '../../components/CardComponent/CardComponent';
 import './Board.less';
 import DrawerView from '../../components/DrawerView/DrawerView';
-import { CiEdit } from "react-icons/ci";
+import { IoMdMore, IoMdMove, IoMdTrash } from "react-icons/io";  // Updated import for the icon
 import { BoardContext } from './BoardContext';
+import { useUser } from '../../components/User/UserContext';
+import { Column, Card } from './types';
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
+import MoveStatusModal from '../../components/MoveStatusModal/MoveStatusModal';  // Import the modal
 
-const Board = () => {
+
+
+const Board: React.FC = () => {
   const context = useContext(BoardContext);
+  const { user } = useUser(); // Access the user credentials
+
+  const [loading, setLoading] = useState<boolean>(true); // State to manage loading
+  const [error, setError] = useState<string | null>(null); // State to manage errors
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      window.location.href = '/signin';
+    }
+  }, [user]);
+
+  // Fetch applications on component mount
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        // Fetch the user's statuses (columns)
+        const statusResponse = await fetch('http://localhost:3001/status', {
+          headers: {
+            'Authorization': `Bearer ${user?.token}`, // Attach the token
+          },
+        });
+  
+        if (!statusResponse.ok) {
+          throw new Error('Failed to fetch statuses');
+        }
+  
+        const statuses = await statusResponse.json();
+  
+        // Fetch the user's applications
+        const jobResponse = await fetch('http://localhost:3001/applications', {
+          headers: {
+            'Authorization': `Bearer ${user?.token}`, // Attach the token
+          },
+        });
+  
+        if (!jobResponse.ok) {
+          throw new Error('Failed to fetch applications');
+        }
+  
+        const jobs = await jobResponse.json();
+  
+        // Map the server data to match the Card interface
+        const mappedJobs: Card[] = jobs.map((job: any) => ({
+          id: String(job.ApplicationId),
+          company: job.CompanyName,
+          position: job.JobName,
+          deadline: job.Deadline,
+          location: job.Location,
+          url: job.CompanyURL,
+          notes: job.Notes || '',
+          salary: job.Salary || 0, // Default to 0 if salary is null
+          StatusId: job.StatusId,  // Use StatusId from the backend
+          date_applied: job.DateApplied,
+          card_color: job.Color || '#ffffff', // Default to white if color is not set
+          companyLogo: job.CompanyLogo, // Add this to store the company logo
+          Favourite: job.Favourite || false, // Ensure Favourite is included
+        }));
+  
+        console.log(mappedJobs);
+  
+        // Group jobs into columns based on StatusId and Status from the user's statuses
+        const groupedColumns = groupJobsIntoColumns(mappedJobs, statuses);
+        setColumns(groupedColumns);
+      } catch (error) {
+        console.error('Error loading applications or statuses:', error);
+        setError('Failed to load applications or statuses');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    if (user) {
+      fetchApplications();
+    }
+  }, [user]);
+  
+
+  // Function to group jobs into columns based on some status
+  const groupJobsIntoColumns = (jobs: Card[], statuses: any[]): Column[] => {
+    // Create columns based on the user's specific statuses
+    const columns: Column[] = statuses.map((status) => ({
+      id: status.StatusId,
+      title: status.StatusName,
+      cards: []
+    }));
+  
+    // Group jobs into the appropriate column based on StatusId
+    jobs.forEach(job => {
+      const statusIndex = columns.findIndex(col => col.id === job.StatusId); // Use StatusId from backend
+  
+      if (statusIndex >= 0) {
+        columns[statusIndex].cards.push(job);
+      } else {
+        columns[0].cards.push(job); // Default to the first column if StatusId is unknown
+      }
+    });
+  
+    return columns;
+  };
+  
+  
+
+  //TO DO: SPINNERS FOR LOADING and Proper ERROR Pages
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
+
+  // if (error) {
+  //   return <div>{error}</div>;
+  // }
 
   if (!context) {
     console.error('BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.');
   }
 
-  const { columns, setColumns, updateCard, onDragEnd } = context;
+  const { columns, setColumns, updateCard, onDragEnd } = context!;
 
   if (!columns) {
     console.error('Columns are not defined in context.');
   }
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeColumn, setActiveColumn] = useState(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [editingColumnId, setEditingColumnId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState<string>('');
 
-  const ref = useRef(null);
+  const [showDropdown, setShowDropdown] = useState<number | null>(null);  // State to handle dropdown
+
+  // const { columns, setColumns } = useContext(BoardContext);
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
+
+
+  const ref = useRef<HTMLInputElement>(null);
 
   const handleIconClick = (columnId: number, title: string) => {
     setEditingColumnId(columnId);
@@ -36,24 +159,50 @@ const Board = () => {
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewTitle(e.target.value);
+    const capitalizedTitle = e.target.value.toUpperCase();
+    setNewTitle(capitalizedTitle);  // Always capitalize input
   };
 
-  const handleTitleBlur = () => {
+  const handleTitleBlur = async () => {
     if (editingColumnId !== null) {
       if (newTitle.trim() === '') {
         setEditingColumnId(null);
         return;
       }
-
+  
+      // Update local state
       setColumns(prev =>
         prev.map(col =>
           col.id === editingColumnId ? { ...col, title: newTitle } : col
         )
       );
+      
+      // Send the updated column name (StatusName) to the backend
+      try {
+        const response = await fetch(`http://localhost:3001/status/${editingColumnId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user?.token}`, // Attach the token
+          },
+          body: JSON.stringify({ statusName: newTitle }),
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to update column name');
+        }
+  
+        const updatedStatus = await response.json();
+        console.log('StatusName updated:', updatedStatus);
+  
+      } catch (error) {
+        console.error('Error updating column name:', error);
+      }
+  
       setEditingColumnId(null);
     }
   };
+  
 
   const handleTitleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -61,107 +210,275 @@ const Board = () => {
     }
   };
 
-  const handleCardSelect = (card) => {
+  const handleDropdownClick = (columnId: number) => {
+    setShowDropdown(showDropdown === columnId ? null : columnId);
+  };
+
+  const handleDropdownOptionSelect = async (option: number, columnId: number) => {
+    if (option === 1) {  // Move option
+      setSelectedColumnId(columnId);  // Set the column ID that is being moved
+      setShowMoveModal(true);  // Show the modal
+    } else if (option === 2) {  // Delete option
+      const column = columns.find(col => col.id === columnId);
+      if (!column || column.cards.length > 0) {
+        alert('Cannot delete a column with cards.');
+        return;
+      }
+  
+      try {
+        const response = await fetch(`http://localhost:3001/status/${columnId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${user?.token}`,
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error('Failed to delete column');
+        }
+  
+        setColumns(prevColumns => prevColumns.filter(col => col.id !== columnId));
+        alert('Column deleted successfully');
+      } catch (error) {
+        console.error('Error deleting column:', error);
+        alert('Failed to delete column');
+      }
+    }
+    setShowDropdown(null);
+  };
+  
+
+  const handleMove = (newPosition: number) => {
+    if (selectedColumnId !== null) {
+      // Call backend to update the status order
+      fetch(`http://localhost:3001/status/${selectedColumnId}/move`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify({ newPosition }),
+      })
+      .then(response => {
+        if (response.ok) {
+          // Update frontend state accordingly
+          setColumns((prevColumns) => {
+            const newColumns = [...prevColumns];
+            const movingColumn = newColumns.find(col => col.id === selectedColumnId);
+            if (movingColumn) {
+              newColumns.splice(movingColumn.StatusOrder - 1, 1); // Remove from current position
+              newColumns.splice(newPosition - 1, 0, movingColumn); // Insert in new position
+              newColumns.forEach((col, index) => col.StatusOrder = index + 1); // Recalculate order
+            }
+            return newColumns;
+          });
+        }
+      });
+    }
+  };
+  
+
+  
+
+
+  const handleCardSelect = (card: Card) => {
     const column = columns.find(col => col.cards.some(c => c.id === card.id));
     const columnName = column ? column.title : 'Unknown Column';
-    setSelectedCard({ ...card, columnName });
+    setSelectedCard({ ...card, columnName, companyLogo: card.companyLogo });
     setIsDrawerOpen(true);
   };
 
-  const handleAddButtonClick = (column) => {
+  const handleAddButtonClick = (column: Column) => {
     setActiveColumn(column);
     setIsModalOpen(true);
   };
 
-  return (
-    <div>
-      <DragDropContext onDragEnd={onDragEnd}>
-        <div className="board">
-          {columns.length === 0 ? (
-            <p>No columns available</p>
-          ) : (
-            columns.map(column => (
-              <div key={column.id} className="column-container">
-                <div style={{ maxWidth: '100%' }} className={`column-header ${editingColumnId === column.id ? 'editing' : ''}`}>
-                  {editingColumnId !== column.id && (
-                    <p className="column-counter">{column.cards.length}</p>
-                  )}
+  const handleFavoriteToggle = (updatedCard) => {
+    setColumns((prevColumns) =>
+      prevColumns.map((column) => ({
+        ...column,
+        cards: column.cards.map((card) =>
+          card.id === updatedCard.ApplicationId ? { ...card, Favourite: updatedCard.Favourite } : card
+        ),
+      }))
+    );
+  };
 
-                  <div className="column-header-content">
-                    {editingColumnId === column.id ? (
-                      <div className='column-title-input'>
-                        <input
-                          ref={ref}
-                          type="text"
-                          value={newTitle}
-                          onChange={handleTitleChange}
-                          onBlur={handleTitleBlur}
-                          onKeyPress={handleTitleKeyPress}
-                          autoFocus
-                          maxLength={10}
-                          className='input-group'
-                          style={{ fontSize: 'inherit' }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="column-title">
-                        <h2>{column.title}</h2>
-                      </div>
-                    )}
-                  </div>
-                  {editingColumnId !== column.id && (
-                    <button
-                      className="icon-button"
-                      onClick={() => handleIconClick(column.id, column.title)}
-                    >
-                      <CiEdit />
-                    </button>
-                  )}
-                </div>
-                <button onClick={() => handleAddButtonClick(column)}>Add New</button>
-                <Droppable droppableId={String(column.id)}>
-                  {provided => (
-                    <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
-                      {column.cards.map((card, index) => (
-                        <Draggable key={card.id} draggableId={String(card.id)} index={index}>
-                          {provided => (
-                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-                              <CardComponent card={card} onSelect={handleCardSelect} />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
+
+  //For Deleting Card
+  const handleDeleteCard = (cardId) => {
+    setColumns((prevColumns) =>
+      prevColumns.map((column) => ({
+        ...column,
+        cards: column.cards.filter((card) => card.id !== cardId) // Remove the deleted card
+      }))
+    );
+  };
+
+  // For Adding new Status
+  const handleAddNewColumn = async () => {
+    const newColumnTitle = 'NEW STATUS';  // Ensure default title is capitalized
+    
+    try {
+      // Send a request to the backend to create the new column in the database
+      const response = await fetch('http://localhost:3001/status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`, // Attach the token
+        },
+        body: JSON.stringify({ statusName: newColumnTitle }), // Send the title to the backend
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to create new column');
+      }
+  
+      const newStatus = await response.json(); // Get the newly created column from the backend
+  
+      // Add the new column to the frontend's state
+      const newColumn: Column = {
+        id: newStatus.status.StatusId,  // Use the ID returned from the backend
+        title: newStatus.status.StatusName, // Use the StatusName returned from the backend
+        cards: [], // No cards in the new column yet
+      };
+  
+      setColumns(prevColumns => [...prevColumns, newColumn]); // Add the new column to the existing ones
+    } catch (error) {
+      console.error('Error creating new column:', error);
+    }
+  };
+  
+  
+
+
+
+
+  return (
+    <DragDropContext onDragEnd={onDragEnd as any}>
+      <div className="board">
+        {columns.length === 0 ? (
+          <p>No columns available</p>
+        ) : (
+          columns.map(column => (
+            <div key={column.id} className="column-container">
+              <div style={{ maxWidth: '100%' }} className={`column-header ${editingColumnId === column.id ? 'editing' : ''}`}>
+                {editingColumnId !== column.id && (
+                  <p className="column-counter">{column.cards.length}</p>
+                )}
+  
+                <div className="column-header-content">
+                  {editingColumnId === column.id ? (
+                    <div className='column-title-input'>
+                      <input
+                        ref={ref}
+                        type="text"
+                        value={newTitle}
+                        onChange={handleTitleChange}
+                        onBlur={handleTitleBlur}
+                        onKeyPress={handleTitleKeyPress}
+                        autoFocus
+                        maxLength={10}
+                        className='input-group'
+                        style={{ fontSize: 'inherit' }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="column-title" onClick={() => handleIconClick(column.id, column.title)}>
+                      <h2>{column.title}</h2>
                     </div>
                   )}
-                </Droppable>
+                </div>
+                {editingColumnId !== column.id && (
+                  <button
+                    className="icon-button"
+                    onClick={() => handleDropdownClick(column.id)}
+                  >
+                    <IoMdMore />
+                  </button>
+                )}
+                {showDropdown === column.id && (
+                  <div className="dropdown">
+                    <ul>
+                      <li onClick={() => handleDropdownOptionSelect(1, column.id)}>
+                        <IoMdMove /> Move Status
+                      </li>
+                      {column.cards.length === 0 && ( // Only show "Delete" if column has no cards
+                        <li onClick={() => handleDropdownOptionSelect(2, column.id)}>
+                          <IoMdTrash /> Delete Status
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                )}
               </div>
-            ))
-          )}
-          {isModalOpen && activeColumn && (
-            <Modal
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              columns={columns}
-              activeColumn={activeColumn}
-            />
-          )}
-          {isDrawerOpen && selectedCard && (
-            <DrawerView
-              show={isDrawerOpen}
-              onClose={() => setIsDrawerOpen(false)}
-              card={selectedCard}
-              updateCard={updateCard}
-              columnName={selectedCard.columnName}
-            />
-          )}
+              <button onClick={() => handleAddButtonClick(column)}>Add New</button>
+              <Droppable droppableId={String(column.id)}>
+                {provided => (
+                  <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
+                    {column.cards.map((card, index) => (
+                      <Draggable key={card.id} draggableId={String(card.id)} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <CardComponent
+                              card={card}
+                              onSelect={handleCardSelect}
+                              user={user}
+                              onFavoriteToggle={handleFavoriteToggle}
+                              provided={provided}
+                              snapshot={snapshot}  // Pass snapshot to detect drag state
+                              onDelete={handleDeleteCard} // Pass delete handler
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          ))
+        )}
+        {isModalOpen && activeColumn && (
+          <Modal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            columns={columns}
+            activeColumn={activeColumn}
+          />
+        )}
+        {isDrawerOpen && selectedCard && (
+          <DrawerView
+            show={isDrawerOpen}
+            onClose={() => setIsDrawerOpen(false)}
+            card={selectedCard}
+            updateCard={updateCard}
+            columnName={selectedCard.columnName}
+          />
+        )}
+        {showMoveModal && selectedColumnId && (
+          <MoveStatusModal
+            isOpen={showMoveModal}
+            onClose={() => setShowMoveModal(false)}
+            currentOrder={columns.find(col => col.id === selectedColumnId)?.StatusOrder || 1}
+            totalColumns={columns.length}
+            onMove={handleMove}
+          />
+        )}
+        <div className="column-container" id="add-new-column">
+          <button className="add-new-button" onClick={handleAddNewColumn}>
+            Add New Status
+          </button>
         </div>
-      </DragDropContext>
-
-
-      <FeedbackButton />
-    </div>
+      </div>
+    </DragDropContext>
   );
+  
 };
 
 export default Board;

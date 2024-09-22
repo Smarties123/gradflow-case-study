@@ -3,23 +3,19 @@ import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Button, Grid, Ro
 const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea" ref={ref} />);
 import Github from '@uiw/react-color-github';
 import './DrawerView.less';
+import dayjs from 'dayjs';
 
 const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
     const [currentView, setCurrentView] = useState('details'); // State to track current view
 
     const parseDate = (dateStr) => {
-        if (typeof dateStr === 'string' && dateStr) {
-            const [year, month, day] = dateStr.split('-').map(Number);
-            if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
-                return new Date(Date.UTC(year, month - 1, day));
-            }
-        }
-        return null;
+        return dateStr ? dayjs(dateStr).toDate() : null;
     };
 
     // State to manage form inputs
     const [formData, setFormData] = useState({
         company: card.company,
+        companyLogo: card.companyLogo,  // Include companyLogo here
         position: card.position,
         deadline: card.deadline ? parseDate(card.deadline) : null,
         location: card.location,
@@ -27,7 +23,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
         notes: card.notes,
         salary: card.salary,
         interview_stage: card.interview_stage,
-        date_applied: card.date_applied[0],
+        date_applied: card.date_applied ? dayjs(card.date_applied).format('DD-MM-YYYY') : null, // Format date_applied as DD-MM-YYYY
         card_color: card.card_color
     });
 
@@ -93,16 +89,19 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                 <Col xs={24} sm={12}>
                                     <Form.Group controlId="company" className="form-group">
                                         <Form.ControlLabel className="formControlLabel">Company</Form.ControlLabel>
-                                        <Form.Control
-                                            name="company"
-                                            defaultValue={formData.company}
-                                            onChange={value => handleChange(value, 'company')}
-                                            disabled
-                                            className="full-width"
-                                        />
+                                        <div className="company-input-wrapper">
+                                            <Form.Control
+                                                name="company"
+                                                defaultValue={formData.company}
+                                                disabled
+                                                className="full-width"
+                                            />
+                                            {formData.companyLogo && (
+                                                <img src={formData.companyLogo} alt={formData.company} className="drawer-company-logo" />
+                                            )}
+                                        </div>
                                     </Form.Group>
                                 </Col>
-
                                 <Col xs={24} sm={12}>
                                     <Form.Group controlId="position" className="form-group">
                                         <Form.ControlLabel className="formControlLabel">Position</Form.ControlLabel>

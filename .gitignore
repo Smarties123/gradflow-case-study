@@ -43,3 +43,7 @@ scripts
 lib
 dist
 assets
+
+# local env
+backend/.env
+.env

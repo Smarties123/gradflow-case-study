@@ -1,24 +1,41 @@
 import * as React from 'react';
-import { alpha } from '@mui/material';
+import { alpha, keyframes } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { motion } from 'framer-motion';
+
+// Define keyframes for the animation
+const fadeSlideIn = keyframes`
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
 
 export default function Hero() {
+  const text = 'Your one-stop platform to manage, track and succeed in all your applications'.split(
+    ' '
+  );
+
   return (
     <Box
       id="hero"
-      sx={(theme) => ({
+      sx={theme => ({
         width: '100%',
         backgroundImage:
           theme.palette.mode === 'light'
             ? 'linear-gradient(180deg, #CEE5FD, #FFF)'
             : `linear-gradient(#02294F, ${alpha('#090E10', 0.0)})`,
         backgroundSize: '100% 20%',
-        backgroundRepeat: 'no-repeat',
+        backgroundRepeat: 'no-repeat'
       })}
     >
       <Container
@@ -27,7 +44,7 @@ export default function Hero() {
           flexDirection: 'column',
           alignItems: 'center',
           pt: { xs: 14, sm: 20 },
-          pb: { xs: 8, sm: 12 },
+          pb: { xs: 8, sm: 12 }
         }}
       >
         <Stack spacing={2} useFlexGap sx={{ width: { xs: '100%', sm: '70%' } }}>
@@ -39,6 +56,7 @@ export default function Hero() {
               alignSelf: 'center',
               textAlign: 'center',
               fontSize: 'clamp(3.5rem, 10vw, 4rem)',
+              animation: `${fadeSlideIn} 1.2s ease-out` // Apply animation
             }}
           >
             Track Apply&nbsp;
@@ -47,20 +65,34 @@ export default function Hero() {
               variant="h1"
               sx={{
                 fontSize: 'clamp(3rem, 10vw, 4rem)',
-                color: (theme) =>
-                  theme.palette.mode === 'light' ? 'primary.main' : 'primary.light',
+                color: theme => (theme.palette.mode === 'light' ? 'primary.main' : 'primary.light'),
+                animation: `${fadeSlideIn} 1.5s ease-out` // Apply animation with delay
               }}
             >
               Succeed
             </Typography>
           </Typography>
+
           <Typography
             textAlign="center"
             color="text.secondary"
             sx={{ alignSelf: 'center', width: { sm: '100%', md: '80%' } }}
           >
-            Your one-stop platform to manage, track and succeed in all your applications
+            {text.map((el, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{
+                  duration: 0.5, // Increased duration for slower fade-in
+                  delay: i * 0.3 // Increased delay for a more gradual appearance
+                }}
+              >
+                {el}{' '}
+              </motion.span>
+            ))}
           </Typography>
+
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
             alignSelf="center"
@@ -80,35 +112,6 @@ export default function Hero() {
             .
           </Typography>
         </Stack>
-        {/* <Box
-          id="video"
-          sx={{
-            mt: { xs: 8, sm: 10 },
-            alignSelf: 'center',
-            height: { xs: 200, sm: 700 },
-            width: '100%',
-            borderRadius: '10px',
-            outline: '1px solid',
-            outlineColor: (theme) =>
-              theme.palette.mode === 'light'
-                ? alpha('#BFCCD9', 0.5)
-                : alpha('#9CCCFC', 0.1),
-            boxShadow: (theme) =>
-              theme.palette.mode === 'light'
-                ? `0 0 12px 8px ${alpha('#9CCCFC', 0.2)}`
-                : `0 0 24px 12px ${alpha('#033363', 0.2)}`,
-          }}
-        >
-          <video
-            src="./Assets/Kanban Board - Sample 1.mp4"
-            controls
-            style={{
-              height: '100%',
-              width: '100%',
-              borderRadius: '10px',
-            }}
-          /> */}
-        {/* </Box>  */}
       </Container>
     </Box>
   );
