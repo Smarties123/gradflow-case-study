@@ -49,7 +49,7 @@ export default function ResetPassword() {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/users/reset-password', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

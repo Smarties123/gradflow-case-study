@@ -28,7 +28,7 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
         setIsFavorited(newFavoriteStatus);
 
         try {
-            const response = await fetch(`http://localhost:3001/applications/${card.id}/favorite`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${card.id}/favorite`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
 
     const handleConfirmDelete = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/applications/${card.id}`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${card.id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${user.token}`,

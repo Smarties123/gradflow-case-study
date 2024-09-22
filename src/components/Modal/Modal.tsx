@@ -42,7 +42,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
         if (company.length > 2 && !suggestionSelected) {  // Only fetch suggestions if no suggestion was selected
             const fetchCompanySuggestions = async () => {
                 try {
-                    const response = await fetch(`http://localhost:3001/company-search?q=${company}`, {
+                    const response = await fetch(`${process.env.REACT_APP_API_URL}/company-search?q=${company}`, {
                         headers: {
                             'Content-Type': 'application/json',
                         }
@@ -153,7 +153,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             };
     
             try {
-                const response = await fetch('http://localhost:3001/addjob', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/addjob`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
