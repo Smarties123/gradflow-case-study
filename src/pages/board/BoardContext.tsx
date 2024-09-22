@@ -85,7 +85,7 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
           }
       
           // Send the updated StatusId to the backend
-          const response = await fetch(`http://localhost:3001/applications/${movedCard.id}`, {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${movedCard.id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',

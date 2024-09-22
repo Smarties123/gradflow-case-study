@@ -35,7 +35,7 @@ const Header = (props) => {
   useEffect(() => {
     const fetchUserData = async () => {
         try {
-          const response = await fetch('http://localhost:3001/api/users/profile', {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
             headers: {
                     'Authorization': `Bearer ${user.token}`,  // Ensure you have a valid token
                     'Content-Type': 'application/json',

@@ -33,7 +33,7 @@ export default function ForgotPassword() {
       }
 
     try {
-      const response = await fetch('http://localhost:3001/api/users/forgot-password', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
