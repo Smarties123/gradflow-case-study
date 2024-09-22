@@ -10,6 +10,7 @@ import { useUser } from '../../components/User/UserContext';
 import { Column, Card } from './types';
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 import MoveStatusModal from '../../components/MoveStatusModal/MoveStatusModal';  // Import the modal
+import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
 
 
 
@@ -37,26 +38,26 @@ const Board: React.FC = () => {
             'Authorization': `Bearer ${user?.token}`, // Attach the token
           },
         });
-  
+
         if (!statusResponse.ok) {
           throw new Error('Failed to fetch statuses');
         }
-  
+
         const statuses = await statusResponse.json();
-  
+
         // Fetch the user's applications
         const jobResponse = await fetch('http://localhost:3001/applications', {
           headers: {
             'Authorization': `Bearer ${user?.token}`, // Attach the token
           },
         });
-  
+
         if (!jobResponse.ok) {
           throw new Error('Failed to fetch applications');
         }
-  
+
         const jobs = await jobResponse.json();
-  
+
         // Map the server data to match the Card interface
         const mappedJobs: Card[] = jobs.map((job: any) => ({
           id: String(job.ApplicationId),
@@ -73,9 +74,9 @@ const Board: React.FC = () => {
           companyLogo: job.CompanyLogo, // Add this to store the company logo
           Favourite: job.Favourite || false, // Ensure Favourite is included
         }));
-  
+
         console.log(mappedJobs);
-  
+
         // Group jobs into columns based on StatusId and Status from the user's statuses
         const groupedColumns = groupJobsIntoColumns(mappedJobs, statuses);
         setColumns(groupedColumns);
@@ -86,12 +87,12 @@ const Board: React.FC = () => {
         setLoading(false);
       }
     };
-  
+
     if (user) {
       fetchApplications();
     }
   }, [user]);
-  
+
 
   // Function to group jobs into columns based on some status
   const groupJobsIntoColumns = (jobs: Card[], statuses: any[]): Column[] => {
@@ -101,22 +102,22 @@ const Board: React.FC = () => {
       title: status.StatusName,
       cards: []
     }));
-  
+
     // Group jobs into the appropriate column based on StatusId
     jobs.forEach(job => {
       const statusIndex = columns.findIndex(col => col.id === job.StatusId); // Use StatusId from backend
-  
+
       if (statusIndex >= 0) {
         columns[statusIndex].cards.push(job);
       } else {
         columns[0].cards.push(job); // Default to the first column if StatusId is unknown
       }
     });
-  
+
     return columns;
   };
-  
-  
+
+
 
   //TO DO: SPINNERS FOR LOADING and Proper ERROR Pages
   // if (loading) {
@@ -149,6 +150,8 @@ const Board: React.FC = () => {
   // const { columns, setColumns } = useContext(BoardContext);
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<number | null>(-1);
 
 
   const ref = useRef<HTMLInputElement>(null);
@@ -169,14 +172,14 @@ const Board: React.FC = () => {
         setEditingColumnId(null);
         return;
       }
-  
+
       // Update local state
       setColumns(prev =>
         prev.map(col =>
           col.id === editingColumnId ? { ...col, title: newTitle } : col
         )
       );
-      
+
       // Send the updated column name (StatusName) to the backend
       try {
         const response = await fetch(`http://localhost:3001/status/${editingColumnId}`, {
@@ -187,22 +190,22 @@ const Board: React.FC = () => {
           },
           body: JSON.stringify({ statusName: newTitle }),
         });
-  
+
         if (!response.ok) {
           throw new Error('Failed to update column name');
         }
-  
+
         const updatedStatus = await response.json();
         console.log('StatusName updated:', updatedStatus);
-  
+
       } catch (error) {
         console.error('Error updating column name:', error);
       }
-  
+
       setEditingColumnId(null);
     }
   };
-  
+
 
   const handleTitleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -224,7 +227,7 @@ const Board: React.FC = () => {
         alert('Cannot delete a column with cards.');
         return;
       }
-  
+
       try {
         const response = await fetch(`http://localhost:3001/status/${columnId}`, {
           method: 'DELETE',
@@ -232,11 +235,11 @@ const Board: React.FC = () => {
             'Authorization': `Bearer ${user?.token}`,
           },
         });
-  
+
         if (!response.ok) {
           throw new Error('Failed to delete column');
         }
-  
+
         setColumns(prevColumns => prevColumns.filter(col => col.id !== columnId));
         alert('Column deleted successfully');
       } catch (error) {
@@ -246,7 +249,7 @@ const Board: React.FC = () => {
     }
     setShowDropdown(null);
   };
-  
+
 
   const handleMove = (newPosition: number) => {
     if (selectedColumnId !== null) {
@@ -259,26 +262,26 @@ const Board: React.FC = () => {
         },
         body: JSON.stringify({ newPosition }),
       })
-      .then(response => {
-        if (response.ok) {
-          // Update frontend state accordingly
-          setColumns((prevColumns) => {
-            const newColumns = [...prevColumns];
-            const movingColumn = newColumns.find(col => col.id === selectedColumnId);
-            if (movingColumn) {
-              newColumns.splice(movingColumn.StatusOrder - 1, 1); // Remove from current position
-              newColumns.splice(newPosition - 1, 0, movingColumn); // Insert in new position
-              newColumns.forEach((col, index) => col.StatusOrder = index + 1); // Recalculate order
-            }
-            return newColumns;
-          });
-        }
-      });
+        .then(response => {
+          if (response.ok) {
+            // Update frontend state accordingly
+            setColumns((prevColumns) => {
+              const newColumns = [...prevColumns];
+              const movingColumn = newColumns.find(col => col.id === selectedColumnId);
+              if (movingColumn) {
+                newColumns.splice(movingColumn.StatusOrder - 1, 1); // Remove from current position
+                newColumns.splice(newPosition - 1, 0, movingColumn); // Insert in new position
+                newColumns.forEach((col, index) => col.StatusOrder = index + 1); // Recalculate order
+              }
+              return newColumns;
+            });
+          }
+        });
     }
   };
-  
 
-  
+
+
 
 
   const handleCardSelect = (card: Card) => {
@@ -304,6 +307,19 @@ const Board: React.FC = () => {
     );
   };
 
+  // Show Delete Modal
+  const handleDeleteModal = (columnId: number) => {
+    setDeleteId(columnId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteColumn = () => {
+    // console.log("Delete Column");
+    // console.log(deleteId);
+    handleDropdownOptionSelect(2, deleteId);
+  };
+
+
 
   //For Deleting Card
   const handleDeleteCard = (cardId) => {
@@ -318,7 +334,7 @@ const Board: React.FC = () => {
   // For Adding new Status
   const handleAddNewColumn = async () => {
     const newColumnTitle = 'NEW STATUS';  // Ensure default title is capitalized
-    
+
     try {
       // Send a request to the backend to create the new column in the database
       const response = await fetch('http://localhost:3001/status', {
@@ -329,27 +345,27 @@ const Board: React.FC = () => {
         },
         body: JSON.stringify({ statusName: newColumnTitle }), // Send the title to the backend
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to create new column');
       }
-  
+
       const newStatus = await response.json(); // Get the newly created column from the backend
-  
+
       // Add the new column to the frontend's state
       const newColumn: Column = {
         id: newStatus.status.StatusId,  // Use the ID returned from the backend
         title: newStatus.status.StatusName, // Use the StatusName returned from the backend
         cards: [], // No cards in the new column yet
       };
-  
+
       setColumns(prevColumns => [...prevColumns, newColumn]); // Add the new column to the existing ones
     } catch (error) {
       console.error('Error creating new column:', error);
     }
   };
-  
-  
+
+
 
 
 
@@ -366,7 +382,7 @@ const Board: React.FC = () => {
                 {editingColumnId !== column.id && (
                   <p className="column-counter">{column.cards.length}</p>
                 )}
-  
+
                 <div className="column-header-content">
                   {editingColumnId === column.id ? (
                     <div className='column-title-input'>
@@ -404,7 +420,7 @@ const Board: React.FC = () => {
                         <IoMdMove /> Move Status
                       </li>
                       {column.cards.length === 0 && ( // Only show "Delete" if column has no cards
-                        <li onClick={() => handleDropdownOptionSelect(2, column.id)}>
+                        <li onClick={() => handleDeleteModal(column.id)}>
                           <IoMdTrash /> Delete Status
                         </li>
                       )}
@@ -444,14 +460,17 @@ const Board: React.FC = () => {
             </div>
           ))
         )}
+
+        {/* Add New */}
         {isModalOpen && activeColumn && (
           <Modal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             columns={columns}
-            activeColumn={activeColumn}
-          />
+            activeColumn={activeColumn} theme={undefined} />
         )}
+
+        {/* Drawer View */}
         {isDrawerOpen && selectedCard && (
           <DrawerView
             show={isDrawerOpen}
@@ -461,6 +480,8 @@ const Board: React.FC = () => {
             columnName={selectedCard.columnName}
           />
         )}
+
+        {/* Moving Column */}
         {showMoveModal && selectedColumnId && (
           <MoveStatusModal
             isOpen={showMoveModal}
@@ -470,6 +491,16 @@ const Board: React.FC = () => {
             onMove={handleMove}
           />
         )}
+
+        {/* Delete Modal */}
+        <DeleteModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onNo={() => setIsDeleteModalOpen(false)}
+          onYes={handleDeleteColumn}
+          title={null} />
+
+
         <div className="column-container" id="add-new-column">
           <button className="add-new-button" onClick={handleAddNewColumn}>
             Add New Status
@@ -478,7 +509,7 @@ const Board: React.FC = () => {
       </div>
     </DragDropContext>
   );
-  
+
 };
 
 export default Board;
