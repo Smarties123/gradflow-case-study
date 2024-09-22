@@ -32,7 +32,7 @@ const Board: React.FC = () => {
     const fetchApplications = async () => {
       try {
         // Fetch the user's statuses (columns)
-        const statusResponse = await fetch('http://localhost:3001/status', {
+        const statusResponse = await fetch(`${process.env.REACT_APP_API_URL}/status`, {
           headers: {
             'Authorization': `Bearer ${user?.token}`, // Attach the token
           },
@@ -45,7 +45,7 @@ const Board: React.FC = () => {
         const statuses = await statusResponse.json();
   
         // Fetch the user's applications
-        const jobResponse = await fetch('http://localhost:3001/applications', {
+        const jobResponse = await fetch(`${process.env.REACT_APP_API_URL}/applications`, {
           headers: {
             'Authorization': `Bearer ${user?.token}`, // Attach the token
           },
@@ -179,7 +179,7 @@ const Board: React.FC = () => {
       
       // Send the updated column name (StatusName) to the backend
       try {
-        const response = await fetch(`http://localhost:3001/status/${editingColumnId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/status/${editingColumnId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ const Board: React.FC = () => {
       }
   
       try {
-        const response = await fetch(`http://localhost:3001/status/${columnId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/status/${columnId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${user?.token}`,
@@ -251,7 +251,7 @@ const Board: React.FC = () => {
   const handleMove = (newPosition: number) => {
     if (selectedColumnId !== null) {
       // Call backend to update the status order
-      fetch(`http://localhost:3001/status/${selectedColumnId}/move`, {
+      fetch(`${process.env.REACT_APP_API_URL}/status/${selectedColumnId}/move`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -321,7 +321,7 @@ const Board: React.FC = () => {
     
     try {
       // Send a request to the backend to create the new column in the database
-      const response = await fetch('http://localhost:3001/status', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
