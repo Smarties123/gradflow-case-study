@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './MoveStatusModal.less'; // CSS styles for the modal
 
 interface MoveStatusModalProps {
@@ -7,10 +7,29 @@ interface MoveStatusModalProps {
   currentOrder: number;
   totalColumns: number;
   onMove: (newPosition: number) => void;
+  columnNames: string[];  // Add column names as a new prop
 }
 
-const MoveStatusModal: React.FC<MoveStatusModalProps> = ({ isOpen, onClose, currentOrder, totalColumns, onMove }) => {
+const MoveStatusModal: React.FC<MoveStatusModalProps> = ({ isOpen, onClose, currentOrder, totalColumns, onMove, columnNames }) => {
   const [newPosition, setNewPosition] = useState(currentOrder);
+  const modalRef = useRef<HTMLDivElement>(null);  // Create a reference for the modal
+
+  // Close modal if clicked outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();  // Close modal when clicking outside
+      }
+    };
+
+    // Add event listener to detect clicks outside the modal
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Clean up event listener when component unmounts
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
 
   if (!isOpen) {
     return null;
@@ -25,7 +44,7 @@ const MoveStatusModal: React.FC<MoveStatusModalProps> = ({ isOpen, onClose, curr
 
   return (
     <div className="modal-overlay">
-      <div className={`modal-content`} onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         <h2>Move Column</h2>
         <div className="input-wrapper">
           <label className="bordered-label">Swap Column</label>
@@ -36,7 +55,7 @@ const MoveStatusModal: React.FC<MoveStatusModalProps> = ({ isOpen, onClose, curr
           >
             {Array.from({ length: totalColumns }, (_, i) => i + 1).map((pos) => (
               <option key={pos} value={pos}>
-                Position {pos} {pos === currentOrder ? '(Current)' : ''}
+                Position {pos} ({columnNames[pos - 1]}) {pos === currentOrder ? '(Current)' : ''}
               </option>
             ))}
           </select>
