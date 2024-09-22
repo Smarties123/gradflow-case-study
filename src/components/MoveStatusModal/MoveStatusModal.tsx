@@ -24,24 +24,26 @@ const MoveStatusModal: React.FC<MoveStatusModalProps> = ({ isOpen, onClose, curr
   };
 
   return (
-    <div className="move-status-modal-overlay">
-      <div className="move-status-modal">
-        <h2>Move List</h2>
-        <label htmlFor="position">Position</label>
-        <select
-          id="position"
-          value={newPosition}
-          onChange={(e) => setNewPosition(Number(e.target.value))}
-        >
-          {Array.from({ length: totalColumns }, (_, i) => i + 1).map((pos) => (
-            <option key={pos} value={pos}>
-              Position {pos} {pos === currentOrder ? '(Current)' : ''}
-            </option>
-          ))}
-        </select>
-        <div className="move-status-modal-actions">
-          <button className="discard-btn" onClick={onClose}>Discard</button>
-          <button className="move-btn" onClick={handleMove}>Move</button>
+    <div className="modal-overlay">
+      <div className={`modal-content`} onClick={(e) => e.stopPropagation()}>
+        <h2>Move Column</h2>
+        <div className="input-wrapper">
+          <label className="bordered-label">Swap Column</label>
+          <select
+            className="border-input dropdown-input"
+            value={newPosition}
+            onChange={(e) => setNewPosition(Number(e.target.value))}
+          >
+            {Array.from({ length: totalColumns }, (_, i) => i + 1).map((pos) => (
+              <option key={pos} value={pos}>
+                Position {pos} {pos === currentOrder ? '(Current)' : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="modal-buttons">
+          <button className="cancel-button" onClick={onClose}>Discard</button>
+          <button className="add-card-button" onClick={handleMove}>Move</button>
         </div>
       </div>
     </div>

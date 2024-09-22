@@ -34,6 +34,7 @@ const Header = (props) => {
 
   useEffect(() => {
     const fetchUserData = async () => {
+
         try {
           const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
             headers: {
@@ -46,6 +47,7 @@ const Header = (props) => {
         } catch (error) {
             console.error('Failed to fetch user data', error);
         }
+
     };
     fetchUserData();
   }, [user.token]);
@@ -167,7 +169,7 @@ const Header = (props) => {
               <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
                 <Button className="header-button"
                   style={{
-                    backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px',
+                    backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px', lineHeight: '24px'
                   }}
                   onClick={handleOpenAddModal}
                 >
@@ -176,7 +178,7 @@ const Header = (props) => {
                 </Button>
                 <Button
                   className="header-button"
-                  style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}
+                  style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px', lineHeight: '24px' }}
                   onClick={handleOpenModal}
                 >
                   <FaRegShareSquare className="header-icon" style={{ fontSize: 18, margin: '1px 1px 1px 1px' }} />
@@ -200,10 +202,10 @@ const Header = (props) => {
         <ToggleColorMode mode={theme === 'light' ? 'light' : 'dark'} toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')} />
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>
           <Avatar
-              email={formData.email}
-              name={formData.name}
-              size="45"
-              round={true}
+            email={formData.email}
+            name={formData.name}
+            size="45"
+            round={true}
           />
         </Whisper>
       </div>
