@@ -34,18 +34,18 @@ const Header = (props) => {
 
   useEffect(() => {
     const fetchUserData = async () => {
-        try {
-          const response = await fetch('http://localhost:3001/api/users/profile', {
-            headers: {
-                    'Authorization': `Bearer ${user.token}`,  // Ensure you have a valid token
-                    'Content-Type': 'application/json',
-                }
-            });
-            const data = await response.json();
-            setFormData({ email: data.Email, name: data.Username }); // Make sure to use correct case for `Email` and `Username`
-        } catch (error) {
-            console.error('Failed to fetch user data', error);
-        }
+      try {
+        const response = await fetch('http://localhost:3001/api/users/profile', {
+          headers: {
+            'Authorization': `Bearer ${user.token}`,  // Ensure you have a valid token
+            'Content-Type': 'application/json',
+          }
+        });
+        const data = await response.json();
+        setFormData({ email: data.Email, name: data.Username }); // Make sure to use correct case for `Email` and `Username`
+      } catch (error) {
+        console.error('Failed to fetch user data', error);
+      }
     };
     fetchUserData();
   }, [user.token]);
@@ -167,7 +167,7 @@ const Header = (props) => {
               <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
                 <Button className="header-button"
                   style={{
-                    backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px',
+                    backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px', lineHeight: '24px'
                   }}
                   onClick={handleOpenAddModal}
                 >
@@ -176,7 +176,7 @@ const Header = (props) => {
                 </Button>
                 <Button
                   className="header-button"
-                  style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}
+                  style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px', lineHeight: '24px' }}
                   onClick={handleOpenModal}
                 >
                   <FaRegShareSquare className="header-icon" style={{ fontSize: 18, margin: '1px 1px 1px 1px' }} />
@@ -200,10 +200,10 @@ const Header = (props) => {
         <ToggleColorMode mode={theme === 'light' ? 'light' : 'dark'} toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')} />
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>
           <Avatar
-              email={formData.email}
-              name={formData.name}
-              size="45"
-              round={true}
+            email={formData.email}
+            name={formData.name}
+            size="45"
+            round={true}
           />
         </Whisper>
       </div>
