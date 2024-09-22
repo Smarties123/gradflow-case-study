@@ -302,7 +302,7 @@ const Board: React.FC = () => {
       // Trigger the delete function here
       const cardId = result.draggableId;
       try {
-        const response = await fetch(`http://localhost:3001/applications/${cardId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${cardId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${user.token}`,  // Ensure you are using the correct token
