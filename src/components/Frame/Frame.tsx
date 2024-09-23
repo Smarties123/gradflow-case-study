@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import {
-  Container,
-  Sidebar,
-  Sidenav,
-  Content,
-  Nav,
-  DOMHelper,
-  CustomProvider
-} from 'rsuite';
+import { Container, Sidebar, Sidenav, Content, Nav, DOMHelper, CustomProvider } from 'rsuite';
 import enGB from 'rsuite/locales/en_GB';
 import { Outlet } from 'react-router-dom';
 import NavToggle from './NavToggle';
@@ -16,15 +8,12 @@ import Header from '../Header';
 import NavLink from '../NavLink';
 import Brand from '../Brand';
 import { Icon } from '@rsuite/icons';
-
-// Icons from react-icons
-import { HiOutlineViewBoards } from "react-icons/hi";
-import { LuTable2 } from "react-icons/lu";
-import { MdContacts } from "react-icons/md";
-import { MdDashboard } from "react-icons/md";
-import { TbFiles } from "react-icons/tb";
-import { CiSettings } from "react-icons/ci";
-
+import { HiOutlineViewBoards } from 'react-icons/hi';
+import { LuTable2 } from 'react-icons/lu';
+import { MdContacts } from 'react-icons/md';
+import { MdDashboard } from 'react-icons/md';
+import { TbFiles } from 'react-icons/tb';
+import { CiSettings } from 'react-icons/ci';
 import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
 
 const { getHeight, on } = DOMHelper;
@@ -81,7 +70,9 @@ const Frame = () => {
             <Brand showText={expand} />
           </Sidenav.Header>
           <Sidenav expanded={expand} appearance="subtle">
-            <Sidenav.Body style={{ ...navBodyStyle, display: 'flex', flexDirection: 'column', height: '100%' }}>
+            <Sidenav.Body
+              style={{ ...navBodyStyle, display: 'flex', flexDirection: 'column', height: '100%' }}
+            >
               <Nav>
                 <NavItem
                   title="Panel"
@@ -89,30 +80,25 @@ const Frame = () => {
                   eventKey="panel"
                   icon={<Icon as={HiOutlineViewBoards} />}
                 />
-                <NavItem
-                  title="Table"
-                  to="table"
-                  eventKey="table"
-                  icon={<Icon as={LuTable2} />}
-                />
-                <NavItem
+                <NavItem title="Table" to="table" eventKey="table" icon={<Icon as={LuTable2} />} />
+                {/* <NavItem
                   title="Contacts"
                   to="contacts"
                   eventKey="contacts"
                   icon={<Icon as={MdContacts} />}
-                />
+                /> */}
                 <NavItem
                   title="Dashboard"
                   to="/main/dashboard"
                   eventKey="dashboard"
                   icon={<Icon as={MdDashboard} />}
                 />
-                <NavItem
+                {/* <NavItem
                   title="Files"
                   to="files"
                   eventKey="files"
                   icon={<Icon as={TbFiles} />}
-                />
+                /> */}
               </Nav>
             </Sidenav.Body>
 
@@ -142,9 +128,8 @@ const Frame = () => {
           show={showSettings}
           onClose={() => setShowSettings(false)} // Close the settings drawer
           card={{}} // Pass necessary props here, adjust as per your implementation
-          updateCard={() => { }} // Adjust as per your implementation
+          updateCard={() => {}} // Adjust as per your implementation
         />
-
       </Container>
     </CustomProvider>
   );

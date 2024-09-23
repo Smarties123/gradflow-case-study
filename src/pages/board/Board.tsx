@@ -541,8 +541,10 @@ const Board: React.FC = () => {
             currentOrder={columns.find(col => col.id === selectedColumnId)?.StatusOrder || 1}
             totalColumns={columns.length}
             onMove={handleMove}
+            columnNames={columns.map(col => col.title)}  // Pass column names here
           />
         )}
+
 
         {/* Delete Modal */}
         <DeleteModal
