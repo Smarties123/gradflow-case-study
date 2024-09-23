@@ -1,7 +1,7 @@
 import React from 'react';
-import '../Modal/Modal.less';
+import '../Modal/Modal.less'; // Ensure your Modal styles are linked
 
-const DeleteModal = ({ isOpen, onClose, onYes, onNo, title = "test" }) => {
+const DeleteModal = ({ isOpen, onClose, onYes, onNo }) => {
     if (!isOpen) return null;
 
     const handleDelete = () => {
@@ -13,24 +13,14 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title = "test" }) => {
         <div className="modal-overlay" onClick={onClose}>
             <div className={`modal-content`} onClick={(e) => e.stopPropagation()}>
                 <h2>Are You Sure?</h2>
-                <form onSubmit={(e) => e.preventDefault()}>
-                    <div className="input-wrapper">
-                        <label className="bordered-label">Delete Column</label>
-                        <input
-                            type="text"
-                            placeholder={title}
-                            className="border-input"
-                        />
-                    </div>
-                    <div className="modal-buttons">
-                        <button type="button" className="cancel-button" onClick={onNo}>
-                            Cancel
-                        </button>
-                        <button type="button" className="delete-button" onClick={handleDelete}>
-                            Delete
-                        </button>
-                    </div>
-                </form>
+                <div className="modal-buttons">
+                    <button type="button" className="cancel-button" onClick={onNo}>
+                        Cancel
+                    </button>
+                    <button type="button" className="delete-button" onClick={handleDelete}>
+                        Delete
+                    </button>
+                </div>
             </div>
         </div>
     );
