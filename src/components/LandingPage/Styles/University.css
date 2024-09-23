@@ -9,3 +9,7 @@
   opacity: 1;
   animation: fadeInLeft 0.8s ease-in;
 }
+
+.css-c35id4-MuiButtonBase-root-MuiChip-root .MuiChip-label {
+  color: white !important;
+}
