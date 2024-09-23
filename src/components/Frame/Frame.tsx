@@ -10,18 +10,20 @@ import Brand from '../Brand';
 import { Icon } from '@rsuite/icons';
 import { HiOutlineViewBoards } from 'react-icons/hi';
 import { LuTable2 } from 'react-icons/lu';
-import { MdContacts } from 'react-icons/md';
 import { MdDashboard } from 'react-icons/md';
-import { TbFiles } from 'react-icons/tb';
 import { CiSettings } from 'react-icons/ci';
 import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
 
 const { getHeight, on } = DOMHelper;
 
-const NavItem = props => {
-  const { title, eventKey, ...rest } = props;
+const NavItem = ({ title, eventKey, animate, ...rest }) => {
   return (
-    <Nav.Item eventKey={eventKey} as={NavLink} className="nav-item" {...rest}>
+    <Nav.Item
+      eventKey={eventKey}
+      as={NavLink}
+      className={classNames('nav-item', { 'nav-item-animate': animate })} // Apply animation class based on the prop
+      {...rest}
+    >
       {title}
     </Nav.Item>
   );
@@ -31,24 +33,33 @@ const Frame = () => {
   const [expand, setExpand] = useState(true);
   const [windowHeight, setWindowHeight] = useState(getHeight(window));
   const [theme, setTheme] = useState<'light' | 'dark' | 'high-contrast'>('dark');
-  const [showSettings, setShowSettings] = useState(false); // State to manage the visibility of the settings popup
+  const [showSettings, setShowSettings] = useState(false);
+  const [animate, setAnimate] = useState(true); // State to control animation
 
   useEffect(() => {
     const updateExpand = () => {
-      setExpand(window.innerWidth > 768); // Collapse sidebar if window width <= 768px
+      setExpand(window.innerWidth > 768);
     };
 
     setWindowHeight(getHeight(window));
-    updateExpand(); // Check initial window width
+    updateExpand();
+
     const resizeListener = on(window, 'resize', () => {
       setWindowHeight(getHeight(window));
-      updateExpand(); // Update expand state on window resize
+      updateExpand();
     });
+
+    // Disable animation after first render, extend the time to match the animation
+    const timer = setTimeout(() => {
+      setAnimate(false); // Disable animation after the first render
+    }, 2000); // Match with your CSS animation duration
 
     return () => {
       resizeListener.off();
+      clearTimeout(timer);
     };
   }, []);
+
 
   const containerClasses = classNames('page-container', {
     'container-full': !expand
@@ -79,30 +90,25 @@ const Frame = () => {
                   to="/main"
                   eventKey="panel"
                   icon={<Icon as={HiOutlineViewBoards} />}
+                  animate={animate} // Pass the animate state
                 />
-                <NavItem title="Table" to="table" eventKey="table" icon={<Icon as={LuTable2} />} />
-                {/* <NavItem
-                  title="Contacts"
-                  to="contacts"
-                  eventKey="contacts"
-                  icon={<Icon as={MdContacts} />}
-                /> */}
+                <NavItem
+                  title="Table"
+                  to="table"
+                  eventKey="table"
+                  icon={<Icon as={LuTable2} />}
+                  animate={animate} // Pass the animate state
+                />
                 <NavItem
                   title="Dashboard"
                   to="/main/dashboard"
                   eventKey="dashboard"
                   icon={<Icon as={MdDashboard} />}
+                  animate={animate} // Pass the animate state
                 />
-                {/* <NavItem
-                  title="Files"
-                  to="files"
-                  eventKey="files"
-                  icon={<Icon as={TbFiles} />}
-                /> */}
               </Nav>
             </Sidenav.Body>
 
-            {/* Settings item placed here, above NavToggle */}
             <Nav>
               <Nav.Item
                 title="Settings"
@@ -126,9 +132,7 @@ const Frame = () => {
 
         <SettingsView
           show={showSettings}
-          onClose={() => setShowSettings(false)} // Close the settings drawer
-          card={{}} // Pass necessary props here, adjust as per your implementation
-          updateCard={() => {}} // Adjust as per your implementation
+          onClose={() => setShowSettings(false)}
         />
       </Container>
     </CustomProvider>
