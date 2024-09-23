@@ -106,7 +106,7 @@ export default function Hero() {
           </Stack>
           <Typography variant="caption" textAlign="center" sx={{ opacity: 0.8 }}>
             By &quot;Signing up&quot; you agree to our&nbsp;
-            <Link href="/main" color="primary">
+            <Link href="/terms-and-conditions" color="primary" target="_blank" rel="noopener noreferrer">
               Terms & Conditions
             </Link>
             .
