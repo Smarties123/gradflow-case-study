@@ -45,7 +45,7 @@
 
     white-space: nowrap;
     box-sizing: border-box;
-    overflow-y: auto;
+    overflow: visible; /* Remove vertical scrolling to prevent nested scroll containers */
     // cursor: auto;
 }
 
@@ -62,7 +62,7 @@
     // height: 70vh;
 
     /* Adjust this value based on your layout */
-    overflow-y: auto;
+    overflow: visible; /* Remove vertical scrolling */
     padding: 10px;
     // border: 1px solid #ccc;
     /* Optional: for visual clarity */
@@ -253,7 +253,7 @@
         /* Stack items vertically within each column */
         height: 100%;
         // width: 20.5%;
-        overflow-y: auto;
+        overflow: visible; /* Remove vertical scrolling to prevent nested scroll containers */
         white-space: nowrap;
     }
 
