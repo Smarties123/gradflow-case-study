@@ -8,9 +8,8 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-import FacebookIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import TwitterIcon from '@mui/icons-material/X';
+import InstagramIcon from '@mui/icons-material/Instagram';
 import LandingPageBrand from '../LandingPageBrand/LandingPageBrand';
 
 const logoStyle = {
@@ -22,7 +21,9 @@ function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" mt={1}>
       {'Copyright © '}
-      <Link href="https://mui.com/">Sitemark&nbsp;</Link>
+      <Link href="/terms-and-conditions"
+      target="_blank"
+      rel="noopener noreferrer">HADinc&nbsp;</Link>
       {new Date().getFullYear()}
     </Typography>
   );
@@ -59,7 +60,6 @@ export default function Footer() {
           <Box sx={{ width: { xs: '100%', sm: '60%' } }}>
             <Box sx={{ ml: '-15px', mb: '10px' }}>
               <LandingPageBrand />
-
             </Box>
             <Typography variant="body2" fontWeight={600} gutterBottom>
               Newsletter
@@ -187,27 +187,23 @@ export default function Footer() {
         >
           <IconButton
             color="inherit"
-            href="https://github.com/mui"
-            aria-label="GitHub"
-            sx={{ alignSelf: 'center' }}
-          >
-            <FacebookIcon />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            href="https://twitter.com/MaterialUI"
-            aria-label="X"
-            sx={{ alignSelf: 'center' }}
-          >
-            <TwitterIcon />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            href="https://www.linkedin.com/company/mui/"
+            href="https://www.linkedin.com/company/gradflow-inc/?viewAsMember=true"
             aria-label="LinkedIn"
             sx={{ alignSelf: 'center' }}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <LinkedInIcon />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            href="https://www.instagram.com/gradflowinc/"
+            aria-label="Instagram"
+            sx={{ alignSelf: 'center' }}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <InstagramIcon />
           </IconButton>
         </Stack>
       </Box>
