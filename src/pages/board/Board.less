@@ -1,26 +1,44 @@
-/* Board styles to arrange columns horizontally */
 .board {
     display: flex;
-    // background-color: pink;
     flex-direction: row;
-    /* Align columns horizontally */
     justify-content: flex-start;
-    /* Distribute space evenly around columns */
     padding: 0px 20px 0px 0px;
     gap: 20px;
-    /* Space between each column */
     align-items: flex-start;
-    /* Align columns at the start of their container */
-    // height: auto;
-    // background-color: pink;
-    max-width: 100vw;
-    overflow-x: auto;
-    // height: auto;
-    // overflow-y: auto;
     height: 86vh;
-    // margin-bottom: 100px;
+    width: auto; /* Ensure width adjusts dynamically */
+    min-width: 100vw;
+    overflow-x: auto; /* Allow horizontal scroll */
+    overflow-y: hidden;
+    /* Custom Scrollbar for X-axis */
+    scrollbar-width: thin;
+    scrollbar-color: #ff6200 #1e1e1e;
+    flex-grow: 1; /* Ensure the board stretches to fit the viewport */
+}
+/* Webkit scrollbar for horizontal scroll */
+.board::-webkit-scrollbar {
+    height: 10px; /* Height for horizontal scrollbar */
+}
 
+.board::-webkit-scrollbar-track {
+    background: #1e1e1e; /* Dark background for scrollbar track */
+    border-radius: 10px;
+}
 
+.board::-webkit-scrollbar-thumb {
+    background-color: #ff6200; /* Orange color for scrollbar */
+    border-radius: 10px;
+    border: 2px solid #1e1e1e; /* Adds padding around the thumb */
+}
+
+.board::-webkit-scrollbar-thumb:hover {
+    background-color: #ff7433; /* Slightly lighter orange on hover */
+}
+
+/* Edge and Firefox Scrollbar */
+.board {
+    scrollbar-width: thin;
+    scrollbar-color: #ff6200 #1e1e1e;
 }
 
 
@@ -28,25 +46,16 @@
 .column-container {
     border: 1px solid #ccc;
     border-radius: 5px;
-    height: inherit; // width: 100vw;
+    height: inherit;
     flex: 1;
-
-    /* Initial size of columns */
-    // flex-grow: 1;
-    /* Allow columns to grow if there's extra space */
-    flex-shrink: 1;
-    /* Allow columns to shrink, but not below the min-width */
     min-width: 320px;
-    /* Prevent columns from shrinking too much */
-
+    /* Ensure columns maintain the minimum width and allow scrolling */
+    flex-shrink: 0; /* Prevent the columns from shrinking below min-width */
     display: flex;
     flex-direction: column;
-    // min-height: 0;
-
     white-space: nowrap;
     box-sizing: border-box;
-    overflow: visible; /* Remove vertical scrolling to prevent nested scroll containers */
-    // cursor: auto;
+    overflow: visible;
 }
 
 .input-group {
@@ -229,32 +238,25 @@
 
     .board {
         flex-direction: row;
-        overflow-x: auto;
+        // overflow-x: auto;
+        overflow-x: scroll;
+
         padding: 0;
     }
 
     .column-container {
-        // background: #fff;
-        /* Background color for the column */
         border: 1px solid #ccc;
-        /* Border for the column */
         border-radius: 5px;
-        /* Rounded corners for the column */
-        /* Minimum width for each column */
-        // max-width: 340px;
-        /* Maximum width for each column */
-        flex-shrink: 0;
-        /* Prevent columns from shrinking */
-        // flex-shrink: 0;
-        flex-grow: 0;
-        /* Allows columns to grow as needed */
+        height: inherit;
+        flex: 1;
+        min-width: 320px;
+        /* Ensure columns maintain the minimum width and allow scrolling */
+        flex-shrink: 0; /* Prevent the columns from shrinking below min-width */
         display: flex;
         flex-direction: column;
-        /* Stack items vertically within each column */
-        height: 100%;
-        // width: 20.5%;
-        overflow: visible; /* Remove vertical scrolling to prevent nested scroll containers */
         white-space: nowrap;
+        box-sizing: border-box;
+        overflow: visible;
     }
 
 }
@@ -263,44 +265,70 @@
 
 /* Adjustments for smaller screens */
 @media (max-height: 800px) {
+    .board {
+        min-width: 100vw;
+        overflow-x: scroll;
+    }
 
     .column-container {
         height: 82vh;
+        flex-shrink: 0;
         /* Adjust height for small screens */
     }
 }
 
 @media (max-height: 700px) {
+    .board {
+        min-width: 100vw;
+        overflow-x: scroll;
+    }
 
     .column-container {
         height: 80vh;
+        flex-shrink: 0;
         /* Adjust height for small screens */
     }
 }
 
 @media (max-height: 600px) {
+    .board {
+        min-width: 100vw;
+        overflow-x: scroll;
+    }
 
     .column-container {
         // height: 74vh;
         /* Adjust height for small screens */
+        flex-shrink: 0;
     }
 }
 
 @media (max-height: 500px) {
+    .board {
+        min-width: 100vw;
+        overflow-x: scroll;
+    }
 
     .column-container {
         height: 56vh;
+        flex-shrink: 0;
         /* Further adjust height for very small screens */
     }
 }
 
 
+/* Fix for the "Add New Column" section */
 #add-new-column {
     justify-content: center !important;
     align-items: center !important;
     padding: 20px !important;
-    border: 1px dashed #007bff !important; // Dashed border for the placeholder
-
+    border: 1px dashed #007bff !important; /* Dashed border for the placeholder */
+    min-width: 320px; /* Ensure this section has the same minimum width as other columns */
+    max-width: 320px; /* Prevent it from growing larger than other columns */
+    flex-shrink: 0; /* Prevent shrinking */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
 }
 
 
@@ -313,7 +341,9 @@
     border-radius: 5px !important;
     font-size: 16px !important;
     cursor: pointer !important;
+    margin: auto; /* Center the button */
 }
+
 
 .add-new-button:hover {
     background-color: #0056b3 !important;

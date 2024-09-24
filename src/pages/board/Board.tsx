@@ -36,56 +36,59 @@ const Board: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
 
 
-// Scroll handler for both horizontal and vertical scroll
-const handleScroll = (e: any) => {
-  const { clientY, clientX } = e;
-  const viewportHeight = window.innerHeight;
-  const viewportWidth = window.innerWidth;
+  // Scroll handler for both horizontal and vertical scroll
+  const handleScroll = (e: any) => {
+    if (!isDraggingCard) return; // Prevent scroll if not dragging a card
+  
+    const { clientY, clientX } = e;
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+  
+    // Check the Y axis for scrolling
+    if (clientY < SCROLL_ZONE_HEIGHT) {
+      startScrolling(0, -SCROLL_STEP); // Scroll up
+    } else if (clientY > viewportHeight - SCROLL_ZONE_HEIGHT) {
+      startScrolling(0, SCROLL_STEP); // Scroll down
+    }
+  
+    // Check the X axis for scrolling
+    if (clientX < SCROLL_ZONE_WIDTH) {
+      startScrolling(-SCROLL_STEP, 0); // Scroll left
+    } else if (clientX > viewportWidth - SCROLL_ZONE_WIDTH) {
+      startScrolling(SCROLL_STEP, 0); // Scroll right
+    }
+  };
+  
 
-  // Check the Y axis for scrolling
-  if (clientY < SCROLL_ZONE_HEIGHT) {
-    startScrolling(0, -SCROLL_STEP); // Scroll up
-  } else if (clientY > viewportHeight - SCROLL_ZONE_HEIGHT) {
-    startScrolling(0, SCROLL_STEP); // Scroll down
-  }
+  // Start scrolling
+  const startScrolling = (scrollXAmount: number, scrollYAmount: number) => {
+    if (!scrolling) {
+      setScrolling(true);
+      scrollAnimationRef.current = window.requestAnimationFrame(() => 
+        scrollWindow(scrollXAmount, scrollYAmount)
+      );
+    }
+  };
 
-  // Check the X axis for scrolling
-  if (clientX < SCROLL_ZONE_WIDTH) {
-    startScrolling(-SCROLL_STEP, 0); // Scroll left
-  } else if (clientX > viewportWidth - SCROLL_ZONE_WIDTH) {
-    startScrolling(SCROLL_STEP, 0); // Scroll right
-  }
-};
-
-// Start scrolling
-const startScrolling = (scrollXAmount: number, scrollYAmount: number) => {
-  if (!scrolling) {
-    setScrolling(true);
-    scrollAnimationRef.current = window.requestAnimationFrame(() => 
+  // Perform scrolling based on direction
+  const scrollWindow = (scrollXAmount: number, scrollYAmount: number) => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy(scrollXAmount, scrollYAmount); // Scroll horizontally
+    }
+    window.scrollBy(0, scrollYAmount); // Scroll vertically
+    scrollAnimationRef.current = window.requestAnimationFrame(() =>
       scrollWindow(scrollXAmount, scrollYAmount)
     );
-  }
-};
+  };
 
-// Perform scrolling based on direction
-const scrollWindow = (scrollXAmount: number, scrollYAmount: number) => {
-  if (containerRef.current) {
-    containerRef.current.scrollBy(scrollXAmount, scrollYAmount); // Scroll horizontally
-  }
-  window.scrollBy(0, scrollYAmount); // Scroll vertically
-  scrollAnimationRef.current = window.requestAnimationFrame(() =>
-    scrollWindow(scrollXAmount, scrollYAmount)
-  );
-};
+  const stopScrolling = () => {
+    setScrolling(false);
+    if (scrollAnimationRef.current) {
+      window.cancelAnimationFrame(scrollAnimationRef.current);
+      scrollAnimationRef.current = null;
+    }
+  };
 
-// Stop scrolling
-const stopScrolling = () => {
-  setScrolling(false);
-  if (scrollAnimationRef.current) {
-    window.cancelAnimationFrame(scrollAnimationRef.current);
-    scrollAnimationRef.current = null;
-  }
-};
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -153,6 +156,8 @@ const stopScrolling = () => {
         setLoading(false);
       }
     };
+
+    
 
     if (user) {
       fetchApplications();
@@ -359,21 +364,17 @@ const stopScrolling = () => {
 
 
   const handleDragEnd = async (result) => {
-    // Stop scrolling immediately after the drag ends
-    stopScrolling();
+    stopScrolling(); // Stop scrolling immediately after the drag ends
     window.removeEventListener('mousemove', handleScroll); // Remove the mousemove listener
-  
-    // Hide the bin icon when dragging ends
-    setIsDraggingCard(false); 
+    setIsDraggingCard(false); // Ensure the bin icon disappears
   
     if (!result.destination) {
-      return;  // Dropped outside any column or droppable
+      return; // If dropped outside any column or droppable area
     }
   
     const binDropped = result.destination.droppableId === 'bin';
-  
+    
     if (binDropped) {
-      // Trigger the delete function here
       const cardId = result.draggableId;
       try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${cardId}`, {
@@ -392,9 +393,10 @@ const stopScrolling = () => {
         console.error('Error deleting the card:', error);
       }
     } else {
-      context.onDragEnd(result);  // Handle card movement between columns
+      context.onDragEnd(result); // Handle card movement between columns
     }
   };
+  
   
   
 
