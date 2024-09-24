@@ -196,27 +196,35 @@ input {
 
 .suggestions-list {
     position: absolute;
-    top: calc(100% + 5px); /* Position it just below the input field */
+    top: calc(100% + 5px);
+    /* Position it just below the input field */
     z-index: 1001;
     background-color: #333;
     border: 1px solid white;
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 200px; /* Ensure dropdown has a max height */
-    width: calc(100%); /* Adjust to match input field width */
-    overflow-y: auto; /* Enable vertical scrolling */
-    overflow-x: hidden; /* Disable horizontal scrolling */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
+    max-height: 200px;
+    /* Ensure dropdown has a max height */
+    width: calc(100%);
+    /* Adjust to match input field width */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    overflow-x: hidden;
+    /* Disable horizontal scrolling */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    /* Add shadow for depth */
 }
 
 /* Customize the scrollbar */
 .suggestions-list::-webkit-scrollbar {
-    width: 6px; /* Set the width of the scrollbar */
+    width: 6px;
+    /* Set the width of the scrollbar */
 }
 
 .suggestions-list::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.3); /* Subtle color for scrollbar */
+    background-color: rgba(255, 255, 255, 0.3);
+    /* Subtle color for scrollbar */
     border-radius: 3px;
 }
 
@@ -231,7 +239,8 @@ input {
     justify-content: space-between;
     padding: 8px;
     cursor: pointer;
-    white-space: nowrap; /* Prevent text from wrapping */
+    white-space: nowrap;
+    /* Prevent text from wrapping */
 }
 
 .suggestions-list li:hover {
@@ -259,13 +268,18 @@ input {
 }
 
 .company-name-modal {
-    font-size: 12px; /* Reduce font size */
+    font-size: 12px;
+    /* Reduce font size */
     color: white;
     margin: 0;
-    word-wrap: break-word; /* Allow breaking the text to fit in */
-    word-break: break-word; /* Break long words if necessary */
-    max-width: 80%; /* Limit the width of the text to ensure wrapping */
-    white-space: normal; /* Allow text to wrap onto new lines */
+    word-wrap: break-word;
+    /* Allow breaking the text to fit in */
+    word-break: break-word;
+    /* Break long words if necessary */
+    max-width: 80%;
+    /* Limit the width of the text to ensure wrapping */
+    white-space: normal;
+    /* Allow text to wrap onto new lines */
 }
 
 .company-domain-modal {
@@ -290,4 +304,3 @@ input {
     height: 24px;
     border-radius: 50%;
 }
-
