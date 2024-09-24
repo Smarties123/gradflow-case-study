@@ -7,18 +7,31 @@ interface MoveStatusModalProps {
   currentOrder: number;
   totalColumns: number;
   onMove: (newPosition: number) => void;
-  columnNames: string[];  // Add column names as a new prop
+  columnNames: string[]; // Add column names as a new prop
 }
 
-const MoveStatusModal: React.FC<MoveStatusModalProps> = ({ isOpen, onClose, currentOrder, totalColumns, onMove, columnNames }) => {
+// Function to capitalize the first letter and make the rest lowercase
+const capitalizeFirstLetter = (str: string) => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
+const MoveStatusModal: React.FC<MoveStatusModalProps> = ({
+  isOpen,
+  onClose,
+  currentOrder,
+  totalColumns,
+  onMove,
+  columnNames
+}) => {
   const [newPosition, setNewPosition] = useState(currentOrder);
-  const modalRef = useRef<HTMLDivElement>(null);  // Create a reference for the modal
+  const modalRef = useRef<HTMLDivElement>(null); // Create a reference for the modal
 
   // Close modal if clicked outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        onClose();  // Close modal when clicking outside
+        onClose(); // Close modal when clicking outside
       }
     };
 
@@ -44,25 +57,30 @@ const MoveStatusModal: React.FC<MoveStatusModalProps> = ({ isOpen, onClose, curr
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content" ref={modalRef} onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" ref={modalRef} onClick={e => e.stopPropagation()}>
         <h2>Move Column</h2>
         <div className="input-wrapper">
           <label className="bordered-label">Swap Column</label>
           <select
             className="border-input dropdown-input"
             value={newPosition}
-            onChange={(e) => setNewPosition(Number(e.target.value))}
+            onChange={e => setNewPosition(Number(e.target.value))}
           >
-            {Array.from({ length: totalColumns }, (_, i) => i + 1).map((pos) => (
+            {Array.from({ length: totalColumns }, (_, i) => i + 1).map(pos => (
               <option key={pos} value={pos}>
-                Position {pos} ({columnNames[pos - 1]}) {pos === currentOrder ? '(Current)' : ''}
+                Position {pos} ({capitalizeFirstLetter(columnNames[pos - 1])}){' '}
+                {pos === currentOrder ? '(Current)' : ''}
               </option>
             ))}
           </select>
         </div>
         <div className="modal-buttons">
-          <button className="cancel-button" onClick={onClose}>Discard</button>
-          <button className="add-card-button" onClick={handleMove}>Move</button>
+          <button className="cancel-button" onClick={onClose}>
+            Discard
+          </button>
+          <button className="add-card-button" onClick={handleMove}>
+            Move
+          </button>
         </div>
       </div>
     </div>
