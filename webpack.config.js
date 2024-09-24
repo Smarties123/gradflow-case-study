@@ -75,7 +75,7 @@ module.exports = {
     new HtmlwebpackPlugin({
       title: 'Kanban Boards Template',
       filename: 'index.html',
-      template: './src/index.html',
+      template: path.resolve(__dirname, 'public', 'index.html'),  // Updated path to index.html
       inject: true,
       hash: true,
       path: './',

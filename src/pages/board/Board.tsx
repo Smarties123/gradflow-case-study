@@ -16,7 +16,9 @@ import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
 import BinPopup from '../../components/BinPopup/BinPopup';
 
 
-
+const SCROLL_STEP = 10;
+const SCROLL_ZONE_HEIGHT = 100;
+const SCROLL_ZONE_WIDTH = 100; // Set width for horizontal scroll zones
 
 const Board: React.FC = () => {
   const context = useContext(BoardContext);
@@ -25,6 +27,68 @@ const Board: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true); // State to manage loading
   const [error, setError] = useState<string | null>(null); // State to manage errors
   const [isDraggingCard, setIsDraggingCard] = useState(false);
+
+  const [scrolling, setScrolling] = useState<boolean>(false);  // Add a state to control the scrolling
+  const scrollAnimationRef = useRef<number | null>(null);
+
+
+  // Ref to detect the container
+  const containerRef = useRef<HTMLDivElement>(null);
+
+
+  // Scroll handler for both horizontal and vertical scroll
+  const handleScroll = (e: any) => {
+    if (!isDraggingCard) return; // Prevent scroll if not dragging a card
+  
+    const { clientY, clientX } = e;
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+  
+    // Check the Y axis for scrolling
+    if (clientY < SCROLL_ZONE_HEIGHT) {
+      startScrolling(0, -SCROLL_STEP); // Scroll up
+    } else if (clientY > viewportHeight - SCROLL_ZONE_HEIGHT) {
+      startScrolling(0, SCROLL_STEP); // Scroll down
+    }
+  
+    // Check the X axis for scrolling
+    if (clientX < SCROLL_ZONE_WIDTH) {
+      startScrolling(-SCROLL_STEP, 0); // Scroll left
+    } else if (clientX > viewportWidth - SCROLL_ZONE_WIDTH) {
+      startScrolling(SCROLL_STEP, 0); // Scroll right
+    }
+  };
+  
+
+  // Start scrolling
+  const startScrolling = (scrollXAmount: number, scrollYAmount: number) => {
+    if (!scrolling) {
+      setScrolling(true);
+      scrollAnimationRef.current = window.requestAnimationFrame(() => 
+        scrollWindow(scrollXAmount, scrollYAmount)
+      );
+    }
+  };
+
+  // Perform scrolling based on direction
+  const scrollWindow = (scrollXAmount: number, scrollYAmount: number) => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy(scrollXAmount, scrollYAmount); // Scroll horizontally
+    }
+    window.scrollBy(0, scrollYAmount); // Scroll vertically
+    scrollAnimationRef.current = window.requestAnimationFrame(() =>
+      scrollWindow(scrollXAmount, scrollYAmount)
+    );
+  };
+
+  const stopScrolling = () => {
+    setScrolling(false);
+    if (scrollAnimationRef.current) {
+      window.cancelAnimationFrame(scrollAnimationRef.current);
+      scrollAnimationRef.current = null;
+    }
+  };
+
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -92,6 +156,8 @@ const Board: React.FC = () => {
         setLoading(false);
       }
     };
+
+    
 
     if (user) {
       fetchApplications();
@@ -292,32 +358,34 @@ const Board: React.FC = () => {
 
 
   const onDragStart = () => {
-    setIsDraggingCard(true);  // Ensure the bin popup appears when dragging starts
+    setIsDraggingCard(true);  
+    window.addEventListener('mousemove', handleScroll); // Add mousemove listener
   };
-  
+
+
   const handleDragEnd = async (result) => {
-    setIsDraggingCard(false);  // Hide the bin icon when dragging ends
+    stopScrolling(); // Stop scrolling immediately after the drag ends
+    window.removeEventListener('mousemove', handleScroll); // Remove the mousemove listener
+    setIsDraggingCard(false); // Ensure the bin icon disappears
   
     if (!result.destination) {
-      return;  // Dropped outside any column or droppable
+      return; // If dropped outside any column or droppable area
     }
   
-    // Check if the card is dropped over the bin
     const binDropped = result.destination.droppableId === 'bin';
-  
+    
     if (binDropped) {
-      // Trigger the delete function here
       const cardId = result.draggableId;
       try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${cardId}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${user.token}`,  // Ensure you are using the correct token
+            'Authorization': `Bearer ${user.token}`,
           },
         });
   
         if (response.ok) {
-          handleDeleteCard(cardId);  // Update state to remove the card
+          handleDeleteCard(cardId);
         } else {
           console.error('Failed to delete the card.');
         }
@@ -325,10 +393,12 @@ const Board: React.FC = () => {
         console.error('Error deleting the card:', error);
       }
     } else {
-      // Handle card movement logic as usual
-      context.onDragEnd(result);
+      context.onDragEnd(result); // Handle card movement between columns
     }
   };
+  
+  
+  
 
 
 
@@ -424,7 +494,7 @@ const Board: React.FC = () => {
 
   return (
     <DragDropContext onDragStart={onDragStart} onDragEnd={handleDragEnd}>
-      <div className="board">
+      <div className="board" ref={containerRef}>
         {columns.length === 0 ? (
           <p>No columns available</p>
         ) : (
