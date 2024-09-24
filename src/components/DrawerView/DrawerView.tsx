@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Button, Grid, Row, Col } from 'rsuite';
+import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Button, Grid, Row, Col, SelectPicker } from 'rsuite';
 const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea" ref={ref} />);
 import Github from '@uiw/react-color-github';
 import './DrawerView.less';
 import dayjs from 'dayjs';
 
-const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
-    const [currentView, setCurrentView] = useState('details'); // State to track current view
+const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus, statuses }) => {
+    const [currentView, setCurrentView] = useState('details');
 
     const parseDate = (dateStr) => {
         return dateStr ? dayjs(dateStr).toDate() : null;
     };
 
-    // State to manage form inputs
     const [formData, setFormData] = useState({
         company: card.company,
-        companyLogo: card.companyLogo,  // Include companyLogo here
+        companyLogo: card.companyLogo,
         position: card.position,
         deadline: card.deadline ? parseDate(card.deadline) : null,
         location: card.location,
@@ -23,7 +22,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
         notes: card.notes,
         salary: card.salary,
         interview_stage: card.interview_stage,
-        date_applied: card.date_applied ? dayjs(card.date_applied).format('DD-MM-YYYY') : null, // Format date_applied as DD-MM-YYYY
+        date_applied: card.date_applied ? parseDate(card.date_applied) : null,
         card_color: card.card_color
     });
 
@@ -47,12 +46,11 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
         setFormData(prev => ({ ...prev, card_color: card_color.hex }));
     };
 
-    // Function to handle form submission
     const handleSubmit = () => {
         const updatedData = {
             ...formData,
+            date_applied: dayjs(formData.date_applied).format('YYYY-MM-DD'),
         };
-        console.log(updatedData);
         updateCard(card.id, updatedData);
         onClose();
     };
@@ -92,8 +90,8 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                         <div className="company-input-wrapper">
                                             <Form.Control
                                                 name="company"
-                                                defaultValue={formData.company}
-                                                disabled
+                                                value={formData.company}
+                                                onChange={value => handleChange(value, 'company')}
                                                 className="full-width"
                                             />
                                             {formData.companyLogo && (
@@ -107,9 +105,8 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                         <Form.ControlLabel className="formControlLabel">Position</Form.ControlLabel>
                                         <Form.Control
                                             name="position"
-                                            defaultValue={formData.position}
+                                            value={formData.position}
                                             onChange={value => handleChange(value, 'position')}
-                                            disabled
                                             className="full-width"
                                         />
                                     </Form.Group>
@@ -123,7 +120,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                             name="notes"
                                             rows={5}
                                             accepter={Textarea}
-                                            defaultValue={formData.notes}
+                                            value={formData.notes}
                                             onChange={value => handleChange(value, 'notes')}
                                             className="full-width"
                                         />
@@ -134,38 +131,35 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                 <Col xs={24} sm={12}>
                                     <Form.Group controlId="columnName" className="form-group">
                                         <Form.ControlLabel className="formControlLabel">Status</Form.ControlLabel>
-                                        <Form.Control
+                                            <SelectPicker
                                             name="columnName"
-                                            value={columnName}
-                                            disabled
+                                            value={card.StatusId} // Use card.StatusId to track the current status
+                                            onChange={value => updateStatus(value)} // Update status with the new StatusId
+                                            data={statuses.map(status => ({
+                                                label: status.StatusName,
+                                                value: status.StatusId
+                                            }))}
                                             className="full-width"
-                                        />
+                                            placeholder="Select Status"
+                                            searchable={false}
+                                            />
+
                                     </Form.Group>
                                 </Col>
                                 <Col xs={24} sm={12}>
-                                    <Form.Group controlId="interview_stage" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Interview Stage</Form.ControlLabel>
-                                        <Form.Control
-                                            name="interview_stage"
-                                            defaultValue={formData.interview_stage}
-                                            onChange={value => handleChange(value, 'interview_stage')}
+                                    <Form.Group controlId="date_applied" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Date Applied</Form.ControlLabel>
+                                        <DatePicker
+                                            oneTap
+                                            format="dd-MM-yyyy"
                                             className="full-width"
+                                            value={formData.date_applied}
+                                            onChange={value => handleChange(value, 'date_applied')}
                                         />
                                     </Form.Group>
                                 </Col>
                             </Row>
                             <Row gutter={10}>
-                                <Col xs={24} sm={12}>
-                                    <Form.Group controlId="date_applied" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Date Applied</Form.ControlLabel>
-                                        <Form.Control
-                                            name="date_applied"
-                                            value={formData.date_applied}
-                                            disabled
-                                            className="full-width"
-                                        />
-                                    </Form.Group>
-                                </Col>
                                 <Col xs={24} sm={12}>
                                     <Form.Group controlId="deadline" className="form-group">
                                         <Form.ControlLabel className="formControlLabel">Deadline</Form.ControlLabel>
@@ -185,7 +179,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                         <Form.ControlLabel className="formControlLabel">Location</Form.ControlLabel>
                                         <Form.Control
                                             name="location"
-                                            defaultValue={formData.location}
+                                            value={formData.location}
                                             onChange={value => handleChange(value, 'location')}
                                             className="full-width"
                                         />
@@ -198,7 +192,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                         <Form.ControlLabel className="formControlLabel">Edit URL</Form.ControlLabel>
                                         <Form.Control
                                             name="url"
-                                            defaultValue={formData.url}
+                                            value={formData.url}
                                             onChange={value => handleChange(value, 'url')}
                                             className="full-width"
                                         />
@@ -229,7 +223,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName }) => {
                                     name="notes"
                                     rows={5}
                                     accepter={Textarea}
-                                    defaultValue={formData.notes}
+                                    value={formData.notes}
                                     onChange={value => handleChange(value, 'notes')}
                                     className="full-width"
                                 />

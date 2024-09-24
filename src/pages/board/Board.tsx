@@ -418,6 +418,23 @@ const Board: React.FC = () => {
   };
 
 
+  const handleUpdateStatus = (newStatus) => {
+    if (selectedCard) {
+        const updatedCard = { ...selectedCard, status: newStatus };
+        setSelectedCard(updatedCard); // Update the selected card's status
+        setColumns(prevColumns =>
+            prevColumns.map(column => ({
+                ...column,
+                cards: column.cards.map(card =>
+                    card.id === updatedCard.id ? { ...card, status: newStatus } : card
+                )
+            }))
+        );
+    }
+};
+
+
+
 
 
 
@@ -524,13 +541,18 @@ const Board: React.FC = () => {
 
         {/* Drawer View */}
         {isDrawerOpen && selectedCard && (
-          <DrawerView
-            show={isDrawerOpen}
-            onClose={() => setIsDrawerOpen(false)}
-            card={selectedCard}
-            updateCard={updateCard}
-            columnName={selectedCard.columnName}
-          />
+        <DrawerView
+          show={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          card={selectedCard}
+          updateCard={updateCard}
+          columnName={selectedCard.columnName}
+          updateStatus={handleUpdateStatus} // This updates the status when the user selects a new one
+          statuses={columns.map(col => ({ StatusId: col.id, StatusName: col.title }))} // Ensure the statuses are passed correctly
+        />
+
+
+
         )}
 
         {/* Moving Column */}
