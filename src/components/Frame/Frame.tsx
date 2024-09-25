@@ -10,7 +10,9 @@ import Brand from '../Brand';
 import { Icon } from '@rsuite/icons';
 import { HiOutlineViewBoards } from 'react-icons/hi';
 import { LuTable2 } from 'react-icons/lu';
-import { MdDashboard } from 'react-icons/md';
+import { MdContacts, MdDashboard } from 'react-icons/md';
+import { TbFiles } from 'react-icons/tb';
+
 import { CiSettings } from 'react-icons/ci';
 import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
 
@@ -60,7 +62,6 @@ const Frame = () => {
     };
   }, []);
 
-
   const containerClasses = classNames('page-container', {
     'container-full': !expand
   });
@@ -100,10 +101,24 @@ const Frame = () => {
                   animate={animate} // Pass the animate state
                 />
                 <NavItem
+                  title="Contacts"
+                  to="/comingsoon"
+                  eventKey="contacts"
+                  icon={<Icon as={MdContacts} />}
+                  animate={animate} // Pass the animate state
+                />
+                <NavItem
                   title="Dashboard"
                   to="/main/dashboard"
                   eventKey="dashboard"
                   icon={<Icon as={MdDashboard} />}
+                  animate={animate} // Pass the animate state
+                />
+                <NavItem
+                  title="Files"
+                  to="/comingsoon"
+                  eventKey="files"
+                  icon={<Icon as={TbFiles} />}
                   animate={animate} // Pass the animate state
                 />
               </Nav>
@@ -130,10 +145,7 @@ const Frame = () => {
           </Content>
         </Container>
 
-        <SettingsView
-          show={showSettings}
-          onClose={() => setShowSettings(false)}
-        />
+        <SettingsView show={showSettings} onClose={() => setShowSettings(false)} />
       </Container>
     </CustomProvider>
   );
