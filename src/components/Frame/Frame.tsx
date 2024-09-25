@@ -54,7 +54,7 @@ const Frame = () => {
     // Disable animation after first render, extend the time to match the animation
     const timer = setTimeout(() => {
       setAnimate(false); // Disable animation after the first render
-    }, 2000); // Match with your CSS animation duration
+    }, 3000); // Match with your CSS animation duration
 
     return () => {
       resizeListener.off();
