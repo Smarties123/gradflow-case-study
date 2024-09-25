@@ -14,16 +14,16 @@ import LandingPageBrand from '../LandingPageBrand/LandingPageBrand';
 
 const logoStyle = {
   width: '140px',
-  height: 'auto',
+  height: 'auto'
 };
 
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" mt={1}>
       {'Copyright © '}
-      <Link href="/terms-and-conditions"
-      target="_blank"
-      rel="noopener noreferrer">HADinc&nbsp;</Link>
+      <Link href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+        HADinc&nbsp;
+      </Link>
       {new Date().getFullYear()}
     </Typography>
   );
@@ -38,7 +38,7 @@ export default function Footer() {
         alignItems: 'center',
         gap: { xs: 4, sm: 8 },
         py: { xs: 8, sm: 10 },
-        textAlign: { sm: 'center', md: 'left' },
+        textAlign: { sm: 'center', md: 'left' }
       }}
     >
       <Box
@@ -46,7 +46,7 @@ export default function Footer() {
           display: 'flex',
           flexDirection: { xs: 'column', sm: 'row' },
           width: '100%',
-          justifyContent: 'space-between',
+          justifyContent: 'space-between'
         }}
       >
         <Box
@@ -54,7 +54,7 @@ export default function Footer() {
             display: 'flex',
             flexDirection: 'column',
             gap: 4,
-            minWidth: { xs: '100%', sm: '60%' },
+            minWidth: { xs: '100%', sm: '60%' }
           }}
         >
           <Box sx={{ width: { xs: '100%', sm: '60%' } }}>
@@ -78,7 +78,7 @@ export default function Footer() {
                 placeholder="Your email address"
                 inputProps={{
                   autoComplete: 'off',
-                  'aria-label': 'Enter your email address',
+                  'aria-label': 'Enter your email address'
                 }}
               />
               <Button variant="contained" color="primary" sx={{ flexShrink: 0 }}>
@@ -91,20 +91,20 @@ export default function Footer() {
           sx={{
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
-            gap: 1,
+            gap: 1
           }}
         >
           <Typography variant="body2" fontWeight={600}>
             Product
           </Typography>
           <Link color="text.secondary" href="#">
-            Features
+            Student
           </Link>
           <Link color="text.secondary" href="#">
-            Testimonials
+            University
           </Link>
           <Link color="text.secondary" href="#">
-            Highlights
+            Testimonals
           </Link>
           <Link color="text.secondary" href="#">
             Pricing
@@ -117,7 +117,7 @@ export default function Footer() {
           sx={{
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
-            gap: 1,
+            gap: 1
           }}
         >
           <Typography variant="body2" fontWeight={600}>
@@ -137,19 +137,16 @@ export default function Footer() {
           sx={{
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
-            gap: 1,
+            gap: 1
           }}
         >
           <Typography variant="body2" fontWeight={600}>
             Legal
           </Typography>
-          <Link color="text.secondary" href="#">
+          <Link color="text.secondary" href="/terms-and-conditions">
             Terms
           </Link>
-          <Link color="text.secondary" href="#">
-            Privacy
-          </Link>
-          <Link color="text.secondary" href="#">
+          <Link color="text.secondary" href="/terms-and-conditions">
             Contact
           </Link>
         </Box>
@@ -161,7 +158,7 @@ export default function Footer() {
           pt: { xs: 4, sm: 8 },
           width: '100%',
           borderTop: '1px solid',
-          borderColor: 'divider',
+          borderColor: 'divider'
         }}
       >
         <div>
@@ -182,7 +179,7 @@ export default function Footer() {
           spacing={1}
           useFlexGap
           sx={{
-            color: 'text.secondary',
+            color: 'text.secondary'
           }}
         >
           <IconButton

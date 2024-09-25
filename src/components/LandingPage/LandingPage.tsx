@@ -4,7 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { motion, useScroll, useSpring } from "framer-motion"; // Import framer-motion
+import { motion, useScroll, useSpring } from 'framer-motion'; // Import framer-motion
 import AppAppBar from './AppAppBar';
 import Hero from './Hero';
 import LogoCollection from './LogoCollection';
@@ -26,7 +26,7 @@ export default function LandingPage() {
   const defaultTheme = createTheme({ palette: { mode } });
 
   const toggleColorMode = () => {
-    setMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    setMode(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   // Framer-motion scroll tracking
@@ -45,7 +45,6 @@ export default function LandingPage() {
       <ThemeProvider theme={showCustomTheme ? LPtheme : defaultTheme}>
         <CssBaseline />
         <AppAppBar mode={mode} toggleColorMode={toggleColorMode} />
-
         {/* Hero Section */}
         <Hero /> {/* Fix video box in hero */}
         <Box sx={{ bgcolor: 'background.default' }}>
@@ -53,14 +52,14 @@ export default function LandingPage() {
           <Student />
           <Divider />
           <University />
-          {/* <Divider />
+          <Divider />
           <Testimonials />
-          <Divider />
+          {/* <Divider />
           <Highlights />
+          <Divider /> */}
+          {/* <Pricing /> */}
           <Divider />
-          <Pricing /> */}
-          <Divider />
-          {/* <FAQ /> */}
+          <FAQ />
           <Divider />
           <Footer />
         </Box>

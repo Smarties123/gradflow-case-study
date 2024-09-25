@@ -17,29 +17,28 @@ import './Styles/Student.css';
 import 'animate.css';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-
 const items = [
   {
     icon: <ViewQuiltRoundedIcon />,
     title: 'Panel',
     description: 'Snapshot of the most important metrics or data points related to the product.',
     imageLight: 'url("/static/images/templates/templates-images/dash-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/dash-dark.png")',
+    imageDark: 'url("/static/images/templates/templates-images/dash-dark.png")'
   },
   {
     icon: <EdgesensorHighRoundedIcon />,
     title: 'Quick Add (Potential Job Add Feature)',
     description: 'Information about the mobile app version of the product.',
     imageLight: 'url("/static/images/templates/templates-images/mobile-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/mobile-dark.png")',
+    imageDark: 'url("/static/images/templates/templates-images/mobile-dark.png")'
   },
   {
     icon: <DevicesRoundedIcon />,
     title: '(Another potential feature)',
     description: 'Available on web, mobile, and desktop.',
     imageLight: 'url("/static/images/templates/templates-images/devices-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/devices-dark.png")',
-  },
+    imageDark: 'url("/static/images/templates/templates-images/devices-dark.png")'
+  }
 ];
 
 export default function Student() {
@@ -59,9 +58,17 @@ export default function Student() {
             The GradFlow Terminal
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: { xs: 2, sm: 4 } }}>
-            The Terminal by GradFlow transcends traditional spreadsheets with customizable tiles for each job application, proactive alerts, and drag-and-drop organization.
+            The Terminal by GradFlow transcends traditional spreadsheets with customizable tiles for
+            each job application, proactive alerts, and drag-and-drop organization.
           </Typography>
-          <Stack direction="column" justifyContent="center" alignItems="flex-start" spacing={2} useFlexGap sx={{ width: '100%' }}>
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="flex-start"
+            spacing={2}
+            useFlexGap
+            sx={{ width: '100%' }}
+          >
             {items.map(({ icon, title, description }, index) => (
               <AnimatedItem
                 key={index}
@@ -76,17 +83,25 @@ export default function Student() {
           </Stack>
         </Grid>
         <Grid item xs={12} md={6} sx={{ display: { xs: 'none', sm: 'flex' }, width: '100%' }}>
-          <Card variant="outlined" sx={{ height: '100%', width: '100%', display: { xs: 'none', sm: 'flex' }, pointerEvents: 'none' }}>
+          <Card
+            variant="outlined"
+            sx={{
+              height: '100%',
+              width: '100%',
+              display: { xs: 'none', sm: 'flex' },
+              pointerEvents: 'none'
+            }}
+          >
             <Box
               sx={{
                 m: 'auto',
                 width: 420,
                 height: 500,
                 backgroundSize: 'contain',
-                backgroundImage: (theme) =>
+                backgroundImage: theme =>
                   theme.palette.mode === 'light'
                     ? items[selectedItemIndex].imageLight
-                    : items[selectedItemIndex].imageDark,
+                    : items[selectedItemIndex].imageDark
               }}
             />
           </Card>
@@ -98,15 +113,23 @@ export default function Student() {
 
 function AnimatedItem({ icon, title, description, index, selectedItemIndex, handleItemClick }) {
   const { ref, inView } = useInView({ threshold: 0.1 });
-  const isMobile = useMediaQuery('(max-width:600px)'); // Check if screen size is mobile
+  const isMobile = useMediaQuery('(max-width:600px)');
 
+  // State to track if the item has been in view once
+  const [hasBeenInView, setHasBeenInView] = React.useState(false);
 
+  // Update the state when the element is in view for the first time
+  React.useEffect(() => {
+    if (inView && !hasBeenInView) {
+      setHasBeenInView(true);
+    }
+  }, [inView, hasBeenInView]);
 
   return (
     <Card
       ref={ref}
       variant="outlined"
-      className={isMobile ? '' : inView ? 'fade-in' : 'fade-out'} // Disable animation for mobile
+      className={isMobile ? '' : hasBeenInView ? 'fade-in' : 'fade-out'} // Apply animation only once
       onClick={() => handleItemClick(index)}
       sx={{
         p: 3,
@@ -114,15 +137,24 @@ function AnimatedItem({ icon, title, description, index, selectedItemIndex, hand
         width: '100%',
         background: 'none',
         backgroundColor: selectedItemIndex === index ? 'action.selected' : undefined,
-        borderColor: (theme) =>
+        borderColor: theme =>
           selectedItemIndex === index
             ? 'primary.light'
             : theme.palette.mode === 'light'
-              ? 'grey.200'
-              : 'grey.800',
+            ? 'grey.200'
+            : 'grey.800'
       }}
     >
-      <Box sx={{ width: '100%', display: 'flex', textAlign: 'left', flexDirection: 'row', alignItems: 'center', gap: 2.5 }}>
+      <Box
+        sx={{
+          width: '100%',
+          display: 'flex',
+          textAlign: 'left',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 2.5
+        }}
+      >
         <Box sx={{ color: selectedItemIndex === index ? 'primary.main' : 'grey.300' }}>{icon}</Box>
         <Box sx={{ textTransform: 'none' }}>
           <Typography color="text.primary" variant="body2" fontWeight="bold">
@@ -137,7 +169,7 @@ function AnimatedItem({ icon, title, description, index, selectedItemIndex, hand
               alignItems: 'center',
               color: 'primary',
               '& > svg': { transition: '0.2s' },
-              '&:hover > svg': { transform: 'translateX(2px)' },
+              '&:hover > svg': { transform: 'translateX(2px)' }
             }}
           >
             <span>Learn more</span>

@@ -42,71 +42,75 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
         );
     };
 
-    const onDragEnd = async (result: any) => {
-        const { source, destination } = result;
-      
-        // Exit if there's no destination (item dropped outside)
-        if (!destination) return;
-      
-        const startColumn = columns.find(col => col.id === parseInt(source.droppableId));
-        const finishColumn = columns.find(col => col.id === parseInt(destination.droppableId));
-      
-        if (!startColumn || !finishColumn) return;
-      
+    const onDragEnd = async (result) => {
+      const { source, destination } = result;
+    
+      if (!destination) {
+        return; // Dropped outside any droppable
+      }
+    
+      const startColumn = columns.find(col => col.id === parseInt(source.droppableId));
+      const finishColumn = columns.find(col => col.id === parseInt(destination.droppableId));
+    
+      if (!startColumn || !finishColumn) {
+        return;
+      }
+    
+      // Moving within the same column
+      if (startColumn === finishColumn) {
+        const updatedCards = Array.from(startColumn.cards);
+        const [movedCard] = updatedCards.splice(source.index, 1);
+        updatedCards.splice(destination.index, 0, movedCard);
+    
+        const updatedColumn = { ...startColumn, cards: updatedCards };
+    
+        setColumns(prevColumns =>
+          prevColumns.map(col => (col.id === updatedColumn.id ? updatedColumn : col))
+        );
+      } else {
+        // Moving between columns
         const startCards = Array.from(startColumn.cards);
-        const [movedCard] = startCards.splice(source.index, 1); // Remove the card from its original column
-      
-        if (startColumn === finishColumn) {
-          startCards.splice(destination.index, 0, movedCard);
-          const newColumn = { ...startColumn, cards: startCards };
-          setColumns(prevColumns =>
-            prevColumns.map(col => (col.id === newColumn.id ? newColumn : col))
-          );
-        } else {
-          const finishCards = Array.from(finishColumn.cards);
-          finishCards.splice(destination.index, 0, movedCard);
-      
-          const newStartColumn = { ...startColumn, cards: startCards };
-          const newFinishColumn = { ...finishColumn, cards: finishCards };
-      
-          setColumns(prevColumns =>
-            prevColumns.map(col => {
-              if (col.id === newStartColumn.id) return newStartColumn;
-              if (col.id === newFinishColumn.id) return newFinishColumn;
-              return col;
-            })
-          );
+        const finishCards = Array.from(finishColumn.cards);
+        const [movedCard] = startCards.splice(source.index, 1);
+    
+        finishCards.splice(destination.index, 0, movedCard);
+    
+        const updatedStartColumn = { ...startColumn, cards: startCards };
+        const updatedFinishColumn = { ...finishColumn, cards: finishCards };
+    
+        setColumns(prevColumns =>
+          prevColumns.map(col => {
+            if (col.id === updatedStartColumn.id) return updatedStartColumn;
+            if (col.id === updatedFinishColumn.id) return updatedFinishColumn;
+            return col;
+          })
+        );
+      }
+    
+      // Update the backend
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${result.draggableId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${user.token}`,
+          },
+          body: JSON.stringify({
+            statusId: destination.droppableId,  // Update statusId based on new column
+          }),
+        });
+    
+        if (!response.ok) {
+          throw new Error('Failed to update application status');
         }
-      
-        try {
-          // Ensure the user token is available
-          if (!user || !user.token) {
-            throw new Error('User not authenticated');
-          }
-      
-          // Send the updated StatusId to the backend
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${movedCard.id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${user.token}`,
-            },
-            body: JSON.stringify({
-              statusId: finishColumn.id, // Send the new statusId based on the column's id
-            }),
-          });
-      
-          if (!response.ok) {
-            throw new Error('Failed to update application status');
-          }
-      
-          const updatedApplication = await response.json();
-          console.log('Application status updated:', updatedApplication);
-      
-        } catch (error) {
-          console.error('Error updating status:', error);
-        }
-      };
+    
+        console.log('Application status updated:', await response.json());
+      } catch (error) {
+        console.error('Error updating status:', error);
+      }
+    };
+    
+    
       
       
       
