@@ -16,7 +16,6 @@ import ViewQuiltRoundedIcon from '@mui/icons-material/ViewQuiltRounded';
 import './Styles/University.css';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
-
 const items = [
   {
     icon: <ViewQuiltRoundedIcon />,
@@ -148,14 +147,23 @@ export default function University() {
 
 function AnimatedItem({ icon, title, description, index, selectedItemIndex, handleItemClick }) {
   const { ref, inView } = useInView({ threshold: 0.1 });
-  const isMobile = useMediaQuery('(max-width:600px)'); // Check if screen size is mobile
+  const isMobile = useMediaQuery('(max-width:600px)');
 
+  // State to track if the item has been in view once
+  const [hasBeenInView, setHasBeenInView] = React.useState(false);
+
+  // Trigger the animation only once
+  React.useEffect(() => {
+    if (inView && !hasBeenInView) {
+      setHasBeenInView(true);
+    }
+  }, [inView, hasBeenInView]);
 
   return (
     <Card
       ref={ref}
       variant="outlined"
-      className={isMobile ? '' : inView ? 'fade-in' : 'fade-out'} // Disable animation for mobile
+      className={isMobile ? '' : hasBeenInView ? 'fade-in' : 'fade-out'} // Apply animation only once
       onClick={() => handleItemClick(index)}
       sx={{
         p: 3,
@@ -167,8 +175,8 @@ function AnimatedItem({ icon, title, description, index, selectedItemIndex, hand
           selectedItemIndex === index
             ? 'primary.light'
             : theme.palette.mode === 'light'
-              ? 'grey.200'
-              : 'grey.800'
+            ? 'grey.200'
+            : 'grey.800'
       }}
     >
       <Box

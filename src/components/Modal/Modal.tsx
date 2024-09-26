@@ -64,7 +64,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             setShowSuggestions(false);  // Hide the suggestions if input is too short
         }
     }, [company, suggestionSelected]);  // Include suggestionSelected in the dependency array
-    
+
     // Handle suggestion click to select the suggestion
     const handleSuggestionClick = (suggestion) => {
         setCompany(suggestion.name);
@@ -72,7 +72,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
         setShowSuggestions(false);  // Hide the dropdown
         setSuggestionSelected(true);  // Set the flag to true once a suggestion is selected
     };
-       
+
     // Handle blur event to save only text without logo and URL when user clicks offscreen
     const handleBlur = (e) => {
         if (!companySuggestions.length || !showSuggestions) {
@@ -106,8 +106,8 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
 
 
 
-    
-    
+
+
     const validateForm = () => {
         const newErrors = {};
         if (!company) newErrors.company = 'Company is required';
@@ -151,7 +151,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 userId: user ? user.id : null,
                 statusId: activeColumn ? activeColumn.id : selectedColumn,
             };
-    
+
             try {
                 const response = await fetch(`${process.env.REACT_APP_API_URL}/addjob`, {
                     method: 'POST',
@@ -161,7 +161,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     },
                     body: JSON.stringify(card),
                 });
-    
+
                 if (response.ok) {
                     addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card);
                     onClose();
@@ -173,11 +173,11 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             }
         }
     };
-    
-    
-    
-    
-    
+
+
+
+
+
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -286,7 +286,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             </select>
                         </div>
                     )}
-                  
+
                     {/* Color Picker as an Input */}
                     <div className="input-wrapper" style={{ position: 'relative' }}>
                         <label className="bordered-label">Card Color</label>
@@ -294,24 +294,25 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                         <div
                             className="color-selector-box"
                             style={{
-                                backgroundColor: selectedColor, 
-                                width: '100%', 
-                                height: '40px', 
-                                cursor: 'pointer', 
-                                borderRadius: '4px', 
-                                border: '1px solid #ccc'
+                                backgroundColor: selectedColor,
+                                width: '100%',
+                                height: '40px',
+                                cursor: 'pointer',
+                                borderRadius: '4px',
+                                border: '1px solid #ccc',
+                                marginTop: '20px',
                             }}
                             onClick={toggleColorPicker}
                         ></div>
                         {/* Conditionally render color picker */}
                         {isColorPickerOpen && (
-                            <div className="color-picker-dropdown" 
+                            <div className="color-picker-dropdown"
                                 style={{
-                                    position: 'absolute', 
-                                    top: '100%', 
-                                    left: 0, 
-                                    zIndex: 1000, 
-                                    marginTop: '5px', 
+                                    position: 'absolute',
+                                    top: '100%',
+                                    left: 0,
+                                    zIndex: 1000,
+                                    marginTop: '5px',
                                     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
                                 }}
                             >
@@ -319,7 +320,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             </div>
                         )}
                     </div>
-                    
+
                     <div className="modal-buttons">
                         <button type="button" className="cancel-button" onClick={onClose}>
                             Cancel

@@ -14,7 +14,8 @@ import ForgotPassword from './components/ForgotPassword/ForgotPassword';
 import ResetPassword from './components/ForgotPassword/ResetPassword';
 import { UserProvider, useUser } from './components/User/UserContext';
 import { BoardProvider } from './pages/board/BoardContext';
-import TermsAndConditions from './components/LandingPage/TermsAndConditions';  // Import TermsAndConditions component
+import TermsAndConditions from './components/LandingPage/TermsAndConditions'; // Import TermsAndConditions component
+import ComingSoon from './components/ComingSoon/ComingSoon';
 
 const App = () => {
   const { user } = useUser(); // Extract user from the context
@@ -28,10 +29,9 @@ const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-
         {/* Terms and Conditions Page */}
-        <Route path="/terms-and-conditions" element={<TermsAndConditions />} /> {/* Add this route */}
-
+        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />{' '}
+        {/* Add this route */}
         {/* Routes that require UserContext */}
         <Route
           path="/main"
@@ -48,9 +48,9 @@ const App = () => {
           <Route path="/main/dashboard" element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
         </Route>
-
         {/* Catch-all for 404 Errors */}
         <Route path="*" element={<Error404Page />} />
+        <Route path="/comingsoon" element={<ComingSoon />} />
       </Routes>
     </IntlProvider>
   );
