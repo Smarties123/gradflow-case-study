@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Button, Grid, Row, Col, SelectPicker } from 'rsuite';
+import { useUser } from '@/components/User/UserContext'; // Import useUser to get the user
 const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea" ref={ref} />);
 import Github from '@uiw/react-color-github';
 import './DrawerView.less';
 import dayjs from 'dayjs';
 
-const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus, statuses }) => {
-    const [currentView, setCurrentView] = useState('details');
 
+const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus, statuses, updateStatusLocally }) => {
+    const [currentView, setCurrentView] = useState('details');
+    const { user } = useUser(); // Get the user object
+    
     const parseDate = (dateStr) => {
         return dateStr ? dayjs(dateStr).toDate() : null;
     };
@@ -38,22 +41,79 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
         }
     }, [card.deadline]);
 
+    useEffect(() => {
+        window.addEventListener('error', (e) => {
+            if (e.message.includes('ResizeObserver loop completed')) {
+                e.preventDefault();
+            }
+        });
+    }, []);
+
     const handleChange = (value, name) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
+    
 
     const handleColorChange = card_color => {
         setFormData(prev => ({ ...prev, card_color: card_color.hex }));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const updatedData = {
-            ...formData,
-            date_applied: dayjs(formData.date_applied).format('YYYY-MM-DD'),
+            company: formData.company || card.company, 
+            position: formData.position || card.position,
+            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : card.deadline,
+            location: formData.location || card.location,
+            url: formData.url || card.url,
+            notes: formData.notes || card.notes,
+            salary: formData.salary || card.salary,
+            interview_stage: formData.interview_stage || card.interview_stage,
+            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : card.date_applied,
+            card_color: formData.card_color || card.card_color,
+            statusId: formData.StatusId || card.StatusId // Ensure StatusId is always included
         };
-        updateCard(card.id, updatedData);
-        onClose();
+    
+        try {
+            if (!user || !user.token) {
+                throw new Error('User not authenticated');
+            }
+    
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${card.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`,
+                },
+                body: JSON.stringify(updatedData),
+            });
+    
+            if (response.ok) {
+                const updatedCard = await response.json();
+                console.log('Card updated:', updatedCard);
+    
+                // Check if the status has changed and update the card's location accordingly
+                if (updatedData.statusId !== card.StatusId) {
+                    updateStatusLocally(card.id, updatedData.statusId);  // Use the function passed via props
+                } else {
+                    updateCard(card.id, updatedData);  // Update the card details in local state
+                }
+    
+                onClose(); // Close the drawer
+            } else {
+                const errorText = await response.text();
+                console.error('Failed to update the card:', errorText);
+            }
+        } catch (error) {
+            console.error('Error updating card:', error);
+        }
     };
+    
+    
+    
+    
+    
+    
+    
 
     return (
         <Drawer open={show} onClose={onClose} size="sm">
@@ -131,10 +191,10 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                 <Col xs={24} sm={12}>
                                     <Form.Group controlId="columnName" className="form-group">
                                         <Form.ControlLabel className="formControlLabel">Status</Form.ControlLabel>
-                                            <SelectPicker
-                                            name="columnName"
-                                            value={card.StatusId} // Use card.StatusId to track the current status
-                                            onChange={value => updateStatus(value)} // Update status with the new StatusId
+                                        <SelectPicker
+                                            name="StatusId"
+                                            value={formData.StatusId || card.StatusId} // Reflect the current status
+                                            onChange={(value) => handleChange(value, 'StatusId')} // Update formData when a new status is selected
                                             data={statuses.map(status => ({
                                                 label: status.StatusName,
                                                 value: status.StatusId
@@ -142,7 +202,10 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                             className="full-width"
                                             placeholder="Select Status"
                                             searchable={false}
-                                            />
+                                        />
+
+
+
 
                                     </Form.Group>
                                 </Col>
