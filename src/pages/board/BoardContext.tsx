@@ -67,8 +67,6 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
     });
 };
 
-  
-
     const onDragEnd = async (result) => {
       const { source, destination } = result;
     
@@ -94,36 +92,6 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
         setColumns(prevColumns =>
           prevColumns.map(col => (col.id === updatedColumn.id ? updatedColumn : col))
         );
-
-
-    };
-
-    const onDragEnd = async (result) => {
-      const { source, destination } = result;
-    
-      if (!destination) {
-        return; // Dropped outside any droppable
-      }
-    
-      const startColumn = columns.find(col => col.id === parseInt(source.droppableId));
-      const finishColumn = columns.find(col => col.id === parseInt(destination.droppableId));
-    
-      if (!startColumn || !finishColumn) {
-        return;
-      }
-    
-      // Moving within the same column
-      if (startColumn === finishColumn) {
-        const updatedCards = Array.from(startColumn.cards);
-        const [movedCard] = updatedCards.splice(source.index, 1);
-        updatedCards.splice(destination.index, 0, movedCard);
-    
-        const updatedColumn = { ...startColumn, cards: updatedCards };
-    
-        setColumns(prevColumns =>
-          prevColumns.map(col => (col.id === updatedColumn.id ? updatedColumn : col))
-        );
-
       } else {
         // Moving between columns
         const startCards = Array.from(startColumn.cards);
@@ -157,24 +125,17 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
             statusId: destination.droppableId,  // Update statusId based on new column
           }),
         });
-        console.log("Updating status of application with ID:", id);  // Add this in `updateApplicationStatus`
+        console.log("Updating status of application with ID:", result.draggableId);
 
-    
         if (!response.ok) {
           throw new Error('Failed to update application status');
         }
-    
+
         console.log('Application status updated:', await response.json());
       } catch (error) {
         console.error('Error updating status:', error);
       }
     };
-    
-    
-      
-      
-      
-      
 
     return (
       <BoardContext.Provider value={{ columns, setColumns, addCardToColumn, updateCard, onDragEnd, updateStatusLocally }}>
