@@ -190,6 +190,10 @@ const Board: React.FC = () => {
 
 
 
+  
+
+
+
   //TO DO: SPINNERS FOR LOADING and Proper ERROR Pages
   // if (loading) {
   //   return <div>Loading...</div>;
@@ -203,7 +207,7 @@ const Board: React.FC = () => {
     console.error('BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.');
   }
 
-  const { columns, setColumns, updateCard, onDragEnd } = context!;
+  const { columns, setColumns, updateCard, onDragEnd, updateStatusLocally } = context!;
 
   if (!columns) {
     console.error('Columns are not defined in context.');
@@ -350,6 +354,7 @@ const Board: React.FC = () => {
         });
     }
   };
+  
 
 
 
@@ -488,6 +493,23 @@ const Board: React.FC = () => {
   };
 
 
+  const handleUpdateStatus = (newStatus) => {
+    if (selectedCard) {
+        const updatedCard = { ...selectedCard, status: newStatus };
+        setSelectedCard(updatedCard); // Update the selected card's status
+        setColumns(prevColumns =>
+            prevColumns.map(column => ({
+                ...column,
+                cards: column.cards.map(card =>
+                    card.id === updatedCard.id ? { ...card, status: newStatus } : card
+                )
+            }))
+        );
+    }
+};
+
+
+
 
 
 
@@ -594,13 +616,21 @@ const Board: React.FC = () => {
 
         {/* Drawer View */}
         {isDrawerOpen && selectedCard && (
-          <DrawerView
+        <DrawerView
             show={isDrawerOpen}
             onClose={() => setIsDrawerOpen(false)}
             card={selectedCard}
             updateCard={updateCard}
+            updateStatusLocally={updateStatusLocally}  // Pass it here
             columnName={selectedCard.columnName}
-          />
+            updateStatus={handleUpdateStatus}
+            statuses={columns.map(col => ({ StatusId: col.id, StatusName: col.title }))}
+        />
+
+
+
+
+
         )}
 
         {/* Moving Column */}

@@ -32,14 +32,70 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
     };
 
     const updateCard = (id: number, updatedData: Partial<Card>) => {
+      setColumns(prevColumns =>
+          prevColumns.map(col => {
+              const updatedCards = col.cards.map(card =>
+                  card.id === id ? { ...card, ...updatedData } : card
+              );
+              return { ...col, cards: updatedCards };
+          })
+      );
+  };
+
+  const updateStatusLocally = (cardId: number, newStatusId: number) => {
+    setColumns(prevColumns => {
+        let movedCard: Card | null = null;
+
+        // Remove the card from the old column
+        const updatedColumns = prevColumns.map(column => {
+            if (column.cards.some(card => card.id === cardId)) {
+                movedCard = column.cards.find(card => card.id === cardId) || null;
+                return { ...column, cards: column.cards.filter(card => card.id !== cardId) };
+            }
+            return column;
+        });
+
+        if (!movedCard) return prevColumns; // If no card found, return original columns
+
+        // Add the card to the new column
+        return updatedColumns.map(column => {
+            if (column.id === newStatusId) {
+                return { ...column, cards: [...column.cards, { ...movedCard, StatusId: newStatusId }] };
+            }
+            return column;
+        });
+    });
+};
+
+  
+
+    const onDragEnd = async (result) => {
+      const { source, destination } = result;
+    
+      if (!destination) {
+        return; // Dropped outside any droppable
+      }
+    
+      const startColumn = columns.find(col => col.id === parseInt(source.droppableId));
+      const finishColumn = columns.find(col => col.id === parseInt(destination.droppableId));
+    
+      if (!startColumn || !finishColumn) {
+        return;
+      }
+    
+      // Moving within the same column
+      if (startColumn === finishColumn) {
+        const updatedCards = Array.from(startColumn.cards);
+        const [movedCard] = updatedCards.splice(source.index, 1);
+        updatedCards.splice(destination.index, 0, movedCard);
+    
+        const updatedColumn = { ...startColumn, cards: updatedCards };
+    
         setColumns(prevColumns =>
-            prevColumns.map(col => {
-                const updatedCards = col.cards.map(card =>
-                    card.id === id ? { ...card, ...updatedData, Favourite: updatedData.Favourite || card.Favourite } : card
-                );
-                return { ...col, cards: updatedCards };
-            })
+          prevColumns.map(col => (col.id === updatedColumn.id ? updatedColumn : col))
         );
+
+
     };
 
     const onDragEnd = async (result) => {
@@ -67,6 +123,7 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
         setColumns(prevColumns =>
           prevColumns.map(col => (col.id === updatedColumn.id ? updatedColumn : col))
         );
+
       } else {
         // Moving between columns
         const startCards = Array.from(startColumn.cards);
@@ -89,8 +146,9 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
     
       // Update the backend
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${result.draggableId}`, {
-          method: 'PUT',
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${result.draggableId}/status`, {
+          method: 'PUT',  // Now using the status-specific update route
+
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${user.token}`,
@@ -99,6 +157,8 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
             statusId: destination.droppableId,  // Update statusId based on new column
           }),
         });
+        console.log("Updating status of application with ID:", id);  // Add this in `updateApplicationStatus`
+
     
         if (!response.ok) {
           throw new Error('Failed to update application status');
@@ -117,8 +177,8 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
       
 
     return (
-        <BoardContext.Provider value={{ columns, setColumns, addCardToColumn, updateCard, onDragEnd }}>
-            {children}
-        </BoardContext.Provider>
-    );
+      <BoardContext.Provider value={{ columns, setColumns, addCardToColumn, updateCard, onDragEnd, updateStatusLocally }}>
+          {children}
+      </BoardContext.Provider>
+  );
 };
