@@ -101,17 +101,17 @@ const Frame = () => {
                   animate={animate} // Pass the animate state
                 />
                 <NavItem
-                  title="Contacts"
-                  to="/comingsoon"
-                  eventKey="contacts"
-                  icon={<Icon as={MdContacts} />}
-                  animate={animate} // Pass the animate state
-                />
-                <NavItem
                   title="Dashboard"
                   to="/main/dashboard"
                   eventKey="dashboard"
                   icon={<Icon as={MdDashboard} />}
+                  animate={animate} // Pass the animate state
+                />
+                <NavItem
+                  title="Contacts"
+                  to="/comingsoon"
+                  eventKey="contacts"
+                  icon={<Icon as={MdContacts} />}
                   animate={animate} // Pass the animate state
                 />
                 <NavItem
