@@ -44,7 +44,55 @@ export const getApplications = async (req, res) => {
   }
 };
 
-// Update application status (when moving cards)
+// Update general application details
+export const updateApplication = async (req, res) => {
+  const { id } = req.params;
+  const { company, position, salary, notes, deadline, location, url, card_color, date_applied, interview_stage, statusId } = req.body; // Add statusId here
+  const userId = req.user.userId;
+
+  try {
+    const query = `
+      UPDATE "Application"
+      SET "CompanyName" = $1, "JobName" = $2, "Salary" = $3, "Notes" = $4, "Deadline" = $5, 
+          "Location" = $6, "CompanyURL" = $7, "Color" = $8, "DateApplied" = $9, "Interview" = $10, "StatusId" = $11
+      WHERE "ApplicationId" = $12 AND "UserId" = $13
+      RETURNING *;
+    `;
+    const values = [
+      company || null,
+      position || null,
+      salary !== undefined ? salary : null,
+      notes || null,
+      deadline || null,
+      location || null,
+      url || null,
+      card_color || null,
+      date_applied || null,
+      interview_stage || null,
+      statusId || null,  // Add statusId here
+      id,
+      userId
+    ];
+
+    const { rows } = await pool.query(query, values);
+
+    if (rows.length > 0) {
+      res.status(200).json({ message: 'Application updated successfully', application: rows[0] });
+    } else {
+      res.status(404).json({ message: 'Application not found' });
+    }
+  } catch (error) {
+    console.error('Error updating application:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+
+
+
+
 export const updateApplicationStatus = async (req, res) => {
   const { id } = req.params;
   const { statusId } = req.body;

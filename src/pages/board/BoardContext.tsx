@@ -32,15 +32,40 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
     };
 
     const updateCard = (id: number, updatedData: Partial<Card>) => {
-        setColumns(prevColumns =>
-            prevColumns.map(col => {
-                const updatedCards = col.cards.map(card =>
-                    card.id === id ? { ...card, ...updatedData, Favourite: updatedData.Favourite || card.Favourite } : card
-                );
-                return { ...col, cards: updatedCards };
-            })
-        );
-    };
+      setColumns(prevColumns =>
+          prevColumns.map(col => {
+              const updatedCards = col.cards.map(card =>
+                  card.id === id ? { ...card, ...updatedData } : card
+              );
+              return { ...col, cards: updatedCards };
+          })
+      );
+  };
+
+  const updateStatusLocally = (cardId: number, newStatusId: number) => {
+    setColumns(prevColumns => {
+        let movedCard: Card | null = null;
+
+        // Remove the card from the old column
+        const updatedColumns = prevColumns.map(column => {
+            if (column.cards.some(card => card.id === cardId)) {
+                movedCard = column.cards.find(card => card.id === cardId) || null;
+                return { ...column, cards: column.cards.filter(card => card.id !== cardId) };
+            }
+            return column;
+        });
+
+        if (!movedCard) return prevColumns; // If no card found, return original columns
+
+        // Add the card to the new column
+        return updatedColumns.map(column => {
+            if (column.id === newStatusId) {
+                return { ...column, cards: [...column.cards, { ...movedCard, StatusId: newStatusId }] };
+            }
+            return column;
+        });
+    });
+};
 
     const onDragEnd = async (result) => {
       const { source, destination } = result;
@@ -89,8 +114,9 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
     
       // Update the backend
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${result.draggableId}`, {
-          method: 'PUT',
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${result.draggableId}/status`, {
+          method: 'PUT',  // Now using the status-specific update route
+
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${user.token}`,
@@ -99,26 +125,21 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
             statusId: destination.droppableId,  // Update statusId based on new column
           }),
         });
-    
+        console.log("Updating status of application with ID:", result.draggableId);
+
         if (!response.ok) {
           throw new Error('Failed to update application status');
         }
-    
+
         console.log('Application status updated:', await response.json());
       } catch (error) {
         console.error('Error updating status:', error);
       }
     };
-    
-    
-      
-      
-      
-      
 
     return (
-        <BoardContext.Provider value={{ columns, setColumns, addCardToColumn, updateCard, onDragEnd }}>
-            {children}
-        </BoardContext.Provider>
-    );
+      <BoardContext.Provider value={{ columns, setColumns, addCardToColumn, updateCard, onDragEnd, updateStatusLocally }}>
+          {children}
+      </BoardContext.Provider>
+  );
 };
