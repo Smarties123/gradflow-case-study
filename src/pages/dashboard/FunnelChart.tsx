@@ -14,43 +14,66 @@ interface FunnelChartProps {
   mode: 'light' | 'dark'; // Mode prop to handle light or dark mode
 }
 
-const CustomLabel: React.FC<{ x: number, y: number, value: any, name: string, percent: number, mode: 'light' | 'dark' }> = ({ x, y, name, percent, mode }) => {
+const CustomLabel: React.FC<{ x: number, y: number, name: string, percent: number }> = ({ x, y, name, percent }) => {
   return (
     <g>
-      <text id="label" x={195} y={y + 30} textAnchor="middle" dominantBaseline="middle">
-        {name}: {percent}%
+      <text
+        x={x}
+        y={y - 5}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        style={{ fill: '#fff', fontSize: 12 }} // Percentage text in white
+      >
+        {percent}%
       </text>
     </g>
   );
 };
 
 const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode }) => {
+  // Filter out entries with a value of 0
+  const filteredData = data.filter(entry => entry.value !== 0);
+
   return (
     <div className={mode === 'light' ? 'rs-theme-light' : 'rs-theme-dark'}>
       <h4>{title}</h4>
-      {data.length > 0 ? (
+      {filteredData.length > 0 ? (
         <RechartsFunnelChart width={400} height={250}>
-          <Tooltip />
-          <Funnel dataKey="value" data={data} isAnimationActive>
-            {data.map((entry, index) => (
+          <Tooltip
+            formatter={(value, name) => [value, name]}
+            contentStyle={{}}
+          />
+          <Funnel dataKey="value" data={filteredData} isAnimationActive>
+            {filteredData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.value === 0 ? 'rgba(255, 255, 255, 0.2)' : entry.color}
-                stroke={entry.value === 0 ? '#FFF' : 'none'}
-                strokeWidth={entry.value === 0 ? 2 : 0}
+                fill={entry.color}
+                stroke="black"
+                strokeWidth={mode === 'light' ? 1 : 0} // Add stroke for contrast in light mode
+                style={{
+                  transition: 'fill 0.3s ease',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.fill = '#ccc9c2'; // Change background to white on hover
+                  e.target.style.stroke = entry.color; // Change stroke to original color for contrast
+
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.fill = entry.color; // Reset background color on mouse leave
+                  e.target.style.stroke = 'none'; // Remove stroke
+                }}
               />
             ))}
             <LabelList
-              content={({ x, y, value, index }) => {
-                const entry = data[index];
+              content={({ x, y, index }) => {
+                const entry = filteredData[index];
                 return (
                   <CustomLabel
-                    x={x}
-                    y={y}
-                    value={value}
-                    name={entry.name}
+                    x={195}
+                    y={y + 30}
+                    name={entry.name + " " + entry.value}
                     percent={entry.percent}
-                    mode={mode} // Pass mode to CustomLabel
                   />
                 );
               }}
