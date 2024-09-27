@@ -15,6 +15,7 @@
     scrollbar-width: thin;
     scrollbar-color: #ff6200 #1e1e1e;
     flex-grow: 1;
+    scroll-behavior: smooth scroll;
     /* Ensure the board stretches to fit the viewport */
 }
 
@@ -63,6 +64,7 @@
     flex-direction: column;
     white-space: nowrap;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .input-group {
@@ -73,29 +75,43 @@
 
 // /* Styles specifically for the droppable area within each column */
 // .droppable-area {
-//   flex-grow: 1;
-//   // height: 70vh;
+//     flex-grow: 1;
+//     // height: 70vh;
 
-//   /* Adjust this value based on your layout */
-//   overflow: visible;
-//   /* Remove vertical scrolling */
-//   padding: 10px;
-//   // border: 1px solid #ccc;
-//   /* Optional: for visual clarity */
-//   // background-color: #fff;
-//   cursor: auto;
+//     /* Adjust this value based on your layout */
+//     overflow: visible;
+//     /* Remove vertical scrolling */
+//     padding: 10px;
+//     // border: 1px solid #ccc;
+//     /* Optional: for visual clarity */
+//     // background-color: #fff;
+//     cursor: auto;
 // }
 
+// .droppable-area {
+//     flex-grow: 1;
+//     // overflow-y: auto;
+//     // overflow-x: hidden;
+//     /* Enable vertical scrolling */
+
+//     /* Disable horizontal scrolling */
+//     padding: 10px;
+//     max-height: 80vh;
+//     /* Adjust this value as needed */
+// }
 .droppable-area {
     flex-grow: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    /* Enable vertical scrolling */
-
-    /* Disable horizontal scrolling */
+    overflow: visible !important;
     padding: 10px;
-    max-height: 80vh;
-    /* Adjust this value as needed */
+    max-height: calc(100% - 60px); // Adjust based on your column header height
+    position: relative; // Establish a new stacking context
+}
+
+.draggable-card {
+    position: relative;
+    z-index: 1; // Ensure cards are above the droppable area
 }
 
 /* Add custom scrollbar styling */
