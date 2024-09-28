@@ -1,12 +1,9 @@
 import * as React from 'react';
 import { useInView } from 'react-intersection-observer';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
-import Chip from '@mui/material/Chip';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
@@ -20,21 +17,23 @@ const items = [
   {
     icon: <GridViewIcon />,
     title: 'Dashboard',
-    description:
-      'Dive into your personalized Dashboard, where insights and opportunities come together! Track your progress and gain a clear view of your job applications, all in one dynamic hub.',
-    image: 'url("/static/images/templates/templates-images/dash-light.png")',
+    description: 'Dive into your personalized Dashboard, where insights and opportunities come together! Track your progress and gain a clear view of your job applications, all in one dynamic hub.',
+    image: 'url("/LandingPageMedia/Insights - Dashboard.png")',
+    imagePosition: 'center 20px' // Adjusting the position of the dashboard image (move it down slightly)
   },
   {
     icon: <TableRowsIcon />,
     title: 'Table',
     description: 'Discover your data like never before! Our Table feature transforms your insights into an organized and interactive experience, making it easy to analyze and strategize your job search.',
-    image: 'url("/LandingPageMedia/Terminal - Table.png")',
+    image: 'url("/LandingPageMedia/Terminal - Table.png")', // Updated Table image
+    imagePosition: 'left' // No need to move this one
   },
   {
     icon: <TipsAndUpdatesIcon />,
     title: 'Coming Soon',
-    description:
-      'Exciting things are on the horizon! Stay tuned for our upcoming features that will elevate your job application experience to new heights!', image: 'url("/static/images/templates/templates-images/devices-light.png")',
+    description: 'Exciting things are on the horizon! Stay tuned for our upcoming features that will elevate your job application experience to new heights!',
+    image: 'url("/LandingPageMedia/Terminal - Coming Soon.png")',
+    imagePosition: 'center' // Default for coming soon
   }
 ];
 
@@ -47,10 +46,10 @@ export default function University() {
 
   const selectedFeature = items[selectedItemIndex];
 
-
   return (
     <Container id="university" sx={{ py: { xs: 8, sm: 16 } }}>
       <Grid container spacing={6}>
+        {/* Left-hand side: Stack with clickable items */}
         <Grid item xs={12} md={6}>
           <Typography component="h2" variant="h4" color="text.primary">
             Insights
@@ -81,32 +80,47 @@ export default function University() {
             ))}
           </Stack>
         </Grid>
-        <Grid item xs={12} md={6} sx={{ display: { xs: 'none', sm: 'flex' }, width: '100%' }}>
-          <Card
-            variant="outlined"
+
+        {/* Right-hand side: Conditionally render the image based on selected item */}
+        {selectedItemIndex !== null && (
+          <Grid
+            item
+            xs={12}
+            md={6}
             sx={{
-              height: '100%',
-              width: '100%',
               display: { xs: 'none', sm: 'flex' },
-              pointerEvents: 'none'
+              width: '100%',
+              justifyContent: 'flex-start' // Align the image to the left side
             }}
           >
-            <Box
+            <Card
+              variant="outlined"
               sx={{
-                m: 'auto',
-                width: 420,
-                height: 500,
-                backgroundSize: 'contain',
-                backgroundImage: items[selectedItemIndex].image
+                height: '100%',
+                width: '100%',
+                display: { xs: 'none', sm: 'flex' },
+                pointerEvents: 'none',
+                backgroundColor: 'transparent', // Prevent double background
               }}
-            />
-          </Card>
-        </Grid>
+            >
+              <Box
+                sx={{
+                  m: 'auto',
+                  width: '100%',  // Make it responsive
+                  height: '100%', // Fill the card
+                  backgroundSize: 'cover', // Ensure the image fills the card
+                  backgroundPosition: selectedFeature.imagePosition, // Position image based on selected item
+                  backgroundRepeat: 'no-repeat',
+                  backgroundImage: selectedFeature.image, // Use selected feature's image
+                }}
+              />
+            </Card>
+          </Grid>
+        )}
       </Grid>
     </Container>
   );
 }
-
 
 function AnimatedItem({ icon, title, description, index, selectedItemIndex, handleItemClick }) {
   const { ref, inView } = useInView({ threshold: 0.1 });
