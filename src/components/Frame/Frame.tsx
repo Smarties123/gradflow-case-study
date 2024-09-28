@@ -12,9 +12,12 @@ import { HiOutlineViewBoards } from 'react-icons/hi';
 import { LuTable2 } from 'react-icons/lu';
 import { MdContacts, MdDashboard } from 'react-icons/md';
 import { TbFiles } from 'react-icons/tb';
+import FeedbackIcon from '@mui/icons-material/Feedback';
+
 
 import { CiSettings } from 'react-icons/ci';
 import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
+import { handleButtonClick } from '../FeedbackButton/FeedbackButton';
 
 const { getHeight, on } = DOMHelper;
 
@@ -54,7 +57,7 @@ const Frame = () => {
     // Disable animation after first render, extend the time to match the animation
     const timer = setTimeout(() => {
       setAnimate(false); // Disable animation after the first render
-    }, 2000); // Match with your CSS animation duration
+    }, 3000); // Match with your CSS animation duration
 
     return () => {
       resizeListener.off();
@@ -125,6 +128,15 @@ const Frame = () => {
             </Sidenav.Body>
 
             <Nav>
+              {/* Feedback */}
+              <Nav.Item
+                title="Feedback"
+                onClick={handleButtonClick}
+                eventKey="feedback"
+                icon={<Icon as={FeedbackIcon} />}
+              >
+                Feedback
+              </Nav.Item>
               <Nav.Item
                 title="Settings"
                 onClick={() => setShowSettings(true)}

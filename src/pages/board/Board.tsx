@@ -39,18 +39,18 @@ const Board: React.FC = () => {
   // Scroll handler for both horizontal and vertical scroll
   const handleScroll = (e: any) => {
     if (!isDraggingCard) return; // Prevent scroll if not dragging a card
-  
+
     const { clientY, clientX } = e;
     const viewportHeight = window.innerHeight;
     const viewportWidth = window.innerWidth;
-  
+
     // Check the Y axis for scrolling
     if (clientY < SCROLL_ZONE_HEIGHT) {
       startScrolling(0, -SCROLL_STEP); // Scroll up
     } else if (clientY > viewportHeight - SCROLL_ZONE_HEIGHT) {
       startScrolling(0, SCROLL_STEP); // Scroll down
     }
-  
+
     // Check the X axis for scrolling
     if (clientX < SCROLL_ZONE_WIDTH) {
       startScrolling(-SCROLL_STEP, 0); // Scroll left
@@ -58,13 +58,13 @@ const Board: React.FC = () => {
       startScrolling(SCROLL_STEP, 0); // Scroll right
     }
   };
-  
+
 
   // Start scrolling
   const startScrolling = (scrollXAmount: number, scrollYAmount: number) => {
     if (!scrolling) {
       setScrolling(true);
-      scrollAnimationRef.current = window.requestAnimationFrame(() => 
+      scrollAnimationRef.current = window.requestAnimationFrame(() =>
         scrollWindow(scrollXAmount, scrollYAmount)
       );
     }
@@ -157,7 +157,7 @@ const Board: React.FC = () => {
       }
     };
 
-    
+
 
     if (user) {
       fetchApplications();
@@ -190,7 +190,7 @@ const Board: React.FC = () => {
 
 
 
-  
+
 
 
 
@@ -354,7 +354,7 @@ const Board: React.FC = () => {
         });
     }
   };
-  
+
 
 
 
@@ -363,7 +363,7 @@ const Board: React.FC = () => {
 
 
   const onDragStart = () => {
-    setIsDraggingCard(true);  
+    setIsDraggingCard(true);
     window.addEventListener('mousemove', handleScroll); // Add mousemove listener
   };
 
@@ -372,13 +372,13 @@ const Board: React.FC = () => {
     stopScrolling(); // Stop scrolling immediately after the drag ends
     window.removeEventListener('mousemove', handleScroll); // Remove the mousemove listener
     setIsDraggingCard(false); // Ensure the bin icon disappears
-  
+
     if (!result.destination) {
       return; // If dropped outside any column or droppable area
     }
-  
+
     const binDropped = result.destination.droppableId === 'bin';
-    
+
     if (binDropped) {
       const cardId = result.draggableId;
       try {
@@ -388,7 +388,7 @@ const Board: React.FC = () => {
             'Authorization': `Bearer ${user.token}`,
           },
         });
-  
+
         if (response.ok) {
           handleDeleteCard(cardId);
         } else {
@@ -401,9 +401,9 @@ const Board: React.FC = () => {
       context.onDragEnd(result); // Handle card movement between columns
     }
   };
-  
-  
-  
+
+
+
 
 
 
@@ -456,7 +456,7 @@ const Board: React.FC = () => {
       }))
     );
   };
-  
+
 
   // For Adding new Status
   const handleAddNewColumn = async () => {
@@ -495,18 +495,18 @@ const Board: React.FC = () => {
 
   const handleUpdateStatus = (newStatus) => {
     if (selectedCard) {
-        const updatedCard = { ...selectedCard, status: newStatus };
-        setSelectedCard(updatedCard); // Update the selected card's status
-        setColumns(prevColumns =>
-            prevColumns.map(column => ({
-                ...column,
-                cards: column.cards.map(card =>
-                    card.id === updatedCard.id ? { ...card, status: newStatus } : card
-                )
-            }))
-        );
+      const updatedCard = { ...selectedCard, status: newStatus };
+      setSelectedCard(updatedCard); // Update the selected card's status
+      setColumns(prevColumns =>
+        prevColumns.map(column => ({
+          ...column,
+          cards: column.cards.map(card =>
+            card.id === updatedCard.id ? { ...card, status: newStatus } : card
+          )
+        }))
+      );
     }
-};
+  };
 
 
 
@@ -516,7 +516,7 @@ const Board: React.FC = () => {
 
   return (
     <DragDropContext onDragStart={onDragStart} onDragEnd={handleDragEnd}>
-      <div className="board" ref={containerRef}>
+      <div className="board" ref={containerRef} >
         {columns.length === 0 ? (
           <p>No columns available</p>
         ) : (
@@ -616,7 +616,7 @@ const Board: React.FC = () => {
 
         {/* Drawer View */}
         {isDrawerOpen && selectedCard && (
-        <DrawerView
+          <DrawerView
             show={isDrawerOpen}
             onClose={() => setIsDrawerOpen(false)}
             card={selectedCard}
@@ -625,7 +625,7 @@ const Board: React.FC = () => {
             columnName={selectedCard.columnName}
             updateStatus={handleUpdateStatus}
             statuses={columns.map(col => ({ StatusId: col.id, StatusName: col.title }))}
-        />
+          />
 
 
 

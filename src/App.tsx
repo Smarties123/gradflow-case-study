@@ -16,6 +16,7 @@ import { UserProvider, useUser } from './components/User/UserContext';
 import { BoardProvider } from './pages/board/BoardContext';
 import TermsAndConditions from './components/LandingPage/TermsAndConditions'; // Import TermsAndConditions component
 import ComingSoon from './components/ComingSoon/ComingSoon';
+import FeedbackButton from './components/FeedbackButton/FeedbackButton';
 
 const App = () => {
   const { user } = useUser(); // Extract user from the context

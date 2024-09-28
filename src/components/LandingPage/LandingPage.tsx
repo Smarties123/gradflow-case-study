@@ -63,7 +63,7 @@ export default function LandingPage() {
           <Divider />
           <Footer />
         </Box>
-        {/* <FeedbackButton /> */}
+        <FeedbackButton />
       </ThemeProvider>
     </>
   );
