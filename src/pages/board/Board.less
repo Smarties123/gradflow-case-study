@@ -103,10 +103,12 @@
     flex-grow: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    overflow: visible !important;
+    // overflow: visible !important;
     padding: 10px;
     max-height: calc(100% - 60px); // Adjust based on your column header height
     position: relative; // Establish a new stacking context
+    scrollbar-width: thin; /* Make the scrollbar thin */
+
 }
 
 .draggable-card {
@@ -116,7 +118,7 @@
 
 /* Add custom scrollbar styling */
 .droppable-area::-webkit-scrollbar {
-    width: 8px;
+    width: 4px;
 }
 
 .droppable-area::-webkit-scrollbar-thumb {
