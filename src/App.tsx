@@ -41,7 +41,6 @@ const App = () => {
               <BoardProvider user={user}>
                 <Frame />
               </BoardProvider>
-              <FeedbackButton />
             </UserProvider>
           }
         >
