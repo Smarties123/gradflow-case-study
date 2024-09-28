@@ -10,35 +10,31 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import DevicesRoundedIcon from '@mui/icons-material/DevicesRounded';
-import EdgesensorHighRoundedIcon from '@mui/icons-material/EdgesensorHighRounded';
-import ViewQuiltRoundedIcon from '@mui/icons-material/ViewQuiltRounded';
+import TableRowsIcon from '@mui/icons-material/TableRows';
+import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+import GridViewIcon from '@mui/icons-material/GridView';
 import './Styles/University.css';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const items = [
   {
-    icon: <ViewQuiltRoundedIcon />,
+    icon: <GridViewIcon />,
     title: 'Dashboard',
     description:
-      'This item could provide a snapshot of the most important metrics or data points related to the product.',
-    imageLight: 'url("/static/images/templates/templates-images/dash-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/dash-dark.png")'
+      'Dive into your personalized Dashboard, where insights and opportunities come together! Track your progress and gain a clear view of your job applications, all in one dynamic hub.',
+    image: 'url("/static/images/templates/templates-images/dash-light.png")',
   },
   {
-    icon: <EdgesensorHighRoundedIcon />,
-    title: 'Mobile integration',
-    description: 'This item could provide information about the mobile app version of the product.',
-    imageLight: 'url("/static/images/templates/templates-images/mobile-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/mobile-dark.png")'
+    icon: <TableRowsIcon />,
+    title: 'Table',
+    description: 'Discover your data like never before! Our Table feature transforms your insights into an organized and interactive experience, making it easy to analyze and strategize your job search.',
+    image: 'url("/LandingPageMedia/Terminal - Table.png")',
   },
   {
-    icon: <DevicesRoundedIcon />,
-    title: 'Available on all platforms',
+    icon: <TipsAndUpdatesIcon />,
+    title: 'Coming Soon',
     description:
-      'This item could let users know the product is available on all platforms, such as web, mobile, and desktop.',
-    imageLight: 'url("/static/images/templates/templates-images/devices-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/devices-dark.png")'
+      'Exciting things are on the horizon! Stay tuned for our upcoming features that will elevate your job application experience to new heights!', image: 'url("/static/images/templates/templates-images/devices-light.png")',
   }
 ];
 
@@ -48,6 +44,9 @@ export default function University() {
   const handleItemClick = (index: number) => {
     setSelectedItemIndex(index);
   };
+
+  const selectedFeature = items[selectedItemIndex];
+
 
   return (
     <Container id="university" sx={{ py: { xs: 8, sm: 16 } }}>
@@ -61,71 +60,13 @@ export default function University() {
             of job application efforts, tracking progress, interviews, and offers, enabling improved
             outcomes in the job search journey.
           </Typography>
-          <Grid container item gap={1} sx={{ display: { xs: 'auto', sm: 'none' } }}>
-            {items.map(({ title }, index) => (
-              <Chip
-                key={index}
-                label={title}
-                onClick={() => handleItemClick(index)}
-                sx={{
-                  borderColor: theme => (selectedItemIndex === index ? 'primary.light' : ''),
-                  backgroundColor: selectedItemIndex === index ? 'primary.main' : '',
-                  '& .MuiChip-label': {
-                    color: selectedItemIndex === index ? '#fff' : ''
-                  }
-                }}
-              />
-            ))}
-          </Grid>
-          <Box
-            component={Card}
-            variant="outlined"
-            sx={{
-              display: { xs: 'auto', sm: 'none' },
-              mt: 4
-            }}
-          >
-            <Box
-              sx={{
-                backgroundImage: theme =>
-                  theme.palette.mode === 'light'
-                    ? items[selectedItemIndex].imageLight
-                    : items[selectedItemIndex].imageDark,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                minHeight: 280
-              }}
-            />
-            <Box sx={{ px: 2, pb: 2 }}>
-              <Typography color="text.primary" variant="body2" fontWeight="bold">
-                {items[selectedItemIndex].title}
-              </Typography>
-              <Typography color="text.secondary" variant="body2" sx={{ my: 0.5 }}>
-                {items[selectedItemIndex].description}
-              </Typography>
-              <Link
-                color="primary"
-                variant="body2"
-                fontWeight="bold"
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  '& > svg': { transition: '0.2s' },
-                  '&:hover > svg': { transform: 'translateX(2px)' }
-                }}
-              >
-                <span>Learn more</span>
-                <ChevronRightRoundedIcon fontSize="small" sx={{ mt: '1px', ml: '2px' }} />
-              </Link>
-            </Box>
-          </Box>
           <Stack
             direction="column"
             justifyContent="center"
             alignItems="flex-start"
             spacing={2}
             useFlexGap
-            sx={{ width: '100%', display: { xs: 'none', sm: 'flex' } }}
+            sx={{ width: '100%' }}
           >
             {items.map(({ icon, title, description }, index) => (
               <AnimatedItem
@@ -140,10 +81,32 @@ export default function University() {
             ))}
           </Stack>
         </Grid>
+        <Grid item xs={12} md={6} sx={{ display: { xs: 'none', sm: 'flex' }, width: '100%' }}>
+          <Card
+            variant="outlined"
+            sx={{
+              height: '100%',
+              width: '100%',
+              display: { xs: 'none', sm: 'flex' },
+              pointerEvents: 'none'
+            }}
+          >
+            <Box
+              sx={{
+                m: 'auto',
+                width: 420,
+                height: 500,
+                backgroundSize: 'contain',
+                backgroundImage: items[selectedItemIndex].image
+              }}
+            />
+          </Card>
+        </Grid>
       </Grid>
     </Container>
   );
 }
+
 
 function AnimatedItem({ icon, title, description, index, selectedItemIndex, handleItemClick }) {
   const { ref, inView } = useInView({ threshold: 0.1 });
@@ -175,8 +138,8 @@ function AnimatedItem({ icon, title, description, index, selectedItemIndex, hand
           selectedItemIndex === index
             ? 'primary.light'
             : theme.palette.mode === 'light'
-            ? 'grey.200'
-            : 'grey.800'
+              ? 'grey.200'
+              : 'grey.800'
       }}
     >
       <Box
