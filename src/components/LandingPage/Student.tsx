@@ -10,7 +10,7 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import DevicesRoundedIcon from '@mui/icons-material/DevicesRounded';
+import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import EdgesensorHighRoundedIcon from '@mui/icons-material/EdgesensorHighRounded';
 import ViewQuiltRoundedIcon from '@mui/icons-material/ViewQuiltRounded';
 import './Styles/Student.css';
@@ -21,23 +21,20 @@ const items = [
   {
     icon: <ViewQuiltRoundedIcon />,
     title: 'Panel',
-    description: 'Snapshot of the most important metrics or data points related to the product.',
-    imageLight: 'url("/static/images/templates/templates-images/dash-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/dash-dark.png")'
+    description: 'Visualize your job application journey like never before! Helping you stay on track and motivated as you chase your dream job',
+    image: 'url("/LandingPageMedia/Terminal - Kanban Board.png")'
   },
   {
     icon: <EdgesensorHighRoundedIcon />,
-    title: 'Quick Add (Potential Job Add Feature)',
-    description: 'Information about the mobile app version of the product.',
-    imageLight: 'url("/static/images/templates/templates-images/mobile-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/mobile-dark.png")'
+    title: 'Drag and Drop',
+    description: 'Take control of your job hunt with our dynamic drag-and-drop feature! Effortlessly organize your applications and tailor your roadmap',
+    image: 'url("/LandingPageMedia/Terminal - Kanban Board Moving Card.png")',
   },
   {
-    icon: <DevicesRoundedIcon />,
-    title: '(Another potential feature)',
-    description: 'Available on web, mobile, and desktop.',
-    imageLight: 'url("/static/images/templates/templates-images/devices-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/devices-dark.png")'
+    icon: <LibraryAddIcon />,
+    title: 'Quick Add',
+    description: 'Instantly capture and organize your job applications with just a click, making your journey to landing that dream job faster and easier than ever!',
+    image: 'url("/LandingPageMedia/Terminal - Add Job.png")',
   }
 ];
 
@@ -98,10 +95,7 @@ export default function Student() {
                 width: 420,
                 height: 500,
                 backgroundSize: 'contain',
-                backgroundImage: theme =>
-                  theme.palette.mode === 'light'
-                    ? items[selectedItemIndex].imageLight
-                    : items[selectedItemIndex].imageDark
+                backgroundImage: items[selectedItemIndex].image
               }}
             />
           </Card>
@@ -141,8 +135,8 @@ function AnimatedItem({ icon, title, description, index, selectedItemIndex, hand
           selectedItemIndex === index
             ? 'primary.light'
             : theme.palette.mode === 'light'
-            ? 'grey.200'
-            : 'grey.800'
+              ? 'grey.200'
+              : 'grey.800'
       }}
     >
       <Box

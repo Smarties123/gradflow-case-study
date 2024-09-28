@@ -68,3 +68,25 @@ a:hover {
   transform-origin: 0%;
   z-index: 1000;
 }
+
+
+.css-1jksjri,
+.css-iaqgiv,
+.css-p6yzd4,
+.css-zhlr0x {
+  margin: 30px 10px !important;
+  width: -webkit-fill-available !important;
+  height: -webkit-fill-available !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
+.css-p6yzd4 {
+  background-position: center;
+  background-size: contain !important;
+}
+
+.css-zhlr0x {
+  margin: 50% 10px !important;
+  background-size: contain !important;
+}
