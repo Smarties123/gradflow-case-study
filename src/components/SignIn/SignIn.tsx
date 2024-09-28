@@ -16,28 +16,25 @@ import { useMediaQuery } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import FeedbackButton from '../FeedbackButton/FeedbackButton';
 import { useUser } from '../../components/User/UserContext'; // User context
-
 import { auth, provider } from '../../../firebaseConfig'; // Import your Firebase config
 import { signInWithPopup } from 'firebase/auth';
+import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 
-// Google SVG icon using official colors
+// Google SVG icon
 function GoogleIcon() {
   return (
     <svg width="20px" height="20px" viewBox="0 0 48 48">
-      <path fill="#4285F4" d="M24 9.5c3.5 0 5.9 1.5 7.3 2.8l5.4-5.4C33.7 4.5 29.4 3 24 3 14.4 3 6.6 9.8 3.5 18.5l6.6 5.2C12 15 17.4 9.5 24 9.5z" />
-      <path fill="#34A853" d="M46.5 24.5c0-1.7-.2-3.5-.6-5.2H24v10h12.7c-.5 2.7-2.3 5-4.7 6.5l7.4 5.8C43.6 37.7 46.5 31.7 46.5 24.5z" />
-      <path fill="#FBBC05" d="M10.1 29.6c-1-2.7-1-5.6 0-8.2l-6.6-5.2c-2.8 5.6-2.8 12.3 0 17.9l6.6-5.2z" />
-      <path fill="#EA4335" d="M24 46c5.4 0 10.3-1.8 14.1-4.8l-7.4-5.8c-2.2 1.4-4.9 2.3-7.7 2.3-6.6 0-12-4.5-14-10.7l-6.6 5.2C6.6 40.2 14.4 46 24 46z" />
+      {/* SVG paths */}
     </svg>
   );
 }
 
-function Copyright(props: any) {
+function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+      <Link color="inherit" href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+        HADinc
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -49,64 +46,59 @@ const defaultTheme = createTheme();
 
 export default function SignInSide() {
   const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false); // Loading state
   const { setUser } = useUser(); // Accessing the user context
-  const isSmallScreen = useMediaQuery('(max-width:600px)'); // Media query for small screens
+  const isSmallScreen = useMediaQuery('(max-width:600px)');
 
-  // Move handleGoogleSignIn inside the SignInSide component
   const handleGoogleSignIn = async () => {
+    setLoading(true); // Start loading
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      const token = await user.getIdToken();  // Get Firebase token
-  
-      // Log the Firebase token
-      console.log("Generated Firebase Token:", token);
-  
-      // Send the token to your backend for verification and login
+      const token = await user.getIdToken();
+
       const response = await fetch(`${process.env.REACT_APP_API_URL}/google-login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token }),  // Send Firebase token to backend
+        body: JSON.stringify({ token })
       });
-  
-      // Log the backend response
-      console.log("Response from backend:", response);
-  
+
       if (response.ok) {
         const result = await response.json();
         setUser({
           email: result.user.email,
           token: result.token,
-          username: result.user.username,
+          username: result.user.username
         });
-        window.location.href = '/main';  // Redirect after login
+        window.location.href = '/main';
       } else {
         setError('Google sign-in failed.');
       }
     } catch (error) {
       setError('Google sign-in failed.');
+    } finally {
+      setLoading(false); // End loading
     }
   };
-  
-  
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const userData = {
       email: data.get('email'),
-      password: data.get('password'),
+      password: data.get('password')
     };
+    setLoading(true); // Start loading
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(userData)
       });
 
       if (response.ok) {
@@ -116,7 +108,7 @@ export default function SignInSide() {
         setUser({
           email: user.email as string,
           token: token,
-          username: user.id,
+          username: user.id
         });
         window.location.href = '/main';
       } else {
@@ -125,6 +117,8 @@ export default function SignInSide() {
       }
     } catch (err) {
       setError('An error occurred during login. Please try again later.');
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -142,22 +136,22 @@ export default function SignInSide() {
           square
           sx={{
             background: 'linear-gradient(to bottom, #FF6200, #000000)',
-            display: isSmallScreen ? 'none' : 'block', // Hide on small screens
+            display: isSmallScreen ? 'none' : 'block'
           }}
         />
-        <Grid 
-          item 
-          xs={12} 
-          sm={8} 
-          md={5} 
-          component={Paper} 
-          elevation={6} 
+        <Grid
+          item
+          xs={12}
+          sm={8}
+          md={5}
+          component={Paper}
+          elevation={6}
           square
-          sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
             justifyContent: 'center',
-            minHeight: '100vh',
+            minHeight: '100vh'
           }}
         >
           <Box
@@ -165,7 +159,7 @@ export default function SignInSide() {
               mx: 4,
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center',
+              alignItems: 'center'
             }}
           >
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
@@ -200,7 +194,6 @@ export default function SignInSide() {
                     autoComplete="current-password"
                   />
                 </Grid>
-                {/* Remember Me and Forgot Password in the same row */}
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <FormControlLabel
                     control={<Checkbox value="remember" color="primary" />}
@@ -221,36 +214,38 @@ export default function SignInSide() {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
+                disabled={loading} // Disable button while loading
               >
-                Sign In
+                {loading ? <CircularProgress size={24} /> : 'Sign In'}
               </Button>
               <Grid container spacing={2} justifyContent="center" sx={{ mt: 1 }}>
                 <Grid item>
                   <Button
                     variant="outlined"
                     startIcon={<GoogleIcon />}
-                    onClick={handleGoogleSignIn}  // Add onClick handler here
+                    onClick={handleGoogleSignIn}
                     sx={{
                       width: '200px',
                       borderRadius: '10px',
                       padding: '10px 0px',
                       textTransform: 'none',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
+                    disabled={loading} // Disable button while loading
                   >
-                    Sign in with Google
+                    {loading ? <CircularProgress size={24} /> : 'Sign in with Google'}
                   </Button>
                 </Grid>
                 <Grid item>
                   <Button
                     variant="outlined"
-                    startIcon={<SchoolIcon sx={{ color: 'purple' }} />} // Purple School Icon
+                    startIcon={<SchoolIcon sx={{ color: 'purple' }} />}
                     sx={{
                       width: '200px',
                       borderRadius: '10px',
                       padding: '10px 0px',
                       textTransform: 'none',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
                   >
                     Sign in with University

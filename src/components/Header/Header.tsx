@@ -14,45 +14,47 @@ import {
 } from 'rsuite';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
 import ToggleColorMode from '../LandingPage/ToggleColorMode'; // Import the ToggleColorMode component
-import { FaRegShareSquare } from "react-icons/fa";
-import { FaPlus } from "react-icons/fa6";
-import { FaSearch } from "react-icons/fa";
+import { FaRegShareSquare } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa6';
+import { FaSearch } from 'react-icons/fa';
 import ShareModal from '../Share/Share';
 import Modal from '../Modal/Modal';
 import { BoardContext } from '../../pages/board/BoardContext';
 import SettingsView from '../SettingsView/SettingsView.tsx';
 import { useLocation, useNavigate } from 'react-router-dom'; // Import useLocation and useNavigate hooks
-import { GiUpgrade } from "react-icons/gi";
-import { CgDetailsMore } from "react-icons/cg";
+import { GiUpgrade } from 'react-icons/gi';
+import { CgDetailsMore } from 'react-icons/cg';
 import { useUser } from '@/components/User/UserContext';
 import Avatar from 'react-avatar';
 
-const Header = (props) => {
-  const { user, setUser } = useUser();  // Access user and setUser to clear user info on sign out
+const Header = props => {
+  const { user, setUser } = useUser(); // Access user and setUser to clear user info on sign out
   const navigate = useNavigate(); // Use navigate for redirection after sign out
   const [formData, setFormData] = useState({ email: '', name: '' });
 
   useEffect(() => {
     const fetchUserData = async () => {
-        try {
-          const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
-            headers: {
-                    'Authorization': `Bearer ${user.token}`,  // Ensure you have a valid token
-                    'Content-Type': 'application/json',
-                }
-            });
-            const data = await response.json();
-            setFormData({ email: data.Email, name: data.Username }); // Make sure to use correct case for `Email` and `Username`
-        } catch (error) {
-            console.error('Failed to fetch user data', error);
-        }
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
+          headers: {
+            Authorization: `Bearer ${user.token}`, // Ensure you have a valid token
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+        setFormData({ email: data.Email, name: data.Username }); // Make sure to use correct case for `Email` and `Username`
+      } catch (error) {
+        console.error('Failed to fetch user data', error);
+      }
     };
     fetchUserData();
   }, [user.token]);
 
   const context = useContext(BoardContext);
   if (!context) {
-    console.error('BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.');
+    console.error(
+      'BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.'
+    );
   }
 
   const { columns, setColumns, addCardToColumn } = context;
@@ -60,7 +62,7 @@ const Header = (props) => {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [invitedList, setInvitedList] = useState([]);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -96,9 +98,9 @@ const Header = (props) => {
     const handleSelect = eventKey => {
       onClose();
       if (eventKey === 'signout') {
-        handleSignOut();  // Handle sign out when "Sign out" is selected
+        handleSignOut(); // Handle sign out when "Sign out" is selected
       } else if (eventKey === 'settings') {
-        setShowSettings(true);  // Show settings view when "Settings" is selected
+        setShowSettings(true); // Show settings view when "Settings" is selected
       }
     };
 
@@ -111,7 +113,9 @@ const Header = (props) => {
           </Dropdown.Item>
           <Dropdown.Item divider />
           <Dropdown.Item eventKey="settings">Profile & account</Dropdown.Item>
-          <Dropdown.Item as="a" href="https://forms.gle/TzuxcFinXXdRzRZQ8" target="_blank">Feedback</Dropdown.Item>
+          <Dropdown.Item as="a" href="https://forms.gle/TzuxcFinXXdRzRZQ8" target="_blank">
+            Feedback
+          </Dropdown.Item>
           <Dropdown.Item divider />
           <Dropdown.Item eventKey="settings">Settings</Dropdown.Item>
           <Dropdown.Item eventKey="signout">Sign out</Dropdown.Item> {/* Add sign out option */}
@@ -134,52 +138,94 @@ const Header = (props) => {
     <Stack className="header" spacing={8} justifyContent="space-between">
       <Stack direction="row" spacing={4} alignItems="flex-start">
         {isDashboardPage ? (
-          <div style={{ display: 'flex', justifyContent: 'end', width: "100%", alignItems: "center" }}>
+          <div
+            style={{ display: 'flex', justifyContent: 'end', width: '100%', alignItems: 'center' }}
+          >
             <h5 style={{ marginRight: '15px' }}>Dashboard</h5>
             <h6>Upgrade now to see the GradFlow Graduate dashboard</h6>
             <ButtonToolbar style={{ display: 'flex', gap: '3px', marginLeft: '20px' }}>
-              <Button className="header-button"
+              <Button
+                className="header-button"
                 style={{
-                  backgroundColor: 'yellow', color: 'black', display: 'flex', alignItems: 'center', width: '150px', border: '1px darkyellow solid'
+                  backgroundColor: 'yellow',
+                  color: 'black',
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '150px',
+                  border: '1px darkyellow solid'
                 }}
               >
-                <GiUpgrade className="header-icon" style={{ fontSize: 18, color: 'black', margin: '1px 1px 1px 1px' }} />
-                <span className="visually-hidden" style={{ color: 'black' }}>Upgrade to Pro</span>
+                <GiUpgrade
+                  className="header-icon"
+                  style={{ fontSize: 18, color: 'black', margin: '1px 1px 1px 1px' }}
+                />
+                <span className="visually-hidden" style={{ color: 'black' }}>
+                  Upgrade to Pro
+                </span>
               </Button>
               <Button
                 className="header-button"
-                style={{ backgroundColor: 'white', color: 'black', display: 'flex', alignItems: 'center', width: '150px', border: '1px black solid' }}
+                style={{
+                  backgroundColor: 'white',
+                  color: 'black',
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '150px',
+                  border: '1px black solid'
+                }}
               >
-                <CgDetailsMore className="header-icon" style={{ fontSize: 18, margin: '1px 1px 1px 1px' }} />
+                <CgDetailsMore
+                  className="header-icon"
+                  style={{ fontSize: 18, margin: '1px 1px 1px 1px' }}
+                />
                 <span className="visually-hidden">Learn More</span>
               </Button>
             </ButtonToolbar>
           </div>
         ) : (
-          <div style={{ display: 'flex', justifyContent: 'end', width: "100%" }}>
+          <div style={{ display: 'flex', justifyContent: 'end', width: '100%' }}>
             <InputGroup inside size="lg" className="search-input">
               <InputGroup.Button>
                 <FaSearch />
               </InputGroup.Button>
               <Input placeholder="Search " />
             </InputGroup>
-            <div style={{ alignItems: "left" }}>
-              <ButtonToolbar style={{ display: 'flex', gap: '3px' }}>
-                <Button className="header-button"
+            <div style={{ alignItems: 'left' }}>
+              <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
+                <Button
+                  className="header-button"
                   style={{
-                    backgroundColor: '#8338ec', color: 'white', display: 'flex', alignItems: 'center', width: '120px',
+                    backgroundColor: '#8338ec',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: '120px',
+                    lineHeight: '24px'
                   }}
                   onClick={handleOpenAddModal}
                 >
-                  <FaPlus className="header-icon" style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }} />
+                  <FaPlus
+                    className="header-icon"
+                    style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }}
+                  />
                   <span className="visually-hidden">Add New</span>
                 </Button>
                 <Button
                   className="header-button"
-                  style={{ backgroundColor: '#ff6200', color: 'white', display: 'flex', alignItems: 'center', width: '120px' }}
+                  style={{
+                    backgroundColor: '#ff6200',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: '120px',
+                    lineHeight: '24px'
+                  }}
                   onClick={handleOpenModal}
                 >
-                  <FaRegShareSquare className="header-icon" style={{ fontSize: 18, margin: '1px 1px 1px 1px' }} />
+                  <FaRegShareSquare
+                    className="header-icon"
+                    style={{ fontSize: 18, margin: '1px 1px 1px 1px' }}
+                  />
                   <span className="visually-hidden">Share</span>
                 </Button>
               </ButtonToolbar>
@@ -196,28 +242,27 @@ const Header = (props) => {
         <ShareModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} />
       </Stack>
 
-      <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-        <ToggleColorMode mode={theme === 'light' ? 'light' : 'dark'} toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')} />
+      <div
+        className="user-profile"
+        style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+      >
+        <ToggleColorMode
+          mode={theme === 'light' ? 'light' : 'dark'}
+          toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')}
+        />
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>
-          <Avatar
-              email={formData.email}
-              name={formData.name}
-              size="45"
-              round={true}
-          />
+          <Avatar email={formData.email} name={formData.name} size="45" round={true} />
         </Whisper>
       </div>
-      {
-        showSettings && (
-          <SettingsView
-            show={showSettings}
-            onClose={() => setShowSettings(false)}
-            card={{}}
-            updateCard={() => { }}
-          />
-        )
-      }
-    </Stack >
+      {showSettings && (
+        <SettingsView
+          show={showSettings}
+          onClose={() => setShowSettings(false)}
+          card={{}}
+          updateCard={() => {}}
+        />
+      )}
+    </Stack>
   );
 };
 

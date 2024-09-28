@@ -8,21 +8,22 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-import FacebookIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import TwitterIcon from '@mui/icons-material/X';
+import InstagramIcon from '@mui/icons-material/Instagram';
 import LandingPageBrand from '../LandingPageBrand/LandingPageBrand';
 
 const logoStyle = {
   width: '140px',
-  height: 'auto',
+  height: 'auto'
 };
 
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" mt={1}>
       {'Copyright © '}
-      <Link href="https://mui.com/">Sitemark&nbsp;</Link>
+      <Link href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+        HADinc&nbsp;
+      </Link>
       {new Date().getFullYear()}
     </Typography>
   );
@@ -37,7 +38,7 @@ export default function Footer() {
         alignItems: 'center',
         gap: { xs: 4, sm: 8 },
         py: { xs: 8, sm: 10 },
-        textAlign: { sm: 'center', md: 'left' },
+        textAlign: { sm: 'center', md: 'left' }
       }}
     >
       <Box
@@ -45,7 +46,7 @@ export default function Footer() {
           display: 'flex',
           flexDirection: { xs: 'column', sm: 'row' },
           width: '100%',
-          justifyContent: 'space-between',
+          justifyContent: 'space-between'
         }}
       >
         <Box
@@ -53,13 +54,12 @@ export default function Footer() {
             display: 'flex',
             flexDirection: 'column',
             gap: 4,
-            minWidth: { xs: '100%', sm: '60%' },
+            minWidth: { xs: '100%', sm: '60%' }
           }}
         >
           <Box sx={{ width: { xs: '100%', sm: '60%' } }}>
             <Box sx={{ ml: '-15px', mb: '10px' }}>
               <LandingPageBrand />
-
             </Box>
             <Typography variant="body2" fontWeight={600} gutterBottom>
               Newsletter
@@ -78,7 +78,7 @@ export default function Footer() {
                 placeholder="Your email address"
                 inputProps={{
                   autoComplete: 'off',
-                  'aria-label': 'Enter your email address',
+                  'aria-label': 'Enter your email address'
                 }}
               />
               <Button variant="contained" color="primary" sx={{ flexShrink: 0 }}>
@@ -91,20 +91,20 @@ export default function Footer() {
           sx={{
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
-            gap: 1,
+            gap: 1
           }}
         >
           <Typography variant="body2" fontWeight={600}>
             Product
           </Typography>
           <Link color="text.secondary" href="#">
-            Features
+            Student
           </Link>
           <Link color="text.secondary" href="#">
-            Testimonials
+            University
           </Link>
           <Link color="text.secondary" href="#">
-            Highlights
+            Testimonals
           </Link>
           <Link color="text.secondary" href="#">
             Pricing
@@ -117,7 +117,7 @@ export default function Footer() {
           sx={{
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
-            gap: 1,
+            gap: 1
           }}
         >
           <Typography variant="body2" fontWeight={600}>
@@ -137,19 +137,16 @@ export default function Footer() {
           sx={{
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
-            gap: 1,
+            gap: 1
           }}
         >
           <Typography variant="body2" fontWeight={600}>
             Legal
           </Typography>
-          <Link color="text.secondary" href="#">
+          <Link color="text.secondary" href="/terms-and-conditions">
             Terms
           </Link>
-          <Link color="text.secondary" href="#">
-            Privacy
-          </Link>
-          <Link color="text.secondary" href="#">
+          <Link color="text.secondary" href="/terms-and-conditions">
             Contact
           </Link>
         </Box>
@@ -161,7 +158,7 @@ export default function Footer() {
           pt: { xs: 4, sm: 8 },
           width: '100%',
           borderTop: '1px solid',
-          borderColor: 'divider',
+          borderColor: 'divider'
         }}
       >
         <div>
@@ -182,32 +179,28 @@ export default function Footer() {
           spacing={1}
           useFlexGap
           sx={{
-            color: 'text.secondary',
+            color: 'text.secondary'
           }}
         >
           <IconButton
             color="inherit"
-            href="https://github.com/mui"
-            aria-label="GitHub"
-            sx={{ alignSelf: 'center' }}
-          >
-            <FacebookIcon />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            href="https://twitter.com/MaterialUI"
-            aria-label="X"
-            sx={{ alignSelf: 'center' }}
-          >
-            <TwitterIcon />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            href="https://www.linkedin.com/company/mui/"
+            href="https://www.linkedin.com/company/gradflow-inc/?viewAsMember=true"
             aria-label="LinkedIn"
             sx={{ alignSelf: 'center' }}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <LinkedInIcon />
+          </IconButton>
+          <IconButton
+            color="inherit"
+            href="https://www.instagram.com/gradflowinc/"
+            aria-label="Instagram"
+            sx={{ alignSelf: 'center' }}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <InstagramIcon />
           </IconButton>
         </Stack>
       </Box>

@@ -3,11 +3,10 @@ import Board from './Board';
 import PageContent from '@/components/PageContent';
 
 const Page: React.FC = () => {
-
   return (
     <PageContent
       className="board-wrapper"
-      showCopyright={false} // Ensure this prop is correctly handled in PageContent
+      showTermsAndConditions={false}  // Use the correct prop to hide Terms and Conditions
     >
       <Board />
     </PageContent>

@@ -9,3 +9,10 @@
   opacity: 1;
   animation: fadeInLeft 0.8s ease-in;
 }
+
+@media (max-width: 600px) {
+  .fade-out,
+  .fade-in {
+    animation: none; /* Disable animations for mobile */
+  }
+}
