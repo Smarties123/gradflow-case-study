@@ -1,34 +1,33 @@
 .card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: #ff6200;
-    /* Bright pink background */
-    color: white;
-    padding: 5px 10px;
-    border-radius: 10px;
-    font-family: 'Arial', sans-serif;
-    height: 70px;
-    transition: transform 0.3s ease, box-shadow 0.2s ease, margin 0.3s ease;
-    cursor: pointer !important;
-    /* Default to pointer (hand) cursor on hover */
-    /* Smooth transitions */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ff6200;
+  /* Bright pink background */
+  color: white;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-family: 'Arial', sans-serif;
+  height: 70px;
+  transition: transform 0.3s ease, box-shadow 0.2s ease, margin 0.3s ease;
+  cursor: pointer !important;
+  /* Default to pointer (hand) cursor on hover */
+  /* Smooth transitions */
 
-    /* Transitions for smooth visual effects */
-    /* Smooth transitions for transform and shadow */
+  /* Transitions for smooth visual effects */
+  /* Smooth transitions for transform and shadow */
 
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 16px;
-    // min-width: 193px;
-    overflow: hidden;
-    /* Ensure that no content exceeds the card boundaries */
-
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  // min-width: 193px;
+  overflow: hidden;
+  /* Ensure that no content exceeds the card boundaries */
 }
 
 /* This is the class that will be applied when holding for 300ms */
 .card.is-holding {
-    cursor: grabbing;
-    /* Change to grabbing icon after holding */
+  cursor: grabbing;
+  /* Change to grabbing icon after holding */
 }
 
 // .card.is-dragging {
@@ -39,171 +38,170 @@
 // }
 
 .card.is-dragging {
-    cursor: grabbing !important;
-    /* Change to grabbing icon when the card is dragged */
-    box-shadow: 0 5px 15px rgb(255, 255, 255);
-    /* Enhanced shadow for dragging */
-    transform: scale(1.03);
-    /* Slight scale to raise the card visually */
-    border: 5px solid #8A2BE2;
-
+  cursor: grabbing !important;
+  /* Change to grabbing icon when the card is dragged */
+  box-shadow: 0 5px 15px rgb(255, 255, 255);
+  /* Enhanced shadow for dragging */
+  transform: scale(1.03);
+  /* Slight scale to raise the card visually */
+  border: 5px solid #8a2be2;
 }
 
 .card-content {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
 }
 
 .left-icons {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin-bottom: 5px;
-    /* Add space between icons and position */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 5px;
+  /* Add space between icons and position */
 }
 
 .company-logo-small {
-    width: 25px;
-    /* Smaller logo */
-    height: 25px;
-    border-radius: 20%;
-    margin-right: 10px;
-    /* Space between logo and name */
-    object-fit: cover;
+  width: 25px;
+  /* Smaller logo */
+  height: 25px;
+  border-radius: 20%;
+  margin-right: 10px;
+  /* Space between logo and name */
+  object-fit: cover;
 }
 
-
 .card-details {
-    flex-grow: 1;
-    text-align: center;
-    margin-left: 5px;
-    text-align: left;
-    margin-bottom: 50px;
-    overflow: hidden;
-    /* Provide some padding around the text */
-
+  flex-grow: 1;
+  text-align: center;
+  margin-left: 5px;
+  text-align: left;
+  margin-bottom: 50px;
+  overflow: hidden;
+  /* Provide some padding around the text */
 }
 
 .company-name {
-    font-size: 16px;
-    font-weight: bold;
-    // max-width: 80%; /* Constrain the width to avoid overflowing */
-    white-space: nowrap;
-    /* Ensure text stays on one line */
-    overflow: hidden;
-    /* Hide overflowed text */
-    // text-overflow: ellipsis;
-    /* Add '...' to truncated text */
-    width: fit-content;
-    position: relative;
-    -webkit-transition: 0.5s ease-in;
-    -moz-transition: 0.5s ease-in;
-    -o-transition: 0.5s ease-in;
-    transition: 0.5s ease-in;
+  font-size: 16px;
+  font-weight: bold;
+  // max-width: 80%; /* Constrain the width to avoid overflowing */
+  white-space: nowrap;
+  /* Ensure text stays on one line */
+  overflow: hidden;
+  /* Hide overflowed text */
+  // text-overflow: ellipsis;
+  /* Add '...' to truncated text */
+  width: fit-content;
+  position: relative;
+  width: auto;
+  //   -webkit-transition: 0.5s ease-in;
+  //   -moz-transition: 0.5s ease-in;
+  //   -o-transition: 0.5s ease-in;
+  transition: 0.5s ease-in;
 }
-
 
 .card-content:hover .company-name.scroll {
-    -webkit-transition: 4s ease-in;
-    -moz-transition: 4s ease-in;
-    -o-transition: 4s ease-in;
-    transition: 4s ease-in;
-    text-indent: -300px;
-    /* Adjust based on the text length to scroll */
+  animation: scrollText 7s linear infinite; /* Smooth scrolling text animation */
 }
 
-
-
-.position {
-    margin-top: 5px;
-    /* Space between company name and position */
-    font-size: 14px;
-    // color: #333;
-
-    // font-weight: bold;
-    // max-width: 80%; /* Constrain the width to avoid overflowing */
-    white-space: nowrap;
-    /* Ensure text stays on one line */
-    overflow: hidden;
-    /* Hide overflowed text */
-    text-overflow: ellipsis;
-    /* Add '...' to truncated text */
-    width: fit-content;
+.company-name.scroll {
+  width: 100%;
 }
 
+.position {
+  margin-top: 5px;
+  /* Space between company name and position */
+  font-size: 14px;
+  // color: #333;
 
+  // font-weight: bold;
+  // max-width: 80%; /* Constrain the width to avoid overflowing */
+  white-space: nowrap;
+  /* Ensure text stays on one line */
+  overflow: hidden;
+  /* Hide overflowed text */
+  text-overflow: ellipsis;
+  /* Add '...' to truncated text */
+  width: fit-content;
+}
 
 .position {
-    font-size: 14px;
-    margin: 0;
+  font-size: 14px;
+  margin: 0;
 }
 
 .star-icon {
-    font-size: 24px;
-    // color: yellow; /* Default star color */
-    color: white;
-    /*
+  font-size: 24px;
+  // color: yellow; /* Default star color */
+  color: white;
+  /*
     // margin-bottom: ;
     cursor: pointer; /* Changes cursor to pointer when hovering */
-    // transition: color 0.3s ease; /* Smooth transition for color change */
-    margin-left: 20px;
+  // transition: color 0.3s ease; /* Smooth transition for color change */
+  margin-left: 20px;
 }
 
 .star-icon.favorited {
-    color: yellow;
-    /* Change color to yellow when favorited */
+  color: yellow;
+  /* Change color to yellow when favorited */
 }
 
 .star-icon:hover {
-    color: yellow;
-    /* Change color to yellow when hovered */
+  color: yellow;
+  /* Change color to yellow when hovered */
 }
 
-
 .right-icons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    opacity: 0;
-    /* Initially hidden */
-    /* Initially hidden */
-    // transition: opacity 0.3s ease; /* Smooth transition for appearance */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 15px;
+  opacity: 0;
+  right: 0;
+  position: absolute;
+  /* Initially hidden */
+  /* Initially hidden */
+  // transition: opacity 0.3s ease; /* Smooth transition for appearance */
 }
 
 .card:hover .right-icons {
-    opacity: 1;
-    /* Show icons on hover */
+  opacity: 1 !important;
+
+  /* Show icons on hover */
 }
 
 .delete-icon,
 .link-icon {
-    margin-top: 15px;
-    font-size: 20px;
-    cursor: pointer;
-    /* Show pointer cursor on hover */
-    color: white;
-    /* Icon color */
+  margin-top: 15px;
+  font-size: 20px;
+  cursor: pointer;
+  /* Show pointer cursor on hover */
+  color: white;
+  /* Icon color */
 }
 
 .delete-icon:hover {
-    color: red;
-    /* Change to red on hover */
+  color: red;
+  /* Change to red on hover */
 }
-
 
 .link-icon:hover {
-    color: blue;
-    /* Change to blue on hover */
+  color: blue;
+  /* Change to blue on hover */
 }
 
+@keyframes scrollText {
+  0% {
+    text-indent: 0; /* Start at normal position */
+  }
+  100% {
+    text-indent: -100%; /* Scroll all the way to the left */
+  }
+}
 
-
-
-
-@media (max-width:498px) {
-    .card {
-        min-width: 10px;
-    }
+@media (max-width: 498px) {
+  .card {
+    min-width: 10px;
+  }
 }
