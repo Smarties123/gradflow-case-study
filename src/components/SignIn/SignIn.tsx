@@ -42,16 +42,26 @@ function Copyright(props) {
   );
 }
 
-const defaultTheme = createTheme();
+
+const defaultTheme = createTheme(); // This line is missing
 
 export default function SignInSide() {
   const [error, setError] = React.useState<string | null>(null);
-  const [loading, setLoading] = React.useState(false); // Loading state
-  const { setUser } = useUser(); // Accessing the user context
+  const [emailError, setEmailError] = React.useState<string | null>(null); // Email validation error
+  const [passwordError, setPasswordError] = React.useState<string | null>(null); // Password validation error
+  const [loading, setLoading] = React.useState(false);
+  const { setUser } = useUser();
   const isSmallScreen = useMediaQuery('(max-width:600px)');
 
+  // Email format validation
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Google sign-in
   const handleGoogleSignIn = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -79,26 +89,45 @@ export default function SignInSide() {
     } catch (error) {
       setError('Google sign-in failed.');
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
 
+  // Form submission and validation
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const userData = {
-      email: data.get('email'),
-      password: data.get('password')
-    };
+    const email = data.get('email') as string;
+    const password = data.get('password') as string;
+
+    // Validate input fields
+    let valid = true;
+    if (!email) {
+      setEmailError('Email is required');
+      valid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError('Invalid email format');
+      valid = false;
+    } else {
+      setEmailError(null);
+    }
+
+    if (!password) {
+      setPasswordError('Password is required');
+      valid = false;
+    } else {
+      setPasswordError(null);
+    }
+
+    if (!valid) return; // Stop form submission if validation fails
+
     setLoading(true); // Start loading
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(userData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       });
 
       if (response.ok) {
@@ -121,6 +150,7 @@ export default function SignInSide() {
       setLoading(false); // End loading
     }
   };
+
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -180,6 +210,8 @@ export default function SignInSide() {
                     name="email"
                     autoComplete="email"
                     autoFocus
+                    error={!!emailError}
+                    helperText={emailError}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -192,6 +224,8 @@ export default function SignInSide() {
                     type="password"
                     id="password"
                     autoComplete="current-password"
+                    error={!!passwordError}
+                    helperText={passwordError}
                   />
                 </Grid>
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>

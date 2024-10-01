@@ -11,7 +11,31 @@ const SALT_ROUNDS = 10; // Adjust this value as necessary
 
 
 
+// Check if email or username already exists
+export const checkUserExists = async (req, res) => {
+  const { email, username } = req.body;
+
+  try {
+    const emailCheckQuery = 'SELECT * FROM "Users" WHERE "Email" = $1';
+    const usernameCheckQuery = 'SELECT * FROM "Users" WHERE "Username" = $1';
+
+    const emailResult = await pool.query(emailCheckQuery, [email]);
+    const usernameResult = await pool.query(usernameCheckQuery, [username]);
+
+    const emailExists = emailResult.rows.length > 0;
+    const usernameExists = usernameResult.rows.length > 0;
+
+    return res.status(200).json({ emailExists, usernameExists });
+  } catch (error) {
+    console.error('Error checking user existence:', error);
+    return res.status(500).json({ message: 'Server error.' });
+  }
+};
+
+
+
 // Sign up
+// In your signUp function, check for email existence
 export const signUp = async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
@@ -19,20 +43,29 @@ export const signUp = async (req, res) => {
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check if email or username already exists
+    const emailExists = await pool.query('SELECT * FROM "Users" WHERE "Email" = $1', [email]);
+    if (emailExists.rows.length > 0) {
+      return res.status(409).json({ message: 'Email already exists.' });
+    }
+
+    const usernameExists = await pool.query('SELECT * FROM "Users" WHERE "Username" = $1', [username]);
+    if (usernameExists.rows.length > 0) {
+      return res.status(409).json({ message: 'Username already exists.' });
+    }
+
+    // Proceed with user creation
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password") VALUES ($1, $2, $3) RETURNING "UserId"';
     const values = [username, email, hashedPassword];
 
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
 
-    // Predefined StatusNameIds for default statuses (1-5) in uppercase
+    // Insert default statuses (as per your previous logic)
     const defaultStatusNames = ['TO DO', 'APPLIED', 'INTERVIEW', 'OFFERED', 'REJECTED'];
-
-    // Insert or fetch StatusNameIds for each default status
     for (const [index, status] of defaultStatusNames.entries()) {
       let statusNameId;
-
       const statusNameResult = await pool.query(`
         INSERT INTO "StatusName" ("StatusName")
         VALUES ($1)
@@ -47,7 +80,6 @@ export const signUp = async (req, res) => {
         statusNameId = existingStatusResult.rows[0].StatusNameId;
       }
 
-      // Insert into Status with the retrieved StatusNameId
       await pool.query(`
         INSERT INTO "Status" ("StatusNameId", "StatusOrder", "UserId")
         VALUES ($1, $2, $3);
@@ -56,8 +88,8 @@ export const signUp = async (req, res) => {
 
     res.status(201).json({ userId, message: 'User created successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error.' });
+    console.error('Error during signup:', error);
+    return res.status(500).json({ message: 'Server error.' });
   }
 };
 
@@ -67,41 +99,50 @@ export const signUp = async (req, res) => {
 // Login
 export const login = async (req, res) => {
   const { email, password } = req.body;
+  
+  // Basic validation
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required.' });
   }
 
   try {
+    // Check if the user exists
     const query = 'SELECT * FROM "Users" WHERE "Email" = $1';
     const values = [email];
     const { rows } = await pool.query(query, values);
 
     if (rows.length === 0) {
-      return res.status(404).json({ message: 'User not found.' });
+      // User does not exist
+      return res.status(404).json({ message: 'No account associated with this email.' });
     }
 
     const user = rows[0];
+
+    // Check if the password is correct
     const match = await bcrypt.compare(password, user.Password);
-    if (match) {
-      // Generate a JWT token
-      const token = jwt.sign({ userId: user.UserId, email: user.Email }, SECRET_KEY);
-      res.status(200).json({
-        message: 'Login successful!',
-        token: token,
-        user: {
-          id: user.UserId,
-          email: user.Email,
-          username: user.Username,
-        }
-      });
-    } else {
-      res.status(401).json({ message: 'Password is incorrect.' });
+    if (!match) {
+      // Incorrect password
+      return res.status(401).json({ message: 'Incorrect password. Please try again.' });
     }
+
+    // If the credentials are correct, generate a JWT token
+    const token = jwt.sign({ userId: user.UserId, email: user.Email }, SECRET_KEY);
+    
+    res.status(200).json({
+      message: 'Login successful!',
+      token: token,
+      user: {
+        id: user.UserId,
+        email: user.Email,
+        username: user.Username,
+      }
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error.' });
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
+
 
 // Forgot Password
 export const forgotPassword = async (req, res) => {
