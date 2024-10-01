@@ -59,45 +59,108 @@ const defaultTheme = createTheme();
 export default function SignUp() {
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false); // Loading state
+  const [emailError, setEmailError] = React.useState<string | null>(null);
+  const [passwordError, setPasswordError] = React.useState<string | null>(null);
+  const [nameError, setNameError] = React.useState<string | null>(null);
   const isSmallScreen = useMediaQuery('(max-width:600px)');
+
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    return password.length >= 6; // Password must be at least 6 characters
+  };
+
+
+  const checkIfUserExists = async (email: string, username: string) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/check-exists`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, username }),
+      });
+      const result = await response.json();
+      return result; // Return an object { emailExists: boolean, usernameExists: boolean }
+    } catch (error) {
+      console.error('Error checking existing user:', error);
+      return { emailExists: false, usernameExists: false };
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const userData = {
-      username: data.get('Name'),
-      email: data.get('email'),
-      password: data.get('password')
-    };
-
-    setLoading(true); // Start loading
-
+    const username = data.get('Name') as string;
+    const email = data.get('email') as string;
+    const password = data.get('password') as string;
+  
+    // Client-side validation
+    let valid = true;
+    if (!username) {
+      setNameError('Name is required');
+      valid = false;
+    } else {
+      setNameError(null);
+    }
+  
+    if (!email) {
+      setEmailError('Email is required');
+      valid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError('Invalid email format');
+      valid = false;
+    } else {
+      setEmailError(null);
+    }
+  
+    if (!password) {
+      setPasswordError('Password is required');
+      valid = false;
+    } else {
+      setPasswordError(null);
+    }
+  
+    if (!valid) return;
+  
+    // Check if email or username already exists
+    const { emailExists, usernameExists } = await checkIfUserExists(email, username);
+  
+    if (emailExists) {
+      setEmailError('Email already exists.');
+      return;
+    }
+  
+    if (usernameExists) {
+      setNameError('Username already exists.');
+      return;
+    }
+  
+    setLoading(true);
+  
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/signup`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(userData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
       });
-
+  
       if (response.ok) {
-        const result = await response.json();
-        console.log('Signup successful:', result);
-        window.location.href = '/main'; // Redirect to main page
+        window.location.href = '/SignIn';
       } else {
         const errorMessage = await response.text();
         setError(errorMessage);
-        console.error('Signup failed:', errorMessage);
       }
     } catch (err) {
       setError('An error occurred during signup. Please try again later.');
-      console.error('Signup error:', err);
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
+  
   return (
     <ThemeProvider theme={defaultTheme}>
       <Grid container component="main" sx={{ minHeight: '100vh', height: '100vh' }}>
@@ -159,7 +222,10 @@ export default function SignUp() {
                         id="Name"
                         label="Name"
                         autoFocus
+                        error={!!nameError}
+                        helperText={nameError}
                       />
+
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
@@ -169,6 +235,8 @@ export default function SignUp() {
                         label="Email Address"
                         name="email"
                         autoComplete="email"
+                        error={!!emailError}
+                        helperText={emailError}
                       />
                     </Grid>
                     <Grid item xs={12}>
@@ -180,7 +248,10 @@ export default function SignUp() {
                         type="password"
                         id="password"
                         autoComplete="new-password"
+                        error={!!passwordError}
+                        helperText={passwordError}
                       />
+
                     </Grid>
                     <Grid item xs={12}>
                       <FormControlLabel
