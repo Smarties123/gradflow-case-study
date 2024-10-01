@@ -22,7 +22,7 @@ const SettingsView = ({ show, onClose }) => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await fetch('http://localhost:3001/api/users/profile', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${user.token}`,
@@ -60,7 +60,7 @@ const SettingsView = ({ show, onClose }) => {
 
     const handleSubmit = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/users/profile', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${user.token}`,
@@ -100,7 +100,7 @@ const SettingsView = ({ show, onClose }) => {
 
     const handleDeleteAccount = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/users/profile', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${user.token}`,

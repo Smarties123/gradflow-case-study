@@ -12,10 +12,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 export default function FAQ() {
   const [expanded, setExpanded] = React.useState<string | false>(false);
 
-  const handleChange =
-    (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false);
-    };
+  const handleChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpanded(isExpanded ? panel : false);
+  };
 
   return (
     <Container
@@ -27,7 +26,7 @@ export default function FAQ() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: { xs: 3, sm: 6 },
+        gap: { xs: 3, sm: 6 }
       }}
     >
       <Typography
@@ -36,16 +35,13 @@ export default function FAQ() {
         color="text.primary"
         sx={{
           width: { sm: '100%', md: '60%' },
-          textAlign: { sm: 'left', md: 'center' },
+          textAlign: { sm: 'left', md: 'center' }
         }}
       >
         Frequently asked questions
       </Typography>
       <Box sx={{ width: '100%' }}>
-        <Accordion
-          expanded={expanded === 'panel1'}
-          onChange={handleChange('panel1')}
-        >
+        <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel1d-content"
@@ -56,91 +52,66 @@ export default function FAQ() {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography
-              variant="body2"
-              gutterBottom
-              sx={{ maxWidth: { sm: '100%', md: '70%' } }}
-            >
+            <Typography variant="body2" gutterBottom sx={{ maxWidth: { sm: '100%', md: '80%' } }}>
               You can reach our customer support team by emailing
-              <Link> support@email.com </Link>
-              or calling our toll-free number. We&apos;re here to assist you
-              promptly.
+              <Link> gradflow@email.com </Link>
+              or use our feedback button.
             </Typography>
           </AccordionDetails>
         </Accordion>
-        <Accordion
-          expanded={expanded === 'panel2'}
-          onChange={handleChange('panel2')}
-        >
+        <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel2d-content"
             id="panel2d-header"
           >
             <Typography component="h3" variant="subtitle2">
-              Can I return the product if it doesn&apos;t meet my expectations?
+              How do I add a new job application?
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography
-              variant="body2"
-              gutterBottom
-              sx={{ maxWidth: { sm: '100%', md: '70%' } }}
-            >
-              Absolutely! We offer a hassle-free return policy. If you&apos;re not
-              completely satisfied, you can return the product within [number of
-              days] days for a full refund or exchange.
+            <Typography variant="body2" gutterBottom sx={{ maxWidth: { sm: '100%', md: '80%' } }}>
+              To add a new job application, click on the <strong>Add New</strong> button at the top
+              of the application board or in the columns. Fill in the necessary details such as job
+              title, company name, position, and stage of application (Applied, Interview, Offered,
+              etc.).
             </Typography>
           </AccordionDetails>
         </Accordion>
-        <Accordion
-          expanded={expanded === 'panel3'}
-          onChange={handleChange('panel3')}
-        >
+        <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel3d-content"
             id="panel3d-header"
           >
             <Typography component="h3" variant="subtitle2">
-              What makes your product stand out from others in the market?
+              What makes GradFlow different from other job tracking tools?
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography
-              variant="body2"
-              gutterBottom
-              sx={{ maxWidth: { sm: '100%', md: '70%' } }}
-            >
-              Our product distinguishes itself through its adaptability, durability,
-              and innovative features. We prioritize user satisfaction and
-              continually strive to exceed expectations in every aspect.
+            <Typography variant="body2" gutterBottom sx={{ maxWidth: { sm: '100%', md: '80%' } }}>
+              GradFlow is specifically designed for students and recent graduates, helping you
+              organize your graduate or job applications in an intuitive way. It includes features
+              like customizable stages, company logos, progress dashboards, and a clean user
+              interface tailored for managing multiple applications at different stages.
             </Typography>
           </AccordionDetails>
         </Accordion>
-        <Accordion
-          expanded={expanded === 'panel4'}
-          onChange={handleChange('panel4')}
-        >
+        <Accordion expanded={expanded === 'panel4'} onChange={handleChange('panel4')}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
             aria-controls="panel4d-content"
             id="panel4d-header"
           >
             <Typography component="h3" variant="subtitle2">
-              Is there a warranty on the product, and what does it cover?
+              How do I move a job application between stages?
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography
-              variant="body2"
-              gutterBottom
-              sx={{ maxWidth: { sm: '100%', md: '70%' } }}
-            >
-              Yes, our product comes with a [length of warranty] warranty. It covers
-              defects in materials and workmanship. If you encounter any issues
-              covered by the warranty, please contact our customer support for
-              assistance.
+            <Typography variant="body2" gutterBottom sx={{ maxWidth: { sm: '100%', md: '80%' } }}>
+              To move a job application between stages (e.g., from Applied to Interview), simply
+              drag and drop the application card from one column to another on the job tracking
+              board.
             </Typography>
           </AccordionDetails>
         </Accordion>

@@ -11,7 +11,14 @@ import { Column, Card } from './types';
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 import MoveStatusModal from '../../components/MoveStatusModal/MoveStatusModal';  // Import the modal
 
+import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
 
+import BinPopup from '../../components/BinPopup/BinPopup';
+
+
+const SCROLL_STEP = 10;
+const SCROLL_ZONE_HEIGHT = 100;
+const SCROLL_ZONE_WIDTH = 100; // Set width for horizontal scroll zones
 
 const Board: React.FC = () => {
   const context = useContext(BoardContext);
@@ -19,6 +26,69 @@ const Board: React.FC = () => {
 
   const [loading, setLoading] = useState<boolean>(true); // State to manage loading
   const [error, setError] = useState<string | null>(null); // State to manage errors
+  const [isDraggingCard, setIsDraggingCard] = useState(false);
+
+  const [scrolling, setScrolling] = useState<boolean>(false);  // Add a state to control the scrolling
+  const scrollAnimationRef = useRef<number | null>(null);
+
+
+  // Ref to detect the container
+  const containerRef = useRef<HTMLDivElement>(null);
+
+
+  // Scroll handler for both horizontal and vertical scroll
+  const handleScroll = (e: any) => {
+    if (!isDraggingCard) return; // Prevent scroll if not dragging a card
+
+    const { clientY, clientX } = e;
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+
+    // Check the Y axis for scrolling
+    if (clientY < SCROLL_ZONE_HEIGHT) {
+      startScrolling(0, -SCROLL_STEP); // Scroll up
+    } else if (clientY > viewportHeight - SCROLL_ZONE_HEIGHT) {
+      startScrolling(0, SCROLL_STEP); // Scroll down
+    }
+
+    // Check the X axis for scrolling
+    if (clientX < SCROLL_ZONE_WIDTH) {
+      startScrolling(-SCROLL_STEP, 0); // Scroll left
+    } else if (clientX > viewportWidth - SCROLL_ZONE_WIDTH) {
+      startScrolling(SCROLL_STEP, 0); // Scroll right
+    }
+  };
+
+
+  // Start scrolling
+  const startScrolling = (scrollXAmount: number, scrollYAmount: number) => {
+    if (!scrolling) {
+      setScrolling(true);
+      scrollAnimationRef.current = window.requestAnimationFrame(() =>
+        scrollWindow(scrollXAmount, scrollYAmount)
+      );
+    }
+  };
+
+  // Perform scrolling based on direction
+  const scrollWindow = (scrollXAmount: number, scrollYAmount: number) => {
+    if (containerRef.current) {
+      containerRef.current.scrollBy(scrollXAmount, scrollYAmount); // Scroll horizontally
+    }
+    window.scrollBy(0, scrollYAmount); // Scroll vertically
+    scrollAnimationRef.current = window.requestAnimationFrame(() =>
+      scrollWindow(scrollXAmount, scrollYAmount)
+    );
+  };
+
+  const stopScrolling = () => {
+    setScrolling(false);
+    if (scrollAnimationRef.current) {
+      window.cancelAnimationFrame(scrollAnimationRef.current);
+      scrollAnimationRef.current = null;
+    }
+  };
+
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -32,31 +102,31 @@ const Board: React.FC = () => {
     const fetchApplications = async () => {
       try {
         // Fetch the user's statuses (columns)
-        const statusResponse = await fetch('http://localhost:3001/status', {
+        const statusResponse = await fetch(`${process.env.REACT_APP_API_URL}/status`, {
           headers: {
             'Authorization': `Bearer ${user?.token}`, // Attach the token
           },
         });
-  
+
         if (!statusResponse.ok) {
           throw new Error('Failed to fetch statuses');
         }
-  
+
         const statuses = await statusResponse.json();
-  
+
         // Fetch the user's applications
-        const jobResponse = await fetch('http://localhost:3001/applications', {
+        const jobResponse = await fetch(`${process.env.REACT_APP_API_URL}/applications`, {
           headers: {
             'Authorization': `Bearer ${user?.token}`, // Attach the token
           },
         });
-  
+
         if (!jobResponse.ok) {
           throw new Error('Failed to fetch applications');
         }
-  
+
         const jobs = await jobResponse.json();
-  
+
         // Map the server data to match the Card interface
         const mappedJobs: Card[] = jobs.map((job: any) => ({
           id: String(job.ApplicationId),
@@ -73,9 +143,9 @@ const Board: React.FC = () => {
           companyLogo: job.CompanyLogo, // Add this to store the company logo
           Favourite: job.Favourite || false, // Ensure Favourite is included
         }));
-  
+
         console.log(mappedJobs);
-  
+
         // Group jobs into columns based on StatusId and Status from the user's statuses
         const groupedColumns = groupJobsIntoColumns(mappedJobs, statuses);
         setColumns(groupedColumns);
@@ -86,12 +156,14 @@ const Board: React.FC = () => {
         setLoading(false);
       }
     };
-  
+
+
+
     if (user) {
       fetchApplications();
     }
   }, [user]);
-  
+
 
   // Function to group jobs into columns based on some status
   const groupJobsIntoColumns = (jobs: Card[], statuses: any[]): Column[] => {
@@ -101,22 +173,26 @@ const Board: React.FC = () => {
       title: status.StatusName,
       cards: []
     }));
-  
+
     // Group jobs into the appropriate column based on StatusId
     jobs.forEach(job => {
       const statusIndex = columns.findIndex(col => col.id === job.StatusId); // Use StatusId from backend
-  
+
       if (statusIndex >= 0) {
         columns[statusIndex].cards.push(job);
       } else {
         columns[0].cards.push(job); // Default to the first column if StatusId is unknown
       }
     });
-  
+
     return columns;
   };
-  
-  
+
+
+
+
+
+
 
   //TO DO: SPINNERS FOR LOADING and Proper ERROR Pages
   // if (loading) {
@@ -131,7 +207,7 @@ const Board: React.FC = () => {
     console.error('BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.');
   }
 
-  const { columns, setColumns, updateCard, onDragEnd } = context!;
+  const { columns, setColumns, updateCard, onDragEnd, updateStatusLocally } = context!;
 
   if (!columns) {
     console.error('Columns are not defined in context.');
@@ -149,6 +225,8 @@ const Board: React.FC = () => {
   // const { columns, setColumns } = useContext(BoardContext);
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<number | null>(-1);
 
 
   const ref = useRef<HTMLInputElement>(null);
@@ -169,17 +247,17 @@ const Board: React.FC = () => {
         setEditingColumnId(null);
         return;
       }
-  
+
       // Update local state
       setColumns(prev =>
         prev.map(col =>
           col.id === editingColumnId ? { ...col, title: newTitle } : col
         )
       );
-      
+
       // Send the updated column name (StatusName) to the backend
       try {
-        const response = await fetch(`http://localhost:3001/status/${editingColumnId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/status/${editingColumnId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -187,22 +265,22 @@ const Board: React.FC = () => {
           },
           body: JSON.stringify({ statusName: newTitle }),
         });
-  
+
         if (!response.ok) {
           throw new Error('Failed to update column name');
         }
-  
+
         const updatedStatus = await response.json();
         console.log('StatusName updated:', updatedStatus);
-  
+
       } catch (error) {
         console.error('Error updating column name:', error);
       }
-  
+
       setEditingColumnId(null);
     }
   };
-  
+
 
   const handleTitleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -224,19 +302,19 @@ const Board: React.FC = () => {
         alert('Cannot delete a column with cards.');
         return;
       }
-  
+
       try {
-        const response = await fetch(`http://localhost:3001/status/${columnId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/status/${columnId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${user?.token}`,
           },
         });
-  
+
         if (!response.ok) {
           throw new Error('Failed to delete column');
         }
-  
+
         setColumns(prevColumns => prevColumns.filter(col => col.id !== columnId));
         alert('Column deleted successfully');
       } catch (error) {
@@ -246,12 +324,12 @@ const Board: React.FC = () => {
     }
     setShowDropdown(null);
   };
-  
+
 
   const handleMove = (newPosition: number) => {
     if (selectedColumnId !== null) {
       // Call backend to update the status order
-      fetch(`http://localhost:3001/status/${selectedColumnId}/move`, {
+      fetch(`${process.env.REACT_APP_API_URL}/status/${selectedColumnId}/move`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -259,26 +337,77 @@ const Board: React.FC = () => {
         },
         body: JSON.stringify({ newPosition }),
       })
-      .then(response => {
-        if (response.ok) {
-          // Update frontend state accordingly
-          setColumns((prevColumns) => {
-            const newColumns = [...prevColumns];
-            const movingColumn = newColumns.find(col => col.id === selectedColumnId);
-            if (movingColumn) {
-              newColumns.splice(movingColumn.StatusOrder - 1, 1); // Remove from current position
-              newColumns.splice(newPosition - 1, 0, movingColumn); // Insert in new position
-              newColumns.forEach((col, index) => col.StatusOrder = index + 1); // Recalculate order
-            }
-            return newColumns;
-          });
-        }
-      });
+        .then(response => {
+          if (response.ok) {
+            // Update frontend state accordingly
+            setColumns((prevColumns) => {
+              const newColumns = [...prevColumns];
+              const movingColumn = newColumns.find(col => col.id === selectedColumnId);
+              if (movingColumn) {
+                newColumns.splice(movingColumn.StatusOrder - 1, 1); // Remove from current position
+                newColumns.splice(newPosition - 1, 0, movingColumn); // Insert in new position
+                newColumns.forEach((col, index) => col.StatusOrder = index + 1); // Recalculate order
+              }
+              return newColumns;
+            });
+          }
+        });
     }
   };
-  
 
-  
+
+
+
+
+
+
+
+  const onDragStart = () => {
+    setIsDraggingCard(true);
+    window.addEventListener('mousemove', handleScroll); // Add mousemove listener
+  };
+
+
+  const handleDragEnd = async (result) => {
+    stopScrolling(); // Stop scrolling immediately after the drag ends
+    window.removeEventListener('mousemove', handleScroll); // Remove the mousemove listener
+    setIsDraggingCard(false); // Ensure the bin icon disappears
+
+    if (!result.destination) {
+      return; // If dropped outside any column or droppable area
+    }
+
+    const binDropped = result.destination.droppableId === 'bin';
+
+    if (binDropped) {
+      const cardId = result.draggableId;
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${cardId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+          },
+        });
+
+        if (response.ok) {
+          handleDeleteCard(cardId);
+        } else {
+          console.error('Failed to delete the card.');
+        }
+      } catch (error) {
+        console.error('Error deleting the card:', error);
+      }
+    } else {
+      context.onDragEnd(result); // Handle card movement between columns
+    }
+  };
+
+
+
+
+
+
+
 
 
   const handleCardSelect = (card: Card) => {
@@ -304,24 +433,38 @@ const Board: React.FC = () => {
     );
   };
 
+  // Show Delete Modal
+  const handleDeleteModal = (columnId: number) => {
+    setDeleteId(columnId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteColumn = () => {
+    // console.log("Delete Column");
+    // console.log(deleteId);
+    handleDropdownOptionSelect(2, deleteId);
+  };
+
+
 
   //For Deleting Card
   const handleDeleteCard = (cardId) => {
     setColumns((prevColumns) =>
       prevColumns.map((column) => ({
         ...column,
-        cards: column.cards.filter((card) => card.id !== cardId) // Remove the deleted card
+        cards: column.cards.filter((card) => card.id !== cardId),  // Remove the deleted card
       }))
     );
   };
 
+
   // For Adding new Status
   const handleAddNewColumn = async () => {
     const newColumnTitle = 'NEW STATUS';  // Ensure default title is capitalized
-    
+
     try {
       // Send a request to the backend to create the new column in the database
-      const response = await fetch('http://localhost:3001/status', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/status`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -329,34 +472,51 @@ const Board: React.FC = () => {
         },
         body: JSON.stringify({ statusName: newColumnTitle }), // Send the title to the backend
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to create new column');
       }
-  
+
       const newStatus = await response.json(); // Get the newly created column from the backend
-  
+
       // Add the new column to the frontend's state
       const newColumn: Column = {
         id: newStatus.status.StatusId,  // Use the ID returned from the backend
         title: newStatus.status.StatusName, // Use the StatusName returned from the backend
         cards: [], // No cards in the new column yet
       };
-  
+
       setColumns(prevColumns => [...prevColumns, newColumn]); // Add the new column to the existing ones
     } catch (error) {
       console.error('Error creating new column:', error);
     }
   };
-  
-  
+
+
+  const handleUpdateStatus = (newStatus) => {
+    if (selectedCard) {
+      const updatedCard = { ...selectedCard, status: newStatus };
+      setSelectedCard(updatedCard); // Update the selected card's status
+      setColumns(prevColumns =>
+        prevColumns.map(column => ({
+          ...column,
+          cards: column.cards.map(card =>
+            card.id === updatedCard.id ? { ...card, status: newStatus } : card
+          )
+        }))
+      );
+    }
+  };
+
+
+
 
 
 
 
   return (
-    <DragDropContext onDragEnd={onDragEnd as any}>
-      <div className="board">
+    <DragDropContext onDragStart={onDragStart} onDragEnd={handleDragEnd}>
+      <div className="board" ref={containerRef} >
         {columns.length === 0 ? (
           <p>No columns available</p>
         ) : (
@@ -366,7 +526,7 @@ const Board: React.FC = () => {
                 {editingColumnId !== column.id && (
                   <p className="column-counter">{column.cards.length}</p>
                 )}
-  
+
                 <div className="column-header-content">
                   {editingColumnId === column.id ? (
                     <div className='column-title-input'>
@@ -404,7 +564,7 @@ const Board: React.FC = () => {
                         <IoMdMove /> Move Status
                       </li>
                       {column.cards.length === 0 && ( // Only show "Delete" if column has no cards
-                        <li onClick={() => handleDropdownOptionSelect(2, column.id)}>
+                        <li onClick={() => handleDeleteModal(column.id)}>
                           <IoMdTrash /> Delete Status
                         </li>
                       )}
@@ -444,23 +604,36 @@ const Board: React.FC = () => {
             </div>
           ))
         )}
+
+        {/* Add New */}
         {isModalOpen && activeColumn && (
           <Modal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             columns={columns}
-            activeColumn={activeColumn}
-          />
+            activeColumn={activeColumn} theme={undefined} />
         )}
+
+        {/* Drawer View */}
         {isDrawerOpen && selectedCard && (
           <DrawerView
             show={isDrawerOpen}
             onClose={() => setIsDrawerOpen(false)}
             card={selectedCard}
             updateCard={updateCard}
+            updateStatusLocally={updateStatusLocally}  // Pass it here
             columnName={selectedCard.columnName}
+            updateStatus={handleUpdateStatus}
+            statuses={columns.map(col => ({ StatusId: col.id, StatusName: col.title }))}
           />
+
+
+
+
+
         )}
+
+        {/* Moving Column */}
         {showMoveModal && selectedColumnId && (
           <MoveStatusModal
             isOpen={showMoveModal}
@@ -468,17 +641,41 @@ const Board: React.FC = () => {
             currentOrder={columns.find(col => col.id === selectedColumnId)?.StatusOrder || 1}
             totalColumns={columns.length}
             onMove={handleMove}
+            columnNames={columns.map(col => col.title)}  // Pass column names here
           />
         )}
+
+
+        {/* Delete Modal */}
+        <DeleteModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onNo={() => setIsDeleteModalOpen(false)}
+          onYes={handleDeleteColumn}
+          title={null} />
+
+
         <div className="column-container" id="add-new-column">
           <button className="add-new-button" onClick={handleAddNewColumn}>
             Add New Status
           </button>
         </div>
       </div>
+
+
+      {/* Add the bin as a droppable area */}
+      <Droppable droppableId="bin">
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps} className="bin-drop-area">
+            <BinPopup isDragging={isDraggingCard} />
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+
     </DragDropContext>
   );
-  
+
 };
 
 export default Board;

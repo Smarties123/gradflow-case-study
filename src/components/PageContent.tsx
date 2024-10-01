@@ -1,17 +1,21 @@
 import React from 'react';
 import { Panel, PanelProps } from 'rsuite';
-import Copyright from '@/components/Copyright';
+import TermsAndConditions from '@/components/LandingPage/TermsAndConditions';
 
 interface PageContentProps extends PanelProps {
-  showCopyright?: boolean;
+  showTermsAndConditions?: boolean;  // Controls whether to show the Terms and Conditions
 }
 
 const PageContent = (props: PageContentProps) => {
-  const { showCopyright = true, ...panelProps } = props;
+  const { showTermsAndConditions = true, ...panelProps } = props;
+  
   return (
     <>
+      {/* Render the main panel content */}
       <Panel className="page-content" {...panelProps} />
-      {showCopyright && <Copyright />}
+      
+      {/* Conditionally render the Terms and Conditions based on the prop */}
+      {showTermsAndConditions && <TermsAndConditions />}
     </>
   );
 };

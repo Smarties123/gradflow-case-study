@@ -4,6 +4,9 @@ import { BoardContext } from '@/pages/board/BoardContext';
 import { useUser } from '@/components/User/UserContext';
 import { FormHelperText } from '@mui/material'; // Import FormHelperText from MUI
 import dayjs from 'dayjs';
+import Github from '@uiw/react-color-github';  // Import the color picker
+
+
 
 const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     const { addCardToColumn } = useContext(BoardContext);
@@ -25,12 +28,21 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     const [companySuggestions, setCompanySuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false); // Add this
     const [suggestionSelected, setSuggestionSelected] = useState(false);
+    const [selectedColor, setSelectedColor] = useState(''); // No default color initially
+    const [isColorPickerOpen, setIsColorPickerOpen] = useState(false); // Toggle state for color picker visibility
+    const colorOptions = ['#ff6200', '#1abc9c', '#3498db', '#9b59b6', '#e74c3c', '#f1c40f', '#2ecc71', '#e67e22'];
+
+    useEffect(() => {
+        const randomColor = colorOptions[Math.floor(Math.random() * colorOptions.length)];
+        setSelectedColor(randomColor);
+    }, [isOpen]); // This effect runs whenever the modal is opened
+
 
     useEffect(() => {
         if (company.length > 2 && !suggestionSelected) {  // Only fetch suggestions if no suggestion was selected
             const fetchCompanySuggestions = async () => {
                 try {
-                    const response = await fetch(`http://localhost:3001/company-search?q=${company}`, {
+                    const response = await fetch(`${process.env.REACT_APP_API_URL}/company-search?q=${company}`, {
                         headers: {
                             'Content-Type': 'application/json',
                         }
@@ -52,7 +64,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             setShowSuggestions(false);  // Hide the suggestions if input is too short
         }
     }, [company, suggestionSelected]);  // Include suggestionSelected in the dependency array
-    
+
     // Handle suggestion click to select the suggestion
     const handleSuggestionClick = (suggestion) => {
         setCompany(suggestion.name);
@@ -60,7 +72,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
         setShowSuggestions(false);  // Hide the dropdown
         setSuggestionSelected(true);  // Set the flag to true once a suggestion is selected
     };
-       
+
     // Handle blur event to save only text without logo and URL when user clicks offscreen
     const handleBlur = (e) => {
         if (!companySuggestions.length || !showSuggestions) {
@@ -94,8 +106,8 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
 
 
 
-    
-    
+
+
     const validateForm = () => {
         const newErrors = {};
         if (!company) newErrors.company = 'Company is required';
@@ -115,6 +127,15 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
         return Object.keys(newErrors).length === 0;
     };
 
+    const toggleColorPicker = () => {
+        setIsColorPickerOpen(!isColorPickerOpen); // Toggle the color picker visibility
+    };
+
+    const handleColorChange = (color) => {
+        setSelectedColor(color.hex); // Set selected color
+        setIsColorPickerOpen(false); // Close color picker after selection
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (validateForm()) {
@@ -126,13 +147,13 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 url: url || null,
                 companyLogo: companyLogo || null,
                 date_applied: dayjs().format('YYYY-MM-DD'),
-                card_color: '#ff6200',
+                card_color: selectedColor,  // Use the selected color
                 userId: user ? user.id : null,
-                statusId: activeColumn ? activeColumn.id : selectedColumn, // Get the correct statusId
+                statusId: activeColumn ? activeColumn.id : selectedColumn,
             };
-    
+
             try {
-                const response = await fetch('http://localhost:3001/addjob', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/addjob`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -140,10 +161,10 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     },
                     body: JSON.stringify(card),
                 });
-    
+
                 if (response.ok) {
-                    addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card); // Add card to the correct column
-                    onClose(); // Close the modal after successful submission
+                    addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card);
+                    onClose();
                 } else {
                     console.error('Failed to add job');
                 }
@@ -152,11 +173,11 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             }
         }
     };
-    
-    
-    
-    
-    
+
+
+
+
+
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -265,6 +286,41 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             </select>
                         </div>
                     )}
+
+                    {/* Color Picker as an Input */}
+                    <div className="input-wrapper" style={{ position: 'relative' }}>
+                        <label className="bordered-label">Card Color</label>
+                        {/* Color Box that shows the selected color */}
+                        <div
+                            className="color-selector-box"
+                            style={{
+                                backgroundColor: selectedColor,
+                                width: '100%',
+                                height: '40px',
+                                cursor: 'pointer',
+                                borderRadius: '4px',
+                                border: '1px solid #ccc',
+                                marginTop: '20px',
+                            }}
+                            onClick={toggleColorPicker}
+                        ></div>
+                        {/* Conditionally render color picker */}
+                        {isColorPickerOpen && (
+                            <div className="color-picker-dropdown"
+                                style={{
+                                    position: 'absolute',
+                                    top: '100%',
+                                    left: 0,
+                                    zIndex: 1000,
+                                    marginTop: '5px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                                }}
+                            >
+                                <Github color={selectedColor} onChange={handleColorChange} />
+                            </div>
+                        )}
+                    </div>
+
                     <div className="modal-buttons">
                         <button type="button" className="cancel-button" onClick={onClose}>
                             Cancel

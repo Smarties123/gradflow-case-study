@@ -19,10 +19,15 @@ const StyledButton = styled(Button)(({ theme }) => ({
     },
 }));
 
+// Put it in the function when we remove it form the sidebar
+export const handleButtonClick = () => {
+    window.open('https://forms.gle/VP1gkvxKpuhg1cJU9', '_blank');
+};
+
 const FeedbackButton: React.FC = () => {
-    const handleButtonClick = () => {
-        window.open('https://forms.gle/TzuxcFinXXdRzRZQ8', '_blank');
-    };
+    // const handleButtonClick = () => {
+    //     window.open('https://forms.gle/TzuxcFinXXdRzRZQ8', '_blank');
+    // };
 
     return (
         <StyledButton size='sm'
