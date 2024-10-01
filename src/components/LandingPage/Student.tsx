@@ -22,19 +22,19 @@ const items = [
     icon: <ViewQuiltRoundedIcon />,
     title: 'Panel',
     description: 'Visualize your job application journey like never before! Helping you stay on track and motivated as you chase your dream job',
-    image: 'url("/LandingPageMedia/Terminal - Kanban Board.png")'
+    image: 'url("https://i.imgur.com/UcFmgd2.png")'
   },
   {
     icon: <EdgesensorHighRoundedIcon />,
     title: 'Drag and Drop',
     description: 'Take control of your job hunt with our dynamic drag-and-drop feature! Effortlessly organize your applications and tailor your roadmap',
-    image: 'url("/LandingPageMedia/Terminal - Kanban Board Moving Card.png")',
+    image: 'url("https://i.imgur.com/p8EcR2u.png")',
   },
   {
     icon: <LibraryAddIcon />,
     title: 'Quick Add',
     description: 'Instantly capture and organize your job applications with just a click, making your journey to landing that dream job faster and easier than ever!',
-    image: 'url("/LandingPageMedia/Terminal - Add Job.png")',
+    image: 'url("https://i.imgur.com/YQzwGsk.png")',
   }
 ];
 
