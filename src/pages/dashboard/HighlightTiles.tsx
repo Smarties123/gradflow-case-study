@@ -67,9 +67,9 @@ interface HighlightTilesProps {
 
 const HighlightTiles: React.FC<HighlightTilesProps> = ({ data }) => {
   return (
-    <Row gutter={4}>
+    <Row gutter={2}>
       {data.map((item, index) => (
-        <Col key={index} xs={24} sm={6} md={3}>
+        <Col key={index} xs={24} sm={6} md={4}>
           <HighlightTile title={item.title} value={item.value} color={item.color} icon={item.icon} />
         </Col>
       ))}

@@ -22,7 +22,7 @@ const Dashboard: React.FC = () => {
 
   // Filter columns based on the selected date range
   const filteredColumns = useMemo(() => {
-    if (!selectedDateRange) return columns.slice(0, 8);  // Limit to first 8 columns
+    if (!selectedDateRange) return columns.slice(0, 12);
 
     const [startDate, endDate] = selectedDateRange;
     return columns.map(column => ({
@@ -40,20 +40,20 @@ const Dashboard: React.FC = () => {
     name: column.title,
     value: column.cards.length,
     percent: Math.round((column.cards.length / maxCards) * 100),
-    color: `hsl(24, 100%, ${50 + (index * 4)}%)`,
+    color: `hsl(24, 100%, ${50 + (index * 2)}%)`,
   }));
 
   const funnelData = filteredColumns.map((column, index) => ({
     name: column.title,
     value: column.cards.length,
     percent: Math.round((column.cards.length / maxCards) * 100),
-    color: `hsl(24, 100%, ${50 + (index * 4)}%)`,
+    color: `hsl(24, 100%, ${50 + (index * 2)}%)`,
   }));
 
   const highlightData = filteredColumns.map((column, index) => ({
     title: column.title,
     value: column.cards.length,
-    color: `hsl(24, 100%, ${50 + (index * 4)}%)`,
+    color: `hsl(24, 100%, ${50 + (index * 2)}%)`,
     icon: <div>{column.title[0]}</div>,
   }));
 
