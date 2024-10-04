@@ -90,6 +90,7 @@ export default function Student() {
             }}
           >
             <Box
+              id="animated-image"
               sx={{
                 m: 'auto',
                 width: 420,

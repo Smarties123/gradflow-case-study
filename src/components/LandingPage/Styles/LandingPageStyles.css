@@ -70,23 +70,12 @@ a:hover {
 }
 
 
-.css-1jksjri,
-.css-iaqgiv,
-.css-p6yzd4,
-.css-zhlr0x {
-  margin: 30px 10px !important;
+#animated-image {
+
+  margin: 10px auto !important;
   width: -webkit-fill-available !important;
   height: -webkit-fill-available !important;
-  background-size: cover !important;
+  background-size: contain !important;
   background-repeat: no-repeat !important;
-}
-
-.css-p6yzd4 {
   background-position: center;
-  background-size: contain !important;
-}
-
-.css-zhlr0x {
-  margin: 50% 10px !important;
-  background-size: contain !important;
 }
