@@ -18,14 +18,14 @@ const items = [
     icon: <GridViewIcon />,
     title: 'Dashboard',
     description: 'Dive into your personalized Dashboard, where insights and opportunities come together! Track your progress and gain a clear view of your job applications, all in one dynamic hub.',
-    image: 'url("/LandingPageMedia/Insights - Dashboard.png")',
+    image: 'url("https://i.imgur.com/bSTMQlX.png")',
     imagePosition: 'center 20px' // Adjusting the position of the dashboard image (move it down slightly)
   },
   {
     icon: <TableRowsIcon />,
     title: 'Table',
     description: 'Discover your data like never before! Our Table feature transforms your insights into an organized and interactive experience, making it easy to analyze and strategize your job search.',
-    image: 'url("/LandingPageMedia/Terminal - Table.png")', // Updated Table image
+    image: 'url("https://i.imgur.com/RA7sJxz.png")', // Updated Table image
     imagePosition: 'left' // No need to move this one
   },
   {
