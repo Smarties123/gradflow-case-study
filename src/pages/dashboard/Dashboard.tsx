@@ -22,7 +22,7 @@ const Dashboard: React.FC = () => {
 
   // Filter columns based on the selected date range
   const filteredColumns = useMemo(() => {
-    if (!selectedDateRange) return columns.slice(0, 6);  // Limit to first 6 columns
+    if (!selectedDateRange) return columns.slice(0, 12);
 
     const [startDate, endDate] = selectedDateRange;
     return columns.map(column => ({
@@ -40,20 +40,20 @@ const Dashboard: React.FC = () => {
     name: column.title,
     value: column.cards.length,
     percent: Math.round((column.cards.length / maxCards) * 100),
-    color: `hsl(24, 100%, ${50 + (index * 7)}%)`,
+    color: `hsl(24, 100%, ${50 + (index * 2)}%)`,
   }));
 
   const funnelData = filteredColumns.map((column, index) => ({
     name: column.title,
     value: column.cards.length,
     percent: Math.round((column.cards.length / maxCards) * 100),
-    color: `hsl(24, 100%, ${50 + (index * 7)}%)`,
+    color: `hsl(24, 100%, ${50 + (index * 2)}%)`,
   }));
 
   const highlightData = filteredColumns.map((column, index) => ({
     title: column.title,
     value: column.cards.length,
-    color: `hsl(24, 100%, ${50 + (index * 7)}%)`,
+    color: `hsl(24, 100%, ${50 + (index * 2)}%)`,
     icon: <div>{column.title[0]}</div>,
   }));
 
@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="scroll-container">
       <Row style={{ marginRight: '10px' }}>
-        <Col xs={24} id="border-line">
+        <Col xs={24}>
           <HighlightTiles data={highlightData} />
         </Col>
       </Row>
