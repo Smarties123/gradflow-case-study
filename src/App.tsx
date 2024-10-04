@@ -16,6 +16,9 @@ import { UserProvider, useUser } from './components/User/UserContext';
 import { BoardProvider } from './pages/board/BoardContext';
 import TermsAndConditions from './components/LandingPage/TermsAndConditions'; // Import TermsAndConditions component
 import ComingSoon from './components/ComingSoon/ComingSoon';
+import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar'; // Import ComingSoonCalendar
+import Files from './pages/files/Files'; // Import the Files component
+
 import FeedbackButton from './components/FeedbackButton/FeedbackButton';
 
 const App = () => {
@@ -31,8 +34,7 @@ const App = () => {
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         {/* Terms and Conditions Page */}
-        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />{' '}
-        {/* Add this route */}
+        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         {/* Routes that require UserContext */}
         <Route
           path="/main"
@@ -47,7 +49,8 @@ const App = () => {
           <Route index element={<Page />} />
           <Route path="/main/table" element={<TableComponent />} />
           <Route path="/main/dashboard" element={<Dashboard />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="/main/calendar" element={<ComingSoonCalendar />} />
+          <Route path="/main/files" element={<Files />} /> {/* Add the Files route */}
         </Route>
         {/* Catch-all for 404 Errors */}
         <Route path="*" element={<Error404Page />} />
