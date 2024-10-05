@@ -49,17 +49,32 @@ export default function LandingPage() {
         <Hero /> {/* Fix video box in hero */}
         <Box sx={{ bgcolor: 'background.default' }}>
           <LogoCollection />
-          <Student />
+          <Box id="panel" sx={{ bgcolor: 'background.default' }}>
+            <Student />
+          </Box>
+
           <Divider />
-          <University />
+
+          <Box id="insights" sx={{ bgcolor: 'background.default' }}>
+            <University />
+          </Box>
+
           <Divider />
-          <Testimonials />
+
+          <Box id="testimonials" sx={{ bgcolor: 'background.default' }}>
+            <Testimonials />
+          </Box>
+
+          <Divider />
+
+          <Box id="faq" sx={{ bgcolor: 'background.default' }}>
+            <FAQ />
+          </Box>
           {/* <Divider />
           <Highlights />
           <Divider /> */}
           {/* <Pricing /> */}
-          <Divider />
-          <FAQ />
+
           <Divider />
           <Footer />
         </Box>
