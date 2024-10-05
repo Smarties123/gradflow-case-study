@@ -100,8 +100,8 @@ export default function Hero() {
             useFlexGap
             sx={{ pt: 2, width: { xs: '100%', sm: 'auto' } }}
           >
-            <Button variant="contained" color="primary" href="/main">
-              Click to Access Terminal
+            <Button variant="contained" color="primary" href="/signup">
+            Sign Up for Free
             </Button>
           </Stack>
           <Typography variant="caption" textAlign="center" sx={{ opacity: 0.8 }}>

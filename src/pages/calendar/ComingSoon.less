@@ -1,0 +1,48 @@
+.coming-soon-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 0 20px; /* Add some padding for smaller screens */
+  text-align: center;
+
+  .coming-soon-message {
+    color: white;
+    font-size: 1.5rem;
+    margin-top: 20px;
+  }
+
+  .item {
+    img {
+      height: 260px;
+      max-width: 100%; /* Ensure the image doesn't overflow on smaller screens */
+      object-fit: contain;
+    }
+
+    .text {
+      margin-top: 20px;
+    }
+  }
+
+  /* Responsive styling for smaller screens */
+  @media (max-width: 768px) {
+    .coming-soon-message {
+      font-size: 1.2rem; /* Adjust font size for smaller screens */
+    }
+
+    .item img {
+      height: 200px; /* Reduce image height for smaller screens */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .coming-soon-message {
+      font-size: 1rem; /* Further adjust font size for very small screens */
+    }
+
+    .item img {
+      height: 150px; /* Further reduce image height for small screens */
+    }
+  }
+}
