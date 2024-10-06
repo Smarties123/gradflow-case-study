@@ -95,7 +95,6 @@ export const signUp = async (req, res) => {
 
 
 
-
 // Login
 export const login = async (req, res) => {
   const { email, password } = req.body;
@@ -275,18 +274,14 @@ export const updateUserDetails = async (req, res) => {
 
 
 
-// Delete User Account
 export const deleteUserAccount = async (req, res) => {
-  const userId = req.user.userId; // Extract userId from the token
+  const userId = req.user.userId;
 
   try {
-      // First, delete related entries in the Application table
       await pool.query('DELETE FROM "Application" WHERE "UserId" = $1', [userId]);
 
-      // Then, delete related entries in the Status table
       await pool.query('DELETE FROM "Status" WHERE "UserId" = $1', [userId]);
 
-      // Finally, delete the user from the Users table
       const result = await pool.query('DELETE FROM "Users" WHERE "UserId" = $1', [userId]);
 
       if (result.rowCount > 0) {
@@ -300,3 +295,16 @@ export const deleteUserAccount = async (req, res) => {
   }
 };
 
+
+
+export const getAllUsers = async () => {
+  try {
+    const result = await pool.query('SELECT "UserId", "Email" FROM "Users"');
+    return result.rows;
+  } 
+  catch (error) {
+    
+    console.error('Error fetching users:', error);
+    throw new Error('Database error');
+  }
+};
