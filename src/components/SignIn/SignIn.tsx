@@ -20,6 +20,12 @@ import { auth, provider } from '../../../firebaseConfig'; // Import your Firebas
 import { signInWithPopup } from 'firebase/auth';
 import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import IconButton from '@mui/material/IconButton';
+
+
+
 // Google SVG icon
 function GoogleIcon() {
   return (
@@ -52,6 +58,8 @@ export default function SignInSide() {
   const [loading, setLoading] = React.useState(false);
   const { setUser } = useUser();
   const isSmallScreen = useMediaQuery('(max-width:600px)');
+  const [showPassword, setShowPassword] = React.useState(false);
+
 
   // Email format validation
   const validateEmail = (email: string) => {
@@ -215,18 +223,30 @@ export default function SignInSide() {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                    error={!!passwordError}
-                    helperText={passwordError}
-                  />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type={showPassword ? "text" : "password"} // Conditionally toggle type
+                  id="password"
+                  autoComplete="current-password"
+                  error={!!passwordError}
+                  helperText={passwordError}
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    )
+                  }}
+                />
+
                 </Grid>
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <FormControlLabel

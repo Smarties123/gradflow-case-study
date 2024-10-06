@@ -17,9 +17,10 @@ import SchoolIcon from '@mui/icons-material/School'; // University icon
 import FeedbackButton from '../FeedbackButton/FeedbackButton'; // Feedback button
 import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import IconButton from '@mui/material/IconButton';
 
-
-// const [promotionalEmails, setPromotionalEmails] = React.useState(false); // New state for checkbox
 
 
 // Google SVG icon using official colors
@@ -68,6 +69,9 @@ export default function SignUp() {
   const [passwordError, setPasswordError] = React.useState<string | null>(null);
   const [nameError, setNameError] = React.useState<string | null>(null);
   const isSmallScreen = useMediaQuery('(max-width:600px)');
+
+  const [showPassword, setShowPassword] = React.useState(false);
+
 
 
   const validateEmail = (email: string) => {
@@ -250,12 +254,24 @@ export default function SignUp() {
                         fullWidth
                         name="password"
                         label="Password"
-                        type="password"
+                        type={showPassword ? "text" : "password"} // Conditionally toggle type
                         id="password"
                         autoComplete="new-password"
                         error={!!passwordError}
                         helperText={passwordError}
+                        InputProps={{
+                          endAdornment: (
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                              edge="end"
+                            >
+                              {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                            </IconButton>
+                          )
+                        }}
                       />
+
 
                     </Grid>
                     <Grid item xs={12}>
