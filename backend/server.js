@@ -1,13 +1,24 @@
 import dotenv from 'dotenv';
-dotenv.config();  // Load environment variables
+import { sendEmailsToAllUsers } from './services/emailService.js';
+import cron from 'node-cron';
+dotenv.config(); 
 
 import express from 'express';
 import cors from 'cors';
-import pool from './config/db.js';  // Database import after dotenv
-import userRoutes from './routes/userRoutes.js';  // Import user routes
+import pool from './config/db.js';  // Database import
+import userRoutes from './routes/userRoutes.js';  
 import applicationRoutes from './routes/applicationRoutes.js';
 import statusRoutes from './routes/statusRoutes.js';
-import logoDevProxy from './services/logoDevProxy.js';  // Import logoDevProxy
+import logoDevProxy from './services/logoDevProxy.js'; 
+
+
+// Schedule the task to run every wednesday at 9:00 AM 
+//for more info: https://www.npmjs.com/package/node-cron
+cron.schedule('0 9 * * 3', async () => {
+  console.log('Sending application status emails to all users...');
+  await sendEmailsToAllUsers();
+  console.log('Finished sending emails.');
+});
 
 const app = express();
 

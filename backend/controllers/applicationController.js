@@ -178,3 +178,60 @@ export const deleteApplication = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+export const getApplicationsStatus = async (userId) => {
+  try {
+    const query = `
+      SELECT * ,
+        CASE
+          WHEN "Deadline" < CURRENT_DATE THEN 'Past Due'
+          WHEN "Deadline" BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '1 week' THEN 'Due in 1 week'
+          WHEN "Deadline" BETWEEN CURRENT_DATE + INTERVAL '1 week' AND CURRENT_DATE + INTERVAL '2 weeks' THEN 'Due in 2 weeks'
+        END AS deadline_status
+      FROM "Application"
+      WHERE "UserId" = $1
+      AND (
+        "Deadline" < CURRENT_DATE
+        OR "Deadline" BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '2 weeks'
+      )
+      ORDER BY "Deadline" ASC;
+    `;
+
+    const values = [userId];
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+      return { pastDue: [], dueIn1Week: [], dueIn2Weeks: [] };
+    }
+
+
+    const formatDeadline = (date) => {
+      // const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit'};
+      return new Date(date).toLocaleString('en-US', options); 
+    };
+
+    const pastDue = result.rows.filter(app => app.deadline_status === 'Past Due').map(app => ({
+      ...app,
+      Deadline: formatDeadline(app.Deadline) 
+    }));
+
+    const dueIn1Week = result.rows.filter(app => app.deadline_status === 'Due in 1 week').map(app => ({
+      ...app,
+      Deadline: formatDeadline(app.Deadline) 
+    }));
+
+    const dueIn2Weeks = result.rows.filter(app => app.deadline_status === 'Due in 2 weeks').map(app => ({
+      ...app,
+      Deadline: formatDeadline(app.Deadline)
+    }));
+
+    return { pastDue, dueIn1Week, dueIn2Weeks };
+  } catch (error) {
+    console.error('Error fetching applications by deadline:', error);
+    throw new Error('Database error');
+  }
+};
+
+
