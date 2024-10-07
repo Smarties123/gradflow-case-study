@@ -15,6 +15,7 @@ import ResetPassword from './components/ForgotPassword/ResetPassword';
 import { UserProvider, useUser } from './components/User/UserContext';
 import { BoardProvider } from './pages/board/BoardContext';
 import TermsAndConditions from './components/LandingPage/TermsAndConditions'; // Import TermsAndConditions component
+import PrivacyPolicyGDPR from './components/LandingPage/PrivacyPolicyGDPR';
 import ComingSoon from './components/ComingSoon/ComingSoon';
 import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar'; // Import ComingSoonCalendar
 import Files from './pages/files/Files'; // Import the Files component
@@ -35,6 +36,7 @@ const App = () => {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         {/* Terms and Conditions Page */}
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+        <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR/>} />
         {/* Routes that require UserContext */}
         <Route
           path="/main"
