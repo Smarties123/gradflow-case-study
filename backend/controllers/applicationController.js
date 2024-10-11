@@ -47,8 +47,12 @@ export const getApplications = async (req, res) => {
 // Update general application details
 export const updateApplication = async (req, res) => {
   const { id } = req.params;
-  const { company, position, salary, notes, deadline, location, url, card_color, date_applied, interview_stage, statusId } = req.body; // Add statusId here
+  const { company, position, salary, notes, deadline, location, url, card_color, date_applied, interview_stage, statusId } = req.body; 
+
   const userId = req.user.userId;
+
+  // Log the URL to ensure it's being received
+  console.log('Received URL:', url);
 
   try {
     const query = `
@@ -65,11 +69,11 @@ export const updateApplication = async (req, res) => {
       notes || null,
       deadline || null,
       location || null,
-      url || null,
+      url || null,  // Ensure URL is being inserted into CompanyURL
       card_color || null,
       date_applied || null,
       interview_stage || null,
-      statusId || null,  // Add statusId here
+      statusId || null,
       id,
       userId
     ];

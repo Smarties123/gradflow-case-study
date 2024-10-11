@@ -59,6 +59,7 @@
     "framer-motion": "^11.5.4",
     "lodash": "^4.17.21",
     "md5": "^2.3.0",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.15",
     "prop-types": "^15.6.0",
     "react": "^18.3.1",

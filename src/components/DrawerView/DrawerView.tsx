@@ -7,7 +7,7 @@ import './DrawerView.less';
 import dayjs from 'dayjs';
 
 
-const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus, statuses, updateStatusLocally }) => {
+const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateStatus, statuses = [], updateStatusLocally }) => {
     const [currentView, setCurrentView] = useState('details');
     const { user } = useUser(); // Get the user object
     
@@ -16,18 +16,20 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
     };
 
     const [formData, setFormData] = useState({
-        company: card.company,
-        companyLogo: card.companyLogo,
-        position: card.position,
-        deadline: card.deadline ? parseDate(card.deadline) : null,
-        location: card.location,
-        url: card.url,
-        notes: card.notes,
-        salary: card.salary,
-        interview_stage: card.interview_stage,
+        company: card.company || '',  // Default to an empty string if null
+        companyLogo: card.companyLogo || '',
+        position: card.position || '',
+        deadline: card.deadline ? parseDate(card.deadline) : null,  // Allow null for dates
+        location: card.location || '',
+        url: card.url || '',
+        notes: card.notes || '',
+        salary: card.salary || 0,  // Default salary to 0
+        interview_stage: card.interview_stage || '',
         date_applied: card.date_applied ? parseDate(card.date_applied) : null,
-        card_color: card.card_color
+        card_color: card.card_color || '#ffffff',  // Default color to white
     });
+    
+    
 
     useEffect(() => {
         if (card.deadline) {
@@ -78,11 +80,14 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                 throw new Error('User not authenticated');
             }
     
+            console.log('User token:', user.token);  // Debug token value
+            console.log('Updated data:', updatedData);  // Debug the data being sent to the backend
+    
             const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${card.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`,
+                    'Authorization': `Bearer ${user.token}`,  // Ensure token is valid
                 },
                 body: JSON.stringify(updatedData),
             });
@@ -107,7 +112,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
             console.error('Error updating card:', error);
         }
     };
-    
+        
     
     
     
@@ -180,7 +185,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                             name="notes"
                                             rows={5}
                                             accepter={Textarea}
-                                            value={formData.notes}
+                                            value={formData.notes  || ''}
                                             onChange={value => handleChange(value, 'notes')}
                                             className="full-width"
                                         />
@@ -216,7 +221,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                             oneTap
                                             format="dd-MM-yyyy"
                                             className="full-width"
-                                            value={formData.date_applied}
+                                            value={formData.date_applied  || ''}
                                             onChange={value => handleChange(value, 'date_applied')}
                                         />
                                     </Form.Group>
@@ -230,7 +235,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                             oneTap
                                             format="dd-MM-yyyy"
                                             className="full-width"
-                                            value={formData.deadline}
+                                            value={formData.deadline  || ''}
                                             onChange={value => handleChange(value, 'deadline')}
                                         />
                                     </Form.Group>
@@ -242,7 +247,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                         <Form.ControlLabel className="formControlLabel">Location</Form.ControlLabel>
                                         <Form.Control
                                             name="location"
-                                            value={formData.location}
+                                            value={formData.location  || ''}
                                             onChange={value => handleChange(value, 'location')}
                                             className="full-width"
                                         />
@@ -255,7 +260,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                         <Form.ControlLabel className="formControlLabel">Edit URL</Form.ControlLabel>
                                         <Form.Control
                                             name="url"
-                                            value={formData.url}
+                                            value={formData.url  || ''}
                                             onChange={value => handleChange(value, 'url')}
                                             className="full-width"
                                         />
