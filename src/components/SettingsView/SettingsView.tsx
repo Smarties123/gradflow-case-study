@@ -25,13 +25,20 @@ const SettingsView = ({ show, onClose }) => {
                 const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${user.token}`
-                    }
+                        'Authorization': `Bearer ${user.token}`,
+                    },
                 });
-
+    
                 if (response.ok) {
                     const data = await response.json();
-                    setFormData({ name: data.Username, email: data.Email });
+                    setFormData({
+                        name: data.Username,
+                        email: data.Email,
+                        promotionalEmails: data.PromotionalEmail || false, // Ensure it's boolean
+                        applicationUpdates: data.ApplicationEmail || false, // Map ApplicationEmail from backend
+                        weeklyUpdates: data.WeeklyUpdates || false, // Example
+                        dailyUpdates: data.DailyUpdates || false, // Example
+                    });
                 } else {
                     console.error('Failed to fetch user data');
                 }
@@ -39,11 +46,13 @@ const SettingsView = ({ show, onClose }) => {
                 console.error('Error fetching user data', error);
             }
         };
-
+    
         if (show) {
             fetchUserData();
         }
     }, [show, user.token]);
+    
+
 
     const handleChange = (value, name) => {
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -55,11 +64,18 @@ const SettingsView = ({ show, onClose }) => {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${user.token}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name: formData.name, email: formData.email })
+                body: JSON.stringify({
+                    name: formData.name,
+                    email: formData.email,
+                    promotionalEmails: formData.promotionalEmails,
+                    applicationUpdates: formData.applicationUpdates,  // Send application updates field
+                    weeklyUpdates: formData.weeklyUpdates,
+                    dailyUpdates: formData.dailyUpdates,
+                }),
             });
-
+    
             if (response.ok) {
                 console.log('User data updated successfully');
                 onClose();  // Close drawer after saving
@@ -70,6 +86,7 @@ const SettingsView = ({ show, onClose }) => {
             console.error('Error updating user details', error);
         }
     };
+      
 
     // Function to handle password change redirection
     const handleChangePassword = () => {
@@ -225,38 +242,37 @@ const SettingsView = ({ show, onClose }) => {
                             </Grid>
                         </div>
                     )}
-
                     {currentView === 'notifications' && (
-                        <Form fluid className="notifications-tab">
-                            <h5 className="subject-title">Email Subscriptions</h5>
-                            <Grid fluid>
-                                <Row>
-                                    <Col xs={24}>
-                                        <Form.Group controlId="weeklyUpdates">
-                                            <Form.ControlLabel>Weekly Updates</Form.ControlLabel>
-                                            <Checkbox
-                                                name="weeklyUpdates"
-                                                onChange={value => handleChange(value, 'weeklyUpdates')}
-                                            />
-                                        </Form.Group>
-                                        <Form.Group controlId="dailyUpdates">
-                                            <Form.ControlLabel>Daily Updates</Form.ControlLabel>
-                                            <Checkbox
-                                                name="dailyUpdates"
-                                                onChange={value => handleChange(value, 'dailyUpdates')}
-                                            />
-                                        </Form.Group>
-                                        <Form.Group controlId="promotionalContent">
-                                            <Form.ControlLabel>Promotional Content</Form.ControlLabel>
-                                            <Checkbox
-                                                name="promotionalContent"
-                                                onChange={value => handleChange(value, 'promotionalContent')}
-                                            />
-                                        </Form.Group>
-                                    </Col>
-                                </Row>
-                            </Grid>
-                        </Form>
+                    <Form fluid className="notifications-tab">
+                        <h5 className="subject-title">Email Subscriptions</h5>
+                        <Grid fluid>
+                        <Row>
+                            <Col xs={24}>
+                                <Form.Group controlId="applicationUpdates" className="form-group">
+                                    <Form.ControlLabel className="formControlLabel">Application Updates</Form.ControlLabel>
+                                    <Checkbox
+                                        name="applicationUpdates"
+                                        checked={!!formData.applicationUpdates}
+                                        onChange={(value, checked) => handleChange(checked, 'applicationUpdates')}
+                                        style={{ backgroundColor: 'transparent', color: '#FFFFFF' }} // Ensure transparency and text color
+                                    />
+                                </Form.Group>
+                                <Form.Group controlId="promotionalContent" className="form-group">
+                                    <Form.ControlLabel className="formControlLabel">Promotional Content</Form.ControlLabel>
+                                    <Checkbox
+                                        name="promotionalContent"
+                                        checked={!!formData.promotionalEmails}
+                                        onChange={(value, checked) => handleChange(checked, 'promotionalEmails')}
+                                        style={{ backgroundColor: 'transparent', color: '#FFFFFF' }} // Ensure transparency and text color
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        </Grid>
+                        <Button appearance="primary" block onClick={handleSubmit}>
+                        Save Changes
+                        </Button>
+                    </Form>
                     )}
                 </Drawer.Body>
             </Drawer>
