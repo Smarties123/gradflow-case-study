@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { initialColumns as defaultInitialColumns } from '@/data/initialColumns';
+// import { initialColumns as defaultInitialColumns } from '@/data/initialColumns';
 import { Column, Card } from './types';
 
 // Define the shape of the context
@@ -17,9 +17,6 @@ export const BoardContext = createContext<BoardContextType | undefined>(undefine
 export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ children, user }) => {
     const [columns, setColumns] = useState<Column[]>([]);
 
-    useEffect(() => {
-        setColumns(defaultInitialColumns);
-    }, []);
 
     const addCardToColumn = (columnId: number, card: Card) => {
         setColumns(prevColumns =>

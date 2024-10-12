@@ -1,28 +1,30 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Row, Col, Panel, DateRangePicker } from 'rsuite';
 import './styles.less';
-import useData from "../../data/useData";
 
 /* Chart Imports */
 import FunnelChart from './FunnelChart';
 import BarChart from './BarChart';
 import LineChartComponent from './LineChart';
 import HighlightTiles from './HighlightTiles';
-import { BoardContext } from '../board/BoardContext'; // Adjust the path as needed
+import { useBoardData } from '../../hooks/useBoardData';
 import DonutChartComponent from './DonutChartComponent';
+import { useUser } from '../../components/User/UserContext';
+
 
 const Dashboard: React.FC = () => {
-  const { columns } = useContext(BoardContext);
-  const [dropdownType, setDropdownTypes] = useState<string[]>([]);
+  const { user } = useUser(); // Ensure you have the user from context or another source
+  const { columns } = useBoardData(user); // Correct usage of useBoardData
   const [selectedDateRange, setSelectedDateRange] = useState<[Date, Date] | null>(null);
 
-  if (!columns || columns.length === 0) {
-    return <div>Loading...</div>;
-  }
+  // Ensure columns is always defined to avoid conditional hooks
+  const hasColumns = columns && columns.length > 0;
 
   // Filter columns based on the selected date range
   const filteredColumns = useMemo(() => {
-    if (!selectedDateRange) return columns.slice(0, 6);  // Limit to first 6 columns
+    if (!hasColumns) return [];
+
+    if (!selectedDateRange) return columns.slice(0, 6); // Limit to first 6 columns
 
     const [startDate, endDate] = selectedDateRange;
     return columns.map(column => ({
@@ -32,32 +34,36 @@ const Dashboard: React.FC = () => {
         return cardDate >= startDate && cardDate <= endDate;
       })
     }));
-  }, [columns, selectedDateRange]);
+  }, [columns, selectedDateRange, hasColumns]);
 
-  const maxCards = Math.max(...filteredColumns.map(column => column.cards.length), 0);
+  const maxCards = hasColumns ? Math.max(...filteredColumns.map(column => column.cards.length), 0) : 0;
 
-  const donutData = filteredColumns.map((column, index) => ({
+  const donutData = hasColumns ? filteredColumns.map((column, index) => ({
     name: column.title,
     value: column.cards.length,
     percent: Math.round((column.cards.length / maxCards) * 100),
     color: `hsl(24, 100%, ${50 + (index * 7)}%)`,
-  }));
+  })) : [];
 
-  const funnelData = filteredColumns.map((column, index) => ({
+  const funnelData = hasColumns ? filteredColumns.map((column, index) => ({
     name: column.title,
     value: column.cards.length,
     percent: Math.round((column.cards.length / maxCards) * 100),
     color: `hsl(24, 100%, ${50 + (index * 7)}%)`,
-  }));
+  })) : [];
 
-  const highlightData = filteredColumns.map((column, index) => ({
+  const highlightData = hasColumns ? filteredColumns.map((column, index) => ({
     title: column.title,
     value: column.cards.length,
     color: `hsl(24, 100%, ${50 + (index * 7)}%)`,
     icon: <div>{column.title[0]}</div>,
-  }));
+  })) : [];
 
-  const keyForCharts = JSON.stringify(filteredColumns.map(column => column.title + column.cards.length));
+  const keyForCharts = hasColumns ? JSON.stringify(filteredColumns.map(column => column.title + column.cards.length)) : '';
+
+  if (!hasColumns) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="scroll-container">
