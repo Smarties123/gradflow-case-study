@@ -62,16 +62,16 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
 
     const handleSubmit = async () => {
         const updatedData = {
-            company: formData.company || card.company, 
-            position: formData.position || card.position,
-            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : card.deadline,
-            location: formData.location || card.location,
-            url: formData.url || card.url,
-            notes: formData.notes || card.notes,
-            salary: formData.salary || card.salary,
-            interview_stage: formData.interview_stage || card.interview_stage,
-            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : card.date_applied,
-            card_color: formData.card_color || card.card_color,
+            company: formData.company || card.company || null, 
+            position: formData.position || card.position || null,
+            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : card.deadline || null,
+            location: formData.location || card.location || null,
+            url: formData.url || card.url || null,
+            notes: formData.notes || card.notes || null,
+            salary: formData.salary !== undefined ? formData.salary : card.salary || null,
+            interview_stage: formData.interview_stage || card.interview_stage || null,
+            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : card.date_applied || null,
+            card_color: formData.card_color || card.card_color || null,
             statusId: formData.StatusId || card.StatusId // Ensure StatusId is always included
         };
     
@@ -80,9 +80,9 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                 throw new Error('User not authenticated');
             }
     
-            console.log('User token:', user.token);  // Debug token value
-            console.log('Updated data:', updatedData);  // Debug the data being sent to the backend
-    
+            // console.log('User token:', user.token);  // Debug token value
+            // console.log('Updated data:', updatedData);  // Debug the data being sent to the backend
+            // console.log('process.env.REACT_APP_API_URL', process.env.REACT_APP_API_URL); //
             const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${card.id}`, {
                 method: 'PUT',
                 headers: {
@@ -94,7 +94,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     
             if (response.ok) {
                 const updatedCard = await response.json();
-                console.log('Card updated:', updatedCard);
+                // console.log('Card updated:', updatedCard);
     
                 // Check if the status has changed and update the card's location accordingly
                 if (updatedData.statusId !== card.StatusId) {
