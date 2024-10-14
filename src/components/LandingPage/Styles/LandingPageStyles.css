@@ -1,5 +1,4 @@
 /* Ensure the font is loaded in your HTML */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 /* Apply the font globally with !important */
 body,
@@ -7,6 +6,8 @@ html {
   font-family: 'Inter', sans-serif !important;
   line-height: 1.5 !important;
   font-weight: 400 !important;
+  scroll-behavior: smooth;
+
   /* color: #333 !important; */
 }
 
@@ -70,23 +71,12 @@ a:hover {
 }
 
 
-.css-1jksjri,
-.css-iaqgiv,
-.css-p6yzd4,
-.css-zhlr0x {
-  margin: 30px 10px !important;
+#animated-image {
+
+  margin: 10px auto !important;
   width: -webkit-fill-available !important;
   height: -webkit-fill-available !important;
-  background-size: cover !important;
+  background-size: contain !important;
   background-repeat: no-repeat !important;
-}
-
-.css-p6yzd4 {
   background-position: center;
-  background-size: contain !important;
-}
-
-.css-zhlr0x {
-  margin: 50% 10px !important;
-  background-size: contain !important;
 }

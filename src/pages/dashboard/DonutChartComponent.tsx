@@ -1,47 +1,66 @@
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import ReactApexChart from 'react-apexcharts';
+import './Styles/DonutChartComponent.less';
 
 interface DonutChartComponentProps {
-    data: { name: string; value: number; color: string }[];
+  data: { name: string; value: number; color: string }[];
 }
 
 const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
+  const series = data.map(item => item.value); // Values for the chart
+  const labels = data.map(item => item.name); // Labels for each section
+  const colors = data.map(item => item.color); // Colors for each section
 
-    const filteredData = data.filter(entry => entry.value > 0);
+  const options = {
+    chart: {
+      width: '100%',
+      type: 'donut'
+    },
+    labels: labels,
+    colors: colors,
+    fill: {
+      opacity: 1
+    },
+    stroke: {
+      width: 1,
+      colors: undefined
+    },
+    legend: {
+      position: 'right',
+      labels: {
+        colors: '#333'
+      }
+    },
+    tooltip: {
+      y: {
+        formatter: val => `${val}`
+      }
+    },
+    responsive: [
+      {
+        breakpoint: 480,
+        options: {
+          chart: {
+            width: 300
+          },
+          legend: {
+            position: 'bottom',
+            labels: {
+              colors: '#333'
+            }
+          }
+        }
+      }
+    ]
+  };
 
-    return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <ResponsiveContainer width="90%" height={400}>
-                <PieChart>
-                    <Pie
-                        data={filteredData}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        innerRadius="70%" // Adjust inner radius
-                        outerRadius="90%" // Adjust outer radius to make it larger
-                        fill="#8884d8"
-                        paddingAngle={10} // Add padding between segments
-                    // label // Enable labels outside of the pie
-                    // labelLine={true} // Draw label lines
-                    >
-                        {data.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend
-                        layout="vertical"
-                        verticalAlign="top"
-                        align="right"
-                        wrapperStyle={{ padding: 20 }}
-                        formatter={(value, entry) => `${value} (${entry.payload.value})`}
-                    />
-                </PieChart>
-            </ResponsiveContainer>
-        </div>
-    );
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div id="chart">
+        <ReactApexChart options={options} series={series} type="donut" width={380} />
+      </div>
+    </div>
+  );
 };
 
 export default DonutChartComponent;

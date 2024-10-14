@@ -20,6 +20,12 @@ import { auth, provider } from '../../../firebaseConfig'; // Import your Firebas
 import { signInWithPopup } from 'firebase/auth';
 import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import IconButton from '@mui/material/IconButton';
+
+
+
 // Google SVG icon
 function GoogleIcon() {
   return (
@@ -42,16 +48,28 @@ function Copyright(props) {
   );
 }
 
-const defaultTheme = createTheme();
+
+const defaultTheme = createTheme(); // This line is missing
 
 export default function SignInSide() {
   const [error, setError] = React.useState<string | null>(null);
-  const [loading, setLoading] = React.useState(false); // Loading state
-  const { setUser } = useUser(); // Accessing the user context
+  const [emailError, setEmailError] = React.useState<string | null>(null); // Email validation error
+  const [passwordError, setPasswordError] = React.useState<string | null>(null); // Password validation error
+  const [loading, setLoading] = React.useState(false);
+  const { setUser } = useUser();
   const isSmallScreen = useMediaQuery('(max-width:600px)');
+  const [showPassword, setShowPassword] = React.useState(false);
 
+
+  // Email format validation
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Google sign-in
   const handleGoogleSignIn = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -79,26 +97,45 @@ export default function SignInSide() {
     } catch (error) {
       setError('Google sign-in failed.');
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
 
+  // Form submission and validation
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const userData = {
-      email: data.get('email'),
-      password: data.get('password')
-    };
+    const email = data.get('email') as string;
+    const password = data.get('password') as string;
+
+    // Validate input fields
+    let valid = true;
+    if (!email) {
+      setEmailError('Email is required');
+      valid = false;
+    } else if (!validateEmail(email)) {
+      setEmailError('Invalid email format');
+      valid = false;
+    } else {
+      setEmailError(null);
+    }
+
+    if (!password) {
+      setPasswordError('Password is required');
+      valid = false;
+    } else {
+      setPasswordError(null);
+    }
+
+    if (!valid) return; // Stop form submission if validation fails
+
     setLoading(true); // Start loading
 
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(userData)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       });
 
       if (response.ok) {
@@ -121,6 +158,7 @@ export default function SignInSide() {
       setLoading(false); // End loading
     }
   };
+
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -180,19 +218,35 @@ export default function SignInSide() {
                     name="email"
                     autoComplete="email"
                     autoFocus
+                    error={!!emailError}
+                    helperText={emailError}
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                  />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type={showPassword ? "text" : "password"} // Conditionally toggle type
+                  id="password"
+                  autoComplete="current-password"
+                  error={!!passwordError}
+                  helperText={passwordError}
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    )
+                  }}
+                />
+
                 </Grid>
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <FormControlLabel

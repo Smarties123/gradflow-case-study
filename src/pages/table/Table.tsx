@@ -1,16 +1,17 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Panel, Table, Stack, Badge, SelectPicker } from 'rsuite';
-import DrawerView from '../../components/DrawerView/DrawerView'; // Make sure the path is correct
-import { BoardContext } from '../board/BoardContext'; // Adjust the path as needed
+import DrawerView from '../../components/DrawerView/DrawerView';
+import { useBoardData } from '../../hooks/useBoardData';
 import ResizeObserver from 'resize-observer-polyfill';
 window.ResizeObserver = ResizeObserver;
+import { useUser } from '../../components/User/UserContext';
 
-// src\components\DrawerView\DrawerView.tsx
 
 const { Column, HeaderCell, Cell } = Table;
 
 const TableComponent: React.FC = () => {
-  const { columns } = useContext(BoardContext);
+  const { user } = useUser(); /* Your UserContext here */ // Ensure you have the user from context or other source
+  const { columns } = useBoardData(user); // Correct usage of useBoardData
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState('All Applications');
@@ -18,9 +19,10 @@ const TableComponent: React.FC = () => {
   const [selectedCard, setSelectedCard] = useState(null);
 
   useEffect(() => {
-    const newData = columns.flatMap(column => 
+    if (!columns) return;
+    const newData = columns.flatMap(column =>
       column.cards.map(card => ({
-        logo: card.companyLogo, // Replace with a dynamic logo source if available
+        logo: card.companyLogo,
         name: card.company,
         position: card.position,
         stage: column.title,
@@ -29,7 +31,7 @@ const TableComponent: React.FC = () => {
       }))
     );
     setTableData(newData);
-    setFilteredData(newData); // Initially show all data
+    setFilteredData(newData);
   }, [columns]);
 
   const statusOptions = [
@@ -43,9 +45,9 @@ const TableComponent: React.FC = () => {
   const handleStatusChange = (value) => {
     setSelectedStatus(value);
     if (value === 'All Applications') {
-      setFilteredData(tableData); // Show all data if "All Applications" is selected
+      setFilteredData(tableData);
     } else {
-      setFilteredData(tableData.filter(item => item.stage === value)); // Filter based on selected status
+      setFilteredData(tableData.filter(item => item.stage === value));
     }
   };
 
@@ -72,10 +74,7 @@ const TableComponent: React.FC = () => {
         />
       </Stack>
 
-      <Table
-        height={Math.max(window.innerHeight - 250, 400)}
-        data={filteredData}
-      >
+      <Table height={Math.max(window.innerHeight - 250, 400)} data={filteredData}>
         <Column width={80} align="center" fixed>
           <HeaderCell>Logo</HeaderCell>
           <Cell>
@@ -144,7 +143,6 @@ const TableComponent: React.FC = () => {
           card={selectedCard}
           updateCard={(id, updatedData) => {
             // Update the card in your context/state
-            // Make sure to implement this logic in your BoardContext or wherever you manage the cards
           }}
         />
       )}

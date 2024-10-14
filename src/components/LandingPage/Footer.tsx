@@ -97,21 +97,24 @@ export default function Footer() {
           <Typography variant="body2" fontWeight={600}>
             Product
           </Typography>
-          <Link color="text.secondary" href="#">
-            Student
+          <Link color="text.secondary" href="#panel">
+            Panel
           </Link>
-          <Link color="text.secondary" href="#">
-            University
+          <Link color="text.secondary" href="#insights">
+            Insights
           </Link>
-          <Link color="text.secondary" href="#">
-            Testimonals
+          <Link color="text.secondary" href="#testimonials">
+            Testimonials
           </Link>
-          <Link color="text.secondary" href="#">
-            Pricing
-          </Link>
-          <Link color="text.secondary" href="#">
+          <Link color="text.secondary" href="#faq">
             FAQs
           </Link>
+          {/* <Link color="text.secondary" href="#">
+            Pricing
+          </Link> */}
+          {/* <Link color="text.secondary" href="#">
+            FAQs
+          </Link> */}
         </Box>
         <Box
           sx={{
@@ -162,7 +165,7 @@ export default function Footer() {
         }}
       >
         <div>
-          <Link color="text.secondary" href="#">
+          <Link href="/privacy-policy-GDPR" target="_blank" rel="noopener noreferrer">
             Privacy Policy
           </Link>
           <Typography display="inline" sx={{ mx: 0.5, opacity: 0.5 }}>

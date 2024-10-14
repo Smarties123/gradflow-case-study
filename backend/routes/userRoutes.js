@@ -1,6 +1,6 @@
 // userRoutes.js
 import express from 'express';
-import { signUp, login, forgotPassword, resetPassword, getUserDetails, updateUserDetails, deleteUserAccount } from '../controllers/userController.js';
+import { signUp, login, forgotPassword, resetPassword, getUserDetails, updateUserDetails, deleteUserAccount, checkUserExists} from '../controllers/userController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -13,5 +13,8 @@ router.post('/reset-password', resetPassword);
 router.get('/profile', authenticateToken, getUserDetails);  
 router.put('/profile', authenticateToken, updateUserDetails); 
 router.delete('/profile', authenticateToken, deleteUserAccount);  // Add the DELETE route for deleting the user account
+router.post('/check-exists', checkUserExists);  // New route to check if email or username already exists
+
+
 
 export default router;
