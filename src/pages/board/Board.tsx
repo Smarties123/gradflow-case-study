@@ -189,7 +189,7 @@ const Board: React.FC = () => {
           Favourite: job.Favourite || false, // Ensure Favourite is included
         }));
 
-        console.log(mappedJobs);
+        // console.log(mappedJobs);
 
         // Group jobs into columns based on StatusId and Status from the user's statuses
         const groupedColumns = groupJobsIntoColumns(mappedJobs, statuses);

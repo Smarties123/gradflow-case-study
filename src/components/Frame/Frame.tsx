@@ -13,8 +13,6 @@ import { LuTable2 } from 'react-icons/lu';
 import { MdContacts, MdDashboard } from 'react-icons/md';
 import { TbFiles } from 'react-icons/tb';
 import FeedbackIcon from '@mui/icons-material/Feedback';
-
-
 import { CiSettings } from 'react-icons/ci';
 import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
 import { handleButtonClick } from '../FeedbackButton/FeedbackButton';
@@ -112,14 +110,14 @@ const Frame = () => {
                 />
                 <NavItem
                   title="Contacts"
-                  to="/comingsoon"
+                  to="/main/calendar"
                   eventKey="contacts"
                   icon={<Icon as={MdContacts} />}
                   animate={animate} // Pass the animate state
                 />
                 <NavItem
                   title="Files"
-                  to="/comingsoon"
+                  to="/main/files" // Updated to direct to Files.tsx
                   eventKey="files"
                   icon={<Icon as={TbFiles} />}
                   animate={animate} // Pass the animate state

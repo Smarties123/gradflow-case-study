@@ -45,19 +45,48 @@ export const getApplications = async (req, res) => {
 };
 
 // Update general application details
+// Update general application details
 export const updateApplication = async (req, res) => {
+  // console.log('updateApplication called');
+
   const { id } = req.params;
-  const { company, position, salary, notes, deadline, location, url, card_color, date_applied, interview_stage, statusId } = req.body; // Add statusId here
+  const { company, position, salary, notes, deadline, location, url, card_color, date_applied, interview_stage, statusId } = req.body; 
+
   const userId = req.user.userId;
+
+  // // Log each field for debugging
+  // console.log('Updating application with the following details:');
+  // console.log(`Company: ${company}`);
+  // console.log(`Position: ${position}`);
+  // console.log(`Salary: ${salary}`);
+  // console.log(`Notes: ${notes}`);
+  // console.log(`Deadline: ${deadline}`);
+  // console.log(`Location: ${location}`);
+  // console.log(`URL: ${url}`);
+  // console.log(`Card Color: ${card_color}`);
+  // console.log(`Date Applied: ${date_applied}`);
+  // console.log(`Interview Stage: ${interview_stage}`);
+  // console.log(`Status ID: ${statusId}`);
+  // console.log(`User ID: ${userId}`);
+  // console.log(`Application ID: ${id}`);
 
   try {
     const query = `
-      UPDATE "Application"
-      SET "CompanyName" = $1, "JobName" = $2, "Salary" = $3, "Notes" = $4, "Deadline" = $5, 
-          "Location" = $6, "CompanyURL" = $7, "Color" = $8, "DateApplied" = $9, "Interview" = $10, "StatusId" = $11
-      WHERE "ApplicationId" = $12 AND "UserId" = $13
-      RETURNING *;
-    `;
+    UPDATE "Application"
+    SET "CompanyName" = COALESCE($1, "CompanyName"), 
+        "JobName" = COALESCE($2, "JobName"), 
+        "Salary" = COALESCE($3, "Salary"), 
+        "Notes" = COALESCE($4, "Notes"), 
+        "Deadline" = COALESCE($5, "Deadline"), 
+        "Location" = COALESCE($6, "Location"), 
+        "CompanyURL" = COALESCE($7, "CompanyURL"), 
+        "Color" = COALESCE($8, "Color"), 
+        "DateApplied" = COALESCE($9, "DateApplied"), 
+        "Interview" = COALESCE($10, "Interview"), 
+        "StatusId" = COALESCE($11, "StatusId")
+    WHERE "ApplicationId" = $12 AND "UserId" = $13
+    RETURNING *;
+  `;
     const values = [
       company || null,
       position || null,
@@ -69,16 +98,21 @@ export const updateApplication = async (req, res) => {
       card_color || null,
       date_applied || null,
       interview_stage || null,
-      statusId || null,  // Add statusId here
+      statusId || null,
       id,
       userId
     ];
 
+    // Log the full values array before executing the query
+    // console.log('Values being passed to the query:', values);
+
     const { rows } = await pool.query(query, values);
 
     if (rows.length > 0) {
+      // console.log('Updated application:', rows[0]); // Log the result from the DB
       res.status(200).json({ message: 'Application updated successfully', application: rows[0] });
     } else {
+      // console.log('Application not found for update');
       res.status(404).json({ message: 'Application not found' });
     }
   } catch (error) {
@@ -94,6 +128,8 @@ export const updateApplication = async (req, res) => {
 
 
 export const updateApplicationStatus = async (req, res) => {
+  // console.log('updateApplicationStatus called');
+
   const { id } = req.params;
   const { statusId } = req.body;
   const userId = req.user.userId;
@@ -178,3 +214,60 @@ export const deleteApplication = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+export const getApplicationsStatus = async (userId) => {
+  try {
+    const query = `
+      SELECT * ,
+        CASE
+          WHEN "Deadline" < CURRENT_DATE THEN 'Past Due'
+          WHEN "Deadline" BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '1 week' THEN 'Due in 1 week'
+          WHEN "Deadline" BETWEEN CURRENT_DATE + INTERVAL '1 week' AND CURRENT_DATE + INTERVAL '2 weeks' THEN 'Due in 2 weeks'
+        END AS deadline_status
+      FROM "Application"
+      WHERE "UserId" = $1
+      AND (
+        "Deadline" < CURRENT_DATE
+        OR "Deadline" BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '2 weeks'
+      )
+      ORDER BY "Deadline" ASC;
+    `;
+
+    const values = [userId];
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+      return { pastDue: [], dueIn1Week: [], dueIn2Weeks: [] };
+    }
+
+
+    const formatDeadline = (date) => {
+      // const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit'};
+      return new Date(date).toLocaleString('en-US', options); 
+    };
+
+    const pastDue = result.rows.filter(app => app.deadline_status === 'Past Due').map(app => ({
+      ...app,
+      Deadline: formatDeadline(app.Deadline) 
+    }));
+
+    const dueIn1Week = result.rows.filter(app => app.deadline_status === 'Due in 1 week').map(app => ({
+      ...app,
+      Deadline: formatDeadline(app.Deadline) 
+    }));
+
+    const dueIn2Weeks = result.rows.filter(app => app.deadline_status === 'Due in 2 weeks').map(app => ({
+      ...app,
+      Deadline: formatDeadline(app.Deadline)
+    }));
+
+    return { pastDue, dueIn1Week, dueIn2Weeks };
+  } catch (error) {
+    console.error('Error fetching applications by deadline:', error);
+    throw new Error('Database error');
+  }
+};
+
+

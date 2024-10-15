@@ -7,7 +7,7 @@ import './DrawerView.less';
 import dayjs from 'dayjs';
 
 
-const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus, statuses, updateStatusLocally }) => {
+const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateStatus, statuses = [], updateStatusLocally }) => {
     const [currentView, setCurrentView] = useState('details');
     const { user } = useUser(); // Get the user object
     
@@ -16,18 +16,20 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
     };
 
     const [formData, setFormData] = useState({
-        company: card.company,
-        companyLogo: card.companyLogo,
-        position: card.position,
-        deadline: card.deadline ? parseDate(card.deadline) : null,
-        location: card.location,
-        url: card.url,
-        notes: card.notes,
-        salary: card.salary,
-        interview_stage: card.interview_stage,
+        company: card.company || '',  // Default to an empty string if null
+        companyLogo: card.companyLogo || '',
+        position: card.position || '',
+        deadline: card.deadline ? parseDate(card.deadline) : null,  // Allow null for dates
+        location: card.location || '',
+        url: card.url || '',
+        notes: card.notes || '',
+        salary: card.salary || 0,  // Default salary to 0
+        interview_stage: card.interview_stage || '',
         date_applied: card.date_applied ? parseDate(card.date_applied) : null,
-        card_color: card.card_color
+        card_color: card.card_color || '#ffffff',  // Default color to white
     });
+    
+    
 
     useEffect(() => {
         if (card.deadline) {
@@ -60,16 +62,16 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
 
     const handleSubmit = async () => {
         const updatedData = {
-            company: formData.company || card.company, 
-            position: formData.position || card.position,
-            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : card.deadline,
-            location: formData.location || card.location,
-            url: formData.url || card.url,
-            notes: formData.notes || card.notes,
-            salary: formData.salary || card.salary,
-            interview_stage: formData.interview_stage || card.interview_stage,
-            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : card.date_applied,
-            card_color: formData.card_color || card.card_color,
+            company: formData.company || card.company || null, 
+            position: formData.position || card.position || null,
+            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : card.deadline || null,
+            location: formData.location || card.location || null,
+            url: formData.url || card.url || null,
+            notes: formData.notes || card.notes || null,
+            salary: formData.salary !== undefined ? formData.salary : card.salary || null,
+            interview_stage: formData.interview_stage || card.interview_stage || null,
+            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : card.date_applied || null,
+            card_color: formData.card_color || card.card_color || null,
             statusId: formData.StatusId || card.StatusId // Ensure StatusId is always included
         };
     
@@ -78,18 +80,21 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                 throw new Error('User not authenticated');
             }
     
+            // console.log('User token:', user.token);  // Debug token value
+            // console.log('Updated data:', updatedData);  // Debug the data being sent to the backend
+            // console.log('process.env.REACT_APP_API_URL', process.env.REACT_APP_API_URL); //
             const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${card.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`,
+                    'Authorization': `Bearer ${user.token}`,  // Ensure token is valid
                 },
                 body: JSON.stringify(updatedData),
             });
     
             if (response.ok) {
                 const updatedCard = await response.json();
-                console.log('Card updated:', updatedCard);
+                // console.log('Card updated:', updatedCard);
     
                 // Check if the status has changed and update the card's location accordingly
                 if (updatedData.statusId !== card.StatusId) {
@@ -107,7 +112,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
             console.error('Error updating card:', error);
         }
     };
-    
+        
     
     
     
@@ -180,7 +185,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                             name="notes"
                                             rows={5}
                                             accepter={Textarea}
-                                            value={formData.notes}
+                                            value={formData.notes  || ''}
                                             onChange={value => handleChange(value, 'notes')}
                                             className="full-width"
                                         />
@@ -216,7 +221,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                             oneTap
                                             format="dd-MM-yyyy"
                                             className="full-width"
-                                            value={formData.date_applied}
+                                            value={formData.date_applied  || ''}
                                             onChange={value => handleChange(value, 'date_applied')}
                                         />
                                     </Form.Group>
@@ -230,7 +235,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                             oneTap
                                             format="dd-MM-yyyy"
                                             className="full-width"
-                                            value={formData.deadline}
+                                            value={formData.deadline  || ''}
                                             onChange={value => handleChange(value, 'deadline')}
                                         />
                                     </Form.Group>
@@ -242,7 +247,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                         <Form.ControlLabel className="formControlLabel">Location</Form.ControlLabel>
                                         <Form.Control
                                             name="location"
-                                            value={formData.location}
+                                            value={formData.location  || ''}
                                             onChange={value => handleChange(value, 'location')}
                                             className="full-width"
                                         />
@@ -255,7 +260,7 @@ const DrawerView = ({ show, onClose, card, updateCard, columnName, updateStatus,
                                         <Form.ControlLabel className="formControlLabel">Edit URL</Form.ControlLabel>
                                         <Form.Control
                                             name="url"
-                                            value={formData.url}
+                                            value={formData.url  || ''}
                                             onChange={value => handleChange(value, 'url')}
                                             className="full-width"
                                         />

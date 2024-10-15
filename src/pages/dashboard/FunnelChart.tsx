@@ -32,8 +32,11 @@ const CustomLabel: React.FC<{ x: number, y: number, name: string, percent: numbe
 
 const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode }) => {
   // Filter out entries with a value of 0
-  const filteredData = data.filter(entry => entry.value !== 0);
+  // Sort data in descending order of value
+  const sortedData = [...data].sort((a, b) => b.value - a.value);
 
+  // Filter out entries with a value of 0
+  const filteredData = sortedData.filter(entry => entry.value !== 0);
   return (
     <div className={mode === 'light' ? 'rs-theme-light' : 'rs-theme-dark'}>
       <h4>{title}</h4>
