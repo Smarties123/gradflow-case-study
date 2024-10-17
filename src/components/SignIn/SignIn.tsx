@@ -40,7 +40,7 @@ function Copyright(props) {
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
-        HADinc
+      HAD TECHNOLOGIES LTD
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}

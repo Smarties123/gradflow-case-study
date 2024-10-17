@@ -23,7 +23,7 @@ const TermsAndConditions = () => {
         <Stack spacing={2}>
           <Typography variant="h6">1. Introduction</Typography>
           <Typography variant="body1">
-            These Terms and Conditions govern your use of GradFlow and our subscription services. By accessing or using our website and services, you agree to abide by these terms. If you disagree with any part of the terms, you must discontinue use of the site. GradFlow is solely owned and operated by <strong>HADinc</strong>.
+            These Terms and Conditions govern your use of GradFlow and our subscription services. By accessing or using our website and services, you agree to abide by these terms. If you disagree with any part of the terms, you must discontinue use of the site. GradFlow is solely owned and operated by <strong>HAD TECHNOLOGIES LTD</strong>.
           </Typography>
 
           <Typography variant="h6">2. Subscription Service</Typography>
