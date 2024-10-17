@@ -1,13 +1,15 @@
 // userRoutes.js
 import express from 'express';
-import { signUp, login, forgotPassword, resetPassword, getUserDetails, updateUserDetails, deleteUserAccount, checkUserExists} from '../controllers/userController.js';
+import { signUp, googleSignUp, login, googleLogin, forgotPassword, resetPassword, getUserDetails, updateUserDetails, deleteUserAccount, checkUserExists} from '../controllers/userController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Register the routes
 router.post('/signup', signUp);
+router.post('/google-signup', googleSignUp);  // Add the new Google sign-up route
 router.post('/login', login);
+router.post('/google-login', googleLogin);  // New route for Google login
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);
 router.get('/profile', authenticateToken, getUserDetails);  

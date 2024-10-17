@@ -30,7 +30,7 @@ plural.
             <strong>Account</strong>: A unique account created for You to access our Service or parts of our Service.
           </Typography>
           <Typography variant="body1">
-            <strong>Company</strong>: Refers to HADinc, the owner and operator of GradFlow. For the purpose of GDPR, the Company is the Data Controller.
+            <strong>Company</strong>: Refers to HAD TECHNOLOGIES LTD, the owner and operator of GradFlow. For the purpose of GDPR, the Company is the Data Controller.
           </Typography>
           <Typography variant="body1">
             <strong>Country</strong>: Refers to the United Kingdom.
