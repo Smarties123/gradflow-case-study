@@ -24,6 +24,8 @@ import IconButton from '@mui/material/IconButton';
 import GoogleSignUpButton from './OtherSignUp'; // Adjust the path based on the folder structure
 
 import { useUser } from '../../components/User/UserContext'; // User context
+import Dialog from '@mui/material/Dialog';
+import ComingSoonSignUp from './ComingSoonSignUp'; // Adjust path as needed
 
 
 // Google SVG icon using official colors
@@ -74,6 +76,7 @@ export default function SignUp() {
   const isSmallScreen = useMediaQuery('(max-width:600px)');
 
   const [showPassword, setShowPassword] = React.useState(false);
+  const [isComingSoonOpen, setIsComingSoonOpen] = React.useState(false);
 
   const { setUser } = useUser();  // Assuming you are using user context
 
@@ -312,19 +315,20 @@ export default function SignUp() {
 
                     </Grid>
                     <Grid item>
-                      <Button
-                        variant="outlined"
-                        startIcon={<SchoolIcon sx={{ color: 'purple' }} />}
-                        sx={{
-                          width: '200px',
-                          borderRadius: '10px',
-                          padding: '10px 0px',
-                          textTransform: 'none',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                        }}
-                      >
-                        Sign up with University
-                      </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<SchoolIcon sx={{ color: 'purple' }} />}
+                    sx={{
+                      width: '200px',
+                      borderRadius: '10px',
+                      padding: '10px 0px',
+                      textTransform: 'none',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}
+                    onClick={() => setIsComingSoonOpen(true)} // Open popup
+                  >
+                    Sign in with University
+                  </Button>
                     </Grid>
                   </Grid>
                   <Grid container justifyContent="flex-end" sx={{ mt: 2 }}>
@@ -341,6 +345,9 @@ export default function SignUp() {
         </Grid>
       </Grid>
       <FeedbackButton />
+      <Dialog open={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} fullWidth maxWidth="sm">
+        <ComingSoonSignUp />
+      </Dialog>
     </ThemeProvider>
   );
 }

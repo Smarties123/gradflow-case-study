@@ -89,13 +89,13 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
               <LandingPageBrand />
 
               <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                <MenuItem onClick={() => scrollToSection('student')} sx={{ py: '6px', px: '12px' }}>
+                <MenuItem href="panel" onClick={() => scrollToSection('panel')} sx={{ py: '6px', px: '12px' }}>
                   <Typography variant="body2" color="text.primary">
                     Panel
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection('university')}
+                  onClick={() => scrollToSection('insights')}
                   sx={{ py: '6px', px: '12px' }}
                 >
                   <Typography variant="body2" color="text.primary">
@@ -125,7 +125,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   <Typography variant="body2" color="text.primary">
                     Pricing
                   </Typography>
-                </MenuItem>
+                </MenuItem>*/}
                 <MenuItem
                   onClick={() => scrollToSection('faq')}
                   sx={{ py: '6px', px: '12px' }}
@@ -133,7 +133,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   <Typography variant="body2" color="text.primary">
                     FAQ
                   </Typography>
-                </MenuItem> */}
+                </MenuItem> 
               </Box>
             </Box>
             <Box
