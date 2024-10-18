@@ -1,9 +1,10 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom'; // Add Navigate for redirection
 import { IntlProvider } from 'react-intl';
 import locales from './locales';
 import Frame from './components/Frame';
 import Error404Page from './pages/authentication/404';
+import Error401 from './components/ErrorPage/Error401'; // Import 401 error page
 import Page from './pages/board';
 import LandingPage from './components/LandingPage/LandingPage';
 import SignIn from './components/SignIn/SignIn';
@@ -24,6 +25,7 @@ import FeedbackButton from './components/FeedbackButton/FeedbackButton';
 
 const App = () => {
   const { user } = useUser(); // Extract user from the context
+  const isAuthenticated = !!user;
 
   return (
     <IntlProvider locale="en" messages={locales.en}>
@@ -41,19 +43,28 @@ const App = () => {
         <Route
           path="/main"
           element={
-            <UserProvider>
-              <BoardProvider user={user}>
-                <Frame />
-              </BoardProvider>
-            </UserProvider>
+            isAuthenticated ? (
+              <UserProvider>
+                <BoardProvider user={user}>
+                  <Frame />
+                </BoardProvider>
+              </UserProvider>
+            ) : (
+              <Navigate to="/401" /> // Redirect to 401 if not authenticated
+            )
           }
         >
+
           <Route index element={<Page />} />
           <Route path="/main/table" element={<TableComponent />} />
           <Route path="/main/dashboard" element={<Dashboard />} />
           <Route path="/main/calendar" element={<ComingSoonCalendar />} />
           <Route path="/main/files" element={<Files />} /> {/* Add the Files route */}
         </Route>
+
+        {/* 401 Unauthorized Page */}
+        <Route path="/401" element={<Error401 />} /> {/* Add this line */}
+
         {/* Catch-all for 404 Errors */}
         <Route path="*" element={<Error404Page />} />
         <Route path="/comingsoon" element={<ComingSoon />} />
