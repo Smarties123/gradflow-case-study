@@ -1,0 +1,52 @@
+.coming-soon-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 20px;
+  text-align: center;
+  max-width: 100%; /* Ensure it doesn't overflow horizontally */
+  background-color: #333;
+
+  .coming-soon-message {
+    // color: #333 !important; /* Change color to stand out on white background */
+    font-size: 1.5rem;
+    margin-top: 20px;
+    padding: 0 20px; /* Add padding to prevent text from touching edges */
+    word-wrap: break-word; /* Ensure text wraps */
+  }
+
+  .item {
+    img {
+      height: 200px;
+      max-width: 100%; /* Ensure the image doesn't overflow */
+      object-fit: contain;
+    }
+
+    .text {
+      margin-top: 20px;
+    }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .coming-soon-message {
+      font-size: 1.2rem;
+    }
+
+    .item img {
+      height: 180px; /* Reduce image size */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .coming-soon-message {
+      font-size: 1rem;
+    }
+
+    .item img {
+      height: 150px; /* Further reduce image size */
+    }
+  }
+}

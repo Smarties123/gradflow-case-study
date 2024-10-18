@@ -25,6 +25,8 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import IconButton from '@mui/material/IconButton';
 
 import GoogleSignInButton from './OtherSignIn'; // Import GoogleSignInButton
+import Dialog from '@mui/material/Dialog';
+import ComingSoonSignIn from './ComingSoonSignIn'; // Adjust path as needed
 
 
 // Google SVG icon
@@ -60,6 +62,8 @@ export default function SignInSide() {
   const { setUser } = useUser();
   const isSmallScreen = useMediaQuery('(max-width:600px)');
   const [showPassword, setShowPassword] = React.useState(false);
+  const [isComingSoonOpen, setIsComingSoonOpen] = React.useState(false);
+
 
 
   // Email format validation
@@ -307,9 +311,11 @@ export default function SignInSide() {
                       textTransform: 'none',
                       boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                     }}
+                    onClick={() => setIsComingSoonOpen(true)} // Open popup
                   >
                     Sign in with University
                   </Button>
+
                 </Grid>
               </Grid>
               <Grid container justifyContent="flex-end" sx={{ mt: 2 }}>
@@ -325,6 +331,9 @@ export default function SignInSide() {
         </Grid>
       </Grid>
       <FeedbackButton />
+      <Dialog open={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} fullWidth maxWidth="sm">
+        <ComingSoonSignIn />
+      </Dialog>
     </ThemeProvider>
   );
 }
