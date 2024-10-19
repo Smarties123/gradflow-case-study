@@ -3,6 +3,8 @@ import { signInWithPopup } from "firebase/auth";
 import React from 'react';
 import Button from '@mui/material/Button';
 import GoogleIcon from '@mui/icons-material/Google';
+import { analytics, logEvent } from '../../../firebaseConfig'; // Adjust the path as needed
+
 
 // Function to send user data to AWS backend
 // Function to send user data to AWS backend
@@ -57,6 +59,8 @@ export const handleGoogleSignup = async (setUser, setError, setLoading) => {
       });
 
       // Redirect to the main page
+      logEvent(analytics, 'sign_up', { method: 'Google' }); // Log Google sign-up event
+      logEvent(analytics, 'login', { method: 'Google' }); // Log Google login event
       window.location.href = '/main';
     }
   } catch (error) {

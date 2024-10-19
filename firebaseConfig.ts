@@ -1,6 +1,7 @@
 // firebaseConfig.ts
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAnalytics, logEvent } from "firebase/analytics"; // Import analytics
 
 // Firebase configuration
 const firebaseConfig = {
@@ -16,8 +17,14 @@ const firebaseConfig = {
 // Initialize Firebase once
 const app = initializeApp(firebaseConfig);
 
+// Initialize Analytics
+const analytics = getAnalytics(app);
+
 // Get Auth and Provider instances
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-export { auth, provider };
+// Optional: Log an initial event (e.g., app_open)
+logEvent(analytics, 'app_open');
+
+export { auth, provider, analytics, logEvent }; // Export analytics
