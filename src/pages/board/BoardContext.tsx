@@ -64,6 +64,20 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
     });
 };
 
+
+  const filterBoard = (searchResults: any[]) => {
+    setColumns((prevColumns) =>
+      prevColumns.map((column) => ({
+        ...column,
+        cards: column.cards.filter((card) => 
+          searchResults.some((result) => String(result.ApplicationId) === String(card.id)) // Ensure ApplicationId is compared as a string
+        ),
+      }))
+    );
+  };
+
+
+
 const onDragEnd = async (result) => {
   const { source, destination, draggableId } = result;
 
@@ -142,9 +156,18 @@ const onDragEnd = async (result) => {
 };
 
 
-    return (
-      <BoardContext.Provider value={{ columns, setColumns, addCardToColumn, updateCard, onDragEnd, updateStatusLocally }}>
-          {children}
-      </BoardContext.Provider>
-  );
+return (
+  <BoardContext.Provider 
+    value={{
+      columns,
+      setColumns,
+      addCardToColumn,
+      updateCard,
+      onDragEnd,
+      updateStatusLocally,
+      filterBoard // Export the filterBoard function
+    }}>
+    {children}
+  </BoardContext.Provider>
+);
 };
