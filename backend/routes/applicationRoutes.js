@@ -6,7 +6,8 @@ import {
   updateApplication, // Import the new updateApplication function
   updateApplicationStatus, 
   updateFavoriteStatus, 
-  deleteApplication 
+  deleteApplication,
+  searchApplications 
 } from '../controllers/applicationController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
@@ -32,5 +33,9 @@ router.put('/applications/:id', authenticateToken, updateApplication);
 
 // Route to delete an application
 router.delete('/applications/:id', authenticateToken, deleteApplication);
+
+
+router.get('/applications/search', authenticateToken, searchApplications);
+
 
 export default router;

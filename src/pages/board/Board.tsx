@@ -207,7 +207,7 @@ const Board: React.FC = () => {
     console.error('BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.');
   }
 
-  const { columns, setColumns, updateCard, onDragEnd, updateStatusLocally } = context!;
+  const { columns, setColumns, updateCard, onDragEnd, updateStatusLocally, filterBoard} = context!;
 
   if (!columns) {
     console.error('Columns are not defined in context.');

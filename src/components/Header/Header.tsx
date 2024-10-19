@@ -26,6 +26,8 @@ import { GiUpgrade } from 'react-icons/gi';
 import { CgDetailsMore } from 'react-icons/cg';
 import { useUser } from '@/components/User/UserContext';
 import Avatar from 'react-avatar';
+import Search from './Search'; // Import Search component
+
 
 const Header = props => {
   const { user, setUser } = useUser(); // Access user and setUser to clear user info on sign out
@@ -137,59 +139,8 @@ const Header = props => {
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
       <Stack direction="row" spacing={4} alignItems="flex-start">
-        {/* {isDashboardPage ? (
-          <div
-            style={{ display: 'flex', justifyContent: 'end', width: '100%', alignItems: 'center' }}
-          >
-            <h5 style={{ marginRight: '15px' }}>Dashboard</h5>
-            <h6>Upgrade now to see the GradFlow Graduate dashboard</h6>
-            <ButtonToolbar style={{ display: 'flex', gap: '3px', marginLeft: '20px' }}>
-              <Button
-                className="header-button"
-                style={{
-                  backgroundColor: 'yellow',
-                  color: 'black',
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '150px',
-                  border: '1px darkyellow solid'
-                }}
-              >
-                <GiUpgrade
-                  className="header-icon"
-                  style={{ fontSize: 18, color: 'black', margin: '1px 1px 1px 1px' }}
-                />
-                <span className="visually-hidden" style={{ color: 'black' }}>
-                  Upgrade to Pro
-                </span>
-              </Button>
-              <Button
-                className="header-button"
-                style={{
-                  backgroundColor: 'white',
-                  color: 'black',
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '150px',
-                  border: '1px black solid'
-                }}
-              >
-                <CgDetailsMore
-                  className="header-icon"
-                  style={{ fontSize: 18, margin: '1px 1px 1px 1px' }}
-                />
-                <span className="visually-hidden">Learn More</span>
-              </Button>
-            </ButtonToolbar>
-          </div>
-        ) : ( */}
-        <div style={{ display: 'flex', justifyContent: 'end', width: '100%' }}>
-          <InputGroup inside size="lg" className="search-input">
-            <InputGroup.Button>
-              <FaSearch />
-            </InputGroup.Button>
-            <Input placeholder="Search " />
-          </InputGroup>
+        <Search /> {/* Include the Search component here */}
+
           <div style={{ alignItems: 'left' }}>
             <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
               <Button
@@ -230,7 +181,6 @@ const Header = props => {
               </Button>
             </ButtonToolbar>
           </div>
-        </div>
         {/* )} */}
         <Modal
           isOpen={isAddModalOpen}

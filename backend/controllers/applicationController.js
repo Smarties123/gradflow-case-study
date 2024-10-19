@@ -271,3 +271,43 @@ export const getApplicationsStatus = async (userId) => {
 };
 
 
+
+
+
+// Search for applications by job name, company name, or location
+export const searchApplications = async (req, res) => {
+  const { query } = req.query;
+  const userId = req.user.userId;
+
+
+  if (!query) {
+    return res.status(400).json({ message: 'Search query missing' });
+  }
+
+  try {
+    const searchQuery = `%${query}%`;
+    const searchResults = await pool.query(
+      `
+      SELECT a.*, sn."StatusName"
+      FROM "Application" a
+      JOIN "Status" s ON a."StatusId" = s."StatusId"
+      JOIN "StatusName" sn ON s."StatusNameId" = sn."StatusNameId"
+      WHERE a."UserId" = $1
+      AND (
+        a."JobName" ILIKE $2
+        OR a."CompanyName" ILIKE $2
+        OR a."Location" ILIKE $2
+      )
+      ORDER BY a."Deadline" DESC;
+      `,
+      [userId, searchQuery]
+    );
+
+    res.status(200).json(searchResults.rows);
+  } catch (error) {
+    console.error('Error searching applications:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
