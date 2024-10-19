@@ -1,6 +1,6 @@
  .cardStats {
 
-     max-width: 146px;
+     //  max-width: 146px;
      height: 108px;
      display: flex;
      justify-content: center;
@@ -8,23 +8,48 @@
      border-radius: 16px !important;
      padding: 1rem;
      margin: 10px;
+     gap: 10px;
+     flex: 1;
  }
+
+ .highlight-tiles-row {
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: space-between;
+ }
+
+ #highlightTitle {
+     font-size: 0.9rem !important;
+     color: white !important;
+     font-weight: bold !important;
+     line-height: 1.5;
+     letter-spacing: 0.00938em;
+ }
+
+
 
  .rs-theme-dark {
 
      .cardStats {
-         color: '#fff';
-         box-shadow: 0px 8px 10px rgba(0, 0, 0, 0.2);
          color: white;
          border: white 1px solid;
-         background-color: rgb(23, 4, 94);
+         background-color: #ff6200;
      }
  }
 
  .rs-theme-light {
 
      .cardStats {
-         color: black;
-         border: black 1px solid !important;
+         color: white;
+         box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.2);
+
+         border: black \0.3px solid !important;
+         background-color: #ff6200;
+     }
+
+     .highlight-tile h4,
+     #highlightTitle {
+         color: white !important;
+         font-weight: bold !important;
      }
  }

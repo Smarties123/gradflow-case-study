@@ -25,7 +25,7 @@ const Dashboard: React.FC = () => {
 
     if (!hasColumns) return [];
 
-    if (!selectedDateRange) return columns.slice(0, 6); // Limit to first 6 columns
+    if (!selectedDateRange) return columns.slice(0, 1000); // Limit to first 6 columns
 
 
     const [startDate, endDate] = selectedDateRange;
