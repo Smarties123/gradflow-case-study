@@ -19,19 +19,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '20.x'  
-
-      - name: Check if AWS CLI is installed
-        run: |
-          if ! command -v aws &> /dev/null
-          then
-            echo "AWS CLI is not installed, installing..."
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-          else
-            echo "AWS CLI is already installed"
-          fi
-
+S
 
       - name: Deploy to Elastic Beanstalk
         env:
