@@ -45,7 +45,7 @@ const Dashboard: React.FC = () => {
     value: column.cards.length,
     percent: Math.round((column.cards.length / maxCards) * 100),
 
-    color: `hsl(24, 100%, ${50 + (index * 7)}%)`,
+    color: `hsl(24, 100%, ${30 + (index * 7)}%)`,
   })) : [];
 
 
