@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'backend/**'  # Only trigger if files in the backend directory change
+      - 'backend/**'
 
 jobs:
   deploy:
@@ -18,15 +18,14 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '20.x'  
-S
+          node-version: '20.x'
 
       - name: Deploy to Elastic Beanstalk
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'eu-west-2'  # Update with your region
+          AWS_REGION: 'eu-west-2' 
         run: |
           cd backend  # Navigate to the backend directory
-          eb init -p node.js --region $AWS_REGION
+          eb init -p node.js --region $AWS_REGION --platform node.js
           eb deploy
