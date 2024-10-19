@@ -1,10 +1,10 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom'; // Add Navigate for redirection
+import React, { useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'; // Add useLocation for tracking routes
 import { IntlProvider } from 'react-intl';
 import locales from './locales';
 import Frame from './components/Frame';
 import Error404Page from './pages/authentication/404';
-import Error401 from './components/ErrorPage/Error401'; // Import 401 error page
+import Error401 from './components/ErrorPage/Error401'; 
 import Page from './pages/board';
 import LandingPage from './components/LandingPage/LandingPage';
 import SignIn from './components/SignIn/SignIn';
@@ -15,17 +15,26 @@ import ForgotPassword from './components/ForgotPassword/ForgotPassword';
 import ResetPassword from './components/ForgotPassword/ResetPassword';
 import { UserProvider, useUser } from './components/User/UserContext';
 import { BoardProvider } from './pages/board/BoardContext';
-import TermsAndConditions from './components/LandingPage/TermsAndConditions'; // Import TermsAndConditions component
+import TermsAndConditions from './components/LandingPage/TermsAndConditions'; 
 import PrivacyPolicyGDPR from './components/LandingPage/PrivacyPolicyGDPR';
 import ComingSoon from './components/ComingSoon/ComingSoon';
-import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar'; // Import ComingSoonCalendar
-import Files from './pages/files/Files'; // Import the Files component
+import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar'; 
+import Files from './pages/files/Files'; 
 
 import FeedbackButton from './components/FeedbackButton/FeedbackButton';
 
+// Import logEvent to track user navigation
+import { logEvent, analytics } from '../firebaseConfig';
+
 const App = () => {
-  const { user } = useUser(); // Extract user from the context
+  const { user } = useUser();
   const isAuthenticated = !!user;
+  const location = useLocation();
+
+  useEffect(() => {
+    // Log event when a page is viewed
+    logEvent(analytics, 'page_view', { page: location.pathname });
+  }, [location]);
 
   return (
     <IntlProvider locale="en" messages={locales.en}>
@@ -38,7 +47,7 @@ const App = () => {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         {/* Terms and Conditions Page */}
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-        <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR/>} />
+        <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR />} />
         {/* Routes that require UserContext */}
         <Route
           path="/main"
@@ -54,16 +63,15 @@ const App = () => {
             )
           }
         >
-
           <Route index element={<Page />} />
           <Route path="/main/table" element={<TableComponent />} />
           <Route path="/main/dashboard" element={<Dashboard />} />
           <Route path="/main/calendar" element={<ComingSoonCalendar />} />
-          <Route path="/main/files" element={<Files />} /> {/* Add the Files route */}
+          <Route path="/main/files" element={<Files />} /> 
         </Route>
 
         {/* 401 Unauthorized Page */}
-        <Route path="/401" element={<Error401 />} /> {/* Add this line */}
+        <Route path="/401" element={<Error401 />} /> 
 
         {/* Catch-all for 404 Errors */}
         <Route path="*" element={<Error404Page />} />

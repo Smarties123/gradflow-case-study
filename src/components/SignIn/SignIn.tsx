@@ -27,6 +27,7 @@ import IconButton from '@mui/material/IconButton';
 import GoogleSignInButton from './OtherSignIn'; // Import GoogleSignInButton
 import Dialog from '@mui/material/Dialog';
 import ComingSoonSignIn from './ComingSoonSignIn'; // Adjust path as needed
+import { analytics, logEvent } from '../../../firebaseConfig'; // Adjust the path as needed
 
 
 // Google SVG icon
@@ -150,6 +151,7 @@ export default function SignInSide() {
           token: result.token,
           username: result.user.username
         });
+        logEvent(analytics, 'login', { method: 'Email' }); // Log the login event
         window.location.href = '/main';
       } else {
         const errorMessage = await response.text();

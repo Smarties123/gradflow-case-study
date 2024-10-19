@@ -26,6 +26,7 @@ import GoogleSignUpButton from './OtherSignUp'; // Adjust the path based on the 
 import { useUser } from '../../components/User/UserContext'; // User context
 import Dialog from '@mui/material/Dialog';
 import ComingSoonSignUp from './ComingSoonSignUp'; // Adjust path as needed
+import { analytics, logEvent } from '../../../firebaseConfig'; // Adjust the path as needed
 
 
 // Google SVG icon using official colors
@@ -164,6 +165,7 @@ export default function SignUp() {
       });
   
       if (response.ok) {
+        logEvent(analytics, 'sign_up', { method: 'Email' }); // Log the sign-up event
         window.location.href = '/SignIn';
       } else {
         const errorMessage = await response.text();

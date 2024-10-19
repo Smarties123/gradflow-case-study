@@ -6,10 +6,13 @@ import './styles/index.less';
 import { UserProvider } from './components/User/UserContext';
 import { BoardProvider } from './pages/board/BoardContext';
 
-// Import `auth` and `provider` from `firebaseConfig.ts`
-import { auth, provider } from "../firebaseConfig"; // Make sure this path is correct
+// Import analytics to ensure it's initialized
+import { analytics, logEvent } from '../firebaseConfig'; // Correct the path
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+// Example of logging a custom event when app loads
+logEvent(analytics, 'app_rendered');
 
 root.render(
   <BrowserRouter>
@@ -18,5 +21,3 @@ root.render(
     </UserProvider>
   </BrowserRouter>
 );
-
-export { auth, provider };

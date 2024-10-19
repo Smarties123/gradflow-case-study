@@ -4,6 +4,7 @@ import { signInWithPopup } from "firebase/auth";
 import React from 'react';
 import Button from '@mui/material/Button';
 import GoogleIcon from '@mui/icons-material/Google';
+import { analytics, logEvent } from '../../../firebaseConfig'; // Adjust the path as needed
 
 const sendUserDataToBackend = async (user: any) => {
   try {
@@ -42,6 +43,7 @@ export const handleGoogleSignin = async (setUser: any, setError: any, setLoading
         token: backendResult.token,
         username: backendResult.user.username,
       });
+      logEvent(analytics, 'login', { method: 'Google' }); // Log Google login event
       window.location.href = '/main';
     }
   } catch (error) {
