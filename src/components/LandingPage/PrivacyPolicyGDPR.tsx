@@ -273,6 +273,14 @@ access the Service by or through a mobile device.
             • By visiting this page on our website: <a href="http://gradflow.org/terms-and-conditions" style={{ color: '#ff6200' }}>Terms and Conditions</a><br />
             • By sending us an email: <a href="mailto:gradflowinc@gmail.com" style={{ color: '#ff6200' }}>gradflowinc@gmail.com</a>
         </Typography>
+        <Typography variant="h6">Data Protection Officer</Typography>
+        <Typography variant="body1">
+            The Company has appointed a Data Protection Officer (DPO) who is responsible for overseeing questions related to this Privacy Policy and our data protection practices. If you have any questions about this Privacy Policy, including any requests to exercise your legal rights, please contact the DPO using the details set out below:
+        </Typography>
+        <Typography variant="body1" sx={{ ml: 2 }}>
+            • Name: Mr. Dillan Kerai<br />
+            • Email: <a href="mailto:gradflowinc@gmail.com" style={{ color: '#ff6200' }}>gradflowinc@gmail.com</a><br />
+        </Typography>
         </Stack>
       </Container>
     </Box>
