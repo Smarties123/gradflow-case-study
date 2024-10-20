@@ -1,6 +1,6 @@
 import pool from '../config/db.js';
 
-// Fetch all statuses for a user
+// Fetch all statuses for a user commented
 export const getStatuses = async (req, res) => {
   const userId = req.user.userId;
   try {
