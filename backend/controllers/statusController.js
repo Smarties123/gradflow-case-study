@@ -145,7 +145,7 @@ export const deleteStatus = async (req, res) => {
     `, [id, userId]);
 
     if (statusResult.rows.length === 0) {
-      return res.status(404).json({ message: 'Status not found or unauthorized to delete' });
+      return res.status(404).json({ message: 'Status not found or Unauthorized to delete' });
     }
 
     const statusNameId = statusResult.rows[0].StatusNameId;
