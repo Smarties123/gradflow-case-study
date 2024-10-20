@@ -114,9 +114,9 @@ const Dashboard: React.FC = () => {
         </Col>
       </Row>
       {/* Charts Section */}
-      <Row gutter={16} style={{ margin: 0 }}>
+      <Row gutter={16} style={{ margin: 0 }} align="stretch">  {/* Add align="stretch" */}
         <Col xs={24} md={12} style={{ padding: 0 }}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', height: '100%' }}>
             <BarChart
               key={keyForCharts}  // Re-trigger BarChart animation
               dropdownType={filteredColumns.map(column => column.title)}
@@ -127,8 +127,9 @@ const Dashboard: React.FC = () => {
           </Panel>
         </Col>
         <Col xs={24} md={12} style={{ padding: 0 }}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', minHeight: '475px' }}>
             <DonutChartComponent
+              style={{ margin: 'auto 0px' }}
               key={keyForCharts}  // Re-trigger DonutChart animation
               data={donutData}
             />

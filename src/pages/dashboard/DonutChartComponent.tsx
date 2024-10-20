@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 import './Styles/DonutChartComponent.less';
-
 interface DonutChartComponentProps {
   data: { name: string; value: number; color: string }[];
 }
@@ -69,11 +68,10 @@ const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
     ]
   };
 
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div id="chart">
-        <ReactApexChart options={options} series={series} type="donut" width={533} />
+        <ReactApexChart options={options} series={series} type="donut" width={450} />
       </div>
     </div>
   );

@@ -29,6 +29,8 @@ const BarChart: React.FC<BarChartProps> = ({ title, dateRange, filteredColumns }
           id="dropdownSelect"
           style={{ border: '1px solid #FFF', borderRadius: '3px' }}
           value={timeFrame}
+          aria-label="Select Period" // Accessibility improvement
+
           onChange={(e) => setTimeFrame(e.target.value)}
         >
           <option value="Select Period">Select Period</option>
