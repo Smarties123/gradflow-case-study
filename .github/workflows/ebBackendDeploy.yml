@@ -25,7 +25,7 @@ jobs:
         run: npm install 
       
       - name: Generate Deployment Package for Backend
-        run: zip -r backend-build.zip . 
+        run: zip -r backend-build.zip ./backend
       
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
