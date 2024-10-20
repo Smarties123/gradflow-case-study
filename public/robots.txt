@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://gradflow.org/sitemap.xml
