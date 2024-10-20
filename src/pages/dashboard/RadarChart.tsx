@@ -9,7 +9,6 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
-import './Styles/RadarChart.less'; // Import the CSS
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
