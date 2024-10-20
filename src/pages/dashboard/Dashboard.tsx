@@ -11,6 +11,7 @@ import { useBoardData } from '../../hooks/useBoardData';
 import DonutChartComponent from './DonutChartComponent';
 import { useUser } from '../../components/User/UserContext';
 import SankeyDiagram from './SankeyDiagram';
+import RadarChartComponent from './RadarChart';
 
 
 const Dashboard: React.FC = () => {
@@ -159,11 +160,20 @@ const Dashboard: React.FC = () => {
             />
           </Panel>
         </Col>
+        <Col xs={24} md={12}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+            <RadarChartComponent
+              key={keyForCharts}  // Re-trigger FunnelChart animation
+              data={funnelData}
+            // dateRange={selectedDateRange}  // Pass the selected date range
+            />
+          </Panel>
+        </Col>
       </Row>
       <Row>
         <Col xs={24}>
           <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
-            <SankeyDiagram title="Application Flow" />
+            {/* <SankeyDiagram title="Application Flow" /> */}
           </Panel>
         </Col>
       </Row>
