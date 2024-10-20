@@ -10,6 +10,7 @@ import HighlightTiles from './HighlightTiles';
 import { useBoardData } from '../../hooks/useBoardData';
 import DonutChartComponent from './DonutChartComponent';
 import { useUser } from '../../components/User/UserContext';
+import SankeyDiagram from './SankeyDiagram';
 
 
 const Dashboard: React.FC = () => {
@@ -49,19 +50,43 @@ const Dashboard: React.FC = () => {
   })) : [];
 
 
-  const funnelData = hasColumns ? filteredColumns.map((column, index) => ({
-    name: column.title,
-    value: column.cards.length,
-    percent: Math.round((column.cards.length / maxCards) * 100),
+  // Function to convert HSL to HEX
+  const hslToHex = (h, s, l) => {
+    s /= 100;
+    l /= 100;
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n =>
+      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
 
-    color: `hsl(24, 100%, ${50 + (index * 7)}%)`,
-  })) : [];
+    return `#${[f(0), f(8), f(4)]
+      .map(x => Math.round(x * 255).toString(16).padStart(2, '0'))
+      .join('')}`;
+  };
+
+  // Assuming this is part of a function or component
+  const funnelData = hasColumns
+    ? filteredColumns.map((column, index) => {
+      const h = 24; // H value (Hue)
+      const s = 100; // S value (Saturation)
+      const l = 30 + index * 7; // Lightness
+      const hexColor = hslToHex(h, s, l); // Convert HSL to HEX
+
+      return {
+        name: column.title,
+        value: column.cards.length,
+        percent: Math.round((column.cards.length / maxCards) * 100),
+        color: hexColor, // Set the color in HEX format
+      };
+    })
+    : [];
+
 
 
   const highlightData = hasColumns ? filteredColumns.map((column, index) => ({
     title: column.title,
     value: column.cards.length,
-    color: `hsl(24, 100%, ${50 + (index * 2)}%)`,
+    // color: `hsl(24, 100%, ${50 + (index * 2)}%)`,
     icon: <div>{column.title[0]}</div>,
   })) : [];
 
@@ -123,14 +148,21 @@ const Dashboard: React.FC = () => {
         </Col>
       </Row>
       <Row>
-        <Col style={{ width: 'auto' }} id="border-line" xs={24} md={12}>
-          <Panel style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+        <Col xs={24} md={12}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
             <FunnelChart
               key={keyForCharts}  // Re-trigger FunnelChart animation
               data={funnelData}
               title="Recruitment Funnel"
-              dateRange={selectedDateRange}  // Pass the selected date range
+            // dateRange={selectedDateRange}  // Pass the selected date range
             />
+          </Panel>
+        </Col>
+      </Row>
+      <Row>
+        <Col xs={24}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+            <SankeyDiagram title="Application Flow" />
           </Panel>
         </Col>
       </Row>
