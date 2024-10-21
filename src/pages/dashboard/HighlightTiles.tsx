@@ -48,14 +48,16 @@ const HighlightTile: React.FC<HighlightTileProps> = ({ title, value, color, icon
      </Panel > */}
       <Card className="cardStats" sx={{ backgroundColor: { color } }}>
         <CardContent sx={{ textAlign: 'center' }}>
-          <Typography className="cardStatsValue" variant="h5" component="div">
+          {/* SEO optimized heading */}
+          <Typography component="h3" className="cardStatsValue" variant="h5">
             <animated.span>
               {props.number.to((n) => Math.floor(n))}
             </animated.span>
           </Typography>
-          <Typography className="cardStatsTitle" sx={{ mb: 0.5 }}>{title}</Typography>
+          <Typography component="h4" id="highlightTitle" className="cardStatsTitle" sx={{ mb: 0.5 }}>
+            {title}
+          </Typography>
         </CardContent>
-
       </Card>
     </>
   );
@@ -66,11 +68,27 @@ interface HighlightTilesProps {
 }
 
 const HighlightTiles: React.FC<HighlightTilesProps> = ({ data }) => {
+  // Calculate the flex basis for the tiles based on the number of tiles
+  const tilesPerRow = 8;
+  const colSize = data.length <= tilesPerRow ? Math.floor(24 / data.length) : 3;
+
   return (
-    <Row gutter={2}>
+    <Row gutter={16} className="highlight-tiles-row">
       {data.map((item, index) => (
-        <Col key={index} xs={24} sm={6} md={4}>
-          <HighlightTile title={item.title} value={item.value} color={item.color} icon={item.icon} />
+        <Col
+          key={index}
+          xs={24}  // Mobile: Full width
+          sm={12}  // Small screens: 2 tiles per row
+          md={8}   // Medium screens: 3 tiles per row
+          lg={6}   // Large screens: 4 tiles per row
+          xl={colSize}  // Adjust column size based on the number of tiles
+        >
+          <HighlightTile
+            title={item.title}
+            value={item.value}
+            color={item.color}
+            icon={item.icon}
+          />
         </Col>
       ))}
     </Row>
@@ -78,3 +96,4 @@ const HighlightTiles: React.FC<HighlightTilesProps> = ({ data }) => {
 };
 
 export default HighlightTiles;
+

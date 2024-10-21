@@ -8,12 +8,11 @@ import { IoMdMore, IoMdMove, IoMdTrash } from "react-icons/io";  // Updated impo
 import { BoardContext } from './BoardContext';
 import { useUser } from '../../components/User/UserContext';
 import { Column, Card } from './types';
-import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 import MoveStatusModal from '../../components/MoveStatusModal/MoveStatusModal';  // Import the modal
-
 import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
-
 import BinPopup from '../../components/BinPopup/BinPopup';
+import Tour from 'reactour';
+import { Steps } from 'intro.js-react';
 
 
 const SCROLL_STEP = 10;
@@ -31,10 +30,26 @@ const Board: React.FC = () => {
   const [scrolling, setScrolling] = useState<boolean>(false);  // Add a state to control the scrolling
   const scrollAnimationRef = useRef<number | null>(null);
 
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const [editingColumnId, setEditingColumnId] = useState<number | null>(null);
+  const [newTitle, setNewTitle] = useState<string>('');
+
+  const [showDropdown, setShowDropdown] = useState<number | null>(null);  // State to handle dropdown
+
+  // const { columns, setColumns } = useContext(BoardContext);
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [deleteId, setDeleteId] = useState<number | null>(-1);
+
+  const ref = useRef<HTMLInputElement>(null);
+  const { columns, setColumns, updateCard, onDragEnd, updateStatusLocally } = context!;
 
   // Ref to detect the container
   const containerRef = useRef<HTMLDivElement>(null);
-
 
   // Scroll handler for both horizontal and vertical scroll
   const handleScroll = (e: any) => {
@@ -58,8 +73,6 @@ const Board: React.FC = () => {
       startScrolling(SCROLL_STEP, 0); // Scroll right
     }
   };
-
-
   // Start scrolling
   const startScrolling = (scrollXAmount: number, scrollYAmount: number) => {
     if (!scrolling) {
@@ -69,7 +82,6 @@ const Board: React.FC = () => {
       );
     }
   };
-
   // Perform scrolling based on direction
   const scrollWindow = (scrollXAmount: number, scrollYAmount: number) => {
     if (containerRef.current) {
@@ -80,7 +92,6 @@ const Board: React.FC = () => {
       scrollWindow(scrollXAmount, scrollYAmount)
     );
   };
-
   const stopScrolling = () => {
     setScrolling(false);
     if (scrollAnimationRef.current) {
@@ -89,6 +100,40 @@ const Board: React.FC = () => {
     }
   };
 
+  const [isTourOpen, setIsTourOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0); // Track the current step
+
+  const tourRef = useRef(); // Create a ref for the tour
+
+
+
+  const lowestColumnId = columns.length > 0
+    ? Math.min(...columns.map(column => column.id))
+    : null;
+
+  const addNewButtonSelector = `#add-new-button-${lowestColumnId}`;
+
+
+  const steps = [
+    {
+      selector: addNewButtonSelector,
+      content: 'Click here to add a new application.',
+    },
+    {
+      selector: '.add-card-button',
+      content: 'Fill out basic details about the application.',
+    }
+
+  ];
+
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsTourOpen(true); // Start the tour after a short delay
+    }, 1000); // 1 second delay (adjust as needed)
+
+    return () => clearTimeout(timer); // Cleanup on unmount
+  }, []);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -188,12 +233,6 @@ const Board: React.FC = () => {
     return columns;
   };
 
-
-
-
-
-
-
   //TO DO: SPINNERS FOR LOADING and Proper ERROR Pages
   // if (loading) {
   //   return <div>Loading...</div>;
@@ -207,29 +246,12 @@ const Board: React.FC = () => {
     console.error('BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.');
   }
 
+
   const { columns, setColumns, updateCard, onDragEnd, updateStatusLocally, filterBoard} = context!;
 
   if (!columns) {
     console.error('Columns are not defined in context.');
   }
-
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [activeColumn, setActiveColumn] = useState<Column | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
-  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
-  const [editingColumnId, setEditingColumnId] = useState<number | null>(null);
-  const [newTitle, setNewTitle] = useState<string>('');
-
-  const [showDropdown, setShowDropdown] = useState<number | null>(null);  // State to handle dropdown
-
-  // const { columns, setColumns } = useContext(BoardContext);
-  const [showMoveModal, setShowMoveModal] = useState(false);
-  const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [deleteId, setDeleteId] = useState<number | null>(-1);
-
-
-  const ref = useRef<HTMLInputElement>(null);
 
   const handleIconClick = (columnId: number, title: string) => {
     setEditingColumnId(columnId);
@@ -280,7 +302,6 @@ const Board: React.FC = () => {
       setEditingColumnId(null);
     }
   };
-
 
   const handleTitleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -355,13 +376,6 @@ const Board: React.FC = () => {
     }
   };
 
-
-
-
-
-
-
-
   const onDragStart = () => {
     setIsDraggingCard(true);
     window.addEventListener('mousemove', handleScroll); // Add mousemove listener
@@ -403,13 +417,6 @@ const Board: React.FC = () => {
   };
 
 
-
-
-
-
-
-
-
   const handleCardSelect = (card: Card) => {
     const column = columns.find(col => col.cards.some(c => c.id === card.id));
     const columnName = column ? column.title : 'Unknown Column';
@@ -418,6 +425,13 @@ const Board: React.FC = () => {
   };
 
   const handleAddButtonClick = (column: Column) => {
+    // Ensure DOM elements are ready before moving to the next step
+    console.log('Add New button clicked');
+    setCurrentStep((prevStep) => {
+      const nextStep = prevStep + 1;
+      console.log('Moving to the next step:', nextStep);
+      return nextStep;
+    });
     setActiveColumn(column);
     setIsModalOpen(true);
   };
@@ -444,8 +458,6 @@ const Board: React.FC = () => {
     // console.log(deleteId);
     handleDropdownOptionSelect(2, deleteId);
   };
-
-
 
   //For Deleting Card
   const handleDeleteCard = (cardId) => {
@@ -509,171 +521,184 @@ const Board: React.FC = () => {
   };
 
 
-
-
-
-
-
   return (
-    <DragDropContext onDragStart={onDragStart} onDragEnd={handleDragEnd}>
-      <div className="board" ref={containerRef} >
-        {columns.length === 0 ? (
-          <p>No columns available</p>
-        ) : (
-          columns.map(column => (
-            <div key={column.id} className="column-container">
-              <div style={{ maxWidth: '100%' }} className={`column-header ${editingColumnId === column.id ? 'editing' : ''}`}>
-                {editingColumnId !== column.id && (
-                  <p className="column-counter">{column.cards.length}</p>
-                )}
+    <div>
+      <DragDropContext onDragStart={onDragStart} onDragEnd={handleDragEnd}>
+        <div className="board" ref={containerRef} >
+          {columns.length === 0 ? (
+            <p>No columns available</p>
+          ) : (
+            columns.map(column => (
+              <div key={column.id} className="column-container">
+                <div style={{ maxWidth: '100%' }} className={`column-header ${editingColumnId === column.id ? 'editing' : ''}`}>
+                  {editingColumnId !== column.id && (
+                    <p className="column-counter">{column.cards.length}</p>
+                  )}
 
-                <div className="column-header-content">
-                  {editingColumnId === column.id ? (
-                    <div className='column-title-input'>
-                      <input
-                        ref={ref}
-                        type="text"
-                        value={newTitle}
-                        onChange={handleTitleChange}
-                        onBlur={handleTitleBlur}
-                        onKeyPress={handleTitleKeyPress}
-                        autoFocus
-                        maxLength={10}
-                        className='input-group'
-                        style={{ fontSize: 'inherit' }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="column-title" onClick={() => handleIconClick(column.id, column.title)}>
-                      <h2>{column.title}</h2>
+                  <div className="column-header-content">
+                    {editingColumnId === column.id ? (
+                      <div className='column-title-input'>
+                        <input
+                          ref={ref}
+                          type="text"
+                          value={newTitle}
+                          onChange={handleTitleChange}
+                          onBlur={handleTitleBlur}
+                          onKeyPress={handleTitleKeyPress}
+                          autoFocus
+                          maxLength={10}
+                          className='input-group'
+                          style={{ fontSize: 'inherit' }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="column-title" onClick={() => handleIconClick(column.id, column.title)}>
+                        <h2>{column.title}</h2>
+                      </div>
+                    )}
+                  </div>
+                  {editingColumnId !== column.id && (
+                    <button
+                      className="icon-button"
+                      onClick={() => handleDropdownClick(column.id)}
+                    >
+                      <IoMdMore />
+                    </button>
+                  )}
+                  {showDropdown === column.id && (
+                    <div className="dropdown">
+                      <ul>
+                        <li onClick={() => handleDropdownOptionSelect(1, column.id)}>
+                          <IoMdMove /> Move Status
+                        </li>
+                        {column.cards.length === 0 && ( // Only show "Delete" if column has no cards
+                          <li onClick={() => handleDeleteModal(column.id)}>
+                            <IoMdTrash /> Delete Status
+                          </li>
+                        )}
+                      </ul>
                     </div>
                   )}
                 </div>
-                {editingColumnId !== column.id && (
-                  <button
-                    className="icon-button"
-                    onClick={() => handleDropdownClick(column.id)}
-                  >
-                    <IoMdMore />
-                  </button>
-                )}
-                {showDropdown === column.id && (
-                  <div className="dropdown">
-                    <ul>
-                      <li onClick={() => handleDropdownOptionSelect(1, column.id)}>
-                        <IoMdMove /> Move Status
-                      </li>
-                      {column.cards.length === 0 && ( // Only show "Delete" if column has no cards
-                        <li onClick={() => handleDeleteModal(column.id)}>
-                          <IoMdTrash /> Delete Status
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                )}
+                <button id={`add-new-button-${column.id}`} onClick={() => handleAddButtonClick(column)}>Add New</button>
+                <Droppable droppableId={String(column.id)}>
+                  {provided => (
+                    <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
+                      {column.cards.map((card, index) => (
+                        <Draggable key={card.id} draggableId={String(card.id)} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <CardComponent
+                                card={card}
+                                onSelect={handleCardSelect}
+                                user={user}
+                                onFavoriteToggle={handleFavoriteToggle}
+                                provided={provided}
+                                snapshot={snapshot}  // Pass snapshot to detect drag state
+                                onDelete={handleDeleteCard} // Pass delete handler
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
               </div>
-              <button onClick={() => handleAddButtonClick(column)}>Add New</button>
-              <Droppable droppableId={String(column.id)}>
-                {provided => (
-                  <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
-                    {column.cards.map((card, index) => (
-                      <Draggable key={card.id} draggableId={String(card.id)} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <CardComponent
-                              card={card}
-                              onSelect={handleCardSelect}
-                              user={user}
-                              onFavoriteToggle={handleFavoriteToggle}
-                              provided={provided}
-                              snapshot={snapshot}  // Pass snapshot to detect drag state
-                              onDelete={handleDeleteCard} // Pass delete handler
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          ))
-        )}
+            ))
+          )}
 
-        {/* Add New */}
-        {isModalOpen && activeColumn && (
-          <Modal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            columns={columns}
-            activeColumn={activeColumn} theme={undefined} />
-        )}
+          {/* Add New */}
+          {isModalOpen && activeColumn && (
+            <Modal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              columns={columns}
+              activeColumn={activeColumn} theme={undefined} />
+          )}
 
-        {/* Drawer View */}
-        {isDrawerOpen && selectedCard && (
-          <DrawerView
-            show={isDrawerOpen}
-            onClose={() => setIsDrawerOpen(false)}
-            card={selectedCard}
-            updateCard={updateCard}
-            updateStatusLocally={updateStatusLocally}  // Pass it here
-            columnName={selectedCard.columnName}
-            updateStatus={handleUpdateStatus}
-            statuses={columns.map(col => ({ StatusId: col.id, StatusName: col.title }))}
-          />
+          {/* Drawer View */}
+          {isDrawerOpen && selectedCard && (
+            <DrawerView
+              show={isDrawerOpen}
+              onClose={() => setIsDrawerOpen(false)}
+              card={selectedCard}
+              updateCard={updateCard}
+              updateStatusLocally={updateStatusLocally}  // Pass it here
+              columnName={selectedCard.columnName}
+              updateStatus={handleUpdateStatus}
+              statuses={columns.map(col => ({ StatusId: col.id, StatusName: col.title }))}
+            />
 
 
 
 
 
-        )}
+          )}
 
-        {/* Moving Column */}
-        {showMoveModal && selectedColumnId && (
-          <MoveStatusModal
-            isOpen={showMoveModal}
-            onClose={() => setShowMoveModal(false)}
-            currentOrder={columns.find(col => col.id === selectedColumnId)?.StatusOrder || 1}
-            totalColumns={columns.length}
-            onMove={handleMove}
-            columnNames={columns.map(col => col.title)}  // Pass column names here
-          />
-        )}
-
-
-        {/* Delete Modal */}
-        <DeleteModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          onNo={() => setIsDeleteModalOpen(false)}
-          onYes={handleDeleteColumn}
-          title={null} />
+          {/* Moving Column */}
+          {showMoveModal && selectedColumnId && (
+            <MoveStatusModal
+              isOpen={showMoveModal}
+              onClose={() => setShowMoveModal(false)}
+              currentOrder={columns.find(col => col.id === selectedColumnId)?.StatusOrder || 1}
+              totalColumns={columns.length}
+              onMove={handleMove}
+              columnNames={columns.map(col => col.title)}  // Pass column names here
+            />
+          )}
 
 
-        <div className="column-container" id="add-new-column">
-          <button className="add-new-button" onClick={handleAddNewColumn}>
-            Add New Status
-          </button>
-        </div>
-      </div>
+          {/* Delete Modal */}
+          <DeleteModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onNo={() => setIsDeleteModalOpen(false)}
+            onYes={handleDeleteColumn}
+            title={null} />
 
 
-      {/* Add the bin as a droppable area */}
-      <Droppable droppableId="bin">
-        {(provided) => (
-          <div ref={provided.innerRef} {...provided.droppableProps} className="bin-drop-area">
-            <BinPopup isDragging={isDraggingCard} />
-            {provided.placeholder}
+          <div className="column-container" id="add-new-column">
+            <button className="add-new-button" onClick={handleAddNewColumn}>
+              Add New Status
+            </button>
           </div>
-        )}
-      </Droppable>
+        </div>
 
-    </DragDropContext>
+
+        {/* Add the bin as a droppable area */}
+        <Droppable droppableId="bin">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps} className="bin-drop-area">
+              <BinPopup isDragging={isDraggingCard} />
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+
+      </DragDropContext>
+
+
+      <Tour
+        ref={tourRef}
+        steps={steps}
+        step={currentStep}
+        isOpen={isTourOpen}
+        onRequestClose={() => setIsTourOpen(false)}
+        goToStep={currentStep} // Automatically go to the next step
+        getCurrentStep={(step) => console.log(`Current step: ${step}`)}
+      />
+
+
+
+
+    </div>
+
   );
 
 };
