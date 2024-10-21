@@ -37,3 +37,4 @@ jobs:
           version_label: ${{ github.sha }}
           region: eu-west-2  
           deployment_package: backend-build.zip 
+          use_existing_version_if_available: true
