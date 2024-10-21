@@ -170,11 +170,11 @@ const Dashboard: React.FC = () => {
           </Panel>
         </Col>
       </Row>
-      <Row>
+      <Row style={{ marginBottom: '20px' }}>
         <Col xs={24}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
-            {/* <SankeyDiagram title="Application Flow" /> */}
-          </Panel>
+          {/* <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}> */}
+          {/* <SankeyDiagram title="Application Flow" /> */}
+          {/* </Panel> */}
         </Col>
       </Row>
     </div>
