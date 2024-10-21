@@ -26,7 +26,7 @@ export const updateStatusName = async (req, res) => {
   const userId = req.user.userId;
 
   if (!statusName) {
-    return res.status(400).json({ message: 'StatusName Is Required' });
+    return res.status(400).json({ message: 'Status Name Is Required' });
   }
 
   statusName = statusName.toUpperCase();  // Capitalize the status name
