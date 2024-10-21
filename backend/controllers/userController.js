@@ -61,6 +61,7 @@ export const signUp = async (req, res) => {
 
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
+        // Add JWT sign and return it after successful user creation
 
     // Insert default statuses (as per your previous logic)
     const defaultStatusNames = ['TO DO', 'APPLIED', 'INTERVIEW', 'OFFERED', 'REJECTED'];
@@ -86,7 +87,11 @@ export const signUp = async (req, res) => {
       `, [statusNameId, index + 1, userId]);
     }
 
-    res.status(201).json({ userId, message: 'User created successfully' });
+
+
+    const token = jwt.sign({ userId, email }, SECRET_KEY, { expiresIn: '1h' });
+
+    res.status(201).json({ userId, token, user: { email, username }, message: 'User created successfully' });
   } catch (error) {
     console.error('Error during signup:', error);
     return res.status(500).json({ message: 'Server error.' });

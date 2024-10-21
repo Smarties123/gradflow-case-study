@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './tutorialPopup.less';
+import './TutorialPopup.less';
 
 const TutorialPopup = () => {
     const [step, setStep] = useState(1);

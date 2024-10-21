@@ -44,6 +44,7 @@
     "@mui/material": "^5.15.19",
     "@react-oauth/google": "^0.12.1",
     "@rsuite/icons": "^1.0.2",
+    "@types/chart.js": "^2.9.41",
     "@uiw/react-color-github": "^2.3.0",
     "animate.css": "^4.1.1",
     "apexcharts": "^3.54.0",

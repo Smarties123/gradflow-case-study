@@ -57,6 +57,9 @@ export const handleGoogleSignup = async (setUser, setError, setLoading) => {
         username: user.displayName,
         token: backendResult.token,
       });
+      // for tutorial purposes
+      localStorage.setItem('isNewUser', 'true');
+
 
       // Redirect to the main page
       logEvent(analytics, 'sign_up', { method: 'Google' }); // Log Google sign-up event
