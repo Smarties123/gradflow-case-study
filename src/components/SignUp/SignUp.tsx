@@ -165,8 +165,21 @@ export default function SignUp() {
       });
   
       if (response.ok) {
+        const result = await response.json();
+        // Save token in localStorage for tutorial purposes
+        localStorage.setItem('authToken', result.token);
+        // Set user context with token and email
+        setUser({
+          email: result.user.email,
+          token: result.token,
+          username: result.user.username
+        });
+      
+        localStorage.setItem('isNewUser', 'true');
+
+
         logEvent(analytics, 'sign_up', { method: 'Email' }); // Log the sign-up event
-        window.location.href = '/SignIn';
+        window.location.href = '/main';
       } else {
         const errorMessage = await response.text();
         setError(errorMessage);
