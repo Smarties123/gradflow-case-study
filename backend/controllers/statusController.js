@@ -15,7 +15,7 @@ export const getStatuses = async (req, res) => {
     res.status(200).json(result.rows);
   } catch (error) {
     console.error('Error Fetching Statuses :', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
