@@ -10,7 +10,6 @@ import HighlightTiles from './HighlightTiles';
 import { useBoardData } from '../../hooks/useBoardData';
 import DonutChartComponent from './DonutChartComponent';
 import { useUser } from '../../components/User/UserContext';
-import SankeyDiagram from './SankeyDiagram';
 import RadarChartComponent from './RadarChart';
 
 

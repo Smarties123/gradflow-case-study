@@ -11,9 +11,6 @@ import { Column, Card } from './types';
 import MoveStatusModal from '../../components/MoveStatusModal/MoveStatusModal';  // Import the modal
 import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
 import BinPopup from '../../components/BinPopup/BinPopup';
-import Tour from 'reactour';
-import { Steps } from 'intro.js-react';
-
 
 const SCROLL_STEP = 10;
 const SCROLL_ZONE_HEIGHT = 100;
@@ -46,7 +43,6 @@ const Board: React.FC = () => {
   const [deleteId, setDeleteId] = useState<number | null>(-1);
 
   const ref = useRef<HTMLInputElement>(null);
-  const { columns, setColumns, updateCard, onDragEnd, updateStatusLocally } = context!;
 
   // Ref to detect the container
   const containerRef = useRef<HTMLDivElement>(null);
@@ -99,41 +95,6 @@ const Board: React.FC = () => {
       scrollAnimationRef.current = null;
     }
   };
-
-  const [isTourOpen, setIsTourOpen] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0); // Track the current step
-
-  const tourRef = useRef(); // Create a ref for the tour
-
-
-
-  const lowestColumnId = columns.length > 0
-    ? Math.min(...columns.map(column => column.id))
-    : null;
-
-  const addNewButtonSelector = `#add-new-button-${lowestColumnId}`;
-
-
-  const steps = [
-    {
-      selector: addNewButtonSelector,
-      content: 'Click here to add a new application.',
-    },
-    {
-      selector: '.add-card-button',
-      content: 'Fill out basic details about the application.',
-    }
-
-  ];
-
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsTourOpen(true); // Start the tour after a short delay
-    }, 1000); // 1 second delay (adjust as needed)
-
-    return () => clearTimeout(timer); // Cleanup on unmount
-  }, []);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -247,7 +208,7 @@ const Board: React.FC = () => {
   }
 
 
-  const { columns, setColumns, updateCard, onDragEnd, updateStatusLocally, filterBoard} = context!;
+  const { columns, setColumns, updateCard, onDragEnd, updateStatusLocally, filterBoard } = context!;
 
   if (!columns) {
     console.error('Columns are not defined in context.');
@@ -425,13 +386,6 @@ const Board: React.FC = () => {
   };
 
   const handleAddButtonClick = (column: Column) => {
-    // Ensure DOM elements are ready before moving to the next step
-    console.log('Add New button clicked');
-    setCurrentStep((prevStep) => {
-      const nextStep = prevStep + 1;
-      console.log('Moving to the next step:', nextStep);
-      return nextStep;
-    });
     setActiveColumn(column);
     setIsModalOpen(true);
   };
@@ -580,7 +534,7 @@ const Board: React.FC = () => {
                     </div>
                   )}
                 </div>
-                <button id={`add-new-button-${column.id}`} onClick={() => handleAddButtonClick(column)}>Add New</button>
+                <button onClick={() => handleAddButtonClick(column)}>Add New</button>
                 <Droppable droppableId={String(column.id)}>
                   {provided => (
                     <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
@@ -682,19 +636,6 @@ const Board: React.FC = () => {
         </Droppable>
 
       </DragDropContext>
-
-
-      <Tour
-        ref={tourRef}
-        steps={steps}
-        step={currentStep}
-        isOpen={isTourOpen}
-        onRequestClose={() => setIsTourOpen(false)}
-        goToStep={currentStep} // Automatically go to the next step
-        getCurrentStep={(step) => console.log(`Current step: ${step}`)}
-      />
-
-
 
 
     </div>
