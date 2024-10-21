@@ -52,10 +52,16 @@ const TableComponent: React.FC = () => {
   };
 
   const handleCellClick = (card) => {
-    setSelectedCard(card);
-    setDrawerOpen(true);
+    // Ensure to reset the selected card to null before setting the new card
+    setSelectedCard(null); // Force a clear of the previous state
+    setDrawerOpen(false); // Close the drawer first
+    
+    setTimeout(() => {
+      setSelectedCard(card); // Set the new card after resetting
+      setDrawerOpen(true);   // Open the drawer
+    }, 100); // Add a slight delay to ensure proper state updating
   };
-
+  
   return (
     <Panel bodyFill>
       <Stack className="table-toolbar" spacing={6} justifyContent="space-between" style={{ marginBottom: '20px' }}>

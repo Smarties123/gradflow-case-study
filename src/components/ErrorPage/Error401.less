@@ -1,0 +1,67 @@
+.error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f9f9f9;
+  }
+  
+  .error-content {
+    text-align: center;
+    animation: fadeIn 1.5s ease-in-out;
+  }
+  
+  .error-code {
+    font-size: 8rem;
+    color: #ff6200;
+    margin-bottom: 10px;
+    animation: bounce 2s ease-in-out infinite; /* Add bounce animation */
+  }
+  
+  .error-message {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .btn-back-login {
+    padding: 10px 20px;
+    background-color: #ff6200;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    transition: all 0.3s ease; /* Smooth transition */
+  }
+  
+  .btn-back-login:hover {
+    background-color: #e55500;
+    transform: scale(1.05); /* Slight scale effect */
+  }
+  
+  /* Keyframe for fade-in animation */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Keyframe for bouncing effect */
+  @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-15px);
+    }
+    60% {
+      transform: translateY(-10px);
+    }
+  }
+  
