@@ -52,6 +52,8 @@ app.get('/check-env', (req, res) => {
     dbName: process.env.DB_NAME,
     dbPort: process.env.DB_PORT,
   });
+  res.status(200).json(process.env);
+
 });
 
 app.use(cors());
