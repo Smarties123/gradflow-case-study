@@ -163,26 +163,21 @@ export default function SignUp() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
       });
-  
+    
       if (response.ok) {
         const result = await response.json();
-        // Save token in localStorage for tutorial purposes
         localStorage.setItem('authToken', result.token);
-        // Set user context with token and email
         setUser({
           email: result.user.email,
           token: result.token,
           username: result.user.username
         });
-      
         localStorage.setItem('isNewUser', 'true');
-
-
-        logEvent(analytics, 'sign_up', { method: 'Email' }); // Log the sign-up event
+        logEvent(analytics, 'sign_up', { method: 'Email' });
         window.location.href = '/main';
       } else {
-        const errorMessage = await response.text();
-        setError(errorMessage);
+        const errorMessage = await response.json(); // Parse the JSON error
+        setError(errorMessage.message); // Show the exact message from the backend
       }
     } catch (err) {
       setError('An error occurred during signup. Please try again later.');
