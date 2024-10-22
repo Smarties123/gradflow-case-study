@@ -32,6 +32,28 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
+// Health check route
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+
+// CORS test route
+app.get('/test-cors', (req, res) => {
+  res.status(200).json({ message: 'CORS is working!' });
+});
+
+
+// Environment variables check route
+app.get('/check-env', (req, res) => {
+  res.status(200).json({
+    dbUser: process.env.DB_USER,
+    dbHost: process.env.DB_HOST,
+    dbName: process.env.DB_NAME,
+    dbPort: process.env.DB_PORT,
+  });
+});
+
 app.use(cors());
 app.use(express.json());
 
