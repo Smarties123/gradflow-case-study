@@ -24,6 +24,19 @@ jobs:
         working-directory: backend
         run: npm install 
       
+      - name: Run server.js to check for errors
+        working-directory: backend
+        run: |
+          nohup node server.js & sleep 5
+          curl --fail http://localhost:3000/test-db || exit 1
+        env:
+          NODE_ENV: production
+      
+      - name: Stop server after check
+        working-directory: backend
+        run: |
+          pkill -f "node server.js"
+      
       - name: Generate Deployment Package for Backend
         working-directory: backend 
         run: zip -r ../backend-build.zip ./*  
@@ -37,4 +50,4 @@ jobs:
           environment_name: 'Gradflow-node-env'
           version_label: "v-${{ github.sha }}-${{ github.run_number }}"
           region: eu-west-2  
-          deployment_package: backend-build.zip 
+          deployment_package: backend-build.zip
