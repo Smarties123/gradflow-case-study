@@ -61,6 +61,7 @@ export const signUp = async (req, res) => {
 
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
+        // Add JWT sign and return it after successful user creation
 
     // Insert default statuses (as per your previous logic)
     const defaultStatusNames = ['TO DO', 'APPLIED', 'INTERVIEW', 'OFFERED', 'REJECTED'];
@@ -86,50 +87,146 @@ export const signUp = async (req, res) => {
       `, [statusNameId, index + 1, userId]);
     }
 
-    res.status(201).json({ userId, message: 'User created successfully' });
+
+
+    const token = jwt.sign({ userId, email }, SECRET_KEY, { expiresIn: '1h' });
+
+    res.status(201).json({ userId, token, user: { email, username }, message: 'User created successfully' });
   } catch (error) {
     console.error('Error during signup:', error);
+
+
+        // Improved error response
+    let errorMessage = 'Server error.';
+    if (error.code === '23505') { // PostgreSQL unique constraint violation
+      errorMessage = 'This email or username is already registered.';
+    }
+    
     return res.status(500).json({ message: 'Server error.' });
   }
 };
+
+export const googleSignUp = async (req, res) => {
+  const { username, email, firebaseUid, profilePicture } = req.body;
+
+  if (!username || !email || !firebaseUid) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  try {
+    // Check if user already exists by Firebase UID or Email
+    const userExistsQuery = 'SELECT * FROM "Users" WHERE "FirebaseUid" = $1 OR "Email" = $2';
+    const userExistsResult = await pool.query(userExistsQuery, [firebaseUid, email]);
+
+    if (userExistsResult.rows.length > 0) {
+      return res.status(409).json({ message: 'User already exists. Please sign in with Google.' });
+    }
+
+    // Continue with Google signup if no user exists
+    let uniqueUsername = username;
+    let usernameExists = true;
+    let counter = 1;
+
+    while (usernameExists) {
+      const usernameCheckQuery = 'SELECT * FROM "Users" WHERE "Username" = $1';
+      const usernameCheckResult = await pool.query(usernameCheckQuery, [uniqueUsername]);
+
+      if (usernameCheckResult.rows.length === 0) {
+        usernameExists = false;
+      } else {
+        uniqueUsername = `${username}${counter}`;
+        counter++;
+      }
+    }
+
+    // Insert new user into the database
+    const insertUserQuery = `
+      INSERT INTO "Users" ("Username", "Email", "FirebaseUid", "ProfilePicture")
+      VALUES ($1, $2, $3, $4)
+      RETURNING "UserId"
+    `;
+    const values = [uniqueUsername, email, firebaseUid, profilePicture];
+    const result = await pool.query(insertUserQuery, values);
+    const userId = result.rows[0].UserId;
+
+    // Insert default statuses for the new user
+    const defaultStatusNames = ['TO DO', 'APPLIED', 'INTERVIEW', 'OFFERED', 'REJECTED'];
+    for (const [index, status] of defaultStatusNames.entries()) {
+      let statusNameId;
+
+      // Check if the status already exists in the StatusName table
+      const statusNameResult = await pool.query(`
+        INSERT INTO "StatusName" ("StatusName")
+        VALUES ($1)
+        ON CONFLICT ("StatusName") DO NOTHING
+        RETURNING "StatusNameId";
+      `, [status]);
+
+      if (statusNameResult.rows.length > 0) {
+        statusNameId = statusNameResult.rows[0].StatusNameId;
+      } else {
+        // If the status already exists, fetch its ID
+        const existingStatusResult = await pool.query('SELECT "StatusNameId" FROM "StatusName" WHERE "StatusName" = $1', [status]);
+        statusNameId = existingStatusResult.rows[0].StatusNameId;
+      }
+
+      // Insert the status for the user
+      await pool.query(`
+        INSERT INTO "Status" ("StatusNameId", "StatusOrder", "UserId")
+        VALUES ($1, $2, $3);
+      `, [statusNameId, index + 1, userId]);
+    }
+
+    // Generate a JWT token for the user
+    const token = jwt.sign({ userId, email }, SECRET_KEY, { expiresIn: '1h' });
+
+    // Return the token and userId in the response
+    res.status(201).json({ userId, token, message: 'User signed up with Google successfully and default statuses initialized' });
+  } catch (error) {
+    console.error('Error during Google sign-up:', error);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
+};
+
+
+
+
+
 
 
 
 // Login
 export const login = async (req, res) => {
   const { email, password } = req.body;
-  
-  // Basic validation
+
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password are required.' });
   }
 
   try {
-    // Check if the user exists
     const query = 'SELECT * FROM "Users" WHERE "Email" = $1';
-    const values = [email];
-    const { rows } = await pool.query(query, values);
+    const { rows } = await pool.query(query, [email]);
 
     if (rows.length === 0) {
-      // User does not exist
       return res.status(404).json({ message: 'No account associated with this email.' });
     }
 
     const user = rows[0];
 
-    // Check if the password is correct
+    // If the user has a FirebaseUid, redirect them to Google sign-in
+    if (user.FirebaseUid) {
+      return res.status(400).json({ message: 'This email is associated with a Google account. Please sign in with Google.' });
+    }
+
     const match = await bcrypt.compare(password, user.Password);
     if (!match) {
-      // Incorrect password
       return res.status(401).json({ message: 'Incorrect password. Please try again.' });
     }
 
-    // If the credentials are correct, generate a JWT token
     const token = jwt.sign({ userId: user.UserId, email: user.Email }, SECRET_KEY);
-    
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Login successful!',
-      token: token,
+      token,
       user: {
         id: user.UserId,
         email: user.Email,
@@ -141,6 +238,41 @@ export const login = async (req, res) => {
     res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 };
+
+
+
+// Google Login
+export const googleLogin = async (req, res) => {
+  const { firebaseUid, email } = req.body;
+
+  if (!firebaseUid || !email) {
+    return res.status(400).json({ message: 'Missing required fields' });
+  }
+
+  try {
+    // Check if user exists by Firebase UID
+    const userExistsQuery = 'SELECT * FROM "Users" WHERE "FirebaseUid" = $1';
+    const userExistsResult = await pool.query(userExistsQuery, [firebaseUid]);
+
+    if (userExistsResult.rows.length > 0) {
+      const user = userExistsResult.rows[0];
+      const token = jwt.sign({ userId: user.UserId, email: user.Email }, SECRET_KEY);
+      return res.status(200).json({
+        token: token,
+        user: {
+          email: user.Email,
+          username: user.Username,
+        },
+      });
+    }
+
+    return res.status(404).json({ message: 'User not found. Please sign up with Google first.' });
+  } catch (error) {
+    console.error('Error during Google login:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
 
 // Forgot Password

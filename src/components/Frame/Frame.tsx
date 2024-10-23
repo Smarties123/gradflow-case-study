@@ -17,6 +17,8 @@ import { CiSettings } from 'react-icons/ci';
 import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
 import { handleButtonClick } from '../FeedbackButton/FeedbackButton';
 
+import TutorialPopup from '../TutorialPopup/TutorialPopup'; // Adjust the path if necessary
+
 const { getHeight, on } = DOMHelper;
 
 const NavItem = ({ title, eventKey, animate, ...rest }) => {
@@ -38,7 +40,17 @@ const Frame = () => {
   const [theme, setTheme] = useState<'light' | 'dark' | 'high-contrast'>('dark');
   const [showSettings, setShowSettings] = useState(false);
   const [animate, setAnimate] = useState(true); // State to control animation
+  const [showTutorial, setShowTutorial] = useState(false); // State to control tutorial popup visibility
 
+  useEffect(() => {
+    const isNewUser = localStorage.getItem('isNewUser');
+    if (isNewUser === 'true') {
+      setShowTutorial(true);
+      localStorage.removeItem('isNewUser'); // Remove the flag after showing the tutorial
+    }
+  }, []);
+  
+  
   useEffect(() => {
     const updateExpand = () => {
       setExpand(window.innerWidth > 768);
@@ -156,6 +168,7 @@ const Frame = () => {
         </Container>
 
         <SettingsView show={showSettings} onClose={() => setShowSettings(false)} />
+        {showTutorial && <TutorialPopup />}
       </Container>
     </CustomProvider>
   );

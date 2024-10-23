@@ -22,7 +22,7 @@ function Copyright() {
     <Typography variant="body2" color="text.secondary" mt={1}>
       {'Copyright © '}
       <Link href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
-        HADinc&nbsp;
+      HAD TECHNOLOGIES LTD&nbsp;
       </Link>
       {new Date().getFullYear()}
     </Typography>

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 import './Styles/DonutChartComponent.less';
-
 interface DonutChartComponentProps {
   data: { name: string; value: number; color: string }[];
 }
@@ -14,6 +13,7 @@ const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
   const options = {
     chart: {
       width: '100%',
+      height: '100%',
       type: 'donut'
     },
     labels: labels,
@@ -26,9 +26,18 @@ const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
       colors: undefined
     },
     legend: {
-      position: 'right',
+      position: 'bottom',
       labels: {
-        colors: '#333'
+        colors: '#333',
+        font: {
+          size: 12
+        }
+      },
+      formatter: (label: string, { seriesIndex }: { seriesIndex: number }) => {
+        const value = data[seriesIndex].value; // Get the value for the current series
+
+        // Show the label with "(0)" only if the value is 0
+        return value === 0 ? `${label} (0%)` : label;
       }
     },
     tooltip: {
@@ -47,6 +56,11 @@ const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
             position: 'bottom',
             labels: {
               colors: '#333'
+            },
+            formatter: (label: string, { seriesIndex }: { seriesIndex: number }) => {
+              const value = data[seriesIndex].value;
+
+              return value === 0 ? `${label} (0%)` : label;
             }
           }
         }
@@ -57,7 +71,7 @@ const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div id="chart">
-        <ReactApexChart options={options} series={series} type="donut" width={380} />
+        <ReactApexChart options={options} series={series} type="donut" width={450} />
       </div>
     </div>
   );

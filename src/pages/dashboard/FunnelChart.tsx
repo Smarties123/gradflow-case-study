@@ -1,6 +1,6 @@
-import React from 'react';
-import { FunnelChart as RechartsFunnelChart, Funnel, Tooltip, Cell, LabelList } from 'recharts';
-
+import React, { useEffect, useRef } from 'react';
+import ApexCharts from 'apexcharts';
+import './Styles/FunnelChart.less';
 interface FunnelChartData {
   name: string;
   value: number;
@@ -9,83 +9,91 @@ interface FunnelChartData {
 }
 
 interface FunnelChartProps {
-  data?: FunnelChartData[];
   title: string;
   mode: 'light' | 'dark'; // Mode prop to handle light or dark mode
 }
 
-const CustomLabel: React.FC<{ x: number, y: number, name: string, percent: number }> = ({ x, y, name, percent }) => {
-  return (
-    <g>
-      <text
-        x={x}
-        y={y - 5}
-        textAnchor="middle"
-        dominantBaseline="middle"
-        style={{ fill: '#fff', fontSize: 12 }} // Percentage text in white
-      >
-        {percent}%
-      </text>
-    </g>
-  );
-};
 
 const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode }) => {
-  // Filter out entries with a value of 0
-  // Sort data in descending order of value
-  const sortedData = [...data].sort((a, b) => b.value - a.value);
+  const chartRef = useRef<HTMLDivElement | null>(null);
 
-  // Filter out entries with a value of 0
-  const filteredData = sortedData.filter(entry => entry.value !== 0);
+
+  useEffect(() => {
+    // Filter and sort data (dummy data is already sorted)
+    const filteredData = data.filter(entry => entry.value > 0);
+    const sortedData = filteredData.sort((a, b) => b.value - a.value);
+
+
+    // Prepare series and categories for ApexCharts
+    const seriesData = sortedData.map(entry => entry.value);
+    const categories = sortedData.map(entry => entry.name);
+
+    const options = {
+      series: [
+        {
+          name: "",
+          data: seriesData,
+        },
+      ],
+      chart: {
+        type: 'bar',
+        height: 350,
+        toolbar: { show: false }
+
+      },
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          isFunnel: true,
+          barHeight: '80%',
+          borderRadius: 0,
+          // distributed: true,
+
+        },
+      },
+      dataLabels: {
+        enabled: true,
+        formatter: function (val, opt) {
+          return opt.w.globals.labels[opt.dataPointIndex] + ':  ' + val;
+        },
+        dropShadow: {
+          enabled: true,
+        },
+      },
+
+      xaxis: {
+        categories: categories,
+
+      },
+      legend: {
+        show: false,
+      },
+      tooltip: {
+        style: {
+          fontSize: '14px',
+          color: '#000000', // Dynamic text color based on mode
+        },
+        // shared: true,
+        // intersect: false,
+
+      },
+      colors: ['#ff6200']
+    };
+
+    // Render the chart
+    if (chartRef.current) {
+      const chart = new ApexCharts(chartRef.current, options);
+      chart.render();
+
+      // Clean up chart instance on component unmount
+      return () => chart.destroy();
+    }
+  }, [title, mode]);
+
   return (
-    <div className={mode === 'light' ? 'rs-theme-light' : 'rs-theme-dark'}>
+    <div>
       <h4>{title}</h4>
-      {filteredData.length > 0 ? (
-        <RechartsFunnelChart width={400} height={250}>
-          <Tooltip
-            formatter={(value, name) => [value, name]}
-            contentStyle={{}}
-          />
-          <Funnel dataKey="value" data={filteredData} isAnimationActive>
-            {filteredData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.color}
-                stroke="black"
-                strokeWidth={mode === 'light' ? 1 : 0} // Add stroke for contrast in light mode
-                style={{
-                  transition: 'fill 0.3s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.fill = '#ccc9c2'; // Change background to white on hover
-                  e.target.style.stroke = entry.color; // Change stroke to original color for contrast
-
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.fill = entry.color; // Reset background color on mouse leave
-                  e.target.style.stroke = 'none'; // Remove stroke
-                }}
-              />
-            ))}
-            <LabelList
-              content={({ x, y, index }) => {
-                const entry = filteredData[index];
-                return (
-                  <CustomLabel
-                    x={195}
-                    y={y + 30}
-                    name={entry.name + " " + entry.value}
-                    percent={entry.percent}
-                  />
-                );
-              }}
-            />
-          </Funnel>
-        </RechartsFunnelChart>
-      ) : (
-        <p>No data available</p>
-      )}
+      <div ref={chartRef}></div>
     </div>
   );
 };

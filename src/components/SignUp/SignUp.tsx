@@ -21,6 +21,12 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import IconButton from '@mui/material/IconButton';
 
+import GoogleSignUpButton from './OtherSignUp'; // Adjust the path based on the folder structure
+
+import { useUser } from '../../components/User/UserContext'; // User context
+import Dialog from '@mui/material/Dialog';
+import ComingSoonSignUp from './ComingSoonSignUp'; // Adjust path as needed
+import { analytics, logEvent } from '../../../firebaseConfig'; // Adjust the path as needed
 
 
 // Google SVG icon using official colors
@@ -52,7 +58,7 @@ function Copyright(props) {
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
-        HADinc
+       HAD TECHNOLOGIES LTD
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -71,7 +77,9 @@ export default function SignUp() {
   const isSmallScreen = useMediaQuery('(max-width:600px)');
 
   const [showPassword, setShowPassword] = React.useState(false);
+  const [isComingSoonOpen, setIsComingSoonOpen] = React.useState(false);
 
+  const { setUser } = useUser();  // Assuming you are using user context
 
 
   const validateEmail = (email: string) => {
@@ -155,12 +163,21 @@ export default function SignUp() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
       });
-  
+    
       if (response.ok) {
-        window.location.href = '/SignIn';
+        const result = await response.json();
+        localStorage.setItem('authToken', result.token);
+        setUser({
+          email: result.user.email,
+          token: result.token,
+          username: result.user.username
+        });
+        localStorage.setItem('isNewUser', 'true');
+        logEvent(analytics, 'sign_up', { method: 'Email' });
+        window.location.href = '/main';
       } else {
-        const errorMessage = await response.text();
-        setError(errorMessage);
+        const errorMessage = await response.json(); // Parse the JSON error
+        setError(errorMessage.message); // Show the exact message from the backend
       }
     } catch (err) {
       setError('An error occurred during signup. Please try again later.');
@@ -291,7 +308,7 @@ export default function SignUp() {
                   </Button>
                   <Grid container spacing={2} justifyContent="center" sx={{ mt: 1 }}>
                     <Grid item>
-                      <Button
+                      {/* <Button
                         variant="outlined"
                         startIcon={<GoogleIcon />}
                         sx={{
@@ -303,22 +320,25 @@ export default function SignUp() {
                         }}
                       >
                         Sign up with Google
-                      </Button>
+                      </Button> */}
+                      <GoogleSignUpButton setUser={setUser} setError={setError} setLoading={setLoading} />  {/* Pass setLoading, setError, setUser */}
+
                     </Grid>
                     <Grid item>
-                      <Button
-                        variant="outlined"
-                        startIcon={<SchoolIcon sx={{ color: 'purple' }} />}
-                        sx={{
-                          width: '200px',
-                          borderRadius: '10px',
-                          padding: '10px 0px',
-                          textTransform: 'none',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                        }}
-                      >
-                        Sign up with University
-                      </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<SchoolIcon sx={{ color: 'purple' }} />}
+                    sx={{
+                      width: '200px',
+                      borderRadius: '10px',
+                      padding: '10px 0px',
+                      textTransform: 'none',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}
+                    onClick={() => setIsComingSoonOpen(true)} // Open popup
+                  >
+                    Sign in with University
+                  </Button>
                     </Grid>
                   </Grid>
                   <Grid container justifyContent="flex-end" sx={{ mt: 2 }}>
@@ -335,6 +355,9 @@ export default function SignUp() {
         </Grid>
       </Grid>
       <FeedbackButton />
+      <Dialog open={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} fullWidth maxWidth="sm">
+        <ComingSoonSignUp />
+      </Dialog>
     </ThemeProvider>
   );
 }
