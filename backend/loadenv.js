@@ -1,2 +1,2 @@
 import dotenv from 'dotenv';
-dotenv.config() // useed to Config
+dotenv.config() // used to Config
