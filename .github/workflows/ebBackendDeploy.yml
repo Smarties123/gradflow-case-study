@@ -28,7 +28,7 @@ jobs:
         working-directory: backend
         run: |
           nohup node server.js & sleep 5
-          curl --fail http://localhost:3001/test-db || exit 1
+          curl --fail http://localhost:3001/health || exit 1
         env:
           NODE_ENV: production
       
