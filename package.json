@@ -11,7 +11,8 @@
     "dev": "webpack serve --mode development --port 3100 --host 0.0.0.0 --progress ",
     "clear": "rimraf assets",
     "build:webpack": "cross-env NODE_ENV=production webpack --mode production --progress && copyfiles -u 1 public/* ./assets/",
-    "build": "npm run clear && npm run build:webpack",
+    "generate-sitemap": "node ./generate-sitemap.js",
+    "build": "npm run clear && npm run generate-sitemap && npm run build:webpack",
     "publish:gh-pages": "node gh-pages.js"
   },
   "keywords": [
@@ -111,6 +112,7 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-module-resolver": "^4.1.0",
     "conventional-changelog-cli": "^2.2.2",
+    "copy-webpack-plugin": "^12.0.2",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.1",
