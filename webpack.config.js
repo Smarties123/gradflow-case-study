@@ -1,6 +1,7 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlwebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');  // Add this
 const webpack = require('webpack');
 const dotenv = require('dotenv');
 
@@ -73,7 +74,7 @@ module.exports = {
   },
   plugins: [
     new HtmlwebpackPlugin({
-      title: 'Kanban Boards Template',
+      title: 'GradFlow',
       filename: 'index.html',
       template: path.resolve(__dirname, 'public', 'index.html'),  // Updated path to index.html
       inject: true,
@@ -86,5 +87,12 @@ module.exports = {
     }),
     // Inject environment variables into the app
     new webpack.DefinePlugin(envKeys),
+
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: path.resolve(__dirname, 'public/robots.txt'), to: path.resolve(__dirname, 'build') },
+      ],
+    }),
+  
   ],
 };
