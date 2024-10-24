@@ -10,7 +10,7 @@ import userRoutes from './routes/userRoutes.js';
 import applicationRoutes from './routes/applicationRoutes.js';
 import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
-import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
+// import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
 
 
 
@@ -37,7 +37,7 @@ app.get('/test-db', async (req, res) => {
 app.use(cors());
 app.use(express.json());
 
-app.use('/', sitemapRoutes);
+// app.use('/', sitemapRoutes);
 
 
 // Proxy route for logo service
