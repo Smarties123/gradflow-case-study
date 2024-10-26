@@ -10,6 +10,8 @@ import dayjs from 'dayjs';
 const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateStatus, statuses = [], updateStatusLocally }) => {
     const [currentView, setCurrentView] = useState('details');
     const { user } = useUser(); // Get the user object
+    const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
+
     
     const parseDate = (dateStr) => {
         return dateStr ? dayjs(dateStr).toDate() : null;
@@ -121,7 +123,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     
 
     return (
-        <Drawer open={show} onClose={onClose} size="sm">
+        <Drawer open={show} onClose={onClose} size={drawerSize}>
             <Drawer.Header>
                 <Drawer.Title>Edit Card</Drawer.Title>
                 <FlexboxGrid justify="space-between" className="drawer-links">
