@@ -62,8 +62,8 @@
     .form-group,
     .formControlLabel,
     .full-width {
-        width: 10% !important;
-        padding: 0;
+        width: 100% !important; /* Set to full width for mobile screens */
+        padding: 0 5px;
         margin: 0;
     }
 
@@ -81,6 +81,9 @@
     }
 
     .drawer-buttons {
+        width: 100% !important; /* Ensure buttons take full width */
+        margin-bottom: 10px;
+
         flex-direction: column;
     }
 
