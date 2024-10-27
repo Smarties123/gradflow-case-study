@@ -1,4 +1,5 @@
 // Handles Email Logic
+import mjml from 'mjml';
 import nodemailer from 'nodemailer';
 import { getApplicationsStatus } from '../controllers/applicationController.js';
 import { getAllUsers } from '../controllers/userController.js';
@@ -12,20 +13,91 @@ const transporter = nodemailer.createTransport({
 });
 
 
+
+
 export const sendResetPasswordEmail = async (email, token, frontendUrl) => {
+  // Define the MJML template with placeholders for the dynamic values
+  const mjmlTemplate = `
+    <mjml>
+      <mj-body background-color="#f4f4f4">
+        
+        <!-- Header Section -->
+        <mj-section background-color="#ffffff" padding="20px" border-radius="10px" text-align="center">
+          <mj-column>
+            <mj-text font-size="20px" color="#333333" font-family="Helvetica" font-weight="bold">
+              GradFlow Account: Password Reset Request
+            </mj-text>
+            <mj-divider border-color="#F45E43" border-width="2px"></mj-divider>
+          </mj-column>
+        </mj-section>
+        
+        <!-- Body Section -->
+        <mj-section background-color="#ffffff" padding="20px" border-radius="10px">
+          <mj-column>
+            
+            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
+              Your password reset token will expire in <strong>15 minutes</strong>.
+            </mj-text>
+            
+            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
+              You can reset your password by clicking the following link:
+            </mj-text>
+
+            <!-- Reset Password Button -->
+            <mj-button background-color="#F45E43" color="white" font-size="16px" font-family="Helvetica" href="${frontendUrl}/reset-password/${token}" padding="15px 0">
+              Reset Password
+            </mj-button>
+
+            <mj-text font-size="14px" color="#666666" font-family="Helvetica" line-height="1.5">
+              Or paste this link into your browser:
+              <br>
+              <a href="${frontendUrl}/reset-password/${token}" style="color: #F45E43;">${frontendUrl}/reset-password/${token}</a>
+            </mj-text>
+            
+            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
+              Have a great day!
+            </mj-text>
+            
+            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
+              Team Gradflow
+            </mj-text>
+            
+          </mj-column>
+        </mj-section>
+        
+        <!-- Footer Section -->
+        <mj-section padding="20px 0 0">
+          <mj-column>
+            <mj-text font-size="12px" color="#999999" font-family="Helvetica" align="center">
+              If you didn’t request a password reset, please ignore this email or <a href="https://support.yourwebsite.com" style="color: #F45E43;">contact support</a>.
+            </mj-text>
+          </mj-column>
+        </mj-section>
+
+      </mj-body>
+    </mjml>
+  `;
+
+  // Compile the MJML template to HTML
+  const { html, errors } = mjml(mjmlTemplate);
+
+  // Check for errors in the MJML compilation
+  if (errors.length) {
+    console.error('MJML rendering errors:', errors);
+  }
+
+  // Define mail options, using the compiled HTML from MJML
   const mailOptions = {
     from: process.env.SMTP_EMAIL,
     to: email,
     subject: 'Password Reset Verification Code',
-    html: `
-      <p>Your password reset token will expire in 15 minutes.</p>
-      <p>You can reset your password by clicking the following link:</p>
-      <a href="${frontendUrl}/reset-password/${token}">${frontendUrl}/reset-password/${token}</a>
-      <p> Have a great day! </p>
-    `,
+    html: html, // Use the HTML compiled from MJML
   };
+
+  // Send the email
   await transporter.sendMail(mailOptions);
 };
+
 
 
 export const sendEmailsToAllUsers = async () => {

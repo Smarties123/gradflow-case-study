@@ -1,0 +1,102 @@
+<mjml>
+  <mj-head>
+    <mj-style>
+      .card {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .btn {
+        background-color: #F45E43;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 16px;
+        font-weight: bold;
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+
+    <!-- Header Section -->
+    <mj-section background-color="#ffffff" padding="20px" border-radius="10px" text-align="center">
+      <mj-column>
+
+        <mj-image width="100px" src="/assets/img/logo-small.png"></mj-image>
+
+        <mj-divider border-color="#F45E43" border-width="2px"></mj-divider>
+
+        <mj-text font-size="24px" color="#333333" font-family="Helvetica" font-weight="bold" padding-top="10px">
+          Welcome to Gradflow!
+        </mj-text>
+
+        <mj-text font-size="16px" color="#666666" font-family="Helvetica" line-height="1.5">
+          We’re excited to have you on board! Here are some powerful features to get you started with Gradflow.
+        </mj-text>
+
+      </mj-column>
+    </mj-section>
+
+    <!-- Feature Cards Section -->
+    <mj-section padding="20px 0">
+      <mj-column>
+
+        <!-- Feature Card 1 -->
+        <mj-wrapper padding="10px" css-class="card">
+          <mj-image width="60px" src="/assets/img/feature1-icon.png"></mj-image>
+          <mj-text font-size="18px" color="#333333" font-family="Helvetica" font-weight="bold">
+            1: Streamlined Workflow
+          </mj-text>
+          <mj-text font-size="14px" color="#666666" font-family="Helvetica" line-height="1.5">
+            A Simple and Easy-To-Use interface to track all job applications.
+          </mj-text>
+        </mj-wrapper>
+
+        <!-- Feature Card 2 -->
+        <mj-wrapper padding="10px" css-class="card">
+          <mj-image width="60px" src="/assets/img/feature2-icon.png"></mj-image>
+          <mj-text font-size="18px" color="#333333" font-family="Helvetica" font-weight="bold">
+            2: Real-Time Analytics
+          </mj-text>
+          <mj-text font-size="14px" color="#666666" font-family="Helvetica" line-height="1.5">
+            Use our dashboards to gain a high level understanding of your success rate at each application stage
+          </mj-text>
+        </mj-wrapper>
+
+        <!-- Feature Card 3 -->
+        <mj-wrapper padding="10px" css-class="card">
+          <mj-image width="60px" src="/assets/img/feature3-icon.png"></mj-image>
+          <mj-text font-size="18px" color="#333333" font-family="Helvetica" font-weight="bold">
+            3: Weekly Alerts
+          </mj-text>
+          <mj-text font-size="14px" color="#666666" font-family="Helvetica" line-height="1.5">
+		Tired of keeping track of all those jobs? Don't Worry we have your back :) our service automatically provides you weekly updates on your job applications.
+          </mj-text>
+        </mj-wrapper>
+
+      </mj-column>
+    </mj-section>
+
+    <!-- Call-to-Action Section -->
+    <mj-section text-align="center">
+      <mj-column>
+        <mj-button background-color="#F45E43" color="white" font-size="16px" font-family="Helvetica" href="https://gradflow.org/">
+          Explore Gradflow Now
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer Section -->
+    <mj-section padding="20px 0 0">
+      <mj-column>
+        <mj-text font-size="12px" color="#999999" font-family="Helvetica" align="center">
+          © 2024 Gradflow Inc. All rights reserved. | <a href="https://gradflow.com/terms" style="color:#F45E43;">Terms of Service</a> | <a href="https://gradflow.com/privacy" style="color:#F45E43;">Privacy Policy</a>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>
