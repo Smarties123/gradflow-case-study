@@ -44,7 +44,7 @@ export default function Hero() {
           flexDirection: 'column',
           alignItems: 'center',
           pt: { xs: 14, sm: 20 },
-          pb: { xs: 8, sm: 12 }
+          pb: { xs: 2, sm: 6 }
         }}
       >
         <Stack spacing={2} useFlexGap sx={{ width: { xs: '100%', sm: '70%' } }}>
@@ -101,7 +101,7 @@ export default function Hero() {
             sx={{ pt: 2, width: { xs: '100%', sm: 'auto' } }}
           >
             <Button variant="contained" color="primary" href="/signup">
-            Sign Up for Free
+              Sign Up for Free
             </Button>
           </Stack>
           <Typography variant="caption" textAlign="center" sx={{ opacity: 0.8 }}>

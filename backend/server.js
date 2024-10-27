@@ -34,6 +34,18 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
+// Health check route
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+
+// CORS test route
+app.get('/test-cors', (req, res) => {
+  res.status(200).json({ message: 'CORS is working!' });
+});
+
+
 app.use(cors());
 app.use(express.json());
 

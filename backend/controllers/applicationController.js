@@ -24,8 +24,7 @@ export const addJob = async (req, res) => {
 
 // Fetch all applications for the logged-in user
 export const getApplications = async (req, res) => {
-  const userId = req.user.userId; // Assuming the user ID is stored in the JWT
-
+  const userId = req.user.userId; 
   try {
     const query = `
       SELECT a.*, sn."StatusName"
@@ -44,7 +43,6 @@ export const getApplications = async (req, res) => {
   }
 };
 
-// Update general application details
 // Update general application details
 export const updateApplication = async (req, res) => {
   // console.log('updateApplication called');
@@ -123,10 +121,10 @@ export const updateApplication = async (req, res) => {
     const { rows } = await pool.query(query, values);
 
     if (rows.length > 0) {
-      // console.log('Updated application:', rows[0]); // Log the result from the DB
+
       res.status(200).json({ message: 'Application updated successfully', application: rows[0] });
     } else {
-      // console.log('Application not found for update');
+
       res.status(404).json({ message: 'Application not found' });
     }
   } catch (error) {
@@ -142,7 +140,6 @@ export const updateApplication = async (req, res) => {
 
 
 export const updateApplicationStatus = async (req, res) => {
-  // console.log('updateApplicationStatus called');
 
   const { id } = req.params;
   const { statusId } = req.body;
@@ -257,7 +254,6 @@ export const getApplicationsStatus = async (userId) => {
 
 
     const formatDeadline = (date) => {
-      // const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
       const options = { year: 'numeric', month: '2-digit', day: '2-digit'};
       return new Date(date).toLocaleString('en-US', options); 
     };
