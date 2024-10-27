@@ -1,5 +1,8 @@
 import React, { useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import InfoIcon from '@mui/icons-material/Info';
+import IconButton from '@mui/material/IconButton';
+import { Tooltip } from 'react-tooltip';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface LineChartData {
   name: string;
@@ -69,9 +72,24 @@ const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title }) =
     return colors[index % colors.length];  // Rotate through the colors
   };
 
+
   return (
     <div>
       <h4 style={{ color: '#FFF', textAlign: 'left' }}>{title}</h4>
+
+      <div style={{ position: 'relative', top: '-30px', left: '98%' }}> {/* Ensure positioning context */}
+        {/* Icon button with a data-tooltip-id */}
+        {/* Icon button with a data-tooltip-id */}
+        <a data-tooltip-id="tooltip">
+          <IconButton style={{ color: '#FFF' }}>
+            <InfoIcon />
+          </IconButton>
+        </a>
+        {/* Tooltip with id that matches data-tooltip-id */}
+        <Tooltip id="tooltip" place="bottom" >
+          Hover above the dots to view your applications
+        </Tooltip>
+      </div>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart
           data={lineChartData}
@@ -90,7 +108,7 @@ const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title }) =
               Number of Activities
             </text>
           </YAxis>
-          <Tooltip />
+          <RechartsTooltip />
           <Legend
             layout="vertical"
             verticalAlign="middle"

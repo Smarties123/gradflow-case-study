@@ -1,6 +1,10 @@
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 import './Styles/DonutChartComponent.less';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import InfoIcon from '@mui/icons-material/Info';
+
 interface DonutChartComponentProps {
   data: { name: string; value: number; color: string }[];
 }
@@ -73,6 +77,11 @@ const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
       <div id="chart">
         <ReactApexChart options={options} series={series} type="donut" width={450} />
       </div>
+      <Tooltip title={`Use filters to view your applications`} placement="top">
+        <IconButton style={{ position: 'absolute', top: 30, right: 20, color: '#FFF' }}>
+          <InfoIcon />
+        </IconButton>
+      </Tooltip>
     </div>
   );
 };
