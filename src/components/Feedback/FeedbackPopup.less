@@ -1,39 +1,55 @@
 .feedback-popup {
-    .rs-modal-content {
-      position: relative;
-    }
-  
-    .rs-modal-header {
-      text-align: center;
-      font-size: 1.5em;
-      padding-bottom: 0;
-    }
-  
-    .rs-modal-body {
-      padding: 1em;
-    }
-  
+  .rs-modal-content {
+    position: relative;
+    padding: 0px 20px 20px 20px !important;
+  }
+
+  .rs-modal-header {
+    text-align: center;
+    font-size: 1.5em;
+    padding-bottom: 0;
+  }
+
+  .rs-modal-body {
+    padding: 1em;
+  }
+
+  .rs-modal-footer {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+    padding-top: 1em;
+  }
+
+  .close-button {
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5em 1em;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .close-button:hover {
+    background-color: #0056b3;
+  }
+
+  @media (max-width: 600px) {
     .rs-modal-footer {
-      display: flex;
-      justify-content: center;
-      gap: 1em;
-      padding-top: 1em;
+      flex-direction: column; // Stack items on small screens
+      align-items: stretch; // Stretch items to full width
     }
-  
-    .close-button {
-      position: absolute;
-      bottom: 1em;
-      right: 1em;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 0.5em 1em;
-      border-radius: 5px;
-      cursor: pointer;
+
+    .rs-button {
+      width: 100%; // Make buttons full width on small screens
+      margin-bottom: 8px; // Add space between buttons
     }
-  
-    .close-button:hover {
-      background-color: #0056b3;
+
+    .rs-button:last-child {
+      margin-bottom: 0; // Remove margin from the last button
     }
   }
-  
+}
