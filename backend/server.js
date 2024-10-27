@@ -10,7 +10,7 @@ import userRoutes from './routes/userRoutes.js';
 import applicationRoutes from './routes/applicationRoutes.js';
 import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
-import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
+// import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
 
 
 
@@ -46,22 +46,10 @@ app.get('/test-cors', (req, res) => {
 });
 
 
-// Environment variables check route
-app.get('/check-env', (req, res) => {
-  res.status(200).json({
-    dbUser: process.env.DB_USER,
-    dbHost: process.env.DB_HOST,
-    dbName: process.env.DB_NAME,
-    dbPort: process.env.DB_PORT,
-  });
-  res.status(200).json(process.env);
-
-});
-
 app.use(cors());
 app.use(express.json());
 
-app.use('/', sitemapRoutes);
+// app.use('/', sitemapRoutes);
 
 
 // Proxy route for logo service
