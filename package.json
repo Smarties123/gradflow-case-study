@@ -84,6 +84,7 @@
     "react-modal": "^3.16.1",
     "react-router": "6.3.0",
     "react-router-dom": "^6.3.0",
+    "react-share": "^5.1.0",
     "react-spring": "^9.7.4",
     "react-tooltip": "^5.28.0",
     "recharts": "^2.12.7",

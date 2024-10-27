@@ -18,6 +18,7 @@ import SettingsView from '../SettingsView/SettingsView'; // Adjust the path acco
 import { handleButtonClick } from '../FeedbackButton/FeedbackButton';
 
 import TutorialPopup from '../TutorialPopup/TutorialPopup'; // Adjust the path if necessary
+import FeedbackPopup from '../Feedback/FeedbackPopup';
 
 const { getHeight, on } = DOMHelper;
 
@@ -41,6 +42,7 @@ const Frame = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [animate, setAnimate] = useState(true); // State to control animation
   const [showTutorial, setShowTutorial] = useState(false); // State to control tutorial popup visibility
+  const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
 
   useEffect(() => {
     const isNewUser = localStorage.getItem('isNewUser');
@@ -141,12 +143,13 @@ const Frame = () => {
               {/* Feedback */}
               <Nav.Item
                 title="Feedback"
-                onClick={handleButtonClick}
+                onClick={() => setShowFeedbackPopup(true)}
                 eventKey="feedback"
                 icon={<Icon as={FeedbackIcon} />}
               >
                 Feedback
-              </Nav.Item>
+            </Nav.Item>
+
               <Nav.Item
                 title="Settings"
                 onClick={() => setShowSettings(true)}
@@ -169,6 +172,8 @@ const Frame = () => {
 
         <SettingsView show={showSettings} onClose={() => setShowSettings(false)} />
         {showTutorial && <TutorialPopup />}
+        <FeedbackPopup show={showFeedbackPopup} onClose={() => setShowFeedbackPopup(false)} />
+
       </Container>
     </CustomProvider>
   );
