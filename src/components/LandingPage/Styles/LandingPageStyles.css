@@ -80,3 +80,7 @@ a:hover {
   background-repeat: no-repeat !important;
   background-position: center;
 }
+
+#student {
+  padding-top: 70px !important;
+}

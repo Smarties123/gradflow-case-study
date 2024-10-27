@@ -2,28 +2,46 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
-import CountUp from 'react-countup';
 import 'animate.css';
 
-export default function CountUpSection() {
-  return (
-    <Box id="countUpSection" sx={{ py: 4 }}>
-      <Typography
-        component="p"
-        variant="subtitle2"
-        align="center"
-        color="text.secondary"
-        className="animate__animated animate__bounce"
-      >
-        Trusted by students across the world
-      </Typography>
+// Dummy API fetch function
+const fetchData = async () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        registeredUsers: 31,
+        applicationsMade: 1278,
+        offersMade: 17,
+      });
+    }, 1000);
+  });
+};
 
-      {/* Grid Container for Three CountUps */}
-      <Grid container justifyContent="center" spacing={2} sx={{ mt: 2, opacity: 0.8 }}>
+// Function to round up to the next multiple of 10
+const roundUpToNextTen = (value) => Math.ceil(value / 10) * 10;
+
+export default function CountUpSection() {
+  const [data, setData] = React.useState({ registeredUsers: 0, applicationsMade: 0, offersMade: 0 });
+
+  React.useEffect(() => {
+    const getData = async () => {
+      const apiData = await fetchData();
+      setData({
+        registeredUsers: roundUpToNextTen(apiData.registeredUsers),
+        applicationsMade: roundUpToNextTen(apiData.applicationsMade),
+        offersMade: roundUpToNextTen(apiData.offersMade),
+      });
+    };
+    getData();
+  }, []);
+
+  return (
+    <Box id="countUpSection" sx={{ py: 4, pt: 0 }}>
+      <Grid container justifyContent="center" spacing={2} sx={{ mt: 0, opacity: 0.8 }}>
         {/* First CountUp */}
         <Grid item xs={12} md={3} textAlign="center" sx={{ p: 1 }}>
           <Typography variant="h4" color="text.primary">
-            <CountUp start={0} end={37} duration={5} separator="," />
+            {data.registeredUsers}+
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ mt: -1 }}>
             Registered Users
@@ -33,7 +51,7 @@ export default function CountUpSection() {
         {/* Second CountUp */}
         <Grid item xs={12} md={3} textAlign="center" sx={{ p: 1 }}>
           <Typography variant="h4" color="text.primary">
-            <CountUp start={0} end={1278} duration={5} separator="," />
+            {data.applicationsMade}+
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ mt: -1 }}>
             Applications Made
@@ -43,7 +61,7 @@ export default function CountUpSection() {
         {/* Third CountUp */}
         <Grid item xs={12} md={3} textAlign="center" sx={{ p: 1 }}>
           <Typography variant="h4" color="text.primary">
-            <CountUp start={0} end={17} duration={5} separator="," />
+            {data.offersMade}+
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ mt: -1 }}>
             Offers Made
