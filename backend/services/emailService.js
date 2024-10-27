@@ -21,6 +21,7 @@ export const sendResetPasswordEmail = async (email, token, frontendUrl) => {
       <p>Your password reset token will expire in 15 minutes.</p>
       <p>You can reset your password by clicking the following link:</p>
       <a href="${frontendUrl}/reset-password/${token}">${frontendUrl}/reset-password/${token}</a>
+      <p> Have a great day! </p>
     `,
   };
   await transporter.sendMail(mailOptions);

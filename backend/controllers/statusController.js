@@ -1,6 +1,6 @@
 import pool from '../config/db.js';
 
-// Fetch all statuses for a user
+// Fetch all statuses for a user commented pok
 export const getStatuses = async (req, res) => {
   const userId = req.user.userId;
   try {
@@ -14,8 +14,8 @@ export const getStatuses = async (req, res) => {
 
     res.status(200).json(result.rows);
   } catch (error) {
-    console.error('Error fetching statuses:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error Fetching Statuses :', error);
+    res.status(500).json({ message: 'Server Error' });
   }
 };
 
@@ -26,7 +26,7 @@ export const updateStatusName = async (req, res) => {
   const userId = req.user.userId;
 
   if (!statusName) {
-    return res.status(400).json({ message: 'StatusName is required' });
+    return res.status(400).json({ message: 'Status Name Is Required' });
   }
 
   statusName = statusName.toUpperCase();  // Capitalize the status name
@@ -59,8 +59,8 @@ export const updateStatusName = async (req, res) => {
 
     res.status(200).json({ message: 'Status updated successfully', status: result.rows[0] });
   } catch (error) {
-    console.error('Error updating status:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error Updating status:', error);
+    res.status(500).json({ message: 'Server error, try again later' });
   }
 };
 
@@ -145,7 +145,7 @@ export const deleteStatus = async (req, res) => {
     `, [id, userId]);
 
     if (statusResult.rows.length === 0) {
-      return res.status(404).json({ message: 'Status not found or unauthorized to delete' });
+      return res.status(404).json({ message: 'Status not found or Unauthorized to delete' });
     }
 
     const statusNameId = statusResult.rows[0].StatusNameId;
@@ -223,6 +223,6 @@ export const moveStatus = async (req, res) => {
     res.status(200).json({ message: 'Status moved successfully' });
   } catch (error) {
     console.error('Error moving status:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server Error try later' });
   }
 };
