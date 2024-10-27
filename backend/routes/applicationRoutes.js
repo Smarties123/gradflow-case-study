@@ -7,9 +7,11 @@ import {
   updateApplicationStatus, 
   updateFavoriteStatus, 
   deleteApplication,
-  searchApplications 
+  searchApplications,
+  getApplicationDetails
 } from '../controllers/applicationController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
+
 
 const router = express.Router();
 
@@ -30,6 +32,10 @@ router.put('/applications/:id/favorite', authenticateToken, updateFavoriteStatus
 
 // Route to update other application details
 router.put('/applications/:id', authenticateToken, updateApplication);
+
+
+router.get('/applications/:id', authenticateToken, getApplicationDetails);
+
 
 // Route to delete an application
 router.delete('/applications/:id', authenticateToken, deleteApplication);
