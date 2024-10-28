@@ -29,13 +29,6 @@ const HighlightTile: React.FC<HighlightTileProps> = ({ title, value, color, icon
     <Card className="cardStats" sx={{ backgroundColor: color, position: 'relative', borderRadius: '8px', color: '#FFF' }}>
       <CardContent sx={{ textAlign: 'center' }}>
 
-        {/* Info Icon with Tooltip */}
-        <Tooltip title={`Number of ${title} Applications Made`} placement="top">
-          <IconButton style={{ position: 'absolute', top: -3, right: -3, color: '#FFF' }}>
-            <InfoIcon />
-          </IconButton>
-        </Tooltip>
-
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {/* <div style={{ marginRight: '10px' }}>{icon}</div> */}
           <Typography component="h3" className="cardStatsValue" variant="h5">

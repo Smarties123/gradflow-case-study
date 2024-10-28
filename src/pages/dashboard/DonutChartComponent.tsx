@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 import './Styles/DonutChartComponent.less';
-import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
+import { Tooltip } from 'react-tooltip';
+
 
 interface DonutChartComponentProps {
   data: { name: string; value: number; color: string }[];
@@ -74,14 +75,22 @@ const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ position: 'absolute', top: '37px', left: '85%', zIndex: '10001' }}> {/* Ensure positioning context */}
+        {/* Icon button with a data-tooltip-id */}
+        <a data-tooltip-id="tooltip">
+          <IconButton style={{ color: '#FFF' }}>
+            <InfoIcon />
+          </IconButton>
+        </a>
+        {/* Tooltip with id that matches data-tooltip-id */}
+        <Tooltip id="tooltip" place="left" >
+          Hover above the values to view your applications
+        </Tooltip>
+      </div>
       <div id="chart">
         <ReactApexChart options={options} series={series} type="donut" width={450} />
       </div>
-      <Tooltip title={`Use filters to view your applications`} placement="top">
-        <IconButton style={{ position: 'absolute', top: 30, right: 20, color: '#FFF' }}>
-          <InfoIcon />
-        </IconButton>
-      </Tooltip>
+
     </div>
   );
 };

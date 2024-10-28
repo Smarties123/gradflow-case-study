@@ -77,7 +77,7 @@ const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title }) =
     <div>
       <h4 style={{ color: '#FFF', textAlign: 'left' }}>{title}</h4>
 
-      <div style={{ position: 'relative', top: '-30px', left: '98%' }}> {/* Ensure positioning context */}
+      <div style={{ position: 'absolute', top: '25px', left: '93%' }}> {/* Ensure positioning context */}
         {/* Icon button with a data-tooltip-id */}
         {/* Icon button with a data-tooltip-id */}
         <a data-tooltip-id="tooltip">
