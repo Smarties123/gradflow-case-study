@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Row, Col, Panel, DateRangePicker } from 'rsuite';
 import './styles.less';
 
@@ -11,19 +11,23 @@ import { useBoardData } from '../../hooks/useBoardData';
 import DonutChartComponent from './DonutChartComponent';
 import { useUser } from '../../components/User/UserContext';
 import RadarChartComponent from './RadarChart';
-import { ThreeCircles } from 'react-loader-spinner';
+
 
 const Dashboard: React.FC = () => {
-  const { user } = useUser();
-  const { columns } = useBoardData(user);
+  const { user } = useUser(); // Ensure you have the user from context or another source
+  const { columns } = useBoardData(user); // Correct usage of useBoardData
   const [selectedDateRange, setSelectedDateRange] = useState<[Date, Date] | null>(null);
-  const [loading, setLoading] = useState(true); // New loading state
 
+  // Ensure columns is always defined to avoid conditional hooks
   const hasColumns = columns && columns.length > 0;
 
+  // Filter columns based on the selected date range
   const filteredColumns = useMemo(() => {
+
     if (!hasColumns) return [];
-    if (!selectedDateRange) return columns.slice(0, 1000);
+
+    if (!selectedDateRange) return columns.slice(0, 1000); // Limit to first 6 columns
+
 
     const [startDate, endDate] = selectedDateRange;
     return columns.map(column => ({
@@ -41,9 +45,12 @@ const Dashboard: React.FC = () => {
     name: column.title,
     value: column.cards.length,
     percent: Math.round((column.cards.length / maxCards) * 100),
+
     color: `hsl(24, 100%, ${30 + (index * 7)}%)`,
   })) : [];
 
+
+  // Function to convert HSL to HEX
   const hslToHex = (h, s, l) => {
     s /= 100;
     l /= 100;
@@ -57,6 +64,7 @@ const Dashboard: React.FC = () => {
       .join('')}`;
   };
 
+  // Assuming this is part of a function or component
   const funnelData = hasColumns
     ? filteredColumns.map((column, index) => {
       const h = 24; // H value (Hue)
@@ -73,35 +81,19 @@ const Dashboard: React.FC = () => {
     })
     : [];
 
+
+
   const highlightData = hasColumns ? filteredColumns.map((column, index) => ({
     title: column.title,
     value: column.cards.length,
+    // color: `hsl(24, 100%, ${50 + (index * 2)}%)`,
     icon: <div>{column.title[0]}</div>,
   })) : [];
 
   const keyForCharts = hasColumns ? JSON.stringify(filteredColumns.map(column => column.title + column.cards.length)) : '';
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer); // Cleanup the timer on component unmount
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="loading-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <ThreeCircles
-          visible={true}
-          height="100"
-          width="100"
-          color="#ff6200"
-          ariaLabel="three-circles-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-        />
-      </div>
-    );
+  if (!hasColumns) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -117,28 +109,28 @@ const Dashboard: React.FC = () => {
             appearance="default"
             placeholder="Select Date Range"
             style={{ margin: '10px 10px' }}
-            onChange={(value: [Date, Date]) => setSelectedDateRange(value)}
+            onChange={(value: [Date, Date]) => setSelectedDateRange(value)}  // Update the selected date range
           />
         </Col>
       </Row>
       {/* Charts Section */}
-      <Row gutter={16} style={{ margin: 0 }} align="stretch">
-        <Col xs={24} md={12} style={{ padding: 0 }}>
+      <Row gutter={16} style={{ margin: 0 }} align="stretch">  {/* Add align="stretch" */}
+        <Col xs={24} md={12} >
           <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', height: '100%' }}>
             <BarChart
-              key={keyForCharts}
+              key={keyForCharts}  // Re-trigger BarChart animation
               dropdownType={filteredColumns.map(column => column.title)}
               title="Jobs Created"
               dateRange={selectedDateRange}
-              filteredColumns={filteredColumns}
+              filteredColumns={filteredColumns} // Pass the selected date range
             />
           </Panel>
         </Col>
-        <Col xs={24} md={12} style={{ padding: 0 }}>
+        <Col xs={24} md={12} >
           <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', minHeight: '475px' }}>
             <DonutChartComponent
               style={{ margin: 'auto 0px' }}
-              key={keyForCharts}
+              key={keyForCharts}  // Re-trigger DonutChart animation
               data={donutData}
             />
           </Panel>
@@ -148,10 +140,10 @@ const Dashboard: React.FC = () => {
         <Col xs={24}>
           <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
             <LineChartComponent
-              key={keyForCharts}
+              key={keyForCharts}  // Re-trigger LineChartComponent animation
               columns={filteredColumns}
               title="Application Activity"
-              dateRange={selectedDateRange}
+              dateRange={selectedDateRange}  // Pass the selected date range
             />
           </Panel>
         </Col>
@@ -160,24 +152,28 @@ const Dashboard: React.FC = () => {
         <Col xs={24} md={12}>
           <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
             <FunnelChart
-              key={keyForCharts}
+              key={keyForCharts}  // Re-trigger FunnelChart animation
               data={funnelData}
               title="Recruitment Funnel"
+            // dateRange={selectedDateRange}  // Pass the selected date range
             />
           </Panel>
         </Col>
         <Col xs={24} md={12}>
           <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
             <RadarChartComponent
-              key={keyForCharts}
+              key={keyForCharts}  // Re-trigger FunnelChart animation
               data={funnelData}
+            // dateRange={selectedDateRange}  // Pass the selected date range
             />
           </Panel>
         </Col>
       </Row>
       <Row style={{ marginBottom: '20px' }}>
         <Col xs={24}>
-          {/* Additional content can go here */}
+          {/* <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}> */}
+          {/* <SankeyDiagram title="Application Flow" /> */}
+          {/* </Panel> */}
         </Col>
       </Row>
     </div>
