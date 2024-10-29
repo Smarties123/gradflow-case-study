@@ -47,10 +47,39 @@ export const getApplications = async (req, res) => {
 export const updateApplication = async (req, res) => {
   // console.log('updateApplication called');
 
-  const { id } = req.params;
+  let id = req.params.id;
   const { company, position, salary, notes, deadline, location, url, card_color, date_applied, interview_stage, statusId } = req.body; 
 
   const userId = req.user.userId;
+
+
+    // Convert `id` to an integer and handle cases where it might be `undefined`
+    id = parseInt(id, 10);
+    if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid Application ID." });
+    }
+
+    // Ensure userId is defined
+    if (!userId) {
+        return res.status(400).json({ message: "User ID is missing." });
+    }
+  
+
+  // // Log each field for debugging
+  // console.log('Updating application with the following details:');
+  // console.log(`Company: ${company}`);
+  // console.log(`Position: ${position}`);
+  // console.log(`Salary: ${salary}`);
+  // console.log(`Notes: ${notes}`);
+  // console.log(`Deadline: ${deadline}`);
+  // console.log(`Location: ${location}`);
+  // console.log(`URL: ${url}`);
+  // console.log(`Card Color: ${card_color}`);
+  // console.log(`Date Applied: ${date_applied}`);
+  // console.log(`Interview Stage: ${interview_stage}`);
+  // console.log(`Status ID: ${statusId}`);
+  // console.log(`User ID: ${userId}`);
+  // console.log(`Application ID: ${id}`);
 
   try {
     const query = `
@@ -80,10 +109,14 @@ export const updateApplication = async (req, res) => {
       card_color || null,
       date_applied || null,
       interview_stage || null,
-      statusId || null,
+      statusId !== undefined ? statusId : null, // Ensure statusId is not undefined
       id,
       userId
     ];
+
+    // Log the full values array before executing the query
+    // console.log('Values being passed to the query:', values);
+    // console.log('Values being passed to the query:', values);
 
     const { rows } = await pool.query(query, values);
 
@@ -286,5 +319,30 @@ export const searchApplications = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+
+// Fetch details of a specific application (card)
+export const getApplicationDetails = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.userId;  // Ensure the application belongs to the user
+
+  try {
+      const result = await pool.query(`
+          SELECT * FROM "Application" 
+          WHERE "ApplicationId" = $1 AND "UserId" = $2;
+      `, [id, userId]);
+
+      if (result.rowCount === 0) {
+          return res.status(404).json({ message: 'Application not found' });
+      }
+
+      res.status(200).json(result.rows[0]);
+  } catch (error) {
+      console.error('Error fetching application details:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
 

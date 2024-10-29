@@ -1,6 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import ApexCharts from 'apexcharts';
 import './Styles/FunnelChart.less';
+import InfoIcon from '@mui/icons-material/Info';
+import IconButton from '@mui/material/IconButton';
+import { Tooltip } from 'react-tooltip';
+
 interface FunnelChartData {
   name: string;
   value: number;
@@ -93,6 +97,19 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode }) => 
   return (
     <div>
       <h4>{title}</h4>
+      <div style={{ position: 'relative', top: '-40px', left: '95%' }}> {/* Ensure positioning context */}
+        {/* Icon button with a data-tooltip-id */}
+        {/* Icon button with a data-tooltip-id */}
+        <a data-tooltip-id="tooltip">
+          <IconButton style={{ color: '#FFF' }}>
+            <InfoIcon />
+          </IconButton>
+        </a>
+        {/* Tooltip with id that matches data-tooltip-id */}
+        <Tooltip id="tooltip" place="bottom" >
+          Hover above the values to view your applications
+        </Tooltip>
+      </div>
       <div ref={chartRef}></div>
     </div>
   );

@@ -44,7 +44,7 @@ function Copyright(props) {
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
-      HAD TECHNOLOGIES LTD
+        HAD TECHNOLOGIES LTD
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -158,7 +158,7 @@ export default function SignInSide() {
         if (errorMessage.includes('Google account')) {
           setError('This email is associated with a Google account. Please sign in using Google.');
         } else {
-          setError(errorMessage);
+          setError('Account not recognised. Please try again or sign up.');
         }
       }
     } catch (err) {
@@ -233,29 +233,29 @@ export default function SignInSide() {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type={showPassword ? "text" : "password"} // Conditionally toggle type
-                  id="password"
-                  autoComplete="current-password"
-                  error={!!passwordError}
-                  helperText={passwordError}
-                  InputProps={{
-                    endAdornment: (
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword(!showPassword)} // Toggle visibility
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    )
-                  }}
-                />
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type={showPassword ? "text" : "password"} // Conditionally toggle type
+                    id="password"
+                    autoComplete="current-password"
+                    error={!!passwordError}
+                    helperText={passwordError}
+                    InputProps={{
+                      endAdornment: (
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        </IconButton>
+                      )
+                    }}
+                  />
 
                 </Grid>
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>

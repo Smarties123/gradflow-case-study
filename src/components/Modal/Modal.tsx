@@ -9,7 +9,7 @@ import Github from '@uiw/react-color-github';  // Import the color picker
 
 
 const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
-    const { addCardToColumn } = useContext(BoardContext);
+    const { addCardToColumn, updateCard } = useContext(BoardContext);
     const { user } = useUser();
 
     if (!isOpen) return null;
@@ -147,11 +147,11 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 url: url || null,
                 companyLogo: companyLogo || null,
                 date_applied: dayjs().format('YYYY-MM-DD'),
-                card_color: selectedColor,  // Use the selected color
+                card_color: selectedColor,
                 userId: user ? user.id : null,
                 statusId: activeColumn ? activeColumn.id : selectedColumn,
             };
-
+    
             try {
                 const response = await fetch(`${process.env.REACT_APP_API_URL}/addjob`, {
                     method: 'POST',
@@ -161,22 +161,51 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     },
                     body: JSON.stringify(card),
                 });
-
+    
                 if (response.ok) {
-                    addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card);
-                    onClose();
+                    const savedCard = await response.json();
+                    console.log("Saved card data:", savedCard);
+    
+                    const newCardId = savedCard.job?.ApplicationId;
+                    if (newCardId) {
+                        addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, { ...card, id: newCardId });
+                        await fetchCardDetails(newCardId);  // Wait for background fetch
+                    }
                 } else {
                     console.error('Failed to add job');
                 }
+                // Close modal regardless of success or failure in adding job
+                onClose();
             } catch (err) {
                 console.error('Error adding job:', err);
+                // Close modal even if there's an error
+                onClose();
             }
         }
     };
-
-
-
-
+    
+    // Fetch the full card details in the background and update it locally
+    const fetchCardDetails = async (id) => {
+        try {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${id}`, {
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                },
+            });
+    
+            if (response.ok) {
+                const fullCardData = await response.json();
+                console.log("Fetched full card data:", fullCardData);
+                updateCard(id, fullCardData);
+            } else {
+                console.error('Failed to fetch the full card data');
+            }
+        } catch (error) {
+            console.error('Error fetching card details:', error);
+        }
+    };
+    
 
 
     return (

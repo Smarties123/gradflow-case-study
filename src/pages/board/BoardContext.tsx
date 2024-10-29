@@ -19,16 +19,18 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
 
 
     const addCardToColumn = (columnId: number, card: Card) => {
-        setColumns(prevColumns =>
-            prevColumns.map(col =>
-                col.id === columnId
-                    ? { ...col, cards: [...col.cards, { ...card, companyLogo: card.companyLogo || '', id: Date.now() }] }
-                    : col
-            )
-        );
-    };
+      console.log("Adding to column:", columnId, "with card:", card);
+      setColumns(prevColumns =>
+          prevColumns.map(col =>
+              col.id === columnId
+                  ? { ...col, cards: [...col.cards, card] }
+                  : col
+          )
+      );
+  };
 
-    const updateCard = (id: number, updatedData: Partial<Card>) => {
+  
+      const updateCard = (id: number, updatedData: Partial<Card>) => {
       setColumns(prevColumns =>
           prevColumns.map(col => {
               const updatedCards = col.cards.map(card =>
