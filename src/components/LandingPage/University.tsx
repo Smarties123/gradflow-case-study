@@ -47,7 +47,7 @@ export default function University() {
   const selectedFeature = items[selectedItemIndex];
 
   return (
-    <Container id="university" sx={{ py: { xs: 8, sm: 16 } }}>
+    <Container id="university" sx={{ py: { xs: 8, sm: 10 } }}>
       <Grid container spacing={6}>
         {/* Left-hand side: Stack with clickable items */}
         <Grid item xs={12} md={6}>

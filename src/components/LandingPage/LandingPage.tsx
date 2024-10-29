@@ -61,9 +61,9 @@ export default function LandingPage() {
 
           <Divider />
 
-          <Box id="testimonials" sx={{ bgcolor: 'background.default' }}>
+          {/* <Box id="testimonials" sx={{ bgcolor: 'background.default' }}>
             <Testimonials />
-          </Box>
+          </Box> */}
 
           <Divider />
 
