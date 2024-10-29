@@ -134,53 +134,52 @@ const Header = props => {
     );
   };
 
-  const isDashboardPage = location.pathname === '/main/dashboard';
 
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
       <Stack direction="row" spacing={4} alignItems="flex-start">
         <Search /> {/* Include the Search component here */}
 
-          <div style={{ alignItems: 'left' }}>
-            <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
-              <Button
-                className="header-button"
-                style={{
-                  backgroundColor: '#8338ec',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '120px',
-                  lineHeight: '24px'
-                }}
-                onClick={handleOpenAddModal}
-              >
-                <FaPlus
-                  className="header-icon"
-                  style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }}
-                />
-                <span className="visually-hidden">Add New</span>
-              </Button>
-              <Button
-                className="header-button"
-                style={{
-                  backgroundColor: '#ff6200',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '120px',
-                  lineHeight: '24px'
-                }}
-                onClick={handleOpenModal}
-              >
-                <FaRegShareSquare
-                  className="header-icon"
-                  style={{ fontSize: 18, margin: '1px 1px 1px 1px' }}
-                />
-                <span className="visually-hidden">Share</span>
-              </Button>
-            </ButtonToolbar>
-          </div>
+        <div style={{ alignItems: 'left' }}>
+          <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
+            <Button
+              className="header-button"
+              style={{
+                backgroundColor: '#8338ec',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                width: '120px',
+                lineHeight: '24px'
+              }}
+              onClick={handleOpenAddModal}
+            >
+              <FaPlus
+                className="header-icon"
+                style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }}
+              />
+              <span className="visually-hidden">Add New</span>
+            </Button>
+            <Button
+              className="header-button"
+              style={{
+                backgroundColor: '#ff6200',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                width: '120px',
+                lineHeight: '24px'
+              }}
+              onClick={handleOpenModal}
+            >
+              <FaRegShareSquare
+                className="header-icon"
+                style={{ fontSize: 18, margin: '1px 1px 1px 1px' }}
+              />
+              <span className="visually-hidden">Share</span>
+            </Button>
+          </ButtonToolbar>
+        </div>
         {/* )} */}
         <Modal
           isOpen={isAddModalOpen}
@@ -209,7 +208,7 @@ const Header = props => {
           show={showSettings}
           onClose={() => setShowSettings(false)}
           card={{}}
-          updateCard={() => {}}
+          updateCard={() => { }}
         />
       )}
     </Stack>
