@@ -104,13 +104,13 @@ export default function Hero() {
               Sign Up for Free
             </Button>
           </Stack>
-          <Typography variant="caption" textAlign="center" sx={{ opacity: 0.8 }}>
+          {/* <Typography variant="caption" textAlign="center" sx={{ opacity: 0.8 }}>
             By &quot;Signing up&quot; you agree to our&nbsp;
             <Link href="/terms-and-conditions" color="primary" target="_blank" rel="noopener noreferrer">
               Terms & Conditions
             </Link>
             .
-          </Typography>
+          </Typography> */}
         </Stack>
       </Container>
     </Box>
