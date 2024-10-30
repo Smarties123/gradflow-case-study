@@ -53,3 +53,15 @@
          font-weight: bold !important;
      }
  }
+
+
+ /* Remove left padding for the first tile in each row */
+ .highlight-tiles-row .rs-col:first-child,
+ .highlight-tiles-row .rs-col:nth-child(4n + 1),
+ /* Large screens */
+ .highlight-tiles-row .rs-col:nth-child(3n + 1),
+ /* Medium screens */
+ .highlight-tiles-row .rs-col:nth-child(2n + 1) {
+     /* Small screens */
+     padding-left: 0 !important;
+ }
