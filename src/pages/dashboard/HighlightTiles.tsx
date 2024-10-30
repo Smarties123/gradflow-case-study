@@ -5,9 +5,6 @@ import './Styles/HighlightTile.less';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import InfoIcon from '@mui/icons-material/Info';
 
 // Highlight Tile Component
 interface HighlightTileProps {
@@ -26,18 +23,15 @@ const HighlightTile: React.FC<HighlightTileProps> = ({ title, value, color, icon
   });
 
   return (
-    <Card className="cardStats" sx={{ backgroundColor: color, position: 'relative', borderRadius: '8px', color: '#FFF' }}>
+    <Card className="cardStats" sx={{ backgroundColor: color, position: 'relative', borderRadius: '8px', color: '#FFF', minWidth: '120px', minHeight: '80px' }}>
       <CardContent sx={{ textAlign: 'center' }}>
-
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {/* <div style={{ marginRight: '10px' }}>{icon}</div> */}
           <Typography component="h3" className="cardStatsValue" variant="h5">
             <animated.span>
               {props.number.to((n) => Math.floor(n))}
             </animated.span>
           </Typography>
         </div>
-
         <Typography component="h4" id="highlightTitle" className="cardStatsTitle" sx={{ mb: 0.5 }}>
           {title}
         </Typography>
@@ -51,20 +45,16 @@ interface HighlightTilesProps {
 }
 
 const HighlightTiles: React.FC<HighlightTilesProps> = ({ data }) => {
-  // Calculate the flex basis for the tiles based on the number of tiles
-  const tilesPerRow = 8;
-  const colSize = data.length <= tilesPerRow ? Math.floor(24 / data.length) : 3;
-
   return (
     <Row gutter={16} className="highlight-tiles-row">
       {data.map((item, index) => (
         <Col
           key={index}
-          xs={24}  // Mobile: Full width
+          xs={12}  // Mobile: 2 tiles per row
           sm={12}  // Small screens: 2 tiles per row
           md={8}   // Medium screens: 3 tiles per row
           lg={6}   // Large screens: 4 tiles per row
-          xl={colSize}  // Adjust column size based on the number of tiles
+          xl={3}   // Extra large screens: 6 tiles per row
         >
           <HighlightTile
             title={item.title}
