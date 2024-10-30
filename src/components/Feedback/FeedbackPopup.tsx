@@ -24,7 +24,7 @@ const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show,
         </iframe>
       </Modal.Body>
       <Modal.Footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexGrow: 1, flexWrap: 'wrap', marginLeft: '35px' }}>
+{/*         <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexGrow: 1, flexWrap: 'wrap', marginLeft: '35px' }}>
           <Button
             appearance="ghost"
             color="blue"
@@ -43,7 +43,7 @@ const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show,
             <FaWhatsapp style={{ marginRight: '4px', verticalAlign: 'text-top' }} />
             Join WhatsApp Community
           </Button>
-        </div>
+        </div> */}
         {/* Close button at the bottom right */}
         <Button onClick={onClose} appearance="subtle">
           Close
