@@ -19,6 +19,8 @@ const Dashboard: React.FC = () => {
   const { columns } = useBoardData(user);
   const [selectedDateRange, setSelectedDateRange] = useState<[Date, Date] | null>(null);
   const [loading, setLoading] = useState(true);
+  const maxHeight = '500px'; // Set your desired max height here
+
 
   const hasColumns = columns && columns.length > 0;
 
@@ -136,6 +138,7 @@ const Dashboard: React.FC = () => {
     );
   }
 
+
   return (
     <div className="scroll-container">
       <Row style={{ marginRight: '0px' }}>
@@ -189,23 +192,27 @@ const Dashboard: React.FC = () => {
       </Row>
       <Row gutter={16}>
         <Col xs={24} md={12}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden' }}>
             <FunnelChart
               key={keyForCharts}
               data={funnelData}
               title="Recruitment Funnel"
+              style={{ height: '100%', maxHeight }}
+
             />
           </Panel>
         </Col>
         <Col xs={24} md={12}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
+          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden', maxHeight: maxHeight }}>
             <RadarChartComponent
               key={keyForCharts}
               data={funnelData}
+              style={{ height: '100%' }}
             />
           </Panel>
         </Col>
       </Row>
+
     </div>
   );
 };

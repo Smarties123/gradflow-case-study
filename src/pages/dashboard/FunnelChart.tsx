@@ -18,7 +18,7 @@ interface FunnelChartProps {
 }
 
 
-const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode }) => {
+const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode, maxHeight }) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
 
 
@@ -110,7 +110,8 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode }) => 
           Hover above the values to view your applications
         </Tooltip>
       </div>
-      <div ref={chartRef}></div>
+      <div ref={chartRef} style={{ height: '100%', maxHeight }} // Ensures it fills the panel
+      ></div>
     </div>
   );
 };

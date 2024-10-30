@@ -23,7 +23,7 @@ interface RadarChartComponentProps {
     }[];
 }
 
-const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data }) => {
+const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data, maxHeight }) => {
     const [isDarkTheme, setIsDarkTheme] = useState(document.body.classList.contains('rs-theme-dark'));
 
     // Use effect to listen for theme changes dynamically
@@ -112,7 +112,7 @@ const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data }) => {
             justifyContent: 'center',
             alignItems: 'center',
             margin: 'auto',
-            maxHeight: '400px',
+            height: '450px',
             width: '100%',
             position: 'relative',
         }}>
