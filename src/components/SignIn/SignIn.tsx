@@ -43,7 +43,7 @@ function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+      <Link color="inherit" href="https://find-and-update.company-information.service.gov.uk/company/16020364" target="_blank" rel="noopener noreferrer">
         HAD TECHNOLOGIES LTD
       </Link>{' '}
       {new Date().getFullYear()}

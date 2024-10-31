@@ -57,7 +57,7 @@ function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+      <Link color="inherit" href="https://find-and-update.company-information.service.gov.uk/company/16020364" target="_blank" rel="noopener noreferrer">
         HAD TECHNOLOGIES LTD
       </Link>{' '}
       {new Date().getFullYear()}
@@ -303,6 +303,18 @@ export default function SignUp() {
                       {error}
                     </Typography>
                   )}
+                  <Grid item xs={12}>
+                    <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                      By signing up, you agree to our{' '}
+                      <Link href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+                        Terms and Conditions
+                      </Link>{' '}
+                      and{' '}
+                      <Link href="/privacy-policy-GDPR" target="_blank" rel="noopener noreferrer">
+                        Privacy Policy
+                      </Link>.
+                    </Typography>
+                  </Grid>
                   <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                     Sign Up
                   </Button>

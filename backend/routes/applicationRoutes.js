@@ -21,6 +21,9 @@ router.post('/addjob', authenticateToken, addJob);
 // Route to fetch all job applications
 router.get('/applications', authenticateToken, getApplications);
 
+router.get('/applications/search', authenticateToken, searchApplications);
+
+
 // // Route to update other application details
 // router.put('/applications/:id', authenticateToken, updateApplication); // New route for updating general application details
 
@@ -29,6 +32,8 @@ router.put('/applications/:id/status', authenticateToken, updateApplicationStatu
 
 // Route to mark/unmark an application as favorite
 router.put('/applications/:id/favorite', authenticateToken, updateFavoriteStatus);
+
+
 
 // Route to update other application details
 router.put('/applications/:id', authenticateToken, updateApplication);
@@ -41,7 +46,6 @@ router.get('/applications/:id', authenticateToken, getApplicationDetails);
 router.delete('/applications/:id', authenticateToken, deleteApplication);
 
 
-router.get('/applications/search', authenticateToken, searchApplications);
 
 
 export default router;
