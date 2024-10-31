@@ -77,14 +77,14 @@ const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ position: 'absolute', top: '37px', left: '85%', zIndex: '10001' }}> {/* Ensure positioning context */}
         {/* Icon button with a data-tooltip-id */}
-        <a data-tooltip-id="tooltip">
+        <a data-tooltip-id="donut">
           <IconButton style={{ color: '#FFF' }}>
             <InfoIcon />
           </IconButton>
         </a>
         {/* Tooltip with id that matches data-tooltip-id */}
-        <Tooltip id="tooltip" place="left" >
-          Hover above the values to view your applications
+        <Tooltip id="donut" place="left" >
+          Percentage of applications across different job statuses.
         </Tooltip>
       </div>
       <div id="chart">

@@ -97,16 +97,14 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode, maxHe
   return (
     <div>
       <h4>{title}</h4>
-      <div style={{ position: 'relative', top: '-40px', left: '95%' }}> {/* Ensure positioning context */}
+      <div style={{ position: 'relative', top: '-35px', left: '93%' }}> {/* Ensure positioning context */}
 
-        <a data-tooltip-id="tooltip">
-          <IconButton style={{ color: '#FFF' }}>
-            <InfoIcon />
-          </IconButton>
-        </a>
+        <IconButton style={{ color: '#FFF' }} data-tooltip-id="funnel">
+          <InfoIcon />
+        </IconButton>
         {/* Tooltip with id that matches data-tooltip-id */}
-        <Tooltip id="tooltip" place="bottom" >
-          Hover above the values to view your applications
+        <Tooltip id="funnel" >
+          The progression of applications through different recruitment stages
         </Tooltip>
       </div>
       <div ref={chartRef} style={{ height: '100%', maxHeight, position: 'relative', top: '-30px' }} // Ensures it fills the panel

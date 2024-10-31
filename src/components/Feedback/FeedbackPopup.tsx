@@ -28,13 +28,13 @@ const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show,
           <Button
             appearance="ghost"
             color="blue"
-            onClick={() => window.open('https://discord.gg/hfVqgRDHc8')}
+            onClick={() => window.open('https://discord.gg/b8KVbKqPDZ')}
             style={{ marginRight: '8px' }}
           >
             <FaDiscord style={{ marginRight: '4px', verticalAlign: 'text-top' }} />
             Join Discord Community
           </Button>
-          <Button
+          {/* <Button
             appearance="ghost"
             color="green"
             onClick={() => window.open('https://chat.whatsapp.com/JU6wzPwffwyIWKhwdnl79Z')}
@@ -42,7 +42,7 @@ const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show,
           >
             <FaWhatsapp style={{ marginRight: '4px', verticalAlign: 'text-top' }} />
             Join WhatsApp Community
-          </Button>
+          </Button> */}
         </div>
         {/* Close button at the bottom right */}
         <Button onClick={onClose} appearance="subtle">
