@@ -94,6 +94,14 @@ export const signUp = async (req, res) => {
     res.status(201).json({ userId, token, user: { email, username }, message: 'User created successfully' });
   } catch (error) {
     console.error('Error during signup:', error);
+
+
+        // Improved error response
+    let errorMessage = 'Server error.';
+    if (error.code === '23505') { // PostgreSQL unique constraint violation
+      errorMessage = 'This email or username is already registered.';
+    }
+    
     return res.status(500).json({ message: 'Server error.' });
   }
 };

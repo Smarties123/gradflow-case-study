@@ -24,8 +24,7 @@ export const addJob = async (req, res) => {
 
 // Fetch all applications for the logged-in user
 export const getApplications = async (req, res) => {
-  const userId = req.user.userId; // Assuming the user ID is stored in the JWT
-
+  const userId = req.user.userId; 
   try {
     const query = `
       SELECT a.*, sn."StatusName"
@@ -45,14 +44,26 @@ export const getApplications = async (req, res) => {
 };
 
 // Update general application details
-// Update general application details
 export const updateApplication = async (req, res) => {
   // console.log('updateApplication called');
 
-  const { id } = req.params;
+  let id = req.params.id;
   const { company, position, salary, notes, deadline, location, url, card_color, date_applied, interview_stage, statusId } = req.body; 
 
   const userId = req.user.userId;
+
+
+    // Convert `id` to an integer and handle cases where it might be `undefined`
+    id = parseInt(id, 10);
+    if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid Application ID." });
+    }
+
+    // Ensure userId is defined
+    if (!userId) {
+        return res.status(400).json({ message: "User ID is missing." });
+    }
+  
 
   // // Log each field for debugging
   // console.log('Updating application with the following details:');
@@ -98,21 +109,22 @@ export const updateApplication = async (req, res) => {
       card_color || null,
       date_applied || null,
       interview_stage || null,
-      statusId || null,
+      statusId !== undefined ? statusId : null, // Ensure statusId is not undefined
       id,
       userId
     ];
 
     // Log the full values array before executing the query
     // console.log('Values being passed to the query:', values);
+    // console.log('Values being passed to the query:', values);
 
     const { rows } = await pool.query(query, values);
 
     if (rows.length > 0) {
-      // console.log('Updated application:', rows[0]); // Log the result from the DB
+
       res.status(200).json({ message: 'Application updated successfully', application: rows[0] });
     } else {
-      // console.log('Application not found for update');
+
       res.status(404).json({ message: 'Application not found' });
     }
   } catch (error) {
@@ -128,7 +140,6 @@ export const updateApplication = async (req, res) => {
 
 
 export const updateApplicationStatus = async (req, res) => {
-  // console.log('updateApplicationStatus called');
 
   const { id } = req.params;
   const { statusId } = req.body;
@@ -243,7 +254,6 @@ export const getApplicationsStatus = async (userId) => {
 
 
     const formatDeadline = (date) => {
-      // const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
       const options = { year: 'numeric', month: '2-digit', day: '2-digit'};
       return new Date(date).toLocaleString('en-US', options); 
     };
@@ -309,5 +319,30 @@ export const searchApplications = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+
+// Fetch details of a specific application (card)
+export const getApplicationDetails = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.userId;  // Ensure the application belongs to the user
+
+  try {
+      const result = await pool.query(`
+          SELECT * FROM "Application" 
+          WHERE "ApplicationId" = $1 AND "UserId" = $2;
+      `, [id, userId]);
+
+      if (result.rowCount === 0) {
+          return res.status(404).json({ message: 'Application not found' });
+      }
+
+      res.status(200).json(result.rows[0]);
+  } catch (error) {
+      console.error('Error fetching application details:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
 

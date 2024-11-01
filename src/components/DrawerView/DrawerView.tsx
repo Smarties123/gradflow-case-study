@@ -10,10 +10,14 @@ import dayjs from 'dayjs';
 const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateStatus, statuses = [], updateStatusLocally }) => {
     const [currentView, setCurrentView] = useState('details');
     const { user } = useUser(); // Get the user object
+    const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
+
     
     const parseDate = (dateStr) => {
         return dateStr ? dayjs(dateStr).toDate() : null;
     };
+
+    
 
     const [formData, setFormData] = useState({
         company: card.company || '',  // Default to an empty string if null
@@ -51,6 +55,15 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         });
     }, []);
 
+    useEffect(() => {
+        if (!card.id) {
+            console.warn("ID is missing from card prop:", card);
+            // Optionally, prevent drawer from opening if no ID
+            onClose();
+        }
+    }, [card]);
+    
+
     const handleChange = (value, name) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -61,6 +74,9 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     };
 
     const handleSubmit = async () => {
+        console.log("Updating card with ID:", card.id); // Debug log to verify ID
+        console.log("DrawerView card prop:", card);
+
         const updatedData = {
             company: formData.company || card.company || null, 
             position: formData.position || card.position || null,
@@ -121,7 +137,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     
 
     return (
-        <Drawer open={show} onClose={onClose} size="sm">
+        <Drawer open={show} onClose={onClose} size={drawerSize}>
             <Drawer.Header>
                 <Drawer.Title>Edit Card</Drawer.Title>
                 <FlexboxGrid justify="space-between" className="drawer-links">

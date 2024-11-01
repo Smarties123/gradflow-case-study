@@ -57,8 +57,8 @@ function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link color="inherit" href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
-       HAD TECHNOLOGIES LTD
+      <Link color="inherit" href="https://find-and-update.company-information.service.gov.uk/company/16020364" target="_blank" rel="noopener noreferrer">
+        HAD TECHNOLOGIES LTD
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -113,7 +113,7 @@ export default function SignUp() {
     const username = data.get('Name') as string;
     const email = data.get('email') as string;
     const password = data.get('password') as string;
-  
+
     // Client-side validation
     let valid = true;
     if (!username) {
@@ -122,7 +122,7 @@ export default function SignUp() {
     } else {
       setNameError(null);
     }
-  
+
     if (!email) {
       setEmailError('Email is required');
       valid = false;
@@ -132,57 +132,52 @@ export default function SignUp() {
     } else {
       setEmailError(null);
     }
-  
+
     if (!password) {
       setPasswordError('Password is required');
       valid = false;
     } else {
       setPasswordError(null);
     }
-  
+
     if (!valid) return;
-  
+
     // Check if email or username already exists
     const { emailExists, usernameExists } = await checkIfUserExists(email, username);
-  
+
     if (emailExists) {
       setEmailError('Email already exists.');
       return;
     }
-  
+
     if (usernameExists) {
       setNameError('Username already exists.');
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
       });
-  
+
       if (response.ok) {
         const result = await response.json();
-        // Save token in localStorage for tutorial purposes
         localStorage.setItem('authToken', result.token);
-        // Set user context with token and email
         setUser({
           email: result.user.email,
           token: result.token,
           username: result.user.username
         });
-      
         localStorage.setItem('isNewUser', 'true');
-
-
-        logEvent(analytics, 'sign_up', { method: 'Email' }); // Log the sign-up event
+        logEvent(analytics, 'sign_up', { method: 'Email' });
         window.location.href = '/main';
       } else {
-        const errorMessage = await response.text();
-        setError(errorMessage);
+        const errorMessage = await response.json(); // Parse the JSON error
+        setError(errorMessage.message); // Show the exact message from the backend
       }
     } catch (err) {
       setError('An error occurred during signup. Please try again later.');
@@ -191,7 +186,7 @@ export default function SignUp() {
     }
   };
 
-  
+
   return (
     <ThemeProvider theme={defaultTheme}>
       <Grid container component="main" sx={{ minHeight: '100vh', height: '100vh' }}>
@@ -236,7 +231,7 @@ export default function SignUp() {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign up
+              Sign Up
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
               {loading ? ( // Show loading spinner
@@ -308,6 +303,18 @@ export default function SignUp() {
                       {error}
                     </Typography>
                   )}
+                  <Grid item xs={12}>
+                    <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                      By signing up, you agree to our{' '}
+                      <Link href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+                        Terms and Conditions
+                      </Link>{' '}
+                      and{' '}
+                      <Link href="/privacy-policy-GDPR" target="_blank" rel="noopener noreferrer">
+                        Privacy Policy
+                      </Link>.
+                    </Typography>
+                  </Grid>
                   <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                     Sign Up
                   </Button>
@@ -330,20 +337,20 @@ export default function SignUp() {
 
                     </Grid>
                     <Grid item>
-                  <Button
-                    variant="outlined"
-                    startIcon={<SchoolIcon sx={{ color: 'purple' }} />}
-                    sx={{
-                      width: '200px',
-                      borderRadius: '10px',
-                      padding: '10px 0px',
-                      textTransform: 'none',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                    }}
-                    onClick={() => setIsComingSoonOpen(true)} // Open popup
-                  >
-                    Sign in with University
-                  </Button>
+                      <Button
+                        variant="outlined"
+                        startIcon={<SchoolIcon sx={{ color: 'purple' }} />}
+                        sx={{
+                          width: '200px',
+                          borderRadius: '10px',
+                          padding: '10px 0px',
+                          textTransform: 'none',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }}
+                        onClick={() => setIsComingSoonOpen(true)} // Open popup
+                      >
+                        Sign in with University
+                      </Button>
                     </Grid>
                   </Grid>
                   <Grid container justifyContent="flex-end" sx={{ mt: 2 }}>

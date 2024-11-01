@@ -1,0 +1,68 @@
+.rs-theme-dark {
+    .popup-content {
+        background: #333;
+        color: white;
+        box-shadow: rgba(149, 157, 165, 0.708) 0px 8px 24px;
+    }
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.popup-content h2 {
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.popup-content p {
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.popup-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.popup-footer button {
+    padding: 10px 20px;
+    background-color: rgb(131, 56, 236);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#finish {
+    background-color: rgb(255, 98, 0);
+}
+
+.popup-footer button:hover {
+    background-color: darkgrey;
+}
+
+.popup-footer button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    color: black;
+}
