@@ -55,44 +55,6 @@
 
 
 
-/* Responsive styles */
-@media (max-width: 600px) {
-
-
-    .form-group,
-    .formControlLabel,
-    .full-width {
-        width: 100% !important; /* Set to full width for mobile screens */
-        padding: 0 5px;
-        margin: 0;
-    }
-
-    .drawer-links {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .drawer-links a {
-        margin-bottom: 5px;
-    }
-
-    .drawer-links .rs-divider {
-        display: none;
-    }
-
-    .drawer-buttons {
-        width: 100% !important; /* Ensure buttons take full width */
-        margin-bottom: 10px;
-
-        flex-direction: column;
-    }
-
-    .drawer-buttons button {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-}
-
 
 
 .company-input-wrapper {
@@ -109,4 +71,59 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
+}
+
+
+.rs-drawer-dialog .rs-drawer-content {
+    height: max-content !important;
+}
+
+.color-picker {
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding-left: 0px !important;
+}
+
+.drawer-links {
+    align-items: center !important;
+}
+
+// On Mobile Devices
+@media (max-width: 768px) {
+    .rs-drawer-body {
+        // background-color: pink;
+        padding: 20px 15px 30px 15px !important;
+    }
+
+    .rs-drawer-header {
+        padding-right: 20px !important;
+    }
+
+
+
+    .rs-drawer-body .rs-form [role="grid"] [role="row"] {
+        margin-left: 0px !important;
+        margin-right: 0px !important;
+    }
+
+    .rs-drawer .rs-drawer-content {
+        overflow-y: auto;
+        height: 100vh !important;
+        scrollbar-width: thin;
+        // scrollbar-color: #ff6200 #1e1e1e;
+    }
+
+    .card-color-picker {
+        flex-direction: row;
+        /* Ensures label and picker stay on one line */
+        justify-content: space-between;
+    }
+
+    .color-picker {
+
+        width: 100% !important;
+        padding: 1px;
+
+    }
 }
