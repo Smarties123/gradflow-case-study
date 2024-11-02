@@ -1,4 +1,5 @@
 import * as React from 'react';
+// import { useState } from 'react'; // Import useState here
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -28,6 +29,8 @@ import GoogleSignInButton from './OtherSignIn'; // Import GoogleSignInButton
 import Dialog from '@mui/material/Dialog';
 import ComingSoonSignIn from './ComingSoonSignIn'; // Adjust path as needed
 import { analytics, logEvent } from '../../../firebaseConfig'; // Adjust the path as needed
+
+// import OnDemandFeedbackPopup from '../Feedback/OnDemandFeedback';
 
 
 // Google SVG icon
@@ -64,6 +67,8 @@ export default function SignInSide() {
   const isSmallScreen = useMediaQuery('(max-width:600px)');
   const [showPassword, setShowPassword] = React.useState(false);
   const [isComingSoonOpen, setIsComingSoonOpen] = React.useState(false);
+
+  // const [isFeedbackPopupOpen, setFeedbackPopupOpen] = useState(false);
 
 
 
@@ -151,6 +156,21 @@ export default function SignInSide() {
           token: result.token,
           username: result.user.username
         });
+
+        // if (result.user.feedbackTrigger) {
+        //   setFeedbackPopupOpen(true); // Trigger the feedback popup
+        //   await fetch(`${process.env.REACT_APP_API_URL}/api/users/disable-feedback`, {
+        //     method: 'POST',
+        //     headers: {
+        //       'Content-Type': 'application/json',
+        //       'Authorization': `Bearer ${result.token}`
+        //     },
+        //     body: JSON.stringify({ userId: result.user.id, feedbackTrigger: false })
+        //   });
+        // }
+      
+
+
         logEvent(analytics, 'login', { method: 'Email' }); // Log the login event
         window.location.href = '/main';
       } else {
@@ -336,6 +356,12 @@ export default function SignInSide() {
       <Dialog open={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} fullWidth maxWidth="sm">
         <ComingSoonSignIn />
       </Dialog>
+
+      {/* <OnDemandFeedbackPopup
+        show={isFeedbackPopupOpen}
+        onClose={() => setFeedbackPopupOpen(false)}
+      /> */}
+
     </ThemeProvider>
   );
 }

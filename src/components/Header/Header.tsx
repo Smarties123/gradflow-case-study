@@ -34,6 +34,8 @@ const Header = props => {
   const navigate = useNavigate(); // Use navigate for redirection after sign out
   const [formData, setFormData] = useState({ email: '', name: '' });
 
+
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -51,6 +53,10 @@ const Header = props => {
     };
     fetchUserData();
   }, [user.token]);
+
+
+
+
 
   const context = useContext(BoardContext);
   if (!context) {
@@ -203,6 +209,7 @@ const Header = props => {
           <Avatar email={formData.email} name={formData.name} size="45" round={true} />
         </Whisper>
       </div>
+      
       {showSettings && (
         <SettingsView
           show={showSettings}
@@ -211,7 +218,9 @@ const Header = props => {
           updateCard={() => { }}
         />
       )}
+      
     </Stack>
+    
   );
 };
 

@@ -231,6 +231,7 @@ export const login = async (req, res) => {
         id: user.UserId,
         email: user.Email,
         username: user.Username,
+
       }
     });
   } catch (error) {
@@ -262,6 +263,7 @@ export const googleLogin = async (req, res) => {
         user: {
           email: user.Email,
           username: user.Username,
+
         },
       });
     }
@@ -366,19 +368,20 @@ export const getUserDetails = async (req, res) => {
   const userId = req.user.userId;
 
   try {
-      const query = 'SELECT "Username", "Email", "PromotionalEmail", "ApplicationEmail" FROM "Users" WHERE "UserId" = $1';
-      const { rows } = await pool.query(query, [userId]);
+    const query = 'SELECT "Username", "Email", "PromotionalEmail", "ApplicationEmail", "FeedbackTrigger" FROM "Users" WHERE "UserId" = $1';
+    const { rows } = await pool.query(query, [userId]);
 
       if (rows.length === 0) {
           return res.status(404).json({ message: 'User not found' });
       }
 
       res.status(200).json({
-          Username: rows[0].Username,
-          Email: rows[0].Email,
-          PromotionalEmail: rows[0].PromotionalEmail,  
-          ApplicationEmail: rows[0].ApplicationEmail  // Ensure it's included
-      });
+        Username: rows[0].Username,
+        Email: rows[0].Email,
+        PromotionalEmail: rows[0].PromotionalEmail,  
+        ApplicationEmail: rows[0].ApplicationEmail,
+        FeedbackTrigger: rows[0].FeedbackTrigger  // Include FeedbackTrigger in the response
+    });
   } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
@@ -440,3 +443,18 @@ export const getAllUsers = async () => {
     throw new Error('Database error');
   }
 };
+
+
+
+export const disableFeedbackTrigger = async (req, res) => {
+  const { userId } = req.user;
+
+  try {
+    await pool.query('UPDATE "Users" SET "FeedbackTrigger" = FALSE WHERE "UserId" = $1', [userId]);
+    res.status(200).json({ message: 'Feedback trigger disabled' });
+  } catch (error) {
+    console.error('Error updating feedback trigger:', error);
+    res.status(500).json({ message: 'Server error.' });
+  }
+};
+

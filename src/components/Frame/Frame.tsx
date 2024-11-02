@@ -19,6 +19,9 @@ import { handleButtonClick } from '../FeedbackButton/FeedbackButton';
 
 import TutorialPopup from '../TutorialPopup/TutorialPopup'; // Adjust the path if necessary
 import FeedbackPopup from '../Feedback/FeedbackPopup';
+import OnDemandFeedbackPopup from '../Feedback/OnDemandFeedback';
+import { useUser } from '@/components/User/UserContext'; // Adjust the import path as needed
+
 
 const { getHeight, on } = DOMHelper;
 
@@ -36,6 +39,8 @@ const NavItem = ({ title, eventKey, animate, ...rest }) => {
 };
 
 const Frame = () => {
+  const { user } = useUser(); // Access user from context
+
   const [expand, setExpand] = useState(true);
   const [windowHeight, setWindowHeight] = useState(getHeight(window));
   const [theme, setTheme] = useState<'light' | 'dark' | 'high-contrast'>('dark');
@@ -43,6 +48,9 @@ const Frame = () => {
   const [animate, setAnimate] = useState(true); // State to control animation
   const [showTutorial, setShowTutorial] = useState(false); // State to control tutorial popup visibility
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
+  const [isFeedbackPopupOpen, setFeedbackPopupOpen] = useState(false);
+
+
 
   useEffect(() => {
     const isNewUser = localStorage.getItem('isNewUser');
@@ -52,6 +60,38 @@ const Frame = () => {
     }
   }, []);
   
+  useEffect(() => {
+    const checkFeedbackTrigger = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+  
+        if (data.FeedbackTrigger) {
+          setFeedbackPopupOpen(true);
+          await fetch(`${process.env.REACT_APP_API_URL}/api/users/disable-feedback`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${user.token}`
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Failed to check feedback trigger', error);
+      }
+    };
+  
+    if (user && user.token) {
+      checkFeedbackTrigger();
+    }
+  }, [user]); // Use `user` as the dependency instead of `user.token`
+  
+
   
   useEffect(() => {
     const updateExpand = () => {
@@ -173,6 +213,11 @@ const Frame = () => {
         <SettingsView show={showSettings} onClose={() => setShowSettings(false)} />
         {showTutorial && <TutorialPopup />}
         <FeedbackPopup show={showFeedbackPopup} onClose={() => setShowFeedbackPopup(false)} />
+        <OnDemandFeedbackPopup
+      show={isFeedbackPopupOpen}
+      onClose={() => setFeedbackPopupOpen(false)}
+    />
+
 
       </Container>
     </CustomProvider>
