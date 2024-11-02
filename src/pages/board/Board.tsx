@@ -522,9 +522,9 @@ const Board: React.FC = () => {
                   {showDropdown === column.id && (
                     <div className="dropdown">
                       <ul>
-                        <li onClick={() => handleDropdownOptionSelect(1, column.id)}>
+                        {/* <li onClick={() => handleDropdownOptionSelect(1, column.id)}>
                           <IoMdMove /> Move Status
-                        </li>
+                        </li> */}
                         {column.cards.length === 0 && ( // Only show "Delete" if column has no cards
                           <li onClick={() => handleDeleteModal(column.id)}>
                             <IoMdTrash /> Delete Status

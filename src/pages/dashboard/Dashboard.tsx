@@ -3,6 +3,7 @@ import { Row, Col, Panel, DateRangePicker } from 'rsuite';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import './styles.less';
+import '../../components/skelton.less';
 
 /* Chart Imports */
 import FunnelChart from './FunnelChart';
