@@ -122,13 +122,13 @@ const Frame = () => {
                   icon={<Icon as={MdDashboard} />}
                   animate={animate} // Pass the animate state
                 />
-                <NavItem
+                {/* <NavItem
                   title="Contacts"
                   to="/main/calendar"
                   eventKey="contacts"
                   icon={<Icon as={MdContacts} />}
                   animate={animate} // Pass the animate state
-                />
+                /> */}
                 <NavItem
                   title="Files"
                   to="/main/files" // Updated to direct to Files.tsx
