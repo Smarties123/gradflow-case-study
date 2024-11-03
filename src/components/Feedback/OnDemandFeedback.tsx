@@ -33,7 +33,7 @@ const OnDemandFeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = 
             <FaDiscord style={{ marginRight: '4px', verticalAlign: 'text-top' }} />
             Join Discord Community
           </Button>
-          <Button
+          {/* <Button
             appearance="ghost"
             color="green"
             onClick={() => window.open('https://chat.whatsapp.com/JU6wzPwffwyIWKhwdnl79Z')}
@@ -41,7 +41,7 @@ const OnDemandFeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = 
           >
             <FaWhatsapp style={{ marginRight: '4px', verticalAlign: 'text-top' }} />
             Join WhatsApp Community
-          </Button>
+          </Button> */}
         </div>
         {/* Close button at the bottom right */}
         <Button onClick={onClose} appearance="subtle">
