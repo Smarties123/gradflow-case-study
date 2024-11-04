@@ -1,55 +1,99 @@
- .cardStats {
-
-     //  max-width: 146px;
-     height: 108px;
-     display: flex;
-     justify-content: center;
-     align-items: center;
-     border-radius: 16px !important;
-     padding: 1rem;
-     margin: 10px;
-     gap: 10px;
-     flex: 1;
- }
-
- .highlight-tiles-row {
-     display: flex;
-     flex-wrap: wrap;
-     justify-content: space-between;
- }
-
- #highlightTitle {
-     font-size: 0.9rem !important;
-     color: white !important;
-     font-weight: bold !important;
-     line-height: 1.5;
-     letter-spacing: 0.00938em;
- }
+.cardStats {
+    height: 108px;
+    /* Default height for larger screens */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 16px !important;
+    padding: 1rem;
+    margin: 10px;
+    gap: 10px;
+    flex: 1;
+}
 
 
+.highlight-tiles-row {
+    display: flex;
+    flex-wrap: wrap;
+}
 
- .rs-theme-dark {
+#highlightTitle {
+    font-size: 0.9rem;
+    color: white !important;
+    font-weight: bold !important;
+    line-height: 1.5;
+    letter-spacing: 0.00938em;
+}
 
-     .cardStats {
-         color: white;
-         border: white 1px solid;
-         background-color: #ff6200;
-     }
- }
 
- .rs-theme-light {
 
-     .cardStats {
-         color: white;
-         box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.2);
+.rs-theme-dark {
 
-         border: black \0.3px solid !important;
-         background-color: #ff6200;
-     }
+    .cardStats {
+        color: white;
+        border: white 1px solid;
+        background-color: #ff6200;
+    }
+}
 
-     .highlight-tile h4,
-     #highlightTitle {
-         color: white !important;
-         font-weight: bold !important;
-     }
- }
+.rs-theme-light {
+
+    .cardStats {
+        color: white;
+        box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.2);
+
+        border: black \0.3px solid !important;
+        background-color: #ff6200;
+    }
+
+    .highlight-tile h4,
+    #highlightTitle {
+        color: white !important;
+        font-weight: bold !important;
+    }
+}
+
+
+/* Remove left padding for the first tile in each row */
+@media (min-width: 768px) {
+
+    .highlight-tiles-row .rs-col:first-child,
+    .highlight-tiles-row .rs-col:nth-child(4n + 1),
+    /* Large screens */
+    .highlight-tiles-row .rs-col:nth-child(3n + 1),
+    /* Medium screens */
+    .highlight-tiles-row .rs-col:nth-child(2n + 1) {
+        /* Small screens */
+        padding-left: 0 !important;
+    }
+}
+
+
+/* Media queries for responsive design */
+@media only screen and (max-width: 768px) {
+    .cardStats {
+        height: 80px;
+        /* Height for extra small devices */
+        // min-width: 100px;
+        /* Ensure they don’t get too small */
+    }
+
+    #highlightTitle {
+        font-size: 0.7rem;
+        /* Smaller font size for smaller screens */
+    }
+
+    .cardStatsValue {
+        font-size: 0.7rem;
+    }
+
+    [role="gridcell"] {
+        // padding-left: 8px !important;
+        padding-right: 8px;
+    }
+
+    .highlight-tiles-row {
+        margin-left: -15px !important;
+    }
+
+}

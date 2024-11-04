@@ -23,7 +23,7 @@ interface RadarChartComponentProps {
     }[];
 }
 
-const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data }) => {
+const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data, maxHeight }) => {
     const [isDarkTheme, setIsDarkTheme] = useState(document.body.classList.contains('rs-theme-dark'));
 
     // Use effect to listen for theme changes dynamically
@@ -112,20 +112,20 @@ const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data }) => {
             justifyContent: 'center',
             alignItems: 'center',
             margin: 'auto',
-            maxHeight: '400px',
+            height: '450px',
             width: '100%',
             position: 'relative',
         }}>
-            <div style={{ position: 'absolute', top: '-5px', left: '90%', zIndex: 1001 }}> {/* Ensure positioning context */}
+            <div style={{ position: 'absolute', top: '0px', left: '90%', zIndex: 1001 }}> {/* Ensure positioning context */}
                 {/* Icon button with a data-tooltip-id */}
-                <a data-tooltip-id="tooltip" style={{ cursor: 'pointer' }}>
+                <a data-tooltip-id="radar" style={{ cursor: 'pointer' }}>
                     <IconButton style={{ color: '#FFF' }}>
                         <InfoIcon />
                     </IconButton>
                 </a>
                 {/* Tooltip with id that matches data-tooltip-id */}
-                <ReactTooltip id="tooltip" place="top" effect="solid">
-                    Hover above the values to view your applications
+                <ReactTooltip id="radar" place="top" effect="solid">
+                    Radar view of job applications across various statuses
                 </ReactTooltip>
             </div>
             <Radar data={chartData} options={options} />

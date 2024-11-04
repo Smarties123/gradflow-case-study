@@ -4,7 +4,7 @@ import { FaDiscord, FaWhatsapp } from 'react-icons/fa';
 
 import './FeedbackPopup.less';
 
-const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show, onClose }) => {
+const OnDemandFeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show, onClose }) => {
   return (
     <Modal
       open={show}
@@ -15,12 +15,11 @@ const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show,
     >
       <Modal.Body>
         <iframe
-          src="https://docs.google.com/forms/d/e/1FAIpQLSf9mml8GbC5HsctSGR4f9UF54Hy89K4Oy5LVzRuW5m3F2fnMw/viewform?embedded=true"
+          src="https://docs.google.com/forms/d/e/1FAIpQLSdwUqo5WWBf7u0N-gA1HaGptiOrVk_5wEaBxQB0Lp3QD1i6Qw/viewform?embedded=true"
           width="100%"
           height="500"
           frameBorder="0"
         >
-          Loading…
         </iframe>
       </Modal.Body>
       <Modal.Footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -53,4 +52,4 @@ const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show,
   );
 };
 
-export default FeedbackPopup;
+export default OnDemandFeedbackPopup;
