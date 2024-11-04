@@ -3,7 +3,7 @@ import pool from '../config/db.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { sendResetPasswordEmail } from '../services/emailService.js';
+import { sendResetPasswordEmail , sendSignupEmail} from '../services/emailService.js';
 
 const SECRET_KEY = process.env.JWT_SECRET;
 const TOKEN_EXPIRATION_MINUTES = 15;
@@ -35,7 +35,6 @@ export const checkUserExists = async (req, res) => {
 
 
 // Sign up
-// In your signUp function, check for email existence
 export const signUp = async (req, res) => {
   const { username, email, password, promotionalEmails } = req.body;
   if (!username || !email || !password) {
@@ -56,8 +55,8 @@ export const signUp = async (req, res) => {
 
     // Proceed with user creation
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password") VALUES ($1, $2, $3) RETURNING "UserId"';
-    const values = [username, email, hashedPassword];
+    const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password","IsVerified") VALUES ($1, $2, $3,$4) RETURNING "UserId"';
+    const values = [username, email, hashedPassword,false];
 
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
@@ -90,13 +89,13 @@ export const signUp = async (req, res) => {
 
 
     const token = jwt.sign({ userId, email }, SECRET_KEY, { expiresIn: '1h' });
+    await sendSignupEmail(email, token, process.env.FRONTEND_URL);
+    
 
-    res.status(201).json({ userId, token, user: { email, username }, message: 'User created successfully' });
+    res.status(201).json({ userId, token, user: { email, username }, message: 'User created successfully, Please check your email to verify your account' });
   } catch (error) {
     console.error('Error during signup:', error);
 
-
-        // Improved error response
     let errorMessage = 'Server error.';
     if (error.code === '23505') { // PostgreSQL unique constraint violation
       errorMessage = 'This email or username is already registered.';
@@ -105,6 +104,31 @@ export const signUp = async (req, res) => {
     return res.status(500).json({ message: 'Server error.' });
   }
 };
+
+
+// Verification endpoint
+export const verifyUser = async (req, res) => {
+  const { token } = req.params;
+
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    const userId = decoded.userId;
+
+    // Update user status to verified
+    const result = await pool.query('UPDATE "Users" SET "IsVerified" = $1 WHERE "UserId" = $2 RETURNING "UserId"', [true, userId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found or already verified.' });
+    }
+
+    res.status(200).json({ message: 'Account verified successfully!' });
+  } catch (error) {
+    console.error('Error during verification:', error);
+    res.status(400).json({ message: 'Invalid or expired token.' });
+  }
+};
+
+
 
 export const googleSignUp = async (req, res) => {
   const { username, email, firebaseUid, profilePicture } = req.body;
@@ -141,11 +165,11 @@ export const googleSignUp = async (req, res) => {
 
     // Insert new user into the database
     const insertUserQuery = `
-      INSERT INTO "Users" ("Username", "Email", "FirebaseUid", "ProfilePicture")
-      VALUES ($1, $2, $3, $4)
+      INSERT INTO "Users" ("Username", "Email", "FirebaseUid", "ProfilePicture","IsVerified")
+      VALUES ($1, $2, $3, $4,$5)
       RETURNING "UserId"
     `;
-    const values = [uniqueUsername, email, firebaseUid, profilePicture];
+    const values = [uniqueUsername, email, firebaseUid, profilePicture,true];
     const result = await pool.query(insertUserQuery, values);
     const userId = result.rows[0].UserId;
 
@@ -189,12 +213,6 @@ export const googleSignUp = async (req, res) => {
 };
 
 
-
-
-
-
-
-
 // Login
 export const login = async (req, res) => {
   const { email, password } = req.body;
@@ -216,6 +234,11 @@ export const login = async (req, res) => {
     // If the user has a FirebaseUid, redirect them to Google sign-in
     if (user.FirebaseUid) {
       return res.status(400).json({ message: 'This email is associated with a Google account. Please sign in with Google.' });
+    }
+
+    console.log(user.IsVerified);
+    if (user.IsVerified != true){
+      return res.status(400).json({ message: 'Your Account is not verified. Please check your registered email address' });
     }
 
     const match = await bcrypt.compare(password, user.Password);
@@ -328,13 +351,12 @@ export const resetPassword = async (req, res) => {
     if (rows.length === 1) {
       const { PWD_RESET_TOKEN, RESET_TKN_TIME } = rows[0];
 
-      // Validate token and check if it has expired
       const isMatch = await bcrypt.compare(token, PWD_RESET_TOKEN);
       if (!isMatch) {
         return res.status(400).json({ message: 'Invalid token.' });
       }
 
-      // (Optional) Check if the token has expired
+      
       if (new Date() > new Date(RESET_TKN_TIME)) {
         return res.status(400).json({ message: 'Token has expired.' });
       }
@@ -361,7 +383,7 @@ export const resetPassword = async (req, res) => {
 };
 
 
-// In userController.js
+
 export const getUserDetails = async (req, res) => {
   const userId = req.user.userId;
 
@@ -388,7 +410,7 @@ export const getUserDetails = async (req, res) => {
 
 
 
-// In userController.js
+
 export const updateUserDetails = async (req, res) => {
   const userId = req.user.userId;
   const { name, email, promotionalEmails, applicationUpdates } = req.body;

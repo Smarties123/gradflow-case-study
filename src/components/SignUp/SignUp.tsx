@@ -73,6 +73,7 @@ export default function SignUp() {
   const [loading, setLoading] = React.useState<boolean>(false); // Loading state
   const [emailError, setEmailError] = React.useState<string | null>(null);
   const [passwordError, setPasswordError] = React.useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = React.useState<string | null>(null);
   const [nameError, setNameError] = React.useState<string | null>(null);
   const isSmallScreen = useMediaQuery('(max-width:600px)');
 
@@ -173,11 +174,12 @@ export default function SignUp() {
           username: result.user.username
         });
         localStorage.setItem('isNewUser', 'true');
+        setInfoMessage("Signup successful! Please check your email to verify your account.");
         logEvent(analytics, 'sign_up', { method: 'Email' });
-        window.location.href = '/main';
+        
       } else {
-        const errorMessage = await response.json(); // Parse the JSON error
-        setError(errorMessage.message); // Show the exact message from the backend
+        const errorMessage = await response.json();
+        setError(errorMessage.message); 
       }
     } catch (err) {
       setError('An error occurred during signup. Please try again later.');
@@ -303,6 +305,11 @@ export default function SignUp() {
                       {error}
                     </Typography>
                   )}
+                  {infoMessage && (
+                      <Typography color="primary" variant="body2">
+                        {infoMessage}
+                      </Typography>
+                    )}
                   <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                     Sign Up
                   </Button>

@@ -78,7 +78,7 @@ export const sendResetPasswordEmail = async (email, token, frontendUrl) => {
     </mjml>
   `;
 
-  // Compile the MJML template to HTML
+  
   const { html, errors } = mjml(mjmlTemplate);
 
   // Check for errors in the MJML compilation
@@ -86,15 +86,15 @@ export const sendResetPasswordEmail = async (email, token, frontendUrl) => {
     console.error('MJML rendering errors:', errors);
   }
 
-  // Define mail options, using the compiled HTML from MJML
+  
   const mailOptions = {
     from: process.env.SMTP_EMAIL,
     to: email,
     subject: 'Password Reset Verification Code',
-    html: html, // Use the HTML compiled from MJML
+    html: html, 
   };
 
-  // Send the email
+ 
   await transporter.sendMail(mailOptions);
 };
 
@@ -108,9 +108,7 @@ export const sendEmailsToAllUsers = async () => {
 
       const { UserId, Email } = user;
       try {
-
         await sendApplicationStatusEmail(Email, UserId);
-        console.log(`Email sent to ${Email}`);
       }
        catch (emailError) {
         console.error(`Error sending email to ${Email}:`, emailError);
@@ -161,3 +159,89 @@ export const sendApplicationStatusEmail = async (email, userId) => {
     throw new Error('Email sending failed');
   }
 };
+
+
+
+
+export const sendSignupEmail = async (email, token, frontendUrl) => {
+
+  const mjmlTemplate = `
+    <mjml>
+      <mj-body background-color="#f4f4f4">
+        
+        <!-- Header Section -->
+        <mj-section background-color="#ffffff" padding="20px" border-radius="10px" text-align="center">
+          <mj-column>
+            <mj-text font-size="20px" color="#333333" font-family="Helvetica" font-weight="bold">
+              Welcome to GradFlow!
+            </mj-text>
+            <mj-divider border-color="#F45E43" border-width="2px"></mj-divider>
+          </mj-column>
+        </mj-section>
+        
+        <!-- Body Section -->
+        <mj-section background-color="#ffffff" padding="20px" border-radius="10px">
+          <mj-column>
+            
+            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
+              Hi there! We’re excited to have you join GradFlow.
+            </mj-text>
+            
+            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
+              Please confirm your email address to activate your account.
+            </mj-text>
+
+            <!-- Activate Account Button -->
+            <mj-button background-color="#F45E43" color="white" font-size="16px" font-family="Helvetica" href="${frontendUrl}/verify-email?token=${token}" padding="15px 0">
+              Activate Account
+            </mj-button>
+            
+            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5" padding-top="20px">
+              We’re here to help if you have any questions. Just reach out to our support team anytime!
+            </mj-text>
+            
+            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
+              Best Regards,
+              <br>
+              The GradFlow Team
+            </mj-text>
+            
+          </mj-column>
+        </mj-section>
+        
+        <!-- Footer Section -->
+        <mj-section padding="20px 0 0">
+          <mj-column>
+            <mj-text font-size="12px" color="#999999" font-family="Helvetica" align="center">
+              If you did not sign up for a GradFlow account, please ignore this email or <a href="https://support.gradflow.com" style="color:#F45E43;">contact support</a>.
+            </mj-text>
+          </mj-column>
+        </mj-section>
+
+      </mj-body>
+    </mjml>
+  `;
+
+  // Compile MJML to HTML
+  const { html, errors } = mjml(mjmlTemplate);
+
+  // Check for errors in the MJML compilation
+  if (errors.length) {
+    console.error('MJML rendering errors:', errors);
+  }
+  
+  const mailOptions = {
+    from: process.env.SMTP_EMAIL,
+    to: email,
+    subject: 'Welcome to GradFlow! Confirm Your Email',
+    html: html, 
+  };
+
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Signup email sent to:', email);
+  }catch (error) {
+    console.error('Error sending signup email:', error);
+  }
+}
