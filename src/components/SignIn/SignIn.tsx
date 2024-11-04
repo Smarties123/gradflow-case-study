@@ -44,7 +44,7 @@ function Copyright(props) {
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
       <Link color="inherit" href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
-      HAD TECHNOLOGIES LTD
+        HAD TECHNOLOGIES LTD
       </Link>{' '}
       {new Date().getFullYear()}
       {'.'}
@@ -234,29 +234,29 @@ export default function SignInSide() {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                <TextField
-                  margin="normal"
-                  required
-                  fullWidth
-                  name="password"
-                  label="Password"
-                  type={showPassword ? "text" : "password"} // Conditionally toggle type
-                  id="password"
-                  autoComplete="current-password"
-                  error={!!passwordError}
-                  helperText={passwordError}
-                  InputProps={{
-                    endAdornment: (
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={() => setShowPassword(!showPassword)} // Toggle visibility
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                      </IconButton>
-                    )
-                  }}
-                />
+                  <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type={showPassword ? "text" : "password"} // Conditionally toggle type
+                    id="password"
+                    autoComplete="current-password"
+                    error={!!passwordError}
+                    helperText={passwordError}
+                    InputProps={{
+                      endAdornment: (
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                        </IconButton>
+                      )
+                    }}
+                  />
 
                 </Grid>
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>

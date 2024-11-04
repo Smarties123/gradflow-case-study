@@ -115,7 +115,7 @@ const Dashboard: React.FC = () => {
       </Row>
       {/* Charts Section */}
       <Row gutter={16} style={{ margin: 0 }} align="stretch">  {/* Add align="stretch" */}
-        <Col xs={24} md={12} style={{ padding: 0 }}>
+        <Col xs={24} md={12} >
           <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', height: '100%' }}>
             <BarChart
               key={keyForCharts}  // Re-trigger BarChart animation
@@ -126,7 +126,7 @@ const Dashboard: React.FC = () => {
             />
           </Panel>
         </Col>
-        <Col xs={24} md={12} style={{ padding: 0 }}>
+        <Col xs={24} md={12} >
           <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', minHeight: '475px' }}>
             <DonutChartComponent
               style={{ margin: 'auto 0px' }}

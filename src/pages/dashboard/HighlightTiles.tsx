@@ -5,7 +5,9 @@ import './Styles/HighlightTile.less';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import './Styles/HighlightTile.less';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
+import InfoIcon from '@mui/icons-material/Info';
 
 // Highlight Tile Component
 interface HighlightTileProps {
@@ -16,7 +18,6 @@ interface HighlightTileProps {
 }
 
 const HighlightTile: React.FC<HighlightTileProps> = ({ title, value, color, icon }) => {
-
   const props = useSpring({
     from: { number: 0 },
     to: { number: value },
@@ -25,41 +26,23 @@ const HighlightTile: React.FC<HighlightTileProps> = ({ title, value, color, icon
   });
 
   return (
-    <>
-      {/* // <Panel id='card' shaded style={{ background: color, color: '#FFF', borderRadius: '8px' }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        {/* Information Icon with Tooltip 
-        <div style={{ position: 'absolute', top: 0, right: 0 }}>
-          <Tooltip title={`Number Of ${title} Applications Made`}>
-            <IconButton>
-              <InfoIcon />
-            </IconButton>
-          </Tooltip>
-        </div>
+    <Card className="cardStats" sx={{ backgroundColor: color, position: 'relative', borderRadius: '8px', color: '#FFF' }}>
+      <CardContent sx={{ textAlign: 'center' }}>
 
-        {/* <div style={{ marginRight: '10px' }}>{icon}</div> 
-        <div style={{ marginLeft: '8px' }}>
-          <h4 style={{ margin: 0 }}>{title}</h4>
-          <h2 style={{ margin: 0 }}>
-            </animated.span>
-          </h2>
-        </div>
-      </div> 
-     </Panel > */}
-      <Card className="cardStats" sx={{ backgroundColor: { color } }}>
-        <CardContent sx={{ textAlign: 'center' }}>
-          {/* SEO optimized heading */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* <div style={{ marginRight: '10px' }}>{icon}</div> */}
           <Typography component="h3" className="cardStatsValue" variant="h5">
             <animated.span>
               {props.number.to((n) => Math.floor(n))}
             </animated.span>
           </Typography>
-          <Typography component="h4" id="highlightTitle" className="cardStatsTitle" sx={{ mb: 0.5 }}>
-            {title}
-          </Typography>
-        </CardContent>
-      </Card>
-    </>
+        </div>
+
+        <Typography component="h4" id="highlightTitle" className="cardStatsTitle" sx={{ mb: 0.5 }}>
+          {title}
+        </Typography>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -96,4 +79,3 @@ const HighlightTiles: React.FC<HighlightTilesProps> = ({ data }) => {
 };
 
 export default HighlightTiles;
-
