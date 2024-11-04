@@ -8,6 +8,8 @@ import Skeleton from 'react-loading-skeleton';
 import '../../components/skelton.less';
 import 'react-loading-skeleton/dist/skeleton.css';
 import './styles.less';
+import { format } from 'date-fns';
+
 
 window.ResizeObserver = ResizeObserver;
 
@@ -38,7 +40,7 @@ const TableComponent: React.FC = () => {
         name: card.company,
         position: card.position,
         stage: column.title,
-        deadline: card.deadline ? new Date(card.deadline).toLocaleDateString() : null,
+        deadline: card.deadline ? new Date(card.deadline) : null,
         originalCard: card,
       }))
     );
@@ -75,14 +77,15 @@ const TableComponent: React.FC = () => {
     setSortType(sortType);
 
     const sortedData = [...filteredData].sort((a, b) => {
-      let valueA = a[sortColumn];
-      let valueB = b[sortColumn];
+      const valueA = a[sortColumn];
+      const valueB = b[sortColumn];
 
-      if (typeof valueA === 'string') {
-        valueA = valueA.toLowerCase();
-        valueB = valueB.toLowerCase();
+      if (sortColumn === 'deadline') {
+        // Sort by Date objects
+        return sortType === 'asc' ? valueA - valueB : valueB - valueA;
       }
 
+      // For string data, compare directly
       if (valueA < valueB) return sortType === 'asc' ? -1 : 1;
       if (valueA > valueB) return sortType === 'asc' ? 1 : -1;
       return 0;
@@ -185,10 +188,9 @@ const TableComponent: React.FC = () => {
                       onClick={() => handleCellClick(rowData.originalCard)}
                     />
                   </div>
-                ) : null // Render nothing if `rowData.logo` is null
+                ) : null
               )}
             </Cell>
-
           </Column>
 
           <Column minWidth={160} flexGrow={1} sortable>
@@ -208,7 +210,11 @@ const TableComponent: React.FC = () => {
 
           <Column width={120} sortable>
             <HeaderCell>Deadline</HeaderCell>
-            <Cell dataKey="deadline" />
+            <Cell dataKey="deadline">
+              {rowData => (
+                rowData.deadline ? format(rowData.deadline, 'dd/MM/yyyy') : 'No Deadline'
+              )}
+            </Cell>
           </Column>
         </Table>
       )}
