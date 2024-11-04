@@ -27,6 +27,7 @@ import { CgDetailsMore } from 'react-icons/cg';
 import { useUser } from '@/components/User/UserContext';
 import Avatar from 'react-avatar';
 import Search from './Search'; // Import Search component
+import FeedbackPopup from '../Feedback/FeedbackPopup';
 
 
 const Header = props => {
@@ -76,6 +77,7 @@ const Header = props => {
 
   const { theme, onChangeTheme } = props;
   const trigger = useRef<WhisperInstance>(null);
+  const [showFeedbackPopup, setShowFeedbackPopup] = useState(false); // Add state for feedback popup
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -92,6 +94,16 @@ const Header = props => {
   const handleCloseAddModal = () => {
     setIsAddModalOpen(false);
   };
+
+  const handleOpenFeedbackPopup = () => {
+    setShowFeedbackPopup(true); // Open the feedback popup
+  };
+
+  const handleCloseFeedbackPopup = () => {
+    setShowFeedbackPopup(false); // Close the feedback popup
+  };
+
+
 
   const handleSignOut = () => {
     // Clear token (if stored in localStorage or sessionStorage)
@@ -121,20 +133,20 @@ const Header = props => {
           </Dropdown.Item>
           <Dropdown.Item divider />
           <Dropdown.Item eventKey="settings">Profile & account</Dropdown.Item>
-          <Dropdown.Item as="a" href="https://forms.gle/TzuxcFinXXdRzRZQ8" target="_blank">
-            Feedback
-          </Dropdown.Item>
+          <Dropdown.Item onClick={handleOpenFeedbackPopup}>Feedback</Dropdown.Item> {/* Update Feedback button */}
+
           <Dropdown.Item divider />
           <Dropdown.Item eventKey="settings">Settings</Dropdown.Item>
           <Dropdown.Item eventKey="signout">Sign out</Dropdown.Item> {/* Add sign out option */}
-          <Dropdown.Item
+          {/* <Dropdown.Item
             icon={<HelpOutlineIcon />}
             href="https://rsuitejs.com"
             target="_blank"
             as="a"
           >
             Help
-          </Dropdown.Item>
+          </Dropdown.Item> */}
+          
         </Dropdown.Menu>
       </Popover>
     );
@@ -146,46 +158,46 @@ const Header = props => {
       <Stack direction="row" spacing={4} alignItems="flex-start">
         <Search /> {/* Include the Search component here */}
 
-        <div style={{ alignItems: 'left' }}>
-          <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
-            <Button
-              className="header-button"
-              style={{
-                backgroundColor: '#8338ec',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                width: '120px',
-                lineHeight: '24px'
-              }}
-              onClick={handleOpenAddModal}
-            >
-              <FaPlus
-                className="header-icon"
-                style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }}
-              />
-              <span className="visually-hidden">Add New</span>
-            </Button>
-            <Button
-              className="header-button"
-              style={{
-                backgroundColor: '#ff6200',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                width: '120px',
-                lineHeight: '24px'
-              }}
-              onClick={handleOpenModal}
-            >
-              <FaRegShareSquare
-                className="header-icon"
-                style={{ fontSize: 18, margin: '1px 1px 1px 1px' }}
-              />
-              <span className="visually-hidden">Share</span>
-            </Button>
-          </ButtonToolbar>
-        </div>
+          <div style={{ alignItems: 'left' }}>
+            <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
+              <Button
+                className="header-button"
+                style={{
+                  backgroundColor: '#8338ec',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '120px',
+                  lineHeight: '24px'
+                }}
+                onClick={handleOpenAddModal}
+              >
+                <FaPlus
+                  className="header-icon"
+                  style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }}
+                />
+                <span className="visually-hidden">Add New</span>
+              </Button>
+              {/* <Button
+                className="header-button"
+                style={{
+                  backgroundColor: '#ff6200',
+                  color: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  width: '120px',
+                  lineHeight: '24px'
+                }}
+                onClick={handleOpenModal}
+              >
+                <FaRegShareSquare
+                  className="header-icon"
+                  style={{ fontSize: 18, margin: '1px 1px 1px 1px' }}
+                />
+                <span className="visually-hidden">Share</span>
+              </Button> */}
+            </ButtonToolbar>
+          </div>
         {/* )} */}
         <Modal
           isOpen={isAddModalOpen}
@@ -195,6 +207,8 @@ const Header = props => {
           showDropdown={true}
         />
         <ShareModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} />
+        <FeedbackPopup show={showFeedbackPopup} onClose={handleCloseFeedbackPopup} />
+
       </Stack>
 
       <div
