@@ -366,7 +366,7 @@ export default function SignUp() {
           </Box>
         </Grid>
       </Grid>
-      <FeedbackButton />
+      {/* <FeedbackButton /> */}
       <Dialog open={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} fullWidth maxWidth="sm">
         <ComingSoonSignUp />
       </Dialog>

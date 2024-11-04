@@ -352,7 +352,7 @@ export default function SignInSide() {
           </Box>
         </Grid>
       </Grid>
-      <FeedbackButton />
+      {/* <FeedbackButton /> */}
       <Dialog open={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} fullWidth maxWidth="sm">
         <ComingSoonSignIn />
       </Dialog>
