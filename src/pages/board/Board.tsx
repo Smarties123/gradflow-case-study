@@ -11,6 +11,8 @@ import { Column, Card } from './types';
 import MoveStatusModal from '../../components/MoveStatusModal/MoveStatusModal';  // Import the modal
 import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
 import BinPopup from '../../components/BinPopup/BinPopup';
+import AwesomeButton from '../../components/AwesomeButton/AwesomeButton';
+import shadows from '@mui/material/styles/shadows';
 
 const SCROLL_STEP = 10;
 const SCROLL_ZONE_HEIGHT = 100;
@@ -534,7 +536,12 @@ const Board: React.FC = () => {
                     </div>
                   )}
                 </div>
-                <button onClick={() => handleAddButtonClick(column)}>Add New</button>
+                <AwesomeButton
+                  className='addNew'
+                  onClick={() => handleAddButtonClick(column)}>
+                  <span>Add New</span>
+                </AwesomeButton>
+
                 <Droppable droppableId={String(column.id)}>
                   {provided => (
                     <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">

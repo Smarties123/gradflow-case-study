@@ -1,51 +1,57 @@
 .button {
     width: 120px;
-    /* Updated width */
     height: 1.7rem;
-    /* Equivalent to h-16 */
-    background-color: #8338ec;
-    /* Default background color */
+    background-color: #8338ec; /* Default background color */
     border-radius: 0.5rem;
-    /* Equivalent to rounded-lg */
     cursor: pointer;
     user-select: none;
     position: relative;
-    transition: all 0.15s;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
     color: white;
-    /* Text color */
     display: flex;
-    /* Flex display for centering */
     flex-direction: column;
-    /* Stack children vertically */
     justify-content: flex-end;
-    /* Align children to the bottom */
-    // line-height: 24px;
     text-align: center;
-    /* Updated line height */
     padding: 0.4rem 0.5rem 0.2rem 0.5rem;
-    /* Optional padding for aesthetics */
-
-    /* Box-shadow for normal state */
     box-shadow: 0 0.625rem 0 0 rgba(131, 56, 236, 1), 0 0.9375rem 0 0 rgba(131, 56, 236, 0.25);
     border-bottom: 1px solid rgba(131, 56, 236, 1);
-    /* Border color */
+
+    &:hover {
+        transform: translateY(0.125rem);
+        box-shadow: 0 0.5rem 0 0 rgba(131, 56, 236, 1), 0 0.75rem 0 0 rgba(131, 56, 236, 0.25);
+        border-bottom: 0;
+        background-color: #8338ec; /* Ensures color remains constant on hover */
+    }
 
     &:active {
         transform: translateY(0.125rem);
-        /* Move down on active */
         border-bottom: 0;
-        /* Remove border on active */
         background-color: #8338ec;
-        /* Keep the same background color on active */
         box-shadow: 0 0px 0 0 rgba(131, 56, 236, 1), 0 0px 0 0 rgba(131, 56, 236, 0.25);
-        /* No shadow on active */
+    }
+}
+
+.addNew {
+    width: auto;
+    margin: 15px 5px;
+    background-color: #007bff;
+    font-size: 14px;
+    justify-content: center;
+    padding-top: 0.8rem; /* Small padding to move text down */
+
+    box-shadow: 0 0.625rem 0 0 rgba(0, 123, 255, 1), 0 0.9375rem 0 0 rgba(109, 116, 119, 0.25);
+    border-bottom: 1px solid rgba(0, 123, 255, 1);
+
+    &:hover {
+        transform: translateY(0.125rem);
+        box-shadow: 0 0.5rem 0 0 rgba(0, 123, 255, 1), 0 0.75rem 0 0 rgba(109, 116, 119, 0.25);
+        border-bottom: 0;
+        background-color: #007bff; /* Keeps color consistent on hover */
     }
 
-    span {
-        // text-align: center;
-        /* Center text horizontally */
-        // margin-bottom: 0;
-        // /* Remove default margin */
+    &:active {
+        background-color: #007bff;
+        box-shadow: 0 0.625rem 0 0 rgba(0, 123, 255, 1), 0 0.9375rem 0 0 rgba(212, 212, 213, 0.25);
     }
 }
 
