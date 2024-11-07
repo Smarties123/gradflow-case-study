@@ -164,7 +164,7 @@ const Header = props => {
             <AwesomeButton onClick={handleOpenAddModal}>
               <FaPlus
 
-                style={{ color: 'white' }}
+                style={{ color: 'white'}}
               />
               <span className="visually-hidden">Add New</span>
             </AwesomeButton>
