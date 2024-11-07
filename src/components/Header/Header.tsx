@@ -161,7 +161,7 @@ const Header = props => {
         <div className='flex flex-col items-center justify-center w-screen h-screen gap-6'>
 
           <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
-            <AwesomeButton onClick={handleOpenAddModal}>
+            <AwesomeButton className="header-add-new" onClick={handleOpenAddModal}>
               <FaPlus
 
                 style={{ color: 'white'}}
@@ -223,10 +223,10 @@ const Header = props => {
         className="user-profile"
         style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
       >
-        {/* <ToggleColorMode
+        <ToggleColorMode
           mode={theme === 'light' ? 'light' : 'dark'}
           toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')}
-        /> */}
+        />
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>
           <Avatar email={formData.email} name={formData.name} size="45" round={true} />
         </Whisper>
