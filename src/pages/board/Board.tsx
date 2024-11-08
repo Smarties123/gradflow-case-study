@@ -4,7 +4,7 @@ import Modal from '../../components/Modal/Modal';
 import CardComponent from '../../components/CardComponent/CardComponent';
 import './Board.less';
 import DrawerView from '../../components/DrawerView/DrawerView';
-import { IoMdMore, IoMdMove, IoMdTrash } from "react-icons/io";  // Updated import for the icon
+import { IoMdMore, IoMdTrash } from "react-icons/io";  // Updated import for the icon
 import { BoardContext } from './BoardContext';
 import { useUser } from '../../components/User/UserContext';
 import { Column, Card } from './types';
@@ -12,7 +12,6 @@ import MoveStatusModal from '../../components/MoveStatusModal/MoveStatusModal'; 
 import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
 import BinPopup from '../../components/BinPopup/BinPopup';
 import AwesomeButton from '../../components/AwesomeButton/AwesomeButton';
-import shadows from '@mui/material/styles/shadows';
 
 const SCROLL_STEP = 10;
 const SCROLL_ZONE_HEIGHT = 100;
@@ -42,7 +41,8 @@ const Board: React.FC = () => {
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [deleteId, setDeleteId] = useState<number | null>(-1);
+  const [deleteId, setDeleteId] = useState<number>(-1);
+  const [cardId, setCardId] = useState<number>(-1);
 
   const ref = useRef<HTMLInputElement>(null);
 
@@ -176,7 +176,7 @@ const Board: React.FC = () => {
   // Function to group jobs into columns based on some status
   const groupJobsIntoColumns = (jobs: Card[], statuses: any[]): Column[] => {
     // Create columns based on the user's specific statuses
-    const columns: Column[] = statuses.map((status) => ({
+    const columns: Column[] = statuses.map(status => ({
       id: status.StatusId,
       title: status.StatusName,
       cards: []
@@ -324,7 +324,7 @@ const Board: React.FC = () => {
         .then(response => {
           if (response.ok) {
             // Update frontend state accordingly
-            setColumns((prevColumns) => {
+            setColumns(prevColumns => {
               const newColumns = [...prevColumns];
               const movingColumn = newColumns.find(col => col.id === selectedColumnId);
               if (movingColumn) {
@@ -339,13 +339,18 @@ const Board: React.FC = () => {
     }
   };
 
+  const handleDeleteCardBin = (cardId:number) => {
+    setCardId(cardId);
+    setIsDeleteModalOpen(true);
+  };
+
   const onDragStart = () => {
     setIsDraggingCard(true);
     window.addEventListener('mousemove', handleScroll); // Add mousemove listener
   };
 
 
-  const handleDragEnd = async (result) => {
+  const handleDragEnd = async result => {
     stopScrolling(); // Stop scrolling immediately after the drag ends
     window.removeEventListener('mousemove', handleScroll); // Remove the mousemove listener
     setIsDraggingCard(false); // Ensure the bin icon disappears
@@ -358,24 +363,27 @@ const Board: React.FC = () => {
 
     if (binDropped) {
       const cardId = result.draggableId;
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${cardId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${user.token}`,
-          },
-        });
+      // First Open DeleteModalBin Popup to see if the user want to delete the card
+      handleDeleteCardBin(cardId);
 
-        if (response.ok) {
-          handleDeleteCard(cardId);
-        } else {
-          console.error('Failed to delete the card.');
-        }
-      } catch (error) {
-        console.error('Error deleting the card:', error);
-      }
-    } else {
-      context.onDragEnd(result); // Handle card movement between columns
+    //   try {
+    //     const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${cardId}`, {
+    //       method: 'DELETE',
+    //       headers: {
+    //         'Authorization': `Bearer ${user.token}`,
+    //       },
+    //     });
+
+    //     if (response.ok) {
+    //       handleDeleteCard(cardId);
+    //     } else {
+    //       console.error('Failed to delete the card.');
+    //     }
+    //   } catch (error) {
+    //     console.error('Error deleting the card:', error);
+    //   }
+    // } else {
+    //   context.onDragEnd(result); // Handle card movement between columns
     }
   };
 
@@ -392,11 +400,11 @@ const Board: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleFavoriteToggle = (updatedCard) => {
-    setColumns((prevColumns) =>
-      prevColumns.map((column) => ({
+  const handleFavoriteToggle = updatedCard => {
+    setColumns(prevColumns =>
+      prevColumns.map(column => ({
         ...column,
-        cards: column.cards.map((card) =>
+        cards: column.cards.map(card =>
           card.id === updatedCard.ApplicationId ? { ...card, Favourite: updatedCard.Favourite } : card
         ),
       }))
@@ -409,18 +417,24 @@ const Board: React.FC = () => {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteColumn = () => {
+  const handleDeleteCardOrColumn = () => {
     // console.log("Delete Column");
     // console.log(deleteId);
-    handleDropdownOptionSelect(2, deleteId);
+    if (deleteId !== -1) {
+      handleDropdownOptionSelect(2, deleteId);
+    }
+    if (cardId !== -1) {
+      handleDeleteCard(cardId);
+    }
   };
 
+
   //For Deleting Card
-  const handleDeleteCard = (cardId) => {
-    setColumns((prevColumns) =>
-      prevColumns.map((column) => ({
+  const handleDeleteCard = (cardId:number) => {
+    setColumns(prevColumns =>
+      prevColumns.map(column => ({
         ...column,
-        cards: column.cards.filter((card) => card.id !== cardId),  // Remove the deleted card
+        cards: column.cards.filter(card => card.id !== String(cardId)), // Remove the deleted card
       }))
     );
   };
@@ -461,7 +475,7 @@ const Board: React.FC = () => {
   };
 
 
-  const handleUpdateStatus = (newStatus) => {
+  const handleUpdateStatus = newStatus => {
     if (selectedCard) {
       const updatedCard = { ...selectedCard, status: newStatus };
       setSelectedCard(updatedCard); // Update the selected card's status
@@ -615,13 +629,14 @@ const Board: React.FC = () => {
           )}
 
 
-          {/* Delete Modal */}
+          {/* Delete Modal For Column */}
           <DeleteModal
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
             onNo={() => setIsDeleteModalOpen(false)}
-            onYes={handleDeleteColumn}
-            title={null} />
+            onYes={handleDeleteCardOrColumn}
+            />
+
 
 
           <div className="column-container" id="add-new-column">
@@ -634,7 +649,7 @@ const Board: React.FC = () => {
 
         {/* Add the bin as a droppable area */}
         <Droppable droppableId="bin">
-          {(provided) => (
+          {provided => (
             <div ref={provided.innerRef} {...provided.droppableProps} className="bin-drop-area">
               <BinPopup isDragging={isDraggingCard} />
               {provided.placeholder}

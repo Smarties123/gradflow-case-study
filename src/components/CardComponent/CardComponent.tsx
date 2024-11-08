@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './CardComponent.less';
 import { IoMdStar, IoMdTrash, IoMdLink } from "react-icons/io";
-import DeleteCardModal from './DeleteCardModal';
+import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
 
 const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snapshot, onDelete }) => {
     const [isFavorited, setIsFavorited] = useState(card.Favourite || false);
@@ -98,9 +98,6 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
         }
     };
 
-    const handleCloseModal = () => {
-        setIsDeleteModalOpen(false);
-    };
 
     return (
         <div
@@ -157,10 +154,12 @@ const CardComponent = ({ card, onSelect, user, onFavoriteToggle, provided, snaps
                 </div>
             </div>
 
-            <DeleteCardModal
+            <DeleteModal
                 isOpen={isDeleteModalOpen}
-                onClose={handleCloseModal}
-                onDelete={handleConfirmDelete}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onNo={() => setIsDeleteModalOpen(false)}
+                onYes={handleConfirmDelete}
+                title={`Are you sure you want to delete this card?`}
             />
         </div>
     );
