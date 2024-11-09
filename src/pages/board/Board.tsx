@@ -364,26 +364,26 @@ const Board: React.FC = () => {
     if (binDropped) {
       const cardId = result.draggableId;
       // First Open DeleteModalBin Popup to see if the user want to delete the card
-      handleDeleteCardBin(cardId);
+      // handleDeleteCardBin(cardId);
 
-    //   try {
-    //     const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${cardId}`, {
-    //       method: 'DELETE',
-    //       headers: {
-    //         'Authorization': `Bearer ${user.token}`,
-    //       },
-    //     });
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${cardId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+          },
+        });
 
-    //     if (response.ok) {
-    //       handleDeleteCard(cardId);
-    //     } else {
-    //       console.error('Failed to delete the card.');
-    //     }
-    //   } catch (error) {
-    //     console.error('Error deleting the card:', error);
-    //   }
-    // } else {
-    //   context.onDragEnd(result); // Handle card movement between columns
+        if (response.ok) {
+          handleDeleteCard(cardId);
+        } else {
+          console.error('Failed to delete the card.');
+        }
+      } catch (error) {
+        console.error('Error deleting the card:', error);
+      }
+    } else {
+      context.onDragEnd(result); // Handle card movement between columns
     }
   };
 
