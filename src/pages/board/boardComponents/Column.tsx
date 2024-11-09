@@ -1,7 +1,9 @@
 // ./boardComponents/Column.tsx
 
 import React from 'react';
-import { Draggable, Droppable } from 'react-beautiful-dnd';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useDroppable } from '@dnd-kit/core';
+
 import ColumnHeader from './ColumnHeader';
 import AwesomeButton from '../../../components/AwesomeButton/AwesomeButton';
 import CardComponent from '../../../components/CardComponent/CardComponent';
@@ -44,6 +46,11 @@ const ColumnComponent: React.FC<ColumnProps> = ({
   handleDeleteCard,
   isDraggingCard,
 }) => {
+  // Make the column droppable using useDroppable
+  const { setNodeRef } = useDroppable({
+    id: String(column.id),
+  });
+
   return (
     <div className="column-container">
       <ColumnHeader
@@ -58,40 +65,25 @@ const ColumnComponent: React.FC<ColumnProps> = ({
         handleTitleKeyPress={handleTitleKeyPress}
         handleDropdownOptionSelect={handleDropdownOptionSelect}
       />
-      <AwesomeButton
-        className='addNew'
-        onClick={() => handleAddButtonClick(column)}>
+      <AwesomeButton className="addNew" onClick={() => handleAddButtonClick(column)}>
         <span>Add New</span>
       </AwesomeButton>
 
-      <Droppable droppableId={String(column.id)}>
-        {provided => (
-          <div ref={provided.innerRef} {...provided.droppableProps} className="droppable-area">
-            {column.cards.map((card, index) => (
-              <Draggable key={card.id} draggableId={String(card.id)} index={index}>
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                  >
-                    <CardComponent
-                      card={card}
-                      onSelect={handleCardSelect}
-                      user={user}
-                      onFavoriteToggle={handleFavoriteToggle}
-                      provided={provided}
-                      snapshot={snapshot}
-                      onDelete={handleDeleteCard}
-                    />
-                  </div>
-                )}
-              </Draggable>
-            ))}
-            {provided.placeholder}
-          </div>
-        )}
-      </Droppable>
+      {/* Wrap the droppable area and cards in SortableContext */}
+      <div ref={setNodeRef} className="droppable-area">
+        <SortableContext items={column.cards.map((card) => String(card.id))} strategy={verticalListSortingStrategy}>
+          {column.cards.map((card) => (
+            <CardComponent
+              key={card.id}
+              card={card}
+              onSelect={handleCardSelect}
+              user={user}
+              onFavoriteToggle={handleFavoriteToggle}
+              onDelete={handleDeleteCard}
+            />
+          ))}
+        </SortableContext>
+      </div>
     </div>
   );
 };

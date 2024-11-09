@@ -1,17 +1,29 @@
 // Board.tsx
 
-
 import './Board.less';
 
+import React, { useContext, useRef } from 'react';
+import {
+  DndContext,
+  closestCorners,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragStartEvent,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { useDroppable } from '@dnd-kit/core';
 
-
-import React, { useContext, useRef} from 'react';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import Modal from '../../components/Modal/Modal';
 import DrawerView from '../../components/DrawerView/DrawerView';
 import { BoardContext } from './BoardContext';
 import { useUser } from '../../components/User/UserContext';
-import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
+import DeleteModal from '../../components/DeleteStatus/DeleteStatus'; // **Add this line**
 import BinPopup from '../../components/BinPopup/BinPopup';
 import ColumnComponent from './boardComponents/Column';
 import { useBoardHandlers } from './boardComponents/useBoardHandlers';
@@ -54,6 +66,16 @@ const Board: React.FC = () => {
 
   const { isDraggingCard, onDragStart, handleDragEnd } = useDragAndDrop(handleDeleteCard);
 
+  // **Keep this declaration**
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor)
+  );
+
+  const { setNodeRef: setBinNodeRef } = useDroppable({
+    id: 'bin',
+  });
+
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { loading, error } = useFetchApplications(setColumns);
@@ -73,37 +95,52 @@ const Board: React.FC = () => {
     return <div>{error}</div>;
   }
 
+  // **Remove this duplicate declaration**
+  // const sensors = useSensors(
+  //   useSensor(MouseSensor),
+  //   useSensor(TouchSensor)
+  // );
 
-  
   return (
     <div>
-      <DragDropContext onDragStart={onDragStart} onDragEnd={handleDragEnd}>
-        <div className="board" ref={containerRef}>
-          {columns.length === 0 ? (
-            <p>No columns available</p>
-          ) : (
-            columns.map(column => (
-              <ColumnComponent
-                key={column.id}
-                column={column}
-                editingColumnId={editingColumnId}
-                newTitle={newTitle}
-                showDropdown={showDropdown}
-                handleIconClick={handleIconClick}
-                handleDropdownClick={handleDropdownClick}
-                handleTitleChange={handleTitleChange}
-                handleTitleBlur={handleTitleBlur}
-                handleTitleKeyPress={handleTitleKeyPress}
-                handleDropdownOptionSelect={handleDropdownOptionSelect}
-                handleAddButtonClick={handleAddButtonClick}
-                handleCardSelect={handleCardSelect}
-                user={user}
-                handleFavoriteToggle={handleFavoriteToggle}
-                handleDeleteCard={handleDeleteCard}
-                isDraggingCard={isDraggingCard}
-              />
-            ))
-          )}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={onDragStart}
+        onDragEnd={handleDragEnd}
+        autoScroll={true}
+      >
+        <div className="board">
+          <SortableContext
+            items={columns.map(column => String(column.id))}
+            strategy={horizontalListSortingStrategy}
+          >
+            {columns.length === 0 ? (
+              <p>No columns available</p>
+            ) : (
+              columns.map(column => (
+                <ColumnComponent
+                  key={column.id}
+                  column={column}
+                  editingColumnId={editingColumnId}
+                  newTitle={newTitle}
+                  showDropdown={showDropdown}
+                  handleIconClick={handleIconClick}
+                  handleDropdownClick={handleDropdownClick}
+                  handleTitleChange={handleTitleChange}
+                  handleTitleBlur={handleTitleBlur}
+                  handleTitleKeyPress={handleTitleKeyPress}
+                  handleDropdownOptionSelect={handleDropdownOptionSelect}
+                  handleAddButtonClick={handleAddButtonClick}
+                  handleCardSelect={handleCardSelect}
+                  user={user}
+                  handleFavoriteToggle={handleFavoriteToggle}
+                  handleDeleteCard={handleDeleteCard}
+                  isDraggingCard={isDraggingCard}
+                />
+              ))
+            )}
+          </SortableContext>
 
           {/* Add New */}
           {isModalOpen && activeColumn && (
@@ -146,15 +183,10 @@ const Board: React.FC = () => {
         </div>
 
         {/* Add the bin as a droppable area */}
-        <Droppable droppableId="bin">
-          {provided => (
-            <div ref={provided.innerRef} {...provided.droppableProps} className="bin-drop-area">
-              <BinPopup isDragging={isDraggingCard} />
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+        <div ref={setBinNodeRef} className="bin-drop-area">
+          <BinPopup isDragging={isDraggingCard} />
+        </div>
+      </DndContext>
     </div>
   );
 };
