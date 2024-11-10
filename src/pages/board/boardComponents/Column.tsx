@@ -1,4 +1,4 @@
-// ./boardComponents/Column.tsx
+// ColumnComponent.tsx
 
 import React from 'react';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -71,7 +71,10 @@ const ColumnComponent: React.FC<ColumnProps> = ({
 
       {/* Wrap the droppable area and cards in SortableContext */}
       <div ref={setNodeRef} className="droppable-area">
-        <SortableContext items={column.cards.map((card) => String(card.id))} strategy={verticalListSortingStrategy}>
+        <SortableContext
+          items={column.cards.map((card) => String(card.id))}
+          strategy={verticalListSortingStrategy}
+        >
           {column.cards.map((card) => (
             <CardComponent
               key={card.id}

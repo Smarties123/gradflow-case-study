@@ -2,7 +2,7 @@
 
 import './Board.less';
 
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import {
   DndContext,
   closestCorners,
@@ -10,8 +10,7 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
-  DragStartEvent,
-  DragEndEvent,
+  DragOverlay,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -23,9 +22,10 @@ import Modal from '../../components/Modal/Modal';
 import DrawerView from '../../components/DrawerView/DrawerView';
 import { BoardContext } from './BoardContext';
 import { useUser } from '../../components/User/UserContext';
-import DeleteModal from '../../components/DeleteStatus/DeleteStatus'; // **Add this line**
+import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
 import BinPopup from '../../components/BinPopup/BinPopup';
 import ColumnComponent from './boardComponents/Column';
+import CardComponent from '../../components/CardComponent/CardComponent'; // **Add this line**
 import { useBoardHandlers } from './boardComponents/useBoardHandlers';
 import { useFetchApplications } from './boardComponents/useFetchApplications';
 import { useDragAndDrop } from './boardComponents/useDragAndDrop';
@@ -64,12 +64,25 @@ const Board: React.FC = () => {
     setIsDeleteModalOpen,
   } = useBoardHandlers(columns, setColumns);
 
-  const { isDraggingCard, onDragStart, handleDragEnd } = useDragAndDrop(handleDeleteCard);
+  // Initialize activeId state for DragOverlay
+  const [activeId, setActiveId] = useState(null);
 
-  // **Keep this declaration**
+  const { isDraggingCard, onDragStart, handleDragEnd } = useDragAndDrop(handleDeleteCard, setActiveId);
+
+  // Updated sensors using MouseSensor and TouchSensor with activationConstraint
   const sensors = useSensors(
-    useSensor(MouseSensor),
-    useSensor(TouchSensor)
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        delay: 300, // 300ms delay before drag starts
+        tolerance: 5, // Allow slight movement before activation is canceled
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 300,
+        tolerance: 5,
+      },
+    })
   );
 
   const { setNodeRef: setBinNodeRef } = useDroppable({
@@ -95,18 +108,32 @@ const Board: React.FC = () => {
     return <div>{error}</div>;
   }
 
-  // **Remove this duplicate declaration**
-  // const sensors = useSensors(
-  //   useSensor(MouseSensor),
-  //   useSensor(TouchSensor)
-  // );
+  // Helper function to get card data by id
+  const getCardById = (id: string | number) => {
+    for (const column of columns) {
+      const card = column.cards.find((card) => String(card.id) === String(id));
+      if (card) {
+        return card;
+      }
+    }
+    return null;
+  };
+
+  // Updated handleDragStart and handleDragEnd
+  const handleDragStart = (event: DragStartEvent) => {
+    onDragStart(event);
+  };
+
+  // const handleDragEnd = (event: DragEndEvent) => {
+  //   handleDragEnd(event);
+  // };
 
   return (
     <div>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
-        onDragStart={onDragStart}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         autoScroll={true}
       >
@@ -186,6 +213,20 @@ const Board: React.FC = () => {
         <div ref={setBinNodeRef} className="bin-drop-area">
           <BinPopup isDragging={isDraggingCard} />
         </div>
+
+        {/* Add the DragOverlay */}
+        <DragOverlay>
+          {activeId ? (
+            <CardComponent
+              card={getCardById(activeId)}
+              onSelect={handleCardSelect}
+              user={user}
+              handleFavoriteToggle={handleFavoriteToggle}
+              onDelete={handleDeleteCard}
+              dragOverlay={true}
+            />
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );
