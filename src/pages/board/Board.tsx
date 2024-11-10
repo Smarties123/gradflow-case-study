@@ -11,6 +11,7 @@ import {
   useSensor,
   useSensors,
   DragOverlay,
+  pointerWithin,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -73,13 +74,13 @@ const Board: React.FC = () => {
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
-        delay: 300, // 300ms delay before drag starts
+        delay: 100, // 300ms delay before drag starts
         tolerance: 5, // Allow slight movement before activation is canceled
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 300,
+        delay: 100,
         tolerance: 5,
       },
     })
@@ -132,11 +133,20 @@ const Board: React.FC = () => {
     <div>
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCorners}
+        collisionDetection={pointerWithin}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         autoScroll={true}
+        // autoScroll={{
+        //   enabled: true,
+        //   threshold: { x: 0.1, y: 0.1 }, // Activate auto-scroll when cursor is within 10% of the edge
+        //   speed: 5, // Reduce speed of auto-scroll
+        //   acceleration: 10, // Adjust acceleration as needed
+        //   interval: 20, // Adjust the interval between scroll updates
+        // }}
+
       >
+
         <div className="board">
           <SortableContext
             items={columns.map(column => String(column.id))}
@@ -164,7 +174,8 @@ const Board: React.FC = () => {
                   handleFavoriteToggle={handleFavoriteToggle}
                   handleDeleteCard={handleDeleteCard}
                   isDraggingCard={isDraggingCard}
-                />
+                  activeId={activeId} // **Add this line**
+              />
               ))
             )}
           </SortableContext>

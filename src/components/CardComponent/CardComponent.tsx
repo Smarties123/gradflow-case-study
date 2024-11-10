@@ -117,6 +117,9 @@ const CardComponent = ({
     setNodeRef = undefined; // Don't set ref for the overlay
   }
 
+  if (isDragging && !dragOverlay) {
+    style.opacity = 0;
+  }
   return (
     <div
       ref={setNodeRef}

@@ -26,6 +26,8 @@ type ColumnProps = {
   handleFavoriteToggle: (updatedCard: any) => void;
   handleDeleteCard: (cardId: number) => void;
   isDraggingCard: boolean;
+  activeId: string | null; // **Add this prop**
+
 };
 
 const ColumnComponent: React.FC<ColumnProps> = ({
@@ -45,6 +47,8 @@ const ColumnComponent: React.FC<ColumnProps> = ({
   handleFavoriteToggle,
   handleDeleteCard,
   isDraggingCard,
+  activeId, // **Destructure activeId**
+
 }) => {
   // Make the column droppable using useDroppable
   const { setNodeRef } = useDroppable({
@@ -92,3 +96,4 @@ const ColumnComponent: React.FC<ColumnProps> = ({
 };
 
 export default ColumnComponent;
+
