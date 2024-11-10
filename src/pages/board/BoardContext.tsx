@@ -1,15 +1,14 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
+// import { initialColumns as defaultInitialColumns } from '@/data/initialColumns';
 import { Column, Card } from './types';
-import { useUser } from '@/components/User/UserContext';
 
+// Define the shape of the context
 interface BoardContextType {
     columns: Column[];
     setColumns: React.Dispatch<React.SetStateAction<Column[]>>;
     addCardToColumn: (columnId: number, card: Card) => void;
     updateCard: (id: number, updatedData: Partial<Card>) => void;
-    onDragEnd: (event: any) => void;
-    updateStatusLocally: (cardId: number, newStatusId: number) => void;
-    filterBoard: (searchResults: any[]) => void;
+    onDragEnd: (result: any) => void;  // Removed user from argument
 }
 
 // Create the context
@@ -81,121 +80,96 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
 
 
 
-  const onDragEnd = async (event) => {
-    const { active, over } = event;
+const onDragEnd = async (result) => {
+  const { source, destination, draggableId } = result;
 
-    if (!over) {
-        return;
-    }
+  // If dropped outside any droppable area, exit
+  if (!destination) {
+    return;
+  }
 
-    const activeId = active.id;
-    const overId = over.id;
+  const startColumn = columns.find(col => col.id === parseInt(source.droppableId));
+  const finishColumn = columns.find(col => col.id === parseInt(destination.droppableId));
 
-    if (activeId === overId) {
-        return;
-    }
+  // Check if both columns exist
+  if (!startColumn || !finishColumn) {
+    console.error("Error: Invalid column IDs in drag event.");
+    return;
+  }
 
-    const sourceColumn = columns.find(column =>
-        column.cards.some(card => String(card.id) === String(activeId))
+  // Handle the case when moving within the same column
+  if (startColumn === finishColumn) {
+    const updatedCards = Array.from(startColumn.cards);
+    const [movedCard] = updatedCards.splice(source.index, 1);
+    updatedCards.splice(destination.index, 0, movedCard);
+
+    const updatedColumn = { ...startColumn, cards: updatedCards };
+
+    // Update state to reflect reordering within the same column
+    setColumns(prevColumns =>
+      prevColumns.map(col => (col.id === updatedColumn.id ? updatedColumn : col))
     );
+  } else {
+    // Moving between different columns
+    const startCards = Array.from(startColumn.cards);
+    const finishCards = Array.from(finishColumn.cards);
+    const [movedCard] = startCards.splice(source.index, 1);
 
-    let destinationColumn = columns.find(column =>
-        column.cards.some(card => String(card.id) === String(overId))
+    finishCards.splice(destination.index, 0, movedCard);
+
+    const updatedStartColumn = { ...startColumn, cards: startCards };
+    const updatedFinishColumn = { ...finishColumn, cards: finishCards };
+
+    // Update state to reflect the card being moved between columns
+    setColumns(prevColumns =>
+      prevColumns.map(col => {
+        if (col.id === updatedStartColumn.id) return updatedStartColumn;
+        if (col.id === updatedFinishColumn.id) return updatedFinishColumn;
+        return col;
+      })
     );
+  }
 
-    // If overId is a column ID
-    if (!destinationColumn) {
-        destinationColumn = columns.find(column => String(column.id) === String(overId));
+  // Update the backend to persist the status change
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${result.draggableId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${user.token}`,
+      },
+      body: JSON.stringify({
+        statusId: destination.droppableId,  // Update statusId based on new column
+      }),
+    });
+    
+
+    // Log the process for debugging
+    console.log("Updating status of application with ID:", draggableId, " to status:", destination.droppableId);
+
+    if (!response.ok) {
+      throw new Error('Failed to update application status');
     }
 
-    if (!sourceColumn || !destinationColumn) {
-        console.error("Error: Invalid column IDs in drag event.");
-        return;
-    }
-
-    const activeCardIndex = sourceColumn.cards.findIndex(
-        card => String(card.id) === String(activeId)
-    );
-
-    let overCardIndex = destinationColumn.cards.findIndex(
-        card => String(card.id) === String(overId)
-    );
-
-    if (overCardIndex === -1) {
-        // If overId is a column ID, append to the end
-        overCardIndex = destinationColumn.cards.length;
-    }
-
-    if (sourceColumn.id === destinationColumn.id) {
-        // Moving within the same column
-        const updatedCards = [...sourceColumn.cards];
-        const [movedCard] = updatedCards.splice(activeCardIndex, 1);
-        updatedCards.splice(overCardIndex, 0, movedCard);
-
-        const updatedColumn = { ...sourceColumn, cards: updatedCards };
-
-        // Update state
-        setColumns(prevColumns =>
-            prevColumns.map(col => (col.id === updatedColumn.id ? updatedColumn : col))
-        );
-    } else {
-        // Moving between different columns
-        const sourceCards = [...sourceColumn.cards];
-        const destinationCards = [...destinationColumn.cards];
-
-        const [movedCard] = sourceCards.splice(activeCardIndex, 1);
-        movedCard.StatusId = destinationColumn.id; // Update status ID
-
-        destinationCards.splice(overCardIndex, 0, movedCard);
-
-        const updatedColumns = columns.map(col => {
-            if (col.id === sourceColumn.id) {
-                return { ...col, cards: sourceCards };
-            } else if (col.id === destinationColumn.id) {
-                return { ...col, cards: destinationCards };
-            } else {
-                return col;
-            }
-        });
-
-        setColumns(updatedColumns);
-    }
-
-    // Update the backend to persist the status change
-    try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${activeId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user.token}`,
-            },
-            body: JSON.stringify({
-                statusId: destinationColumn.id,
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to update application status');
-        }
-
-        console.log('Application status updated:', await response.json());
-    } catch (error) {
-        console.error('Error updating status:', error);
-    }
+    console.log('Application status updated:', await response.json());
+  } catch (error) {
+    console.error('Error updating status:', error);
+  }
 };
 
+
 return (
-    <BoardContext.Provider
-        value={{
-            columns,
-            setColumns,
-            addCardToColumn,
-            updateCard,
-            onDragEnd,
-            updateStatusLocally,
-            filterBoard,
-        }}>
-        {children}
-    </BoardContext.Provider>
+  <BoardContext.Provider 
+    value={{
+      columns,
+      setColumns,
+      addCardToColumn,
+      updateCard,
+      onDragEnd,
+      updateStatusLocally,
+      filterBoard // Export the filterBoard function
+    }}>
+    {children}
+  </BoardContext.Provider>
 );
 };
