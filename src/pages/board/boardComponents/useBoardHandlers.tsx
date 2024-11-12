@@ -13,12 +13,14 @@ export const useBoardHandlers = (columns, setColumns) => {
   const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
   const [showMoveModal, setShowMoveModal] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
-  const [deleteId, setDeleteId] = useState<number>(-1);
-  const [cardId, setCardId] = useState<number>(-1);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+
+  // Deleting Column
+  const [columnToDelete, setColumnToDelete] = useState<number | null>(null);
+
 
   // Handler functions
   const handleIconClick = (columnId: number, title: string) => {
@@ -102,27 +104,28 @@ export const useBoardHandlers = (columns, setColumns) => {
         }
 
         setColumns(prevColumns => prevColumns.filter(col => col.id !== columnId));
-        alert('Column deleted successfully');
+        // alert('Column deleted successfully');
       } catch (error) {
         console.error('Error deleting column:', error);
-        alert('Failed to delete column');
+        // alert('Failed to delete column');
       }
+      setColumnToDelete(-1);
     }
     setShowDropdown(null);
   };
 
-  const handleDeleteModal = (columnId: number) => {
-    setDeleteId(columnId);
+  const handleDeleteColumnModal = (columnId: number) => {
+    setColumnToDelete(columnId);
     setIsDeleteModalOpen(true);
   };
 
   const handleDeleteCardOrColumn = () => {
-    if (deleteId !== -1) {
-      handleDropdownOptionSelect(2, deleteId);
+    if (columnToDelete !== null && columnToDelete !== -1) {
+      handleDropdownOptionSelect(2, columnToDelete);
     }
-    if (cardId !== -1) {
-      handleDeleteCard(cardId);
-    }
+  //   if (cardId !== -1) {
+  //     handleDeleteCard(cardId);
+  //   }
   };
 
   const handleDeleteCard = (cardId: number) => {
@@ -211,18 +214,18 @@ export const useBoardHandlers = (columns, setColumns) => {
     selectedCard,
     isModalOpen,
     activeColumn,
-    isDeleteModalOpen,
     showMoveModal,
     selectedColumnId,
+    isDeleteModalOpen,
     handleIconClick,
     handleTitleChange,
     handleTitleBlur,
     handleTitleKeyPress,
     handleDropdownClick,
     handleDropdownOptionSelect,
-    handleDeleteModal,
-    handleDeleteCardOrColumn,
+    handleDeleteColumnModal,
     handleDeleteCard,
+    handleDeleteCardOrColumn,
     handleCardSelect,
     handleAddButtonClick,
     handleFavoriteToggle,

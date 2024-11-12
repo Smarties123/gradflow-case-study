@@ -52,8 +52,9 @@ const Board: React.FC = () => {
     handleTitleKeyPress,
     handleDropdownClick,
     handleDropdownOptionSelect,
-    handleDeleteModal,
+    // handleDeleteModal,
     handleDeleteCardOrColumn,
+    handleDeleteColumnModal,
     handleDeleteCard,
     handleCardSelect,
     handleAddButtonClick,
@@ -167,12 +168,13 @@ const Board: React.FC = () => {
                   handleTitleChange={handleTitleChange}
                   handleTitleBlur={handleTitleBlur}
                   handleTitleKeyPress={handleTitleKeyPress}
-                  handleDropdownOptionSelect={handleDropdownOptionSelect}
+                  // handleDropdownOptionSelect={handleDropdownOptionSelect}
                   handleAddButtonClick={handleAddButtonClick}
                   handleCardSelect={handleCardSelect}
                   user={user}
                   handleFavoriteToggle={handleFavoriteToggle}
                   handleDeleteCard={handleDeleteCard}
+                  handleDeleteColumnModal={handleDeleteColumnModal}
                   isDraggingCard={isDraggingCard}
                   activeId={activeId} // **Add this line**
               />
@@ -206,12 +208,16 @@ const Board: React.FC = () => {
           )}
 
           {/* Delete Modal For Column */}
-          <DeleteModal
-            isOpen={isDeleteModalOpen}
-            onClose={() => setIsDeleteModalOpen(false)}
-            onNo={() => setIsDeleteModalOpen(false)}
-            onYes={handleDeleteCardOrColumn}
-          />
+          {isDeleteModalOpen && (
+            <DeleteModal
+              isOpen={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              onNo={() => setIsDeleteModalOpen(false)}
+              onYes={() => handleDeleteCardOrColumn()}
+              title={`Are you sure you want to delete this column?`}
+
+            />
+          )}
 
           <div className="column-container" id="add-new-column">
             <button className="add-new-button" onClick={handleAddNewColumn}>

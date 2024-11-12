@@ -25,6 +25,7 @@ type ColumnProps = {
   user: any;
   handleFavoriteToggle: (updatedCard: any) => void;
   handleDeleteCard: (cardId: number) => void;
+  handleDeleteColumnModal: (columnId: number) => void;
   isDraggingCard: boolean;
   activeId: string | null; // **Add this prop**
 
@@ -40,12 +41,13 @@ const ColumnComponent: React.FC<ColumnProps> = ({
   handleTitleChange,
   handleTitleBlur,
   handleTitleKeyPress,
-  handleDropdownOptionSelect,
+  // handleDropdownOptionSelect,
   handleAddButtonClick,
   handleCardSelect,
   user,
   handleFavoriteToggle,
   handleDeleteCard,
+  handleDeleteColumnModal,
   isDraggingCard,
   activeId, // **Destructure activeId**
 
@@ -67,7 +69,8 @@ const ColumnComponent: React.FC<ColumnProps> = ({
         handleTitleChange={handleTitleChange}
         handleTitleBlur={handleTitleBlur}
         handleTitleKeyPress={handleTitleKeyPress}
-        handleDropdownOptionSelect={handleDropdownOptionSelect}
+        handleDeleteColumnModal={handleDeleteColumnModal}
+        // handleDropdownOptionSelect={handleDropdownOptionSelect}
       />
       <AwesomeButton className="addNew" onClick={() => handleAddButtonClick(column)}>
         <span>Add New</span>

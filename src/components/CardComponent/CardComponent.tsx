@@ -1,5 +1,3 @@
-// CardComponent.tsx
-
 import React, { useEffect, useState } from 'react';
 import './CardComponent.less';
 import { IoMdStar, IoMdTrash, IoMdLink } from 'react-icons/io';
@@ -27,7 +25,11 @@ const CardComponent = ({
   const handleToggleFavorite = async (e) => {
     e.stopPropagation();
     const newFavoriteStatus = !isFavorited;
-    setIsFavorited(newFavoriteStatus);
+
+    // Only update state if the status has changed
+    if (newFavoriteStatus !== isFavorited) {
+      setIsFavorited(newFavoriteStatus);
+    }
 
     try {
       const response = await fetch(
@@ -54,11 +56,14 @@ const CardComponent = ({
   };
 
   const handleCardClick = () => {
-    onSelect(card);
+    // Only trigger selection if not dragging
+    if (!isDragging) {
+      onSelect(card);
+    }
   };
 
   const handleDeleteClick = (e) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent event bubbling
     setIsDeleteModalOpen(true);
   };
 
@@ -86,7 +91,7 @@ const CardComponent = ({
   };
 
   const stopPropagation = (e) => {
-    e.stopPropagation();
+    e.stopPropagation(); // Prevent event bubbling
   };
 
   // Setup for drag-and-drop
@@ -117,9 +122,11 @@ const CardComponent = ({
     setNodeRef = undefined; // Don't set ref for the overlay
   }
 
+  // Make the card transparent when dragging
   if (isDragging && !dragOverlay) {
     style.opacity = 0;
   }
+
   return (
     <div
       ref={setNodeRef}

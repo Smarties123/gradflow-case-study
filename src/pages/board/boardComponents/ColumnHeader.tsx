@@ -15,6 +15,7 @@ type ColumnHeaderProps = {
   handleTitleBlur: () => void;
   handleTitleKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   handleDropdownOptionSelect: (option: number, columnId: number) => void;
+  handleDeleteColumnModal: (columnId: number) => void;
 };
 
 const ColumnHeader: React.FC<ColumnHeaderProps> = ({
@@ -27,7 +28,7 @@ const ColumnHeader: React.FC<ColumnHeaderProps> = ({
   handleTitleChange,
   handleTitleBlur,
   handleTitleKeyPress,
-  handleDropdownOptionSelect,
+  handleDeleteColumnModal
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -77,7 +78,7 @@ const ColumnHeader: React.FC<ColumnHeaderProps> = ({
         <div className="dropdown">
           <ul>
             {column.cards.length === 0 && (
-              <li onClick={() => handleDropdownOptionSelect(2, column.id)}>
+              <li onClick={() => handleDeleteColumnModal(column.id)}>
                 <IoMdTrash /> Delete Status
               </li>
             )}
