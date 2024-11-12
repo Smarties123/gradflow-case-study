@@ -17,11 +17,9 @@ import RadarChartComponent from './RadarChart';
 
 const Dashboard: React.FC = () => {
   const { user } = useUser();
-  const { columns } = useBoardData(user);
+  const { columns, loading } = useBoardData(user);
   const [selectedDateRange, setSelectedDateRange] = useState<[Date, Date] | null>(null);
-  const [loading, setLoading] = useState(true);
   const maxHeight = '500px'; // Set your desired max height here
-
 
   const hasColumns = columns && columns.length > 0;
 
@@ -44,7 +42,7 @@ const Dashboard: React.FC = () => {
   const donutData = hasColumns ? filteredColumns.map((column, index) => ({
     name: column.title,
     value: column.cards.length,
-    percent: Math.round((column.cards.length / maxCards) * 100),
+    percent: maxCards ? Math.round((column.cards.length / maxCards) * 100) : 0,
     color: `hsl(24, 100%, ${30 + (index * 7)}%)`,
   })) : [];
 
@@ -63,18 +61,18 @@ const Dashboard: React.FC = () => {
 
   const funnelData = hasColumns
     ? filteredColumns.map((column, index) => {
-      const h = 24;
-      const s = 100;
-      const l = 30 + index * 7;
-      const hexColor = hslToHex(h, s, l);
+        const h = 24;
+        const s = 100;
+        const l = 30 + index * 7;
+        const hexColor = hslToHex(h, s, l);
 
-      return {
-        name: column.title,
-        value: column.cards.length,
-        percent: Math.round((column.cards.length / maxCards) * 100),
-        color: hexColor,
-      };
-    })
+        return {
+          name: column.title,
+          value: column.cards.length,
+          percent: maxCards ? Math.round((column.cards.length / maxCards) * 100) : 0,
+          color: hexColor,
+        };
+      })
     : [];
 
   const highlightData = hasColumns ? filteredColumns.map((column, index) => ({
@@ -85,17 +83,19 @@ const Dashboard: React.FC = () => {
 
   const keyForCharts = hasColumns ? JSON.stringify(filteredColumns.map(column => column.title + column.cards.length)) : '';
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  // Remove the useEffect hook for loading state
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setLoading(false);
+  //   }, 1000);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   if (loading) {
     return (
-      // HighlightTiles skeleton
+      // ... your loading skeletons ...
       <div className="scroll-container">
+        {/* HighlightTiles skeleton */}
         <Row style={{ marginRight: '-5px', marginBottom: '5px' }}>
           <Col xs={24}>
             <Skeleton height={300} />
@@ -139,7 +139,6 @@ const Dashboard: React.FC = () => {
     );
   }
 
-
   return (
     <div className="scroll-container">
       <Row style={{ marginRight: '0px' }}>
@@ -157,7 +156,7 @@ const Dashboard: React.FC = () => {
           />
         </Col>
       </Row>
-      <Row gutter={16} style={{ margin: '0px -8px' }} >
+      <Row gutter={16} style={{ margin: '0px -8px' }}>
         <Col xs={24} md={12}>
           <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', height: '100%' }}>
             <BarChart
@@ -169,7 +168,7 @@ const Dashboard: React.FC = () => {
             />
           </Panel>
         </Col>
-        <Col xs={24} md={12} >
+        <Col xs={24} md={12}>
           <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', minHeight: '475px' }}>
             <DonutChartComponent
               style={{ margin: 'auto 0px' }}
@@ -199,7 +198,6 @@ const Dashboard: React.FC = () => {
               data={funnelData}
               title="Recruitment Funnel"
               style={{ height: '100%', maxHeight }}
-
             />
           </Panel>
         </Col>
@@ -213,7 +211,6 @@ const Dashboard: React.FC = () => {
           </Panel>
         </Col>
       </Row>
-
     </div>
   );
 };

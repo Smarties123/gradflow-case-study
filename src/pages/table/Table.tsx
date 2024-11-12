@@ -10,29 +10,24 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import './styles.less';
 import { format } from 'date-fns';
 
-
 window.ResizeObserver = ResizeObserver;
 
 const { Column, HeaderCell, Cell } = Table;
 
 const TableComponent: React.FC = () => {
   const { user } = useUser();
-  const { columns } = useBoardData(user);
+  const { columns, loading } = useBoardData(user);
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState('All Applications');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [tableHeight, setTableHeight] = useState(window.innerHeight * 0.8);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortType, setSortType] = useState();
 
   useEffect(() => {
     if (!columns) return;
-    setLoading(true);
-
-    const timeoutId = setTimeout(() => setLoading(false), 10000);
 
     const newData = columns.flatMap(column =>
       column.cards.map(card => ({
@@ -47,8 +42,6 @@ const TableComponent: React.FC = () => {
 
     setTableData(newData);
     setFilteredData(newData);
-
-    return () => clearTimeout(timeoutId);
   }, [columns]);
 
   useEffect(() => {

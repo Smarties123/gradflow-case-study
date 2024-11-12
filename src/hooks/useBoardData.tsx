@@ -3,14 +3,14 @@ import { BoardContext } from '../pages/board/BoardContext'; // Adjust the path a
 
 export const useBoardData = (user: any) => {
   const { columns, setColumns } = useContext(BoardContext);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(columns.length === 0);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBoardData = async () => {
       if (columns.length > 0) {
-        setLoading(false);
-        return; // Skip fetching if columns are already loaded
+        // Data is already loaded; no need to fetch
+        return;
       }
 
       try {
@@ -74,7 +74,7 @@ export const useBoardData = (user: any) => {
     };
 
     fetchBoardData();
-  }, [user.token, columns, setColumns]);
+  }, [user.token]);
 
   return { columns, loading, error };
 };
