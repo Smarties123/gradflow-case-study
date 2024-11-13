@@ -5,6 +5,7 @@ import App from './App';
 import './styles/index.less';
 import { UserProvider } from './components/User/UserContext';
 import { BoardProvider } from './pages/board/BoardContext';
+import '../public/global.css';
 
 // Import analytics to ensure it's initialized
 import { analytics, logEvent } from '../firebaseConfig'; // Correct the path
