@@ -161,13 +161,14 @@ const Header = props => {
         <div className='flex flex-col items-center justify-center w-screen h-screen gap-6'>
 
           <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
-            <AwesomeButton className="header-add-new" onClick={handleOpenAddModal}>
-              <FaPlus
+            <AwesomeButton
+              className="header-add-new"
+              onClick={handleOpenAddModal} >
 
-                style={{ color: 'white'}}
-              />
+              <FaPlus style={{ color: 'white', paddingTop: '3px' }} />
               <span className="visually-hidden">Add New</span>
             </AwesomeButton>
+
             {/* <Button
               className="header-button"
               style={{
@@ -232,16 +233,18 @@ const Header = props => {
         </Whisper>
       </div>
 
-      {showSettings && (
-        <SettingsView
-          show={showSettings}
-          onClose={() => setShowSettings(false)}
-          card={{}}
-          updateCard={() => { }}
-        />
-      )}
+      {
+        showSettings && (
+          <SettingsView
+            show={showSettings}
+            onClose={() => setShowSettings(false)}
+            card={{}}
+            updateCard={() => { }}
+          />
+        )
+      }
 
-    </Stack>
+    </Stack >
 
   );
 };

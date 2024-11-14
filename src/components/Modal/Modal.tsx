@@ -5,7 +5,7 @@ import { useUser } from '@/components/User/UserContext';
 import { FormHelperText } from '@mui/material'; // Import FormHelperText from MUI
 import dayjs from 'dayjs';
 import Github from '@uiw/react-color-github';  // Import the color picker
-
+import 'animate.css';
 
 
 const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
@@ -31,6 +31,10 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     const [selectedColor, setSelectedColor] = useState(''); // No default color initially
     const [isColorPickerOpen, setIsColorPickerOpen] = useState(false); // Toggle state for color picker visibility
     const colorOptions = ['#ff6200', '#1abc9c', '#3498db', '#9b59b6', '#e74c3c', '#f1c40f', '#2ecc71', '#e67e22'];
+
+    // Animation
+    const [animation, setAnimation] = useState('animate__animated animate__fadeInDown');
+
 
     useEffect(() => {
         const randomColor = colorOptions[Math.floor(Math.random() * colorOptions.length)];
@@ -175,11 +179,14 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     console.error('Failed to add job');
                 }
                 // Close modal regardless of success or failure in adding job
-                onClose();
+                setAnimation('animate__animated animate__fadeOutDown');
+                setTimeout(onClose, 700); // Delay the onClose handler to allow animation to complete
             } catch (err) {
                 console.error('Error adding job:', err);
                 // Close modal even if there's an error
-                onClose();
+                 setAnimation('animate__animated animate__fadeOutDown');
+        
+                setTimeout(onClose, 700); // Delay the onClose handler to allow animation to complete
             }
         }
     };
@@ -205,12 +212,18 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             console.error('Error fetching card details:', error);
         }
     };
-    
+
+     const handleClose = () => {
+        setAnimation('animate__animated animate__fadeOutDown');
+        setTimeout(onClose, 900); // Delay the onClose handler to allow animation to complete
+    };
+
+
 
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className={`modal-content ${theme === 'dark' ? 'rs-theme-dark' : ''}`} onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={handleClose}>
+            <div className={`modal-content ${theme === 'dark' ? 'rs-theme-dark' : ''} ${animation}`} onClick={(e) => e.stopPropagation()}>
                 <h2>Add Job</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="input-wrapper">
@@ -300,7 +313,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             />
                         </div>
                     ) : (
-                        <div className="input-wrapper">
+                        <div className="input-wrapper" style={{marginBottom:'17px'}}>
                             <label className="bordered-label">Choose a Status</label>
                             <select
                                 value={selectedColumn}
@@ -318,7 +331,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
 
                     {/* Color Picker as an Input */}
                     <div className="input-wrapper" style={{ position: 'relative' }}>
-                        <label className="bordered-label">Card Color</label>
+                        <label style={{backgroundColor:'transparent'}} className="bordered-label">Card Color</label>
                         {/* Color Box that shows the selected color */}
                         <div
                             className="color-selector-box"
@@ -351,7 +364,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     </div>
 
                     <div className="modal-buttons">
-                        <button type="button" className="cancel-button" onClick={onClose}>
+                        <button type="button" className="cancel-button" onClick={handleClose}>
                             Cancel
                         </button>
                         <button type="submit" className="add-card-button">
