@@ -81,7 +81,7 @@ const Board: React.FC = () => {
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 100,
+        delay: 250,
         tolerance: 5,
       },
     })
