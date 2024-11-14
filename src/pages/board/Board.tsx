@@ -24,7 +24,7 @@ import DrawerView from '../../components/DrawerView/DrawerView';
 import { BoardContext } from './BoardContext';
 import { useUser } from '../../components/User/UserContext';
 import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
-// import BinPopup from '../../components/BinPopup/BinPopup';
+import BinPopup from '../../components/BinPopup/BinPopup';
 import ColumnComponent from './boardComponents/Column';
 import CardComponent from '../../components/CardComponent/CardComponent'; // **Add this line**
 import { useBoardHandlers } from './boardComponents/useBoardHandlers';
@@ -226,10 +226,10 @@ const Board: React.FC = () => {
           </div>
         </div>
 
-        {/* Add the bin as a droppable area
+        {/* Add the bin as a droppable area */}
         <div ref={setBinNodeRef} className="bin-drop-area">
           <BinPopup isDragging={isDraggingCard} />
-        </div> */}
+        </div>
 
         {/* Add the DragOverlay */}
         <DragOverlay>
@@ -243,7 +243,7 @@ const Board: React.FC = () => {
               dragOverlay={true}
             />
           ) : null}
-         </DragOverlay>
+        </DragOverlay>
       </DndContext>
     </div>
   );
