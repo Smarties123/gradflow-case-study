@@ -138,8 +138,10 @@ const CardComponent = ({
     onContextMenu={(e) => {
       e.preventDefault();
       handleCardClick();
+      
     }}
     onDoubleClick={handleCardClick}
+    title="Click or right-click to open details"
   >
       <div className="card-content">
         <div className="left-icons">
