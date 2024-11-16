@@ -27,9 +27,8 @@ const CardComponent = ({
     const newFavoriteStatus = !isFavorited;
 
     // Only update state if the status has changed
-    if (newFavoriteStatus !== isFavorited) {
-      setIsFavorited(newFavoriteStatus);
-    }
+    setIsFavorited(newFavoriteStatus);
+
 
     try {
       const response = await fetch(
@@ -133,7 +132,7 @@ const CardComponent = ({
       style={style}
       {...attributes}
       {...listeners}
-      className={`card ${isDragging ? 'is-dragging' : ''}`}
+      className={`card ${isDragging ? 'is-dragging' : ''} ${isFavorited ? 'always-show-icons' : ''}`}
       onClick={handleCardClick}
     >
       <div className="card-content">
