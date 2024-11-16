@@ -33,7 +33,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     const colorOptions = ['#ff6200', '#1abc9c', '#3498db', '#9b59b6', '#e74c3c', '#f1c40f', '#2ecc71', '#e67e22'];
 
     // Animation
-    const [animation, setAnimation] = useState('animate__animated animate__fadeInDown');
+    const [animation, setAnimation] = useState('animate__animated animate__zoomIn');
 
 
     useEffect(() => {
@@ -68,6 +68,27 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
             setShowSuggestions(false);  // Hide the suggestions if input is too short
         }
     }, [company, suggestionSelected]);  // Include suggestionSelected in the dependency array
+
+    useEffect(() => {
+        const handleAnimationEnd = () => {
+            if (animation === 'animate__animated animate__zoomOut') {
+                onClose(); // Close the modal after the zoom out animation finishes
+            }
+        };
+
+        // Add event listener for animation end
+        const modalContent = document.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.addEventListener('animationend', handleAnimationEnd);
+        }
+
+        // Cleanup the event listener when the component unmounts
+        return () => {
+            if (modalContent) {
+                modalContent.removeEventListener('animationend', handleAnimationEnd);
+            }
+        };
+    }, [animation, onClose]);
 
     // Handle suggestion click to select the suggestion
     const handleSuggestionClick = (suggestion) => {
@@ -107,23 +128,41 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
         }
     };
 
+    // Handle the deadline change
+    const handleDeadlineChange = (e) => {
+        const selectedDate = e.target.value;
+        setDeadline(selectedDate);
 
-
-
-
+        // Validate if the selected date is in the past
+        const selectedDay = dayjs(selectedDate);
+        if (selectedDay.isBefore(dayjs(), 'day')) {
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                deadline: 'Deadline cannot be in the past',
+            }));
+        } else {
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                deadline: '',
+            }));
+        }
+    };
 
     const validateForm = () => {
         const newErrors = {};
         if (!company) newErrors.company = 'Company is required';
         if (!position) newErrors.position = 'Position is required';
-        // if (!deadline) {
-        //     newErrors.deadline = 'Deadline is required';
-        // } else {
-        //     const selectedDate = dayjs(deadline);
-        //     if (selectedDate.isBefore(dayjs(), 'day')) {
-        //         newErrors.deadline = 'Deadline cannot be in the past';
-        //     }
-        // }
+
+        if (deadline && deadline !== '') {
+            const selectedDate = dayjs(deadline);
+
+            // Check if the date is valid
+            if (!selectedDate.isValid()) {
+                newErrors.deadline = 'Please enter a valid date';
+            }
+
+
+        }
         // if (!location) newErrors.location = 'Location is required';
         // if (!url) newErrors.url = 'URL is required';
 
@@ -155,7 +194,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 userId: user ? user.id : null,
                 statusId: activeColumn ? activeColumn.id : selectedColumn,
             };
-    
+
             try {
                 const response = await fetch(`${process.env.REACT_APP_API_URL}/addjob`, {
                     method: 'POST',
@@ -165,11 +204,11 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     },
                     body: JSON.stringify(card),
                 });
-    
+
                 if (response.ok) {
                     const savedCard = await response.json();
                     console.log("Saved card data:", savedCard);
-    
+
                     const newCardId = savedCard.job?.ApplicationId;
                     if (newCardId) {
                         addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, { ...card, id: newCardId });
@@ -179,28 +218,25 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                     console.error('Failed to add job');
                 }
                 // Close modal regardless of success or failure in adding job
-                setAnimation('animate__animated animate__fadeOutDown');
-                setTimeout(onClose, 700); // Delay the onClose handler to allow animation to complete
+                setAnimation('animate__animated animate__zoomOut');
             } catch (err) {
                 console.error('Error adding job:', err);
                 // Close modal even if there's an error
-                 setAnimation('animate__animated animate__fadeOutDown');
-        
-                setTimeout(onClose, 700); // Delay the onClose handler to allow animation to complete
+                setAnimation('animate__animated animate__zoomOut');
             }
         }
     };
-    
+
     // Fetch the full card details in the background and update it locally
     const fetchCardDetails = async (id) => {
         try {
             const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${id}`, {
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.token}`
                 },
             });
-    
+
             if (response.ok) {
                 const fullCardData = await response.json();
                 console.log("Fetched full card data:", fullCardData);
@@ -213,9 +249,9 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
         }
     };
 
-     const handleClose = () => {
-        setAnimation('animate__animated animate__fadeOutDown');
-        setTimeout(onClose, 900); // Delay the onClose handler to allow animation to complete
+    const handleClose = () => {
+        setAnimation('animate__animated animate__zoomOut');
+        setTimeout(onClose, 500); // Delay the onClose handler to allow animation to complete
     };
 
 
@@ -227,7 +263,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 <h2>Add Job</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="input-wrapper">
-                        <label className="bordered-label">Company</label>
+                        <label className="bordered-label">Company<span className="required">*</span></label>
                         <div className="company-input-wrapper">
                             <input
                                 type="text"
@@ -259,7 +295,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                         {errors.company && <FormHelperText error>{errors.company}</FormHelperText>}
                     </div>
                     <div className="input-wrapper">
-                        <label className="bordered-label">Position</label>
+                        <label className="bordered-label">Position<span className="required">*</span></label>
                         <input
                             type="text"
                             value={position}
@@ -274,8 +310,9 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                         <input
                             type="date"
                             value={deadline}
-                            onChange={(e) => setDeadline(e.target.value)}
+                            onChange={handleDeadlineChange}
                             className="border-input"
+                            placeholder="dd/mm/yyyy"
                         />
                         {errors.deadline && <FormHelperText error>{errors.deadline}</FormHelperText>}
                     </div>
@@ -313,8 +350,8 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                             />
                         </div>
                     ) : (
-                        <div className="input-wrapper" style={{marginBottom:'17px'}}>
-                            <label className="bordered-label">Choose a Status</label>
+                        <div className="input-wrapper" style={{ marginBottom: '17px', }}>
+                            <label className="bordered-label" style={{ padding: '0px 10px' }}>Choose a Status</label>
                             <select
                                 value={selectedColumn}
                                 onChange={(e) => setSelectedColumn(parseInt(e.target.value))}
@@ -331,7 +368,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
 
                     {/* Color Picker as an Input */}
                     <div className="input-wrapper" style={{ position: 'relative' }}>
-                        <label style={{backgroundColor:'transparent'}} className="bordered-label">Card Color</label>
+                        <label style={{ backgroundColor: 'transparent' }} className="bordered-label">Card Color</label>
                         {/* Color Box that shows the selected color */}
                         <div
                             className="color-selector-box"
