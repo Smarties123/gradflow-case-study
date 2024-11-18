@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Panel, Table, Stack, Badge, SelectPicker, Row, Col } from 'rsuite';
-import { DrawerView } from '../../components/DrawerView/DrawerView';
+import DrawerView from '../../components/DrawerView/DrawerView';
 import { useBoardData } from '../../hooks/useBoardData';
 import ResizeObserver from 'resize-observer-polyfill';
 import { useUser } from '../../components/User/UserContext';
@@ -96,9 +96,25 @@ const TableComponent: React.FC = () => {
     }, 100);
   };
 
+  // Define the ClickableCell component
+  const ClickableCell = ({ rowData, dataKey, children, ...props }) => (
+    <Cell
+      {...props}
+      onClick={() => handleCellClick(rowData.originalCard)}
+      style={{ cursor: 'pointer' }}
+    >
+      {children ? children(rowData) : rowData[dataKey]}
+    </Cell>
+  );
+
   return (
     <Panel bodyFill>
-      <Stack className="table-toolbar" spacing={6} justifyContent="space-between" style={{ marginBottom: '10px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+      <Stack
+        className="table-toolbar"
+        spacing={6}
+        justifyContent="space-between"
+        style={{ marginBottom: '10px', flexWrap: 'wrap', alignItems: 'flex-start' }}
+      >
         <div
           className="category-description"
           style={{
@@ -168,6 +184,7 @@ const TableComponent: React.FC = () => {
           sortType={sortType}
           onSortColumn={handleSortColumn}
         >
+          {/* Logo Column */}
           <Column width={80} align="center" fixed>
             <HeaderCell>Logo</HeaderCell>
             <Cell>
@@ -186,28 +203,32 @@ const TableComponent: React.FC = () => {
             </Cell>
           </Column>
 
+          {/* Company Name Column */}
           <Column minWidth={160} flexGrow={1} sortable>
             <HeaderCell>Company Name</HeaderCell>
-            <Cell dataKey="name" />
+            <ClickableCell dataKey="name" />
           </Column>
 
+          {/* Position Column */}
           <Column minWidth={120} flexGrow={1} sortable>
             <HeaderCell>Position</HeaderCell>
-            <Cell dataKey="position" />
+            <ClickableCell dataKey="position" />
           </Column>
 
+          {/* Application Stage Column */}
           <Column width={160} sortable>
             <HeaderCell>Application Stage</HeaderCell>
-            <Cell dataKey="stage" />
+            <ClickableCell dataKey="stage" />
           </Column>
 
+          {/* Deadline Column */}
           <Column width={120} sortable>
             <HeaderCell>Deadline</HeaderCell>
-            <Cell dataKey="deadline">
+            <ClickableCell dataKey="deadline">
               {rowData => (
                 rowData.deadline ? format(rowData.deadline, 'dd/MM/yyyy') : 'No Deadline'
               )}
-            </Cell>
+            </ClickableCell>
           </Column>
         </Table>
       )}
