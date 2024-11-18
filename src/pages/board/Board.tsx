@@ -124,13 +124,13 @@ const Board: React.FC = () => {
           <div className="column-container" style={{ width: '23%', padding: '0px', border: 'none' }}>
             <Skeleton height="83vh" width="100%" />
           </div>
-          <div className="column-container" style={{ width: '23%', padding: '0px' }}>
+          <div className="column-container" style={{ width: '23%', padding: '0px', border: 'none' }}>
             <Skeleton height="83vh" width="100%" />
           </div>
-          <div className="column-container" style={{ width: '23%', padding: '0px' }}>
+          <div className="column-container" style={{ width: '23%', padding: '0px', border: 'none' }}>
             <Skeleton height="83vh" width="100%" />
           </div>
-          <div className="column-container" style={{ width: '23%', padding: '0px' }}>
+          <div className="column-container" style={{ width: '23%', padding: '0px', border: 'none' }}>
             <Skeleton height="83vh" width="100%" />
           </div>
         </div>
