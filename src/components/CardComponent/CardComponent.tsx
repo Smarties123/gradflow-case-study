@@ -27,9 +27,8 @@ const CardComponent = ({
     const newFavoriteStatus = !isFavorited;
 
     // Only update state if the status has changed
-    if (newFavoriteStatus !== isFavorited) {
-      setIsFavorited(newFavoriteStatus);
-    }
+    setIsFavorited(newFavoriteStatus);
+
 
     try {
       const response = await fetch(
