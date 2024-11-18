@@ -128,7 +128,7 @@ export const useBoardHandlers = (columns, setColumns) => {
   //   }
   };
 
-  const handleDeleteCard = (cardId: number) => {
+  const handleDeleteCard = (cardId: number | string) => {
     setColumns(prevColumns =>
       prevColumns.map(column => ({
         ...column,
