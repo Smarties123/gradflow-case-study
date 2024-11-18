@@ -129,13 +129,20 @@ const CardComponent = ({
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`card ${isDragging ? 'is-dragging' : ''}`}
-      onClick={handleCardClick}
-    >
+    ref={setNodeRef}
+    style={style}
+    {...attributes}
+    {...listeners}
+    className={`card ${isDragging ? 'is-dragging' : ''}`}
+    onClick={handleCardClick}
+    onContextMenu={(e) => {
+      e.preventDefault();
+      handleCardClick();
+      
+    }}
+    onDoubleClick={handleCardClick}
+    title="Click or right-click to open details"
+  >
       <div className="card-content">
         <div className="left-icons">
           {card.companyLogo ? (

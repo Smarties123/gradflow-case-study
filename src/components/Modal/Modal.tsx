@@ -168,7 +168,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     
                     const newCardId = savedCard.job?.ApplicationId;
                     if (newCardId) {
-                        addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, { ...card, id: newCardId });
+                        addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, { ...card, id: String(newCardId) });
                         await fetchCardDetails(newCardId);  // Wait for background fetch
                     }
                 } else {

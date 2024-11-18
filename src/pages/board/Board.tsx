@@ -24,7 +24,7 @@ import DrawerView from '../../components/DrawerView/DrawerView';
 import { BoardContext } from './BoardContext';
 import { useUser } from '../../components/User/UserContext';
 import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
-import BinPopup from '../../components/BinPopup/BinPopup';
+// import BinPopup from '../../components/BinPopup/BinPopup';
 import ColumnComponent from './boardComponents/Column';
 import CardComponent from '../../components/CardComponent/CardComponent'; // **Add this line**
 import { useBoardHandlers } from './boardComponents/useBoardHandlers';
@@ -81,7 +81,7 @@ const Board: React.FC = () => {
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 100,
+        delay: 250,
         tolerance: 5,
       },
     })
@@ -137,14 +137,14 @@ const Board: React.FC = () => {
         collisionDetection={pointerWithin}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        autoScroll={true}
-        // autoScroll={{
-        //   enabled: true,
-        //   threshold: { x: 0.1, y: 0.1 }, // Activate auto-scroll when cursor is within 10% of the edge
-        //   speed: 5, // Reduce speed of auto-scroll
-        //   acceleration: 10, // Adjust acceleration as needed
-        //   interval: 20, // Adjust the interval between scroll updates
-        // }}
+        // autoScroll={false}
+        autoScroll={{
+          enabled: true,
+          threshold: { x: 0.1, y: 0.1 }, // Activate auto-scroll when cursor is within 10% of the edge
+          speed: 5, // Reduce speed of auto-scroll
+          acceleration: 2, // Adjust acceleration as needed
+          interval: 10, // Adjust the interval between scroll updates
+        }}
 
       >
 
@@ -227,9 +227,9 @@ const Board: React.FC = () => {
         </div>
 
         {/* Add the bin as a droppable area */}
-        <div ref={setBinNodeRef} className="bin-drop-area">
+        {/* <div ref={setBinNodeRef} className="bin-drop-area">
           <BinPopup isDragging={isDraggingCard} />
-        </div>
+        </div> */}
 
         {/* Add the DragOverlay */}
         <DragOverlay>
