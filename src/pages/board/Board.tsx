@@ -97,7 +97,7 @@ const Board: React.FC = () => {
 
   const { loading, error } = useFetchApplications(setColumns);
 
-  const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
+  // const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
 
 
   // Redirect to login if not authenticated
@@ -107,16 +107,16 @@ const Board: React.FC = () => {
     }
   }, [user]);
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsSkeletonLoading(false);
-    }, 5000); // 5 seconds
+  // React.useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setIsSkeletonLoading(false);
+  //   }, 5000); // 5 seconds
 
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
 
-  if (loading || isSkeletonLoading) {
+  if (loading) {
     return (
       <div className="skeleton-container">
         {/* Skeleton for the board container */}
