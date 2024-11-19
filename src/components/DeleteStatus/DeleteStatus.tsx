@@ -6,8 +6,15 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
   if (!isOpen) return null;
 
   const handleDelete = () => {
+    // e.stopPropagation();
     onYes();
     onClose();
+  };
+
+  const handleCancel = (e) => {
+    e.stopPropagation();
+    onNo();
+    onClose(); // Make sure to close the modal
   };
 
   return (
@@ -15,7 +22,7 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <h2>{title || "Are You Sure?"}</h2>
         <div className="modal-buttons">
-          <button type="button" className="cancel-button" onClick={onNo}>
+          <button type="button" className="cancel-button" onClick={handleCancel}>
             Cancel
           </button>
           <button type="button" className="delete-button" style={{backgroundColor:'#FF6200'}} onClick={handleDelete}>
