@@ -3,7 +3,7 @@ import pool from '../config/db.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { sendResetPasswordEmail , sendSignupEmail} from '../services/emailService.js';
+import { sendResetPasswordEmail , sendSignupEmail,sendWelcomeEmail} from '../services/emailService.js';
 
 const SECRET_KEY = process.env.JWT_SECRET;
 const TOKEN_EXPIRATION_MINUTES = 15;
@@ -112,21 +112,24 @@ export const verifyUser = async (req, res) => {
 
   try {
     const decoded = jwt.verify(token, SECRET_KEY);
-    const userId = decoded.userId;
+    const { userId, email } = decoded;
 
-    // Update user status to verified
     const result = await pool.query('UPDATE "Users" SET "IsVerified" = $1 WHERE "UserId" = $2 RETURNING "UserId"', [true, userId]);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found or already verified.' });
     }
 
+    await sendWelcomeEmail(email);
+
     res.status(200).json({ message: 'Account verified successfully!' });
+
   } catch (error) {
     console.error('Error during verification:', error);
     res.status(400).json({ message: 'Invalid or expired token.' });
   }
 };
+
 
 
 
