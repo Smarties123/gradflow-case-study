@@ -30,6 +30,8 @@ import CardComponent from '../../components/CardComponent/CardComponent'; // **A
 import { useBoardHandlers } from './boardComponents/useBoardHandlers';
 import { useFetchApplications } from './boardComponents/useFetchApplications';
 import { useDragAndDrop } from './boardComponents/useDragAndDrop';
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 const Board: React.FC = () => {
   const context = useContext(BoardContext);
@@ -95,6 +97,9 @@ const Board: React.FC = () => {
 
   const { loading, error } = useFetchApplications(setColumns);
 
+  // const [isSkeletonLoading, setIsSkeletonLoading] = useState(true);
+
+
   // Redirect to login if not authenticated
   React.useEffect(() => {
     if (!user) {
@@ -102,8 +107,36 @@ const Board: React.FC = () => {
     }
   }, [user]);
 
+  // React.useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setIsSkeletonLoading(false);
+  //   }, 5000); // 5 seconds
+
+  //   return () => clearTimeout(timer);
+  // }, []);
+
+
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="skeleton-container">
+        {/* Skeleton for the board container */}
+        <div className="board">
+          <div className="column-container" style={{ width: '23%', padding: '0px', border: 'none' }}>
+            <Skeleton height="83vh" width="100%" />
+          </div>
+          <div className="column-container" style={{ width: '23%', padding: '0px', border: 'none' }}>
+            <Skeleton height="83vh" width="100%" />
+          </div>
+          <div className="column-container" style={{ width: '23%', padding: '0px', border: 'none' }}>
+            <Skeleton height="83vh" width="100%" />
+          </div>
+          <div className="column-container" style={{ width: '23%', padding: '0px', border: 'none' }}>
+            <Skeleton height="83vh" width="100%" />
+          </div>
+        </div>
+
+      </div>
+    );
   }
 
   if (error) {
@@ -177,7 +210,7 @@ const Board: React.FC = () => {
                   handleDeleteColumnModal={handleDeleteColumnModal}
                   isDraggingCard={isDraggingCard}
                   activeId={activeId} // **Add this line**
-              />
+                />
               ))
             )}
           </SortableContext>
@@ -250,3 +283,7 @@ const Board: React.FC = () => {
 };
 
 export default Board;
+
+function useEffect(arg0: () => () => void, arg1: never[]) {
+  throw new Error('Function not implemented.');
+}

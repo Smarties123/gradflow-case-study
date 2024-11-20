@@ -139,7 +139,7 @@ input {
 
 .dropdown-input {
     width: 100%;
-    padding: 8px;
+    padding: 10px 10px 10px 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
@@ -148,6 +148,8 @@ input {
     // position: inherit;
     z-index: 20;
     margin-top: 10px;
+      transition: border 0.3s ease;
+
     /* Ensure it appears above other elements */
 }
 
@@ -211,9 +213,18 @@ input {
     overflow-y: auto;
     /* Enable vertical scrolling */
     overflow-x: hidden;
+    border-radius: 6px;
     /* Disable horizontal scrolling */
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
     /* Add shadow for depth */
+}
+
+.rs-theme-light {
+    .suggestions-list {
+        background-color: white;
+        border: 1px solid black;
+    }
+   
 }
 
 /* Customize the scrollbar */
@@ -245,6 +256,10 @@ input {
 
 .suggestions-list li:hover {
     background-color: #4a4a4a;
+}
+
+.rs-theme-light .suggestions-list li:hover {
+    background-color: #ccc;
 }
 
 .suggestion-item {
@@ -282,6 +297,10 @@ input {
     /* Allow text to wrap onto new lines */
 }
 
+.rs-theme-light .company-name-modal {
+    color: black;
+}
+
 .company-domain-modal {
     font-size: 10px;
     color: #888;
@@ -303,4 +322,18 @@ input {
     width: 24px;
     height: 24px;
     border-radius: 50%;
+}
+
+.input-wrapper input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  cursor: pointer;
+}
+
+.rs-theme-dark .input-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* Style the asterisk for required fields */
+.required {
+  color: red;
+  margin-left: 2px; /* Add some space between the label and the asterisk */
 }
