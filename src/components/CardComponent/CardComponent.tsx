@@ -6,7 +6,6 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createPortal } from 'react-dom';
 
-
 const CardComponent = ({
   card,
   onSelect,
@@ -28,9 +27,7 @@ const CardComponent = ({
     e.stopPropagation();
     const newFavoriteStatus = !isFavorited;
 
-    // Only update state if the status has changed
     setIsFavorited(newFavoriteStatus);
-
 
     try {
       const response = await fetch(
@@ -57,7 +54,6 @@ const CardComponent = ({
   };
 
   const handleCardClick = () => {
-    // Only trigger selection if not dragging
     if (!isDragging) {
       onSelect(card);
     }
@@ -92,7 +88,7 @@ const CardComponent = ({
   };
 
   const stopPropagation = (e) => {
-    e.stopPropagation(); // Prevent event bubbling
+    e.stopPropagation();
   };
 
   // Setup for drag-and-drop
@@ -108,21 +104,23 @@ const CardComponent = ({
   if (!dragOverlay) {
     const sortable = useSortable({
       id: String(card.id),
-      disabled: isDeleteModalOpen, // Disable drag if modal is open
+      disabled: isDeleteModalOpen,
     });
 
-    attributes = isDeleteModalOpen ? {} : sortable.attributes; // Remove listeners if modal is open
-    listeners = isDeleteModalOpen ? {} : sortable.listeners; // Remove listeners if modal is open
+    attributes = isDeleteModalOpen ? {} : sortable.attributes;
+    listeners = isDeleteModalOpen ? {} : sortable.listeners;
     setNodeRef = sortable.setNodeRef;
     style = {
       ...style,
-      transform: isDeleteModalOpen ? undefined : CSS.Transform.toString(sortable.transform),
+      transform: isDeleteModalOpen
+        ? undefined
+        : CSS.Transform.toString(sortable.transform),
       transition: isDeleteModalOpen ? undefined : sortable.transition,
     };
     isDragging = sortable.isDragging;
   } else {
     isDragging = true;
-    setNodeRef = undefined; // Don't set ref for the overlay
+    setNodeRef = undefined;
   }
 
   if (isDragging && !dragOverlay) {
@@ -136,7 +134,8 @@ const CardComponent = ({
         style={style}
         {...attributes}
         {...listeners}
-        className={`card ${isDragging ? 'is-dragging' : ''}`}
+        className={`card ${isDragging ? 'is-dragging' : ''} ${isFavorited ? 'always-show-icons' : ''
+          }`}
         onClick={handleCardClick}
         onContextMenu={(e) => {
           e.preventDefault();
@@ -154,7 +153,9 @@ const CardComponent = ({
                 className="company-logo-small"
               />
             ) : null}
-            <h3 className={`company-name ${isLongCompanyName ? 'scroll' : ''}`}>
+            <h3
+              className={`company-name ${isLongCompanyName ? 'scroll' : ''}`}
+            >
               {card.company}
             </h3>
           </div>
@@ -175,8 +176,11 @@ const CardComponent = ({
                 stopPropagation(e);
                 if (card.url) {
                   const isValidUrl =
-                    card.url.startsWith('http://') || card.url.startsWith('https://');
-                  const finalUrl = isValidUrl ? card.url : `https://${card.url}`;
+                    card.url.startsWith('http://') ||
+                    card.url.startsWith('https://');
+                  const finalUrl = isValidUrl
+                    ? card.url
+                    : `https://${card.url}`;
                   window.open(finalUrl, '_blank');
                 }
               }}

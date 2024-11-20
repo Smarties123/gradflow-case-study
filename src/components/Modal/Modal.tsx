@@ -219,10 +219,12 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 }
                 // Close modal regardless of success or failure in adding job
                 setAnimation('animate__animated animate__zoomOut');
+                setTimeout(onClose, 250); // Delay the onClose handler to allow animation to complete
             } catch (err) {
                 console.error('Error adding job:', err);
                 // Close modal even if there's an error
                 setAnimation('animate__animated animate__zoomOut');
+                setTimeout(onClose, 250); // Delay the onClose handler to allow animation to complete
             }
         }
     };
@@ -251,7 +253,7 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
 
     const handleClose = () => {
         setAnimation('animate__animated animate__zoomOut');
-        setTimeout(onClose, 500); // Delay the onClose handler to allow animation to complete
+        setTimeout(onClose, 250); // Delay the onClose handler to allow animation to complete
     };
 
 
