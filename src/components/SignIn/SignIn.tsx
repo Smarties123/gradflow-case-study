@@ -151,7 +151,6 @@ export default function SignInSide() {
 
       if (response.ok) {
         const result = await response.json();
-        console.log(result);
         setUser({
           email: result.user.email,
           token: result.token,
@@ -175,11 +174,11 @@ export default function SignInSide() {
         logEvent(analytics, 'login', { method: 'Email' }); // Log the login event
         window.location.href = '/main';
       } else {
-        const errorMessage = await response.json(); 
-        if (errorMessage.message.includes('Google account')) {
+        const errorMessage = await response.text();
+        if (errorMessage.includes('Google account')) {
           setError('This email is associated with a Google account. Please sign in using Google.');
         } else {
-          setError(errorMessage.message);
+          setError('Account not recognised. Please try again or sign up.');
         }
       }
     } catch (err) {

@@ -20,7 +20,6 @@ import PrivacyPolicyGDPR from './components/LandingPage/PrivacyPolicyGDPR';
 import ComingSoon from './components/ComingSoon/ComingSoon';
 import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar'; 
 import Files from './pages/files/Files'; 
-import VerifyEmail from './components/SignUp/VerifyEmail';
 
 import FeedbackButton from './components/FeedbackButton/FeedbackButton';
 
@@ -49,7 +48,6 @@ const App = () => {
         {/* Terms and Conditions Page */}
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
         {/* Routes that require UserContext */}
         <Route
           path="/main"
