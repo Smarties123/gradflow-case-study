@@ -1,38 +1,54 @@
 import * as React from 'react';
-import {
-  Avatar,
-  Button,
-  CssBaseline,
-  TextField,
-  FormControlLabel,
-  Checkbox,
-  Link,
-  Grid,
-  Box,
-  Typography,
-  Paper,
-  IconButton,
-  CircularProgress,
-  Dialog,
-} from '@mui/material';
-import { createTheme, ThemeProvider, useMediaQuery } from '@mui/material';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import SchoolIcon from '@mui/icons-material/School';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material'; // For responsive layout
+import SchoolIcon from '@mui/icons-material/School'; // University icon
+import FeedbackButton from '../FeedbackButton/FeedbackButton'; // Feedback button
+import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
+
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import FeedbackButton from '../FeedbackButton/FeedbackButton';
-import GoogleSignUpButton from './OtherSignUp';
-import { useUser } from '../../components/User/UserContext';
-import ComingSoonSignUp from './ComingSoonSignUp';
-import { analytics, logEvent } from '../../../firebaseConfig';
+import IconButton from '@mui/material/IconButton';
 
+import GoogleSignUpButton from './OtherSignUp'; // Adjust the path based on the folder structure
+
+import { useUser } from '../../components/User/UserContext'; // User context
+import Dialog from '@mui/material/Dialog';
+import ComingSoonSignUp from './ComingSoonSignUp'; // Adjust path as needed
+import { analytics, logEvent } from '../../../firebaseConfig'; // Adjust the path as needed
+
+
+// Google SVG icon using official colors
 function GoogleIcon() {
   return (
     <svg width="20px" height="20px" viewBox="0 0 48 48">
-      <path fill="#EA4335" d="M24 46c5.4 0 10.3-1.8 14.1-4.8l-7.4-5.8c-2.2 1.4-4.9 2.3-7.7 2.3-6.6 0-12-4.5-14-10.7l-6.6 5.2C6.6 40.2 14.4 46 24 46z" />
-      <path fill="#4285F4" d="M24 9.5c3.5 0 5.9 1.5 7.3 2.8l5.4-5.4C33.7 4.5 29.4 3 24 3 14.4 3 6.6 9.8 3.5 18.5l6.6 5.2C12 15 17.4 9.5 24 9.5z" />
-      <path fill="#34A853" d="M46.5 24.5c0-1.7-.2-3.5-.6-5.2H24v10h12.7c-.5 2.7-2.3 5-4.7 6.5l7.4 5.8C43.6 37.7 46.5 31.7 46.5 24.5z" />
-      <path fill="#FBBC05" d="M10.1 29.6c-1-2.7-1-5.6 0-8.2l-6.6-5.2c-2.8 5.6-2.8 12.3 0 17.9l6.6-5.2z" />
+      <path
+        fill="#EA4335"
+        d="M24 46c5.4 0 10.3-1.8 14.1-4.8l-7.4-5.8c-2.2 1.4-4.9 2.3-7.7 2.3-6.6 0-12-4.5-14-10.7l-6.6 5.2C6.6 40.2 14.4 46 24 46z"
+      />
+      <path
+        fill="#4285F4"
+        d="M24 9.5c3.5 0 5.9 1.5 7.3 2.8l5.4-5.4C33.7 4.5 29.4 3 24 3 14.4 3 6.6 9.8 3.5 18.5l6.6 5.2C12 15 17.4 9.5 24 9.5z"
+      />
+      <path
+        fill="#34A853"
+        d="M46.5 24.5c0-1.7-.2-3.5-.6-5.2H24v10h12.7c-.5 2.7-2.3 5-4.7 6.5l7.4 5.8C43.6 37.7 46.5 31.7 46.5 24.5z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M10.1 29.6c-1-2.7-1-5.6 0-8.2l-6.6-5.2c-2.8 5.6-2.8 12.3 0 17.9l6.6-5.2z"
+      />
     </svg>
   );
 }
@@ -41,12 +57,7 @@ function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
-      <Link
-        color="inherit"
-        href="https://find-and-update.company-information.service.gov.uk/company/16020364"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <Link color="inherit" href="https://find-and-update.company-information.service.gov.uk/company/16020364" target="_blank" rel="noopener noreferrer">
         HAD TECHNOLOGIES LTD
       </Link>{' '}
       {new Date().getFullYear()}
@@ -59,19 +70,27 @@ const defaultTheme = createTheme();
 
 export default function SignUp() {
   const [error, setError] = React.useState<string | null>(null);
-  const [loading, setLoading] = React.useState<boolean>(false);
+  const [loading, setLoading] = React.useState<boolean>(false); // Loading state
   const [emailError, setEmailError] = React.useState<string | null>(null);
   const [passwordError, setPasswordError] = React.useState<string | null>(null);
-  const [infoMessage, setInfoMessage] = React.useState<string | null>(null);
   const [nameError, setNameError] = React.useState<string | null>(null);
   const isSmallScreen = useMediaQuery('(max-width:600px)');
+
   const [showPassword, setShowPassword] = React.useState(false);
   const [isComingSoonOpen, setIsComingSoonOpen] = React.useState(false);
-  const { setUser } = useUser();
 
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const { setUser } = useUser();  // Assuming you are using user context
 
-  const validatePassword = (password: string) => password.length >= 6;
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string) => {
+    return password.length >= 6; // Password must be at least 6 characters
+  };
+
 
   const checkIfUserExists = async (email: string, username: string) => {
     try {
@@ -80,7 +99,8 @@ export default function SignUp() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, username }),
       });
-      return await response.json();
+      const result = await response.json();
+      return result; // Return an object { emailExists: boolean, usernameExists: boolean }
     } catch (error) {
       console.error('Error checking existing user:', error);
       return { emailExists: false, usernameExists: false };
@@ -94,6 +114,7 @@ export default function SignUp() {
     const email = data.get('email') as string;
     const password = data.get('password') as string;
 
+    // Client-side validation
     let valid = true;
     if (!username) {
       setNameError('Name is required');
@@ -121,6 +142,7 @@ export default function SignUp() {
 
     if (!valid) return;
 
+    // Check if email or username already exists
     const { emailExists, usernameExists } = await checkIfUserExists(email, username);
 
     if (emailExists) {
@@ -145,13 +167,17 @@ export default function SignUp() {
       if (response.ok) {
         const result = await response.json();
         localStorage.setItem('authToken', result.token);
-        setUser({ email: result.user.email, token: result.token, username: result.user.username });
+        setUser({
+          email: result.user.email,
+          token: result.token,
+          username: result.user.username
+        });
         localStorage.setItem('isNewUser', 'true');
-        setInfoMessage('Signup successful! Please check your email to verify your account.');
         logEvent(analytics, 'sign_up', { method: 'Email' });
+        window.location.href = '/main';
       } else {
-        const errorMessage = await response.json();
-        setError(errorMessage.message);
+        const errorMessage = await response.json(); // Parse the JSON error
+        setError(errorMessage.message); // Show the exact message from the backend
       }
     } catch (err) {
       setError('An error occurred during signup. Please try again later.');
@@ -159,6 +185,7 @@ export default function SignUp() {
       setLoading(false);
     }
   };
+
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -174,7 +201,7 @@ export default function SignUp() {
           square
           sx={{
             background: 'linear-gradient(to bottom, #FF6200, #000000)',
-            display: isSmallScreen ? 'none' : 'block',
+            display: isSmallScreen ? 'none' : 'block'
           }}
         />
         <Grid
@@ -189,10 +216,17 @@ export default function SignUp() {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            minHeight: '100vh',
+            minHeight: '100vh'
           }}
         >
-          <Box sx={{ mx: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Box
+            sx={{
+              mx: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}
+          >
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
               <LockOutlinedIcon />
             </Avatar>
@@ -200,7 +234,7 @@ export default function SignUp() {
               Sign Up
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-              {loading ? (
+              {loading ? ( // Show loading spinner
                 <CircularProgress sx={{ m: 2 }} />
               ) : (
                 <>
@@ -217,6 +251,7 @@ export default function SignUp() {
                         error={!!nameError}
                         helperText={nameError}
                       />
+
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
@@ -236,7 +271,7 @@ export default function SignUp() {
                         fullWidth
                         name="password"
                         label="Password"
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? "text" : "password"} // Conditionally toggle type
                         id="password"
                         autoComplete="new-password"
                         error={!!passwordError}
@@ -245,14 +280,16 @@ export default function SignUp() {
                           endAdornment: (
                             <IconButton
                               aria-label="toggle password visibility"
-                              onClick={() => setShowPassword(!showPassword)}
+                              onClick={() => setShowPassword(!showPassword)} // Toggle visibility
                               edge="end"
                             >
                               {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
                             </IconButton>
-                          ),
+                          )
                         }}
                       />
+
+
                     </Grid>
                     <Grid item xs={12}>
                       <FormControlLabel
@@ -260,35 +297,44 @@ export default function SignUp() {
                         label="I want to receive inspiration, marketing promotions and updates via email."
                       />
                     </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-                        By signing up, you agree to our{' '}
-                        <Link href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
-                          Terms and Conditions
-                        </Link>{' '}
-                        and{' '}
-                        <Link href="/privacy-policy-GDPR" target="_blank" rel="noopener noreferrer">
-                          Privacy Policy
-                        </Link>.
-                      </Typography>
-                    </Grid>
                   </Grid>
-                  {infoMessage && (
-                    <Typography color="primary" variant="body2" sx={{ mt: 2 }}>
-                      {infoMessage}
-                    </Typography>
-                  )}
                   {error && (
-                    <Typography color="error" variant="body2" sx={{ mt: 2 }}>
+                    <Typography color="error" variant="body2">
                       {error}
                     </Typography>
                   )}
+                  <Grid item xs={12}>
+                    <Typography variant="body2" align="center" sx={{ mt: 2 }}>
+                      By signing up, you agree to our{' '}
+                      <Link href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">
+                        Terms and Conditions
+                      </Link>{' '}
+                      and{' '}
+                      <Link href="/privacy-policy-GDPR" target="_blank" rel="noopener noreferrer">
+                        Privacy Policy
+                      </Link>.
+                    </Typography>
+                  </Grid>
                   <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                     Sign Up
                   </Button>
                   <Grid container spacing={2} justifyContent="center" sx={{ mt: 1 }}>
                     <Grid item>
-                      <GoogleSignUpButton setUser={setUser} setError={setError} setLoading={setLoading} />
+                      {/* <Button
+                        variant="outlined"
+                        startIcon={<GoogleIcon />}
+                        sx={{
+                          width: '200px',
+                          borderRadius: '10px',
+                          padding: '10px 0px',
+                          textTransform: 'none',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                        }}
+                      >
+                        Sign up with Google
+                      </Button> */}
+                      <GoogleSignUpButton setUser={setUser} setError={setError} setLoading={setLoading} />  {/* Pass setLoading, setError, setUser */}
+
                     </Grid>
                     <Grid item>
                       <Button
@@ -299,9 +345,9 @@ export default function SignUp() {
                           borderRadius: '10px',
                           padding: '10px 0px',
                           textTransform: 'none',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                         }}
-                        onClick={() => setIsComingSoonOpen(true)}
+                        onClick={() => setIsComingSoonOpen(true)} // Open popup
                       >
                         Sign in with University
                       </Button>
@@ -320,6 +366,7 @@ export default function SignUp() {
           </Box>
         </Grid>
       </Grid>
+      {/* <FeedbackButton /> */}
       <Dialog open={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} fullWidth maxWidth="sm">
         <ComingSoonSignUp />
       </Dialog>
