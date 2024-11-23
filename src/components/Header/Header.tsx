@@ -27,12 +27,15 @@ import { CgDetailsMore } from 'react-icons/cg';
 import { useUser } from '@/components/User/UserContext';
 import Avatar from 'react-avatar';
 import Search from './Search'; // Import Search component
-
+import FeedbackPopup from '../Feedback/FeedbackPopup';
+import AwesomeButton from '../../components/AwesomeButton/AwesomeButton';
 
 const Header = props => {
   const { user, setUser } = useUser(); // Access user and setUser to clear user info on sign out
   const navigate = useNavigate(); // Use navigate for redirection after sign out
   const [formData, setFormData] = useState({ email: '', name: '' });
+
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -52,6 +55,10 @@ const Header = props => {
     fetchUserData();
   }, [user.token]);
 
+
+
+
+
   const context = useContext(BoardContext);
   if (!context) {
     console.error(
@@ -70,6 +77,7 @@ const Header = props => {
 
   const { theme, onChangeTheme } = props;
   const trigger = useRef<WhisperInstance>(null);
+  const [showFeedbackPopup, setShowFeedbackPopup] = useState(false); // Add state for feedback popup
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -86,6 +94,16 @@ const Header = props => {
   const handleCloseAddModal = () => {
     setIsAddModalOpen(false);
   };
+
+  const handleOpenFeedbackPopup = () => {
+    setShowFeedbackPopup(true); // Open the feedback popup
+  };
+
+  const handleCloseFeedbackPopup = () => {
+    setShowFeedbackPopup(false); // Close the feedback popup
+  };
+
+
 
   const handleSignOut = () => {
     // Clear token (if stored in localStorage or sessionStorage)
@@ -115,53 +133,61 @@ const Header = props => {
           </Dropdown.Item>
           <Dropdown.Item divider />
           <Dropdown.Item eventKey="settings">Profile & account</Dropdown.Item>
-          <Dropdown.Item as="a" href="https://forms.gle/TzuxcFinXXdRzRZQ8" target="_blank">
-            Feedback
-          </Dropdown.Item>
+          <Dropdown.Item onClick={handleOpenFeedbackPopup}>Feedback</Dropdown.Item> {/* Update Feedback button */}
+
           <Dropdown.Item divider />
           <Dropdown.Item eventKey="settings">Settings</Dropdown.Item>
           <Dropdown.Item eventKey="signout">Sign out</Dropdown.Item> {/* Add sign out option */}
-          <Dropdown.Item
+          {/* <Dropdown.Item
             icon={<HelpOutlineIcon />}
             href="https://rsuitejs.com"
             target="_blank"
             as="a"
           >
             Help
-          </Dropdown.Item>
+          </Dropdown.Item> */}
+
         </Dropdown.Menu>
       </Popover>
     );
   };
 
-  const isDashboardPage = location.pathname === '/main/dashboard';
 
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
       <Stack direction="row" spacing={4} alignItems="flex-start">
         <Search /> {/* Include the Search component here */}
 
-          <div style={{ alignItems: 'left' }}>
-            <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
-              <Button
-                className="header-button"
-                style={{
-                  backgroundColor: '#8338ec',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '120px',
-                  lineHeight: '24px'
-                }}
-                onClick={handleOpenAddModal}
-              >
-                <FaPlus
-                  className="header-icon"
-                  style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }}
-                />
-                <span className="visually-hidden">Add New</span>
-              </Button>
-              <Button
+        <div className='flex flex-col items-center justify-center w-screen h-screen gap-6'>
+
+          <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
+            <AwesomeButton
+              className="header-add-new"
+              onClick={handleOpenAddModal} >
+
+              <FaPlus style={{ color: 'white', paddingTop: '3px' }} />
+              <span className="visually-hidden">Add New</span>
+            </AwesomeButton>
+
+            {/* <Button
+              className="header-button"
+              style={{
+                backgroundColor: '#8338ec',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                width: '120px',
+                lineHeight: '24px'
+              }}
+              onClick={handleOpenAddModal}
+            >
+              <FaPlus
+                className="header-icon"
+                style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }}
+              />
+              <span className="visually-hidden">Add New</span>
+            </Button> */}
+            {/* <Button
                 className="header-button"
                 style={{
                   backgroundColor: '#ff6200',
@@ -178,9 +204,9 @@ const Header = props => {
                   style={{ fontSize: 18, margin: '1px 1px 1px 1px' }}
                 />
                 <span className="visually-hidden">Share</span>
-              </Button>
-            </ButtonToolbar>
-          </div>
+              </Button> */}
+          </ButtonToolbar>
+        </div>
         {/* )} */}
         <Modal
           isOpen={isAddModalOpen}
@@ -190,6 +216,8 @@ const Header = props => {
           showDropdown={true}
         />
         <ShareModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} />
+        <FeedbackPopup show={showFeedbackPopup} onClose={handleCloseFeedbackPopup} />
+
       </Stack>
 
       <div
@@ -204,15 +232,20 @@ const Header = props => {
           <Avatar email={formData.email} name={formData.name} size="45" round={true} />
         </Whisper>
       </div>
-      {showSettings && (
-        <SettingsView
-          show={showSettings}
-          onClose={() => setShowSettings(false)}
-          card={{}}
-          updateCard={() => {}}
-        />
-      )}
-    </Stack>
+
+      {
+        showSettings && (
+          <SettingsView
+            show={showSettings}
+            onClose={() => setShowSettings(false)}
+            card={{}}
+            updateCard={() => { }}
+          />
+        )
+      }
+
+    </Stack >
+
   );
 };
 

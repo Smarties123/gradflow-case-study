@@ -102,10 +102,20 @@ export const sendResetPasswordEmail = async (email, token, frontendUrl) => {
 
 export const sendEmailsToAllUsers = async () => {
   try {
-    const users = await getAllUsers(); 
+    const users = await getAllUsers();
 
     for (const user of users) {
+      const { UserId, Email, ApplicationEmail } = user;
 
+      if (ApplicationEmail) {
+        try {
+          await sendApplicationStatusEmail(Email, UserId);
+          console.log(`Email sent to ${Email}`);
+        } catch (emailError) {
+          console.error(`Error sending email to ${Email}:`, emailError);
+        }
+      } else {
+        console.log(`Skipping ${Email} as ApplicationEmail is not true.`);
       const { UserId, Email } = user;
       try {
         await sendApplicationStatusEmail(Email, UserId);
@@ -114,16 +124,17 @@ export const sendEmailsToAllUsers = async () => {
         console.error(`Error sending email to ${Email}:`, emailError);
       }
     }
-  } 
-  catch (error) {
+  } catch (error) {
     console.error('Error sending emails to users:', error);
   }
 };
 
 
+
 export const sendApplicationStatusEmail = async (email, userId) => {
   try {
     // Fetch the application statuses
+  
     const { pastDue, dueIn1Week, dueIn2Weeks } = await getApplicationsStatus(userId);
 
     

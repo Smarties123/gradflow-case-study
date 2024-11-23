@@ -1,6 +1,8 @@
 .scroll-container {
-  height: 80vh; /* Adjust the height as needed */
-  overflow-y: auto; /* Enables vertical scrolling */
+  height: 80vh;
+  /* Adjust the height as needed */
+  overflow-y: auto;
+  /* Enables vertical scrolling */
   padding: 10px;
   box-sizing: border-box;
 
@@ -10,18 +12,22 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: #1e1e1e; /* Dark background for scrollbar track */
+    background: #1e1e1e;
+    /* Dark background for scrollbar track */
     border-radius: 10px;
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: #ff6200; /* Orange color to match your theme */
+    background-color: #ff6200;
+    /* Orange color to match your theme */
     border-radius: 10px;
-    border: 2px solid #1e1e1e; /* Adds padding around the thumb */
+    border: 2px solid #1e1e1e;
+    /* Adds padding around the thumb */
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: #ff7433; /* Lighter orange on hover */
+    background-color: #ff7433;
+    /* Lighter orange on hover */
   }
 
   /* Firefox Scrollbar */
@@ -32,9 +38,11 @@
   &::-ms-scrollbar {
     width: 8px;
   }
+
   &::-ms-scrollbar-track {
     background: #1e1e1e;
   }
+
   &::-ms-scrollbar-thumb {
     background-color: #ff6200;
     border-radius: 10px;
@@ -44,31 +52,37 @@
 
 /* Panel and Table Styling */
 .rs-panel-body {
-  padding: 0; /* Remove padding inside the panel to fit the table perfectly */
+  padding: 0;
+  /* Remove padding inside the panel to fit the table perfectly */
 }
 
 .rs-table {
   border-collapse: collapse;
   width: 100%;
   font-size: 14px;
-  color: #fff; /* Set the text color */
+  color: #fff;
+  /* Set the text color */
 }
 
 .rs-table thead {
-  background-color: #2c2c2c; /* Darker background for the header */
+  background-color: #2c2c2c;
+  /* Darker background for the header */
 }
 
-.rs-table th, 
+.rs-table th,
 .rs-table td {
   padding: 12px 15px;
-  border-bottom: 1px solid #444; /* Subtle border for rows */
+  border-bottom: 1px solid #444;
+  /* Subtle border for rows */
 }
 
 .rs-table th {
-  position: relative; /* Allows for positioning elements like dropdowns */
+  position: relative;
+  /* Allows for positioning elements like dropdowns */
 }
 
-.rs-table th input, .rs-table th select {
+.rs-table th input,
+.rs-table th select {
   width: 100%;
   padding: 8px;
   margin-top: 5px;
@@ -87,24 +101,31 @@
 }
 
 .rs-table tbody tr {
-  cursor: pointer; /* Change cursor to indicate clickable rows */
+  cursor: pointer;
+  /* Change cursor to indicate clickable rows */
 }
 
 .rs-table tbody tr:hover {
-  background-color: #333; /* Darken background on hover */
+  background-color: #333;
+  /* Darken background on hover */
 }
 
 .rs-table tbody tr td img {
-  max-width: 40px; /* Ensure logos are not too large */
-  border-radius: 5px; /* Add a subtle border radius to images */
+  max-width: 40px;
+  /* Ensure logos are not too large */
+  border-radius: 5px;
+  /* Add a subtle border radius to images */
 }
 
 .rs-table tbody tr td {
-  vertical-align: middle; /* Ensure content is vertically centered */
+  vertical-align: middle;
+  /* Ensure content is vertically centered */
 }
 
-.rs-input:focus, .rs-select-picker:focus {
-  border-color: #ff6200 !important; /* Orange border on focus to match the theme */
+.rs-input:focus,
+.rs-select-picker:focus {
+  border-color: #ff6200 !important;
+  /* Orange border on focus to match the theme */
 }
 
 /* Styling for the category description */
@@ -112,4 +133,25 @@
   font-size: 16px;
   font-weight: bold;
   color: #fff;
+}
+
+
+@media (max-width: 768px) {
+  .table-toolbar {
+    flex-direction: column;
+  }
+
+  .select-picker-container {
+    margin-top: 10px !important;
+    text-align: left;
+  }
+}
+
+.rs-theme-light{
+  .rs-table {
+    color: #8e8e93;
+  }
+  .category-description{
+    color:#8e8e93;
+  }
 }

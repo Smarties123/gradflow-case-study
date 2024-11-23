@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'; // Add 
 import { IntlProvider } from 'react-intl';
 import locales from './locales';
 import Frame from './components/Frame';
-import Error404Page from './pages/authentication/404';
+import Error404Page from './components/ErrorPage/Error404';
 import Error401 from './components/ErrorPage/Error401'; 
 import Page from './pages/board';
 import LandingPage from './components/LandingPage/LandingPage';

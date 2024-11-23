@@ -1,0 +1,66 @@
+.button {
+    width: 120px;
+    height: 1.7rem;
+    background-color: #8338ec; /* Default background color */
+    border-radius: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    text-align: center;
+    padding: 0.4rem 0.5rem 0.2rem 0.5rem;
+    box-shadow: 0 0.625rem 0 0 rgba(131, 56, 236, 1), 0 0.9375rem 0 0 rgba(131, 56, 236, 0.25);
+    border-bottom: 1px solid rgba(131, 56, 236, 1);
+
+    &:hover {
+        transform: translateY(0.125rem);
+        box-shadow: 0 0.5rem 0 0 rgba(131, 56, 236, 1), 0 0.75rem 0 0 rgba(131, 56, 236, 0.25);
+        border-bottom: 0;
+        background-color: #8338ec; /* Ensures color remains constant on hover */
+    }
+
+    &:active {
+        transform: translateY(0.125rem);
+        border-bottom: 0;
+        background-color: #8338ec;
+        box-shadow: 0 0px 0 0 rgba(131, 56, 236, 1), 0 0px 0 0 rgba(131, 56, 236, 0.25);
+    }
+}
+
+.addNew {
+    width: auto;
+    margin: 15px 5px;
+    background-color: #007bff;
+    font-size: 14px;
+    justify-content: center;
+    padding-top: 0.8rem; /* Small padding to move text down */
+
+    box-shadow: 0 0.625rem 0 0 rgba(0, 123, 255, 1), 0 0.9375rem 0 0 rgba(109, 116, 119, 0.25);
+    border-bottom: 1px solid rgba(0, 123, 255, 1);
+
+    &:hover {
+        transform: translateY(0.125rem);
+        box-shadow: 0 0.5rem 0 0 rgba(0, 123, 255, 1), 0 0.75rem 0 0 rgba(109, 116, 119, 0.25);
+        border-bottom: 0;
+        background-color: #007bff; /* Keeps color consistent on hover */
+    }
+
+    &:active {
+        background-color: #007bff;
+        box-shadow: 0 0.625rem 0 0 rgba(0, 123, 255, 1), 0 0.9375rem 0 0 rgba(212, 212, 213, 0.25);
+    }
+}
+
+@media (max-width: 768px) {
+    .header-add-new{
+        max-width: 10vw;
+    }
+
+    .header-icon {
+        font-size: 16px !important;
+    }
+}

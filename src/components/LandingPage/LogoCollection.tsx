@@ -2,6 +2,7 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
+import CountUp from 'react-countup';
 import 'animate.css';
 
 // Dummy API fetch function
@@ -22,6 +23,7 @@ const roundUpToNextTen = (value) => Math.ceil(value / 10) * 10;
 
 export default function CountUpSection() {
   const [data, setData] = React.useState({ registeredUsers: 0, applicationsMade: 0, offersMade: 0 });
+  const [isLoaded, setIsLoaded] = React.useState(false);
 
   React.useEffect(() => {
     const getData = async () => {
@@ -31,6 +33,7 @@ export default function CountUpSection() {
         applicationsMade: roundUpToNextTen(apiData.applicationsMade),
         offersMade: roundUpToNextTen(apiData.offersMade),
       });
+      setIsLoaded(true); // Start animation after data is loaded
     };
     getData();
   }, []);
@@ -38,30 +41,39 @@ export default function CountUpSection() {
   return (
     <Box id="countUpSection" sx={{ py: 4, pt: 0 }}>
       <Grid container justifyContent="center" spacing={2} sx={{ mt: 0, opacity: 0.8 }}>
-        {/* First CountUp */}
+        {/* Registered Users CountUp */}
         <Grid item xs={12} md={3} textAlign="center" sx={{ p: 1 }}>
           <Typography variant="h4" color="text.primary">
-            {data.registeredUsers}+
+            {isLoaded && (
+              <CountUp start={0} end={data.registeredUsers} duration={2} separator="," />
+            )}
+            +
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ mt: -1 }}>
             Registered Users
           </Typography>
         </Grid>
 
-        {/* Second CountUp */}
+        {/* Applications Made CountUp */}
         <Grid item xs={12} md={3} textAlign="center" sx={{ p: 1 }}>
           <Typography variant="h4" color="text.primary">
-            {data.applicationsMade}+
+            {isLoaded && (
+              <CountUp start={0} end={data.applicationsMade} duration={2.5} separator="," />
+            )}
+            +
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ mt: -1 }}>
             Applications Made
           </Typography>
         </Grid>
 
-        {/* Third CountUp */}
+        {/* Offers Made CountUp */}
         <Grid item xs={12} md={3} textAlign="center" sx={{ p: 1 }}>
           <Typography variant="h4" color="text.primary">
-            {data.offersMade}+
+            {isLoaded && (
+              <CountUp start={0} end={data.offersMade} duration={2} separator="," />
+            )}
+            +
           </Typography>
           <Typography variant="h6" color="text.secondary" sx={{ mt: -1 }}>
             Offers Made

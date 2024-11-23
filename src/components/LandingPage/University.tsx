@@ -26,7 +26,7 @@ const items = [
     title: 'Table',
     description: 'Discover your data like never before! Our Table feature transforms your insights into an organized and interactive experience, making it easy to analyze and strategize your job search.',
     image: 'url("https://i.imgur.com/RA7sJxz.png")', // Updated Table image
-    imagePosition: 'left' // No need to move this one
+    // imagePosition: 'left' // No need to move this one
   },
   {
     icon: <TipsAndUpdatesIcon />,
@@ -108,8 +108,8 @@ export default function University() {
                   m: 'auto',
                   width: '100%',  // Make it responsive
                   height: '100%', // Fill the card
-                  backgroundSize: 'cover', // Ensure the image fills the card
-                  backgroundPosition: selectedFeature.imagePosition, // Position image based on selected item
+                  backgroundSize: 'contain', // Ensure the image fills the card
+                  backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat',
                   backgroundImage: selectedFeature.image, // Use selected feature's image
                 }}

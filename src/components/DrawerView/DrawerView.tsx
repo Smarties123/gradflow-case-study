@@ -10,14 +10,14 @@ import dayjs from 'dayjs';
 const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateStatus, statuses = [], updateStatusLocally }) => {
     const [currentView, setCurrentView] = useState('details');
     const { user } = useUser(); // Get the user object
-    const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
+    // const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
 
-    
+
     const parseDate = (dateStr) => {
         return dateStr ? dayjs(dateStr).toDate() : null;
     };
 
-    
+
 
     const [formData, setFormData] = useState({
         company: card.company || '',  // Default to an empty string if null
@@ -32,8 +32,8 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         date_applied: card.date_applied ? parseDate(card.date_applied) : null,
         card_color: card.card_color || '#ffffff',  // Default color to white
     });
-    
-    
+
+
 
     useEffect(() => {
         if (card.deadline) {
@@ -62,12 +62,12 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
             onClose();
         }
     }, [card]);
-    
+
 
     const handleChange = (value, name) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-    
+
 
     const handleColorChange = card_color => {
         setFormData(prev => ({ ...prev, card_color: card_color.hex }));
@@ -78,7 +78,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         console.log("DrawerView card prop:", card);
 
         const updatedData = {
-            company: formData.company || card.company || null, 
+            company: formData.company || card.company || null,
             position: formData.position || card.position || null,
             deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : card.deadline || null,
             location: formData.location || card.location || null,
@@ -90,12 +90,12 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
             card_color: formData.card_color || card.card_color || null,
             statusId: formData.StatusId || card.StatusId // Ensure StatusId is always included
         };
-    
+
         try {
             if (!user || !user.token) {
                 throw new Error('User not authenticated');
             }
-    
+
             // console.log('User token:', user.token);  // Debug token value
             // console.log('Updated data:', updatedData);  // Debug the data being sent to the backend
             // console.log('process.env.REACT_APP_API_URL', process.env.REACT_APP_API_URL); //
@@ -107,18 +107,18 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                 },
                 body: JSON.stringify(updatedData),
             });
-    
+
             if (response.ok) {
                 const updatedCard = await response.json();
                 // console.log('Card updated:', updatedCard);
-    
+
                 // Check if the status has changed and update the card's location accordingly
                 if (updatedData.statusId !== card.StatusId) {
                     updateStatusLocally(card.id, updatedData.statusId);  // Use the function passed via props
                 } else {
                     updateCard(card.id, updatedData);  // Update the card details in local state
                 }
-    
+
                 onClose(); // Close the drawer
             } else {
                 const errorText = await response.text();
@@ -128,16 +128,18 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
             console.error('Error updating card:', error);
         }
     };
-        
-    
-    
-    
-    
-    
-    
+
+
+
+
+    const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
+    const drawerPlacement = window.innerWidth <= 600 ? 'top' : 'right'; // Open from bottom on small screens
+
+
+
 
     return (
-        <Drawer open={show} onClose={onClose} size={drawerSize}>
+        <Drawer open={show} onClose={onClose} size={drawerSize} placement={drawerPlacement}>
             <Drawer.Header>
                 <Drawer.Title>Edit Card</Drawer.Title>
                 <FlexboxGrid justify="space-between" className="drawer-links">
@@ -201,7 +203,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                             name="notes"
                                             rows={5}
                                             accepter={Textarea}
-                                            value={formData.notes  || ''}
+                                            value={formData.notes || ''}
                                             onChange={value => handleChange(value, 'notes')}
                                             className="full-width"
                                         />
@@ -237,7 +239,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                             oneTap
                                             format="dd-MM-yyyy"
                                             className="full-width"
-                                            value={formData.date_applied  || ''}
+                                            value={formData.date_applied || ''}
                                             onChange={value => handleChange(value, 'date_applied')}
                                         />
                                     </Form.Group>
@@ -251,7 +253,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                             oneTap
                                             format="dd-MM-yyyy"
                                             className="full-width"
-                                            value={formData.deadline  || ''}
+                                            value={formData.deadline || ''}
                                             onChange={value => handleChange(value, 'deadline')}
                                         />
                                     </Form.Group>
@@ -263,7 +265,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                         <Form.ControlLabel className="formControlLabel">Location</Form.ControlLabel>
                                         <Form.Control
                                             name="location"
-                                            value={formData.location  || ''}
+                                            value={formData.location || ''}
                                             onChange={value => handleChange(value, 'location')}
                                             className="full-width"
                                         />
@@ -276,7 +278,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                         <Form.ControlLabel className="formControlLabel">Edit URL</Form.ControlLabel>
                                         <Form.Control
                                             name="url"
-                                            value={formData.url  || ''}
+                                            value={formData.url || ''}
                                             onChange={value => handleChange(value, 'url')}
                                             className="full-width"
                                         />
@@ -286,11 +288,17 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                             <Row gutter={10}>
                                 <Col xs={24}>
                                     <Form.Group controlId="card_color" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Card Color</Form.ControlLabel>
-                                        <Github
-                                            color={formData.card_color}
-                                            onChange={color => handleColorChange(color)}
-                                        />
+                                        <div className="card-color-picker">
+
+                                            <Form.ControlLabel className="formControlLabel">Card Color</Form.ControlLabel>
+                                            <Github
+                                                placement='Top'
+
+                                                color={formData.card_color}
+                                                onChange={color => handleColorChange(color)}
+                                                className="color-picker"
+                                            />
+                                        </div>
                                     </Form.Group>
                                 </Col>
                             </Row>

@@ -3,7 +3,6 @@
   align-items: center;
   justify-content: space-between;
   background-color: #ff6200;
-  /* Bright pink background */
   color: white;
   padding: 5px 10px;
   border-radius: 10px;
@@ -11,6 +10,8 @@
   height: 70px;
   transition: transform 0.3s ease, box-shadow 0.2s ease, margin 0.3s ease;
   cursor: pointer !important;
+    position: relative; /* Make card position relative for absolute positioning of icons */
+ 
   /* Default to pointer (hand) cursor on hover */
   /* Smooth transitions */
 
@@ -27,6 +28,7 @@
 /* This is the class that will be applied when holding for 300ms */
 .card.is-holding {
   cursor: grabbing;
+  position: relative;
   /* Change to grabbing icon after holding */
 }
 
@@ -39,12 +41,15 @@
 
 .card.is-dragging {
   cursor: grabbing !important;
+  position: relative !important;
+  // z-index: 1000;
   /* Change to grabbing icon when the card is dragged */
   box-shadow: 0 5px 15px rgb(255, 255, 255);
   /* Enhanced shadow for dragging */
-  transform: scale(1.03);
+  // transform: scale(1.03);
+  opacity: 70%;
   /* Slight scale to raise the card visually */
-  border: 5px solid #8a2be2;
+  // border: 5px solid #8a2be2;
 }
 
 .card-content {
@@ -156,20 +161,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 15px;
+  margin-right: -2px;
   opacity: 0;
-  right: 0;
-  position: absolute;
-  /* Initially hidden */
+  right: 0px;
+  top: 50%; /* Position vertically centered */
+  // transform: translateY(-50%); /* Center vertically */
+  opacity: 0;  /* Initially hidden */
   /* Initially hidden */
   // transition: opacity 0.3s ease; /* Smooth transition for appearance */
 }
 
-.card:hover .right-icons {
+.card .right-icons:hover {
   opacity: 1 !important;
-
   /* Show icons on hover */
 }
+
+
 
 .delete-icon,
 .link-icon {
@@ -190,6 +197,29 @@
   color: blue;
   /* Change to blue on hover */
 }
+
+/* Ensure right icons are always visible when favorited */
+.card.always-show-icons .right-icons {
+  opacity: 1 !important;
+}
+
+/* Show right icons on hover or if always-show-icons class is present */
+.card:hover .right-icons,
+.card.always-show-icons .right-icons {
+  opacity: 1 !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 @keyframes scrollText {
   0% {

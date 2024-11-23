@@ -3,7 +3,7 @@ import { BarChart as RechartsBarChart, Bar, XAxis, YAxis, Tooltip as RechartsToo
 import { useData } from '../../data/useData';
 import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '@mui/material/Tooltip';
+import { Tooltip } from 'react-tooltip';
 
 interface BarChartProps {
   title: string;
@@ -25,11 +25,18 @@ const BarChart: React.FC<BarChartProps> = ({ title, dateRange, filteredColumns }
       {/* Title with Info Tooltip */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
         <h4 style={{ color: '#FFF', margin: 0 }}>{title}</h4>
-        <Tooltip title={`Use filters to view your applications`} placement="top">
-          <IconButton style={{ position: 'absolute', top: -3, right: -3, color: '#FFF' }}>
+        <div style={{ position: 'absolute', top: '-5px', left: '93%', zIndex: '10001' }}> {/* Ensure positioning context */}
+          {/* Icon button with a data-tooltip-id */}
+
+          <IconButton style={{ color: '#FFF' }} data-tooltip-id="bar">
             <InfoIcon />
           </IconButton>
-        </Tooltip>
+
+          {/* Tooltip with id that matches data-tooltip-id */}
+          <Tooltip id="bar" place="left" >
+            A breakdown of job applications by status, showing counts for each stage
+          </Tooltip>
+        </div>
       </div>
 
       {/* Dropdowns for TimeFrame and Stage */}

@@ -4,7 +4,7 @@ import { FaDiscord, FaWhatsapp } from 'react-icons/fa';
 
 import './FeedbackPopup.less';
 
-const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show, onClose }) => {
+const OnDemandFeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show, onClose }) => {
   return (
     <Modal
       open={show}
@@ -15,26 +15,15 @@ const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show,
     >
       <Modal.Body>
         <iframe
-          src="https://docs.google.com/forms/d/e/1FAIpQLSf9mml8GbC5HsctSGR4f9UF54Hy89K4Oy5LVzRuW5m3F2fnMw/viewform?embedded=true"
+          src="https://docs.google.com/forms/d/e/1FAIpQLSdwUqo5WWBf7u0N-gA1HaGptiOrVk_5wEaBxQB0Lp3QD1i6Qw/viewform?embedded=true"
           width="100%"
           height="500"
           frameBorder="0"
         >
-          Loading…
         </iframe>
       </Modal.Body>
       <Modal.Footer style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        {/* Unified changes for the community links */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            flexGrow: 1,
-            flexWrap: 'wrap',
-            marginLeft: '35px',
-          }}
-        >
+        <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexGrow: 1, flexWrap: 'wrap', marginLeft: '35px' }}>
           <Button
             appearance="ghost"
             color="blue"
@@ -44,7 +33,7 @@ const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show,
             <FaDiscord style={{ marginRight: '4px', verticalAlign: 'text-top' }} />
             Join Discord Community
           </Button>
-          <Button
+          {/* <Button
             appearance="ghost"
             color="green"
             onClick={() => window.open('https://chat.whatsapp.com/JU6wzPwffwyIWKhwdnl79Z')}
@@ -52,7 +41,7 @@ const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show,
           >
             <FaWhatsapp style={{ marginRight: '4px', verticalAlign: 'text-top' }} />
             Join WhatsApp Community
-          </Button>
+          </Button> */}
         </div>
         {/* Close button at the bottom right */}
         <Button onClick={onClose} appearance="subtle">
@@ -63,4 +52,4 @@ const FeedbackPopup: React.FC<{ show: boolean; onClose: () => void }> = ({ show,
   );
 };
 
-export default FeedbackPopup;
+export default OnDemandFeedbackPopup;
