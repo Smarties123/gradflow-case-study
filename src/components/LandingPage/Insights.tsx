@@ -10,7 +10,7 @@ import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import TableRowsIcon from '@mui/icons-material/TableRows';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import GridViewIcon from '@mui/icons-material/GridView';
-import './Styles/University.css';
+import './Styles/Insights.css';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
 const items = [
@@ -37,7 +37,7 @@ const items = [
   }
 ];
 
-export default function University() {
+export default function Insights() {
   const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
 
   const handleItemClick = (index: number) => {
@@ -47,7 +47,7 @@ export default function University() {
   const selectedFeature = items[selectedItemIndex];
 
   return (
-    <Container id="university" sx={{ py: { xs: 8, sm: 10 } }}>
+    <Container id="insights" sx={{ py: { xs: 8, sm: 10 } }}>
       <Grid container spacing={6}>
         {/* Left-hand side: Stack with clickable items */}
         <Grid item xs={12} md={6}>

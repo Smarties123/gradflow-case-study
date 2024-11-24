@@ -1,23 +1,19 @@
 import * as React from 'react';
 import { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { motion, useScroll, useSpring } from 'framer-motion'; // Import framer-motion
 import AppAppBar from './AppAppBar';
 import Hero from './Hero';
-import LogoCollection from './LogoCollection';
-import Highlights from './Highlights';
-import Pricing from './Pricing';
-import Student from './Student';
-import University from './University';
-import Testimonials from './Testimonials';
-import FAQ from './FAQ';
-import Footer from './Footer';
 import getLPTheme from './getLPTheme';
-import FeedbackButton from '../FeedbackButton/FeedbackButton';
 import './Styles/LandingPageStyles.css'; // Ensure this CSS file includes the .progress-bar class
+import Box from '@mui/material/Box';
+import LogoCollection from './LogoCollection';
+import Panel from './Panel';
+import Insights from './Insights';
+import Testimonials from './Testimonials';
+
+
 
 export default function LandingPage() {
   const [mode, setMode] = React.useState<PaletteMode>('dark');
@@ -37,6 +33,7 @@ export default function LandingPage() {
     restDelta: 0.001
   });
 
+
   return (
     <>
       {/* Progress Bar at the top */}
@@ -50,35 +47,39 @@ export default function LandingPage() {
         <Box sx={{ bgcolor: 'background.default' }}>
           <LogoCollection />
           <Box id="panel" sx={{ bgcolor: 'background.default' }}>
-            <Student />
+            <Panel />
+
           </Box>
 
-          <Divider />
+          {/* <Divider /> */}
 
           <Box id="insights" sx={{ bgcolor: 'background.default' }}>
-            <University />
+            <Insights />
           </Box>
 
-          <Divider />
+          {/* <Divider /> */}
 
-          {/* <Box id="testimonials" sx={{ bgcolor: 'background.default' }}>
+          <Box id="testimonials" sx={{ bgcolor: 'background.default' }}>
             <Testimonials />
-          </Box> */}
-
-          <Divider />
-
-          <Box id="faq" sx={{ bgcolor: 'background.default' }}>
-            <FAQ />
           </Box>
-          {/* <Divider />
+        </Box>
+
+        {/* <Divider /> */}
+
+        {/* <Box id="faq" sx={{ bgcolor: 'background.default' }}> */}
+        {/* <FAQ /> */}
+        {/* </Box> */}
+        {/* <Divider />
           <Highlights />
           <Divider /> */}
-          {/* <Pricing /> */}
+        {/* <Pricing /> */}
 
-          <Divider />
+        {/* <Divider />
           <Footer />
-        </Box>
+        </Box> */}
         {/* <FeedbackButton /> */}
+
+
       </ThemeProvider>
     </>
   );

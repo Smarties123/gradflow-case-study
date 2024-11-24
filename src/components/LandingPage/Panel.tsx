@@ -13,7 +13,7 @@ import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import EdgesensorHighRoundedIcon from '@mui/icons-material/EdgesensorHighRounded';
 import ViewQuiltRoundedIcon from '@mui/icons-material/ViewQuiltRounded';
-import './Styles/Student.css';
+import './Styles/Panel.css';
 import 'animate.css';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
@@ -38,7 +38,7 @@ const items = [
   }
 ];
 
-export default function Student() {
+export default function Panel() {
   const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
 
   const handleItemClick = (index: number) => {
@@ -48,14 +48,14 @@ export default function Student() {
   const selectedFeature = items[selectedItemIndex];
 
   return (
-    <Container id="student" sx={{ py: { xs: 8, sm: 16 } }}>
+    <Container id="panel" sx={{ py: { xs: 8, sm: 16 } }}>
       <Grid container spacing={6}>
         <Grid item xs={12} md={6}>
           <Typography component="h2" variant="h4" color="text.primary">
-            The GradFlow Terminal
+            The GradFlow Panel
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: { xs: 2, sm: 4 } }}>
-            The Terminal by GradFlow transcends traditional spreadsheets with customizable tiles for
+            The Panel by GradFlow transcends traditional spreadsheets with customizable tiles for
             each job application, proactive alerts, and drag-and-drop organization.
           </Typography>
           <Stack
