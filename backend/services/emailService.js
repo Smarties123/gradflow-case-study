@@ -123,8 +123,10 @@ export const sendEmailsToAllUsers = async () => {
        catch (emailError) {
         console.error(`Error sending email to ${Email}:`, emailError);
       }
-    }
-  } catch (error) {
+      }
+    } 
+  }
+  catch (error) {
     console.error('Error sending emails to users:', error);
   }
 };
