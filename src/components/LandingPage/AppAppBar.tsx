@@ -56,6 +56,8 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
         bgcolor: 'transparent',
         backgroundImage: 'none',
         mt: 2,
+        overflow: 'hidden', // Prevent overflow issues
+
 
       }}
     >
@@ -169,7 +171,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
               </Box>
               <Divider />
-              {['Panel', 'Insights', 'FAQ'].map((section) => (
+              {['Terminal', 'Insights', 'FAQ'].map((section) => (
                 <MenuItem
                   key={section}
                   onClick={() => scrollToSection(section.toLowerCase())}

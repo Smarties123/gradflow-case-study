@@ -1,177 +1,134 @@
-import * as React from 'react';
-import { useInView } from 'react-intersection-observer'; // Importing useInView
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import Chip from '@mui/material/Chip';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
-import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
-import EdgesensorHighRoundedIcon from '@mui/icons-material/EdgesensorHighRounded';
-import ViewQuiltRoundedIcon from '@mui/icons-material/ViewQuiltRounded';
+import React, { useState } from "react";
+import { Box, Container, Grid, Typography, Button } from "@mui/material";
+import ViewQuiltRoundedIcon from "@mui/icons-material/ViewQuiltRounded";
+import EdgesensorHighRoundedIcon from "@mui/icons-material/EdgesensorHighRounded";
+import BackupTableIcon from '@mui/icons-material/BackupTable';
+import FileOpenIcon from '@mui/icons-material/FileOpen';
 import './Styles/Panel.css';
-import 'animate.css';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import "animate.css";
 
 const items = [
   {
-    icon: <ViewQuiltRoundedIcon />,
-    title: 'Panel',
-    description: 'Visualize your job application journey like never before! Helping you stay on track and motivated as you chase your dream job',
-    image: 'url("https://i.imgur.com/UcFmgd2.png")'
+    title: "Panel",
+    description:
+      "Visualize your job application journey like never before! Helping you stay on track and motivated as you chase your dream job.",
+    image: 'url("https://i.imgur.com/UcFmgd2.png")',
+    logo: <ViewQuiltRoundedIcon fontSize="medium" />,
   },
   {
-    icon: <EdgesensorHighRoundedIcon />,
-    title: 'Drag and Drop',
+    title: "Drag and Drop",
     description: 'Take control of your job hunt with our dynamic drag-and-drop feature! Effortlessly organize your applications and tailor your roadmap',
     image: 'url("https://i.imgur.com/p8EcR2u.png")',
+    logo: <EdgesensorHighRoundedIcon fontSize="medium" />,
   },
   {
-    icon: <LibraryAddIcon />,
-    title: 'Quick Add',
-    description: 'Instantly capture and organize your job applications with just a click, making your journey to landing that dream job faster and easier than ever!',
-    image: 'url("https://i.imgur.com/YQzwGsk.png")',
-  }
+    title: 'Table',
+    description: 'Discover your data like never before! Our Table feature transforms your insights into an organized and interactive experience, making it easy to analyze and strategize your job search.',
+    image: 'url("https://i.imgur.com/RA7sJxz.png")', // Updated Table image
+    logo: <BackupTableIcon fontSize="medium" />,
+  },
+  {
+    title: 'Files',
+    description: 'Stay tuned for our upcoming features that will streamline your job search and make your applications stand out',
+    image: '',
+    logo: <FileOpenIcon fontSize="medium" />,
+  },
 ];
+export default function BuiltForYou() {
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-export default function Panel() {
-  const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
-
-  const handleItemClick = (index: number) => {
-    setSelectedItemIndex(index);
+  const handleImageChange = (index) => {
+    if (index !== selectedIndex) {
+      setSelectedIndex(index); // Immediately update the selected image
+    }
   };
 
-  const selectedFeature = items[selectedItemIndex];
-
   return (
-    <Container id="panel" sx={{ py: { xs: 8, sm: 16 } }}>
-      <Grid container spacing={6}>
-        <Grid item xs={12} md={6}>
-          <Typography component="h2" variant="h4" color="text.primary">
-            The GradFlow Panel
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: { xs: 2, sm: 4 } }}>
-            The Panel by GradFlow transcends traditional spreadsheets with customizable tiles for
-            each job application, proactive alerts, and drag-and-drop organization.
-          </Typography>
-          <Stack
-            direction="column"
-            justifyContent="center"
-            alignItems="flex-start"
-            spacing={2}
-            useFlexGap
-            sx={{ width: '100%' }}
-          >
-            {items.map(({ icon, title, description }, index) => (
-              <AnimatedItem
-                key={index}
-                index={index}
-                icon={icon}
-                title={title}
-                description={description}
-                selectedItemIndex={selectedItemIndex}
-                handleItemClick={handleItemClick}
-              />
-            ))}
-          </Stack>
-        </Grid>
-        <Grid item xs={12} md={6} sx={{ display: { xs: 'none', sm: 'flex' }, width: '100%' }}>
-          <Card
-            variant="outlined"
-            sx={{
-              height: '100%',
-              width: '100%',
-              display: { xs: 'none', sm: 'flex' },
-              pointerEvents: 'none'
-            }}
-          >
-            <Box
-              id="animated-image"
-              sx={{
-                m: 'auto',
-                width: 420,
-                height: 500,
-                backgroundSize: 'contain',
-                backgroundImage: items[selectedItemIndex].image
-              }}
-            />
-          </Card>
-        </Grid>
+    <Container id="panel" sx={{ py: 6, textAlign: "center" }}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        The Gradflow Terminal
+      </Typography>
+
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        sx={{ mb: 4, maxWidth: 700, mx: "auto" }}
+      >
+        {"The Terminal by GradFlow transcends traditional spreadsheets with customizable tiles for each job application, proactive alerts, and drag-and-drop organization."}
+      </Typography>
+
+      <Grid
+        container
+        spacing={{ xs: 2, sm: 8 }} // Reduce spacing on small screens
+        justifyContent="center"
+        alignItems="center"
+        sx={{ mb: { xs: 2, sm: 4 } }} // Reduce margin-bottom on small screens
+      >
+        {items.map((item, index) => (
+          <Grid item xs={6} sm="auto" key={index}>
+            <Box textAlign="center">
+              <Button
+                onClick={() => handleImageChange(index)}
+                aria-label={`Select ${item.title}`}
+                sx={{
+                  width: 60,
+                  height: 60,
+                  margin: "0px auto 10px auto",
+                  borderRadius: "50%",
+                  backgroundColor: selectedIndex === index ? "primary.main" : "grey.300",
+                  "&:hover": {
+                    backgroundColor: selectedIndex === index ? "primary.main" : "grey.400", // Prevent color change when selected
+                  },
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Box
+                  sx={{
+                    color: selectedIndex === index ? "white" : "black",
+                  }}
+                >
+                  {item.logo}
+                </Box>
+              </Button>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ fontWeight: selectedIndex === index ? "bold" : "normal" }}
+              >
+                {item.title}
+              </Typography>
+            </Box>
+          </Grid>
+        ))}
       </Grid>
-    </Container>
-  );
-}
 
-function AnimatedItem({ icon, title, description, index, selectedItemIndex, handleItemClick }) {
-  const { ref, inView } = useInView({ threshold: 0.1 });
-  const isMobile = useMediaQuery('(max-width:600px)');
-
-  // State to track if the item has been in view once
-  const [hasBeenInView, setHasBeenInView] = React.useState(false);
-
-  // Update the state when the element is in view for the first time
-  React.useEffect(() => {
-    if (inView && !hasBeenInView) {
-      setHasBeenInView(true);
-    }
-  }, [inView, hasBeenInView]);
-
-  return (
-    <Card
-      ref={ref}
-      variant="outlined"
-      className={isMobile ? '' : hasBeenInView ? 'fade-in' : 'fade-out'} // Apply animation only once
-      onClick={() => handleItemClick(index)}
-      sx={{
-        p: 3,
-        height: 'fit-content',
-        width: '100%',
-        background: 'none',
-        backgroundColor: selectedItemIndex === index ? 'action.selected' : undefined,
-        borderColor: theme =>
-          selectedItemIndex === index
-            ? 'primary.light'
-            : theme.palette.mode === 'light'
-              ? 'grey.200'
-              : 'grey.800'
-      }}
-    >
+      {/* Image Section */}
       <Box
         sx={{
-          width: '100%',
-          display: 'flex',
-          textAlign: 'left',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2.5
+          maxWidth: 1000,
+          mx: "auto",
+          textAlign: "center",
+          mt: 4,
+          position: "relative", // Stack images
+          // height: 400,
         }}
       >
-        <Box sx={{ color: selectedItemIndex === index ? 'primary.main' : 'grey.300' }}>{icon}</Box>
-        <Box sx={{ textTransform: 'none' }}>
-          <Typography color="text.primary" variant="body2" fontWeight="bold">
-            {title}
-          </Typography>
-          <Typography color="text.secondary" variant="body2" sx={{ my: 0.5 }}>
-            {description}
-          </Typography>
-          <Box
-            sx={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              color: 'primary',
-              '& > svg': { transition: '0.2s' },
-              '&:hover > svg': { transform: 'translateX(2px)' }
-            }}
-          >
-            <span>Learn more</span>
-            <ChevronRightRoundedIcon fontSize="small" sx={{ mt: '1px', ml: '2px' }} />
-          </Box>
-        </Box>
+        {/* Current Image (flipInX animation) */}
+        <img
+          key={selectedIndex} // Ensure the animation triggers on index change
+          className="animate__animated animate__fadeIn"
+          src={items[selectedIndex]?.image.slice(4, -1).replace(/"/g, "")} // Extract the image URL
+          // alt={items[selectedIndex]?.title}
+          style={{
+            display: "block",
+            width: "100%",
+            height: "auto", // Maintain the image's aspect ratio
+            borderRadius: "8px", // Optional: Add rounded corners
+          }}
+        />
       </Box>
-    </Card>
+    </Container>
   );
 }

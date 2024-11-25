@@ -12,6 +12,10 @@ import LogoCollection from './LogoCollection';
 import Panel from './Panel';
 import Insights from './Insights';
 import Testimonials from './Testimonials';
+import { Divider } from '@mui/material';
+import Highlights from './Highlights';
+import Footer from './Footer';
+import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 
 
 
@@ -46,38 +50,46 @@ export default function LandingPage() {
         <Hero /> {/* Fix video box in hero */}
         <Box sx={{ bgcolor: 'background.default' }}>
           <LogoCollection />
-          <Box id="panel" sx={{ bgcolor: 'background.default' }}>
-            <Panel />
+          <Divider />
 
+          <Box id="highlights" sx={{ bgcolor: 'background.default' }}>
+            <Highlights />
           </Box>
 
-          {/* <Divider /> */}
+          <Divider />
+
+          <Box id="terminal" sx={{ bgcolor: 'background.default' }}>
+            <Panel />
+          </Box>
+
+          <Divider />
 
           <Box id="insights" sx={{ bgcolor: 'background.default' }}>
             <Insights />
           </Box>
 
-          {/* <Divider /> */}
+          <Divider />
+
+
 
           <Box id="testimonials" sx={{ bgcolor: 'background.default' }}>
             <Testimonials />
           </Box>
-        </Box>
 
-        {/* <Divider /> */}
+          {/* <Divider /> */}
 
-        {/* <Box id="faq" sx={{ bgcolor: 'background.default' }}> */}
-        {/* <FAQ /> */}
-        {/* </Box> */}
-        {/* <Divider />
-          <Highlights />
+          {/* <Box id="faq" sx={{ bgcolor: 'background.default' }}> */}
+          {/* <FAQ /> */}
+          {/* </Box> */}
+          {/* <Divider />
+        
           <Divider /> */}
-        {/* <Pricing /> */}
+          {/* <Pricing /> */}
 
-        {/* <Divider />
+          <Divider />
           <Footer />
-        </Box> */}
-        {/* <FeedbackButton /> */}
+        </Box>
+        <FeedbackButton />
 
 
       </ThemeProvider>
