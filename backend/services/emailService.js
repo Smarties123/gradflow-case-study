@@ -45,7 +45,7 @@ export const sendEmailsToAllUsers = async () => {
       }
       }
     } 
-  }
+  
   catch (error) {
     console.error('Error sending emails to users:', error);
   }
@@ -138,10 +138,8 @@ export const sendApplicationStatusEmail = async (email, userId) => {
         </div>
 
         <!-- Past Week Stats -->
-        <div style="padding: 20px;">
-          <h3 style="color: #000;">Past Week Stats:</h3>
-          <div style="border: 1px solid #7C41E3; border-radius: 12px; padding: 20px; margin-bottom: 20px; background-color: #f9f9f9;">
-            <table style="width: 100%; border-collapse: collapse; text-align: center;">
+          <div style="border: 1px solid #7C41E3; border-radius: 12px; padding: 10px 15px; margin-bottom: 20px; background-color: #f9f9f9;">
+            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
               <thead>
                 <tr>
                   ${tableHeaders}
