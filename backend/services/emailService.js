@@ -1,104 +1,30 @@
 // Handles Email Logic
-import mjml from 'mjml';
 import nodemailer from 'nodemailer';
-import { getApplicationsStatus } from '../controllers/applicationController.js';
 import { getAllUsers } from '../controllers/userController.js';
+import pool from '../config/db.js';
 
 const transporter = nodemailer.createTransport({
-  service: 'Gmail', 
+  service: 'Gmail',
   auth: {
     user: process.env.SMTP_EMAIL,
     pass: process.env.SMTP_PASSWORD,
   },
 });
 
-
-
-
 export const sendResetPasswordEmail = async (email, token, frontendUrl) => {
-  // Define the MJML template with placeholders for the dynamic values
-  const mjmlTemplate = `
-    <mjml>
-      <mj-body background-color="#f4f4f4">
-        
-        <!-- Header Section -->
-        <mj-section background-color="#ffffff" padding="20px" border-radius="10px" text-align="center">
-          <mj-column>
-            <mj-text font-size="20px" color="#333333" font-family="Helvetica" font-weight="bold">
-              GradFlow Account: Password Reset Request
-            </mj-text>
-            <mj-divider border-color="#F45E43" border-width="2px"></mj-divider>
-          </mj-column>
-        </mj-section>
-        
-        <!-- Body Section -->
-        <mj-section background-color="#ffffff" padding="20px" border-radius="10px">
-          <mj-column>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-              Your password reset token will expire in <strong>15 minutes</strong>.
-            </mj-text>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-              You can reset your password by clicking the following link:
-            </mj-text>
-
-            <!-- Reset Password Button -->
-            <mj-button background-color="#F45E43" color="white" font-size="16px" font-family="Helvetica" href="${frontendUrl}/reset-password/${token}" padding="15px 0">
-              Reset Password
-            </mj-button>
-
-            <mj-text font-size="14px" color="#666666" font-family="Helvetica" line-height="1.5">
-              Or paste this link into your browser:
-              <br>
-              <a href="${frontendUrl}/reset-password/${token}" style="color: #F45E43;">${frontendUrl}/reset-password/${token}</a>
-            </mj-text>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-              Have a great day!
-            </mj-text>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-              Team Gradflow
-            </mj-text>
-            
-          </mj-column>
-        </mj-section>
-        
-        <!-- Footer Section -->
-        <mj-section padding="20px 0 0">
-          <mj-column>
-            <mj-text font-size="12px" color="#999999" font-family="Helvetica" align="center">
-              If you didn’t request a password reset, please ignore this email or <a href="https://support.yourwebsite.com" style="color: #F45E43;">contact support</a>.
-            </mj-text>
-          </mj-column>
-        </mj-section>
-
-      </mj-body>
-    </mjml>
-  `;
-
-  
-  const { html, errors } = mjml(mjmlTemplate);
-
-  // Check for errors in the MJML compilation
-  if (errors.length) {
-    console.error('MJML rendering errors:', errors);
-  }
-
-  
   const mailOptions = {
     from: process.env.SMTP_EMAIL,
     to: email,
     subject: 'Password Reset Verification Code',
-    html: html, 
+    html: `
+      <p>Your password reset token will expire in 15 minutes.</p>
+      <p>You can reset your password by clicking the following link:</p>
+      <a href="${frontendUrl}/reset-password/${token}">${frontendUrl}/reset-password/${token}</a>
+      <p> Have a great day! </p>
+    `,
   };
-
- 
   await transporter.sendMail(mailOptions);
 };
-
-
 
 export const sendEmailsToAllUsers = async () => {
   try {
@@ -116,108 +42,136 @@ export const sendEmailsToAllUsers = async () => {
         }
       } else {
         console.log(`Skipping ${Email} as ApplicationEmail is not true.`);
-      const { UserId, Email } = user;
-      try {
-        await sendApplicationStatusEmail(Email, UserId);
-      }
-       catch (emailError) {
-        console.error(`Error sending email to ${Email}:`, emailError);
       }
       }
     } 
-  }
+  
   catch (error) {
     console.error('Error sending emails to users:', error);
   }
 };
 
-
-
 export const sendApplicationStatusEmail = async (email, userId) => {
   try {
-    // Fetch the application statuses
+    // Fetch the user's statuses
+    const statuses = await getUserStatuses(userId);
+
+    // Get counts of applications in each status
+    const applicationCounts = await getApplicationCountsByStatuses(userId);
+
+    // Fetch the user's applications with deadlines and colors
+    const applicationsWithDeadlines = await getApplicationsWithDeadlines(userId);
+
+    // Fetch the username of the user
+    const userResult = await pool.query(`SELECT "Username" FROM "Users" WHERE "UserId" = $1`, [userId]);
+    const username = userResult.rows[0]?.Username || "there";
+
+    // Map counts to statuses
+    const countsMap = {};
+    applicationCounts.forEach((row) => {
+      countsMap[row.StatusId] = parseInt(row.count);
+    });
+
+    // Get current date
+    const currentDate = new Date().toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    });
+
+    // Build table headers and data
+    const tableHeaders = statuses
+    .map(
+      (status) =>
+        `<th style="padding: 10px; text-align: center; font-weight: bold;">${status.StatusName}</th>`
+    )
+    .join('');
   
-    const { pastDue, dueIn1Week, dueIn2Weeks } = await getApplicationsStatus(userId);
+  const tableData = statuses
+    .map((status) => {
+      const count = countsMap[status.StatusId] || 0;
+      return `<td style="padding: 10px; text-align: center; border-bottom: 1px solid #e0e0e0;">${count}</td>`;
+    })
+    .join('');
 
-    
-    const pastDueHtml = pastDue.length > 0 
-      ? pastDue.map(app => `<li>${app.JobName} at ${app.CompanyName} (Deadline: ${app.Deadline})</li>`).join('') 
-      : '<li>No past due applications</li>';
-    const dueIn1WeekHtml = dueIn1Week.length > 0 
-      ? dueIn1Week.map(app => `<li>${app.JobName} at ${app.CompanyName} (Deadline: ${app.Deadline})</li>`).join('') 
-      : '<li>No applications due in 1 week</li>';
-    const dueIn2WeeksHtml = dueIn2Weeks.length > 0 
-      ? dueIn2Weeks.map(app => `<li>${app.JobName} at ${app.CompanyName} (Deadline: ${app.Deadline})</li>`).join('') 
-      : '<li>No applications due in 2 weeks</li>';
+    // Build application cards
+    const applicationCards = applicationsWithDeadlines
+    .map((app) => {
+      return `
+        <a href="https://gradflow.org" style="text-decoration: none; color: inherit;">
+          <div style="position: relative; margin-bottom: 16px; padding: 10px; border: 1px solid ${app.color}; border-radius: 8px; transition: transform 0.2s; cursor: pointer;">
+            ${
+              app.CompanyLogo
+                ? `<img src="${app.CompanyLogo}" alt="${app.CompanyName} Logo" style="position: absolute; top: 10px; right: 10px; height: 40px;">`
+                : ''
+            }
+            <strong>${app.JobName}</strong><br/>
+            <span>${app.CompanyName}</span><br/>
+            <span style="color: gray;">Deadline: ${formatDate(app.Deadline)}</span>
+          </div>
+        </a>
+      `;
+    })
+    .join('');
 
-    
-    const mjmlTemplate = `
-      <mjml>
-        <mj-body background-color="#f4f4f4">
-          
-          <!-- Header Section -->
-          <mj-section background-color="#ffffff" padding="20px" border-radius="10px" text-align="center">
-            <mj-column>
-              <mj-text font-size="20px" color="#333333" font-family="Helvetica" font-weight="bold">
-                Your Job Application Statuses
-              </mj-text>
-              <mj-divider border-color="#F45E43" border-width="2px"></mj-divider>
-            </mj-column>
-          </mj-section>
-          
-          <!-- Body Section -->
-          <mj-section background-color="#ffffff" padding="20px" border-radius="10px">
-            <mj-column>
-              
-              <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-                Hi there! Here is the status of your job applications:
-              </mj-text>
-              
-              <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-                <h3>Past Due Applications:</h3>
-                <ul>${pastDueHtml}</ul>
-              </mj-text>
-              
-              <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-                <h3>Applications Due in 1 Week:</h3>
-                <ul>${dueIn1WeekHtml}</ul>
-              </mj-text>
 
-              <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-                <h3>Applications Due in 2 Weeks:</h3>
-                <ul>${dueIn2WeeksHtml}</ul>
-              </mj-text>
-              
-            </mj-column>
-          </mj-section>
-          
-          <!-- Footer Section -->
-          <mj-section padding="20px 0 0">
-            <mj-column>
-              <mj-text font-size="12px" color="#999999" font-family="Helvetica" align="center">
-                This is an automated email from GradFlow. If you have any questions, please <a href="https://support.gradflow.com" style="color:#F45E43;">contact support</a>.
-              </mj-text>
-            </mj-column>
-          </mj-section>
+    // Build the email content with improved structure
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #000;">
+        <!-- Header with GradFlow Logo and Weekly Summary -->
+        <table width="100%" style="padding: 20px; background-color: #f5f5f5;">
+          <tr>
+            <td align="left">
+              <img src="https://i.imgur.com/ctEoTCl.png" alt="GradFlow Logo" style="height: 50px;">
+            </td>
+            <td align="right" style="text-align: right;">
+              <h3 style="margin: 0; color: #000;">Weekly Summary</h3>
+              <p style="margin: 0; color: #000;">${currentDate}</p>
+            </td>
+          </tr>
+        </table>
 
-        </mj-body>
-      </mjml>
+        <!-- Greeting -->
+        <div style="text-align: center; padding: 20px; background-color: #f5f5f5;">
+          <h2 style="color: #FF6200;">Hi ${username},</h2>
+          <p style="margin: 0; color: #000;">Here's a snapshot of your job search activities for the week.</p>
+        </div>
+
+        <!-- Past Week Stats -->
+          <div style="border: 1px solid #7C41E3; border-radius: 12px; padding: 10px 15px; margin-bottom: 20px; background-color: #f9f9f9;">
+            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+              <thead>
+                <tr>
+                  ${tableHeaders}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  ${tableData}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Upcoming Deadlines -->
+          <h3 style="color: #000;">Upcoming Deadlines:</h3>
+          <div>${applicationCards}</div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; padding: 20px; background-color: #f5f5f5;">
+          <p style="margin: 0; color: #000;">Keep track of your applications on GradFlow.</p>
+          <a href="https://gradflow.org" style="display: inline-block; padding: 10px 20px; background-color:#7C41E3; color: #fff; text-decoration: none; border-radius: 4px;">Update Your Boards</a>
+        </div>
+      </div>
     `;
 
-    
-    const { html, errors } = mjml(mjmlTemplate);
-
-   
-    if (errors.length) {
-      console.error('MJML rendering errors:', errors);
-    }
-    
     // Email options
     const mailOptions = {
       from: process.env.SMTP_EMAIL,
       to: email,
-      subject: 'Your Job Application Statuses',
-      html: html,
+      subject: 'Your Job Application Statuses - Weekly Update',
+      html: emailHtml,
     };
 
     // Send the email
@@ -229,173 +183,56 @@ export const sendApplicationStatusEmail = async (email, userId) => {
   }
 };
 
-
-
-
-
-export const sendSignupEmail = async (email, token, frontendUrl) => {
-
-  const mjmlTemplate = `
-    <mjml>
-      <mj-body background-color="#f4f4f4">
-        
-        <!-- Header Section -->
-        <mj-section background-color="#ffffff" padding="20px" border-radius="10px" text-align="center">
-          <mj-column>
-            <mj-text font-size="20px" color="#333333" font-family="Helvetica" font-weight="bold">
-              Welcome to GradFlow!
-            </mj-text>
-            <mj-divider border-color="#F45E43" border-width="2px"></mj-divider>
-          </mj-column>
-        </mj-section>
-        
-        <!-- Body Section -->
-        <mj-section background-color="#ffffff" padding="20px" border-radius="10px">
-          <mj-column>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-              Hi there! We’re excited to have you join GradFlow.
-            </mj-text>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-              Please confirm your email address to activate your account.
-            </mj-text>
-
-            <!-- Activate Account Button -->
-            <mj-button background-color="#F45E43" color="white" font-size="16px" font-family="Helvetica" href="${frontendUrl}/verify-email?token=${token}" padding="15px 0">
-              Activate Account
-            </mj-button>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5" padding-top="20px">
-              We’re here to help if you have any questions. Just reach out to our support team anytime!
-            </mj-text>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-              Best Regards,
-              <br>
-              The GradFlow Team
-            </mj-text>
-            
-          </mj-column>
-        </mj-section>
-        
-        <!-- Footer Section -->
-        <mj-section padding="20px 0 0">
-          <mj-column>
-            <mj-text font-size="12px" color="#999999" font-family="Helvetica" align="center">
-              If you did not sign up for a GradFlow account, please ignore this email or <a href="https://support.gradflow.com" style="color:#F45E43;">contact support</a>.
-            </mj-text>
-          </mj-column>
-        </mj-section>
-
-      </mj-body>
-    </mjml>
-  `;
-
-  // Compile MJML to HTML
-  const { html, errors } = mjml(mjmlTemplate);
-
-  // Check for errors in the MJML compilation
-  if (errors.length) {
-    console.error('MJML rendering errors:', errors);
-  }
-  
-  const mailOptions = {
-    from: process.env.SMTP_EMAIL,
-    to: email,
-    subject: 'Welcome to GradFlow! Confirm Your Email',
-    html: html, 
-  };
-
-
+// Function to fetch statuses for a user
+async function getUserStatuses(userId) {
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('Signup email sent to:', email);
-  }catch (error) {
-    console.error('Error sending signup email:', error);
+    const result = await pool.query(`
+      SELECT s."StatusId", sn."StatusName", s."StatusOrder"
+      FROM "Status" s
+      JOIN "StatusName" sn ON s."StatusNameId" = sn."StatusNameId"
+      WHERE s."UserId" = $1
+      ORDER BY s."StatusOrder" ASC;
+    `, [userId]);
+    return result.rows;
+  } catch (error) {
+    console.error('Error fetching statuses:', error);
+    throw error;
   }
 }
 
-
-
-export const sendWelcomeEmail = async (email) => {
-  const mjmlTemplate = `
-    <mjml>
-      <mj-body background-color="#f4f4f4">
-        
-        <!-- Header Section -->
-        <mj-section background-color="#ffffff" padding="20px" border-radius="10px" text-align="center">
-          <mj-column>
-            <mj-text font-size="20px" color="#333333" font-family="Helvetica" font-weight="bold">
-              Welcome to GradFlow!
-            </mj-text>
-            <mj-divider border-color="#F45E43" border-width="2px"></mj-divider>
-          </mj-column>
-        </mj-section>
-        
-        <!-- Body Section -->
-        <mj-section background-color="#ffffff" padding="20px" border-radius="10px">
-          <mj-column>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-              Hi there! We’re thrilled to have you on board. GradFlow is designed to help you stay on top of your job applications and make the journey smoother.
-            </mj-text>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-              We hope you find it useful and easy to navigate. Feel free to explore the features we have in store for you!
-            </mj-text>
-
-            <!-- Get Started Button -->
-            <mj-button background-color="#F45E43" color="white" font-size="16px" font-family="Helvetica" href="https://gradflow.com/dashboard" padding="15px 0">
-              Get Started
-            </mj-button>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5" padding-top="20px">
-              Need any help? Reach out to our support team anytime!
-            </mj-text>
-            
-            <mj-text font-size="16px" color="#333333" font-family="Helvetica" line-height="1.5">
-              Best Regards,
-              <br>
-              The GradFlow Team
-            </mj-text>
-            
-          </mj-column>
-        </mj-section>
-        
-        <!-- Footer Section -->
-        <mj-section padding="20px 0 0">
-          <mj-column>
-            <mj-text font-size="12px" color="#999999" font-family="Helvetica" align="center">
-              If you did not sign up for a GradFlow account, please ignore this email or <a href="https://support.gradflow.com" style="color:#F45E43;">contact support</a>.
-            </mj-text>
-          </mj-column>
-        </mj-section>
-
-      </mj-body>
-    </mjml>
-  `;
-
-  // Compile MJML to HTML
-  const { html, errors } = mjml(mjmlTemplate);
-
-  // Check for errors in the MJML compilation
-  if (errors.length) {
-    console.error('MJML rendering errors:', errors);
-  }
-  
-  const mailOptions = {
-    from: process.env.SMTP_EMAIL,
-    to: email,
-    subject: 'Welcome to GradFlow!',
-    html: html,
-  };
-
+// Function to get counts of applications in each status
+async function getApplicationCountsByStatuses(userId) {
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('Welcome email sent to:', email);
+    const result = await pool.query(`
+      SELECT a."StatusId", COUNT(*) as count
+      FROM "Application" a
+      WHERE a."UserId" = $1
+      GROUP BY a."StatusId";
+    `, [userId]);
+    return result.rows;
   } catch (error) {
-    console.error('Error sending welcome email:', error);
-    throw new Error('Email sending failed');
+    console.error('Error fetching application counts by statuses:', error);
+    throw error;
   }
-};
+}
+
+// Function to fetch applications with deadlines and colors
+async function getApplicationsWithDeadlines(userId) {
+  const result = await pool.query(
+    `
+    SELECT a."JobName", a."CompanyName", a."Deadline", a."Color" as color, a."CompanyLogo"
+    FROM "Application" a
+    WHERE a."UserId" = $1 AND a."Deadline" >= NOW()
+    ORDER BY a."Deadline" ASC;
+  `,
+    [userId]
+  );
+  return result.rows;
+}
+
+// Function to format date
+function formatDate(dateString) {
+  const options = { year: 'numeric', month: 'long', day: 'numeric' };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
