@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
 import { sendEmailsToAllUsers } from './services/emailService.js';
+// import { sendApplicationStatusEmail } from './services/emailService.js';
+
 import cron from 'node-cron';
 dotenv.config(); 
 
@@ -23,6 +25,33 @@ cron.schedule('0 9 * * 3', async () => {
 });
 
 const app = express();
+
+
+// // Test email route
+// app.get('/test-email/:email', async (req, res) => {
+//   const email = req.params.email;
+
+//   try {
+//     // Fetch user by email from "Users" table
+//     const userResult = await pool.query('SELECT * FROM "Users" WHERE "Email" = $1', [email]);
+
+//     if (userResult.rows.length === 0) {
+//       return res.status(404).json({ error: `No user found with email ${email}` });
+//     }
+
+//     const user = userResult.rows[0];
+//     const userId = user.UserId; // Adjust based on your database schema
+
+//     // Send the application status email
+//     await sendApplicationStatusEmail(email, userId);
+//     res.status(200).json({ message: `Test email sent successfully to ${email}` });
+//   } catch (error) {
+//     console.error('Error sending test email:', error);
+//     res.status(500).json({ error: 'Failed to send test email', details: error.message });
+//   }
+// });
+
+
 
 app.get('/test-db', async (req, res) => {
   try {
