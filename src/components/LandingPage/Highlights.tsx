@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import ViewQuiltRoundedIcon from "@mui/icons-material/ViewQuiltRounded";
 import EdgesensorHighRoundedIcon from "@mui/icons-material/EdgesensorHighRounded";
 import BackupTableIcon from '@mui/icons-material/BackupTable';
-import FileOpenIcon from '@mui/icons-material/FileOpen';
+import GridViewIcon from '@mui/icons-material/GridView';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import 'animate.css'; // Import animate.css
 
@@ -33,22 +33,22 @@ const items = [
       'Discover your data like never before! Transforming your insights into an organized and interactive experience, making it easy to analyze and strategize your job search',
   },
   {
-    icon: <FileOpenIcon />,
+    icon: <GridViewIcon />,
+    title: 'Dashboard',
+    description:
+      'Explore your personalized Dashboard—where insights meet opportunities! Stay on top of your progress and get a clear overview of your job applications, all in one space',
+  },
+  {
+    icon: <TipsAndUpdatesIcon />,
     title: 'Files',
     description:
-      'Stay tuned for our upcoming features that will streamline your job search and make your applications stand out',
+      'Coming Soon: Effortlessly upload and manage your CVs and cover letters for every job application, all in one place!',
   },
   {
     icon: <TipsAndUpdatesIcon />,
-    title: 'Coming Soon',
+    title: 'Excel To Flow',
     description:
-      'Coming Soon: Exciting things are on the horizon! Stay tuned for our upcoming features that will elevate your job application experience to new heights!',
-  },
-  {
-    icon: <TipsAndUpdatesIcon />,
-    title: 'Coming Soon',
-    description:
-      'Coming Soon: Exciting things are on the horizon! Stay tuned for our upcoming features that will elevate your job application experience to new heights!',
+      'Coming Soon: Import your Excel files effortlessly and watch as GradFlow automatically creates and organizes cards into their respective categories!',
   },
 ];
 
