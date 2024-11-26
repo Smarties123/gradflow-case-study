@@ -45,8 +45,10 @@ export const sendEmailsToAllUsers = async () => {
       } else {
         console.log(`Skipping ${Email} as ApplicationEmail is not true.`);
       }
-    }
-  } catch (error) {
+      }
+    } 
+  }
+  catch (error) {
     console.error('Error sending emails to users:', error);
   }
 };
