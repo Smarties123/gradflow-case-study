@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Button, Grid, Row, Col, SelectPicker } from 'rsuite';
+import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Grid, Row, Col, SelectPicker, Button } from 'rsuite';
 import { useUser } from '@/components/User/UserContext'; // Import useUser to get the user
 const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea" ref={ref} />);
 import Github from '@uiw/react-color-github';
 import './DrawerView.less';
 import dayjs from 'dayjs';
 import * as errors from '@/images/errors';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+
+import { Button as RemoveFile } from '@mui/material';
 
 
 
@@ -14,12 +18,9 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     const { user } = useUser(); // Get the user object
     // const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
 
-
     const parseDate = (dateStr) => {
         return dateStr ? dayjs(dateStr).toDate() : null;
     };
-
-
 
     const [formData, setFormData] = useState({
         company: card.company || '',  // Default to an empty string if null
@@ -33,8 +34,9 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         interview_stage: card.interview_stage || '',
         date_applied: card.date_applied ? parseDate(card.date_applied) : null,
         card_color: card.card_color || '#ffffff',  // Default color to white
+        cv: card.cv || null,
+        coverLetter: card.coverLetter || null,
     });
-
 
 
     useEffect(() => {
@@ -131,16 +133,33 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         }
     };
 
-
-
-
     const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
     const drawerPlacement = window.innerWidth <= 600 ? 'top' : 'right'; // Open from bottom on small screens
+
+    const handleFileUpload = (e, type) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData(prev => ({
+                ...prev,
+                [type]: { name: file.name, file } // Store file object along with its name
+            }));
+        }
+    };
+
+    const removeFile = (type) => {
+        setFormData(prev => ({
+            ...prev,
+            [type]: null // Dynamically remove the file by type
+        }));
+    };
+
+
 
 
 
 
     return (
+
         <Drawer open={show} onClose={onClose} size={drawerSize} placement={drawerPlacement}>
             <Drawer.Header>
                 <Drawer.Title>Edit Card</Drawer.Title>
@@ -335,17 +354,117 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                 )}
 
                 {currentView === 'documents' && (
-                    <div className="coming-soon-page" style={{ background: 'transparent', height: 'inherit' }}>
-                        <div className="item">
-                            <img src={errors['Error404Img']} alt="Coming Soon" className="coming-soon-image" style={{ maxWidth: '70%' }} />
-                            <div className="text">
-                                <h3 className="coming-soon-message" >
-                                    Coming soon: Upload and manage your cover letters and CVs for each job application. Stay tuned!"
-                                </h3>
-                            </div>
-                        </div>
+                    <div className='document-section'>
+                        <Grid fluid>
+                            <Row gutter={20}>
+                                {/* CV Section */}
+                                <Col xs={24}>
+                                    <div className={`document-card ${formData.cv ? 'cv-uploaded' : ''}`}>
+                                        <h4 className="document-title">CV</h4>
+                                        <label htmlFor="cv" className="upload-label">
+
+                                            <div className="upload-area">
+                                                <input
+                                                    type="file"
+                                                    id="cv"
+                                                    accept=".pdf,.doc,.docx"
+                                                    onChange={(e) => handleFileUpload(e, 'cv')}
+                                                    style={{ display: 'none' }}
+                                                />
+                                                <div className="upload-icon">
+                                                    <UploadFileIcon />
+                                                </div>
+                                                <p className="upload-instructions">
+                                                    <span>Click to Upload</span> or drag and drop
+                                                    <br />
+                                                    (Max. File size: 25 MB)
+                                                </p>
+                                            </div>
+                                        </label>
+
+                                        {/* Uploaded File Display */}
+                                        {formData.cv && (
+                                            <Row style={{ display: 'grid', marginBottom: '30px' }}>
+                                                <Col xs="auto">
+                                                    <div className="uploaded-file-container">
+                                                        <div className="uploaded-file">
+                                                            <InsertDriveFileIcon className="file-icon" />
+                                                            <span className="file-name">{formData.cv.name}</span>
+                                                            <RemoveFile
+                                                                className="remove-file-button"
+                                                                color="error"
+                                                                onClick={() => removeFile('cv')}
+                                                            >
+                                                                X
+                                                            </RemoveFile>
+                                                        </div>
+                                                    </div>
+                                                </Col>
+                                            </Row>
+                                        )}
+                                    </div>
+                                </Col>
+                            </Row>
+
+                            <Row gutter={20}>
+                                {/* Cover Letter Section */}
+                                <Col xs={24}>
+                                    <div id="coverLetter" className={`document-card ${formData.coverLetter ? 'coverLetter-uploaded' : ''}`}>
+                                        <h4 className="document-title">Cover Letter</h4>
+                                        <label htmlFor="coverLetterUpload" className="upload-label">
+
+                                            <div className="upload-area">
+                                                <input
+                                                    type="file"
+                                                    id="coverLetterUpload"
+                                                    accept=".pdf,.doc,.docx"
+                                                    onChange={(e) => handleFileUpload(e, 'coverLetter')}
+                                                    style={{ display: 'none' }}
+                                                />
+                                                <div className="upload-icon">
+                                                    <UploadFileIcon />
+                                                </div>
+                                                <p className="upload-instructions">
+                                                    <span>Click to Upload</span> or drag and drop
+                                                    <br />
+                                                    (Max. File size: 25 MB)
+                                                </p>
+                                            </div>
+                                        </label>
+
+                                        {/* Uploaded File Display */}
+                                        {formData.coverLetter && (
+                                            <Row style={{ display: 'grid', marginBottom: '30px' }}>
+                                                <Col xs="auto">
+                                                    <div className="uploaded-file-container">
+                                                        <div className="uploaded-file">
+                                                            <InsertDriveFileIcon className="file-icon" />
+                                                            <span className="file-name">{formData.coverLetter.name}</span>
+                                                            <RemoveFile
+                                                                className="remove-file-button"
+                                                                color="error"
+                                                                onClick={() => removeFile('coverLetter')}
+                                                            >
+                                                                X
+                                                            </RemoveFile>
+                                                        </div>
+                                                    </div>
+                                                </Col>
+                                            </Row>
+                                        )}
+                                    </div>
+                                </Col>
+                            </Row>
+
+
+                        </Grid>
+
                     </div>
+
+
                 )}
+
+
 
 
 
@@ -364,7 +483,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                     </Row>
                 </Grid>
             </Drawer.Body>
-        </Drawer>
+        </Drawer >
     );
 };
 

@@ -127,3 +127,131 @@
 
     }
 }
+
+#coverLetter, .document-card{
+    border-radius: 8px;
+    margin-bottom: 20px; /* Add spacing between sections */
+    background: #1f1f1f;
+}
+
+.rs-theme-light{
+    .document-card, #coverLetter{
+        background: #fff;
+    }
+}
+
+.document-card{
+    border: 1px dashed #ff6700;
+    
+}
+.document-card.cv-uploaded {
+    border: 1px solid #ff6700; 
+}
+
+#coverLetter{
+    border: 1px dashed purple
+}
+
+#coverLetter.coverLetter-uploaded {
+    border: 1px solid purple;
+}
+
+
+.document-card {
+    padding: 20px 0px 10px 0px ;
+    text-align: center;
+    // border-radius: 8px;
+}
+
+.document-title {
+    font-size: 18px;
+    color: #fff;
+    // margin-bottom: 15px;
+    // float:left;
+}
+
+.upload-area {
+    margin-bottom: 20px;
+    cursor: pointer;
+
+}
+
+.upload-icon img {
+    max-width: 50px;
+    margin-bottom: 10px;
+}
+
+.upload-instructions {
+    color: #999;
+    font-size: 14px;
+}
+
+.upload-instructions span {
+    color: #ff6700;
+    font-weight: bold;
+}
+
+.upload-or {
+    margin: 10px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.link-button {
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.link-button:hover {
+    opacity: 0.9;
+}
+
+.uploaded-file-container {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+/* Styling for uploaded file */
+.uploaded-file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 250px; /* Fixed width for the file box */
+    padding: 5px;
+    // background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 24px; /* Rounded corners */
+}
+
+/* Icon styling */
+.file-icon {
+    margin-right: 8px;
+    // color: #555;
+    font-size: 18px;
+}
+
+/* File name styling */
+.file-name {
+    flex: 1;
+    font-size: 14px;
+    // color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+}
+
+/* Remove button styling */
+.remove-file-button {
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    margin-left: 10px;
+}
+
