@@ -153,6 +153,49 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         }));
     };
 
+    const calculateProgress = (fields) => {
+        const filled = fields.filter((field) => {
+            const value = formData[field];
+            return value !== null && value !== undefined && value !== ''; // Check for filled fields
+        }).length;
+
+        return `${filled}/${fields.length}`;
+    };
+
+    const detailsFields = [
+        'company',
+        'position',
+        'deadline',
+        'location',
+        'url',
+        'salary',
+        'interview_stage',
+        'date_applied',
+    ];
+
+    const documentsFields = ['cv', 'coverLetter'];
+    const notesFields = ['notes'];
+
+    const getProgressBadgeStyle = (fields) => {
+        const filled = fields.filter((field) => {
+            const value = formData[field];
+            return value !== null && value !== undefined && value !== '';
+        }).length;
+
+        const total = fields.length;
+        const percentage = (filled / total) * 100;
+
+        // Return styles based on completion percentage
+        if (percentage === 100) {
+            return { backgroundColor: '#28a745', color: '#fff' }; // Green for 100% completion
+        } else if (percentage >= 50) {
+            return { backgroundColor: '#ffc107', color: '#fff' }; // Yellow for 50%-99% completion
+        } else {
+            return { backgroundColor: '#dc3545', color: '#fff' }; // Red for less than 50% completion
+        }
+    };
+
+
 
 
 
@@ -165,12 +208,16 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                 <Drawer.Title>Edit Card</Drawer.Title>
                 <FlexboxGrid justify="space-between" className="drawer-links">
                     <FlexboxGrid.Item>
-                        <div>
+                        <div id="ddn">
                             <a
                                 onClick={() => setCurrentView('details')}
                                 className={currentView === 'details' ? 'active' : ''}
                             >
                                 Details
+                                <span className="progress-counter"
+                                    style={getProgressBadgeStyle(detailsFields)}
+                                >
+                                    ({calculateProgress(detailsFields)})</span>
                             </a>
                             <Divider vertical />
                             <a
@@ -178,6 +225,8 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                 className={currentView === 'documents' ? 'active' : ''}
                             >
                                 Documents
+                                <span className="progress-counter" style={getProgressBadgeStyle(documentsFields)}
+                                > ({calculateProgress(documentsFields)})</span>
                             </a>
                             <Divider vertical />
                             <a
@@ -185,8 +234,9 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                 className={currentView === 'notes' ? 'active' : ''}
                             >
                                 Notes
+                                <span className="progress-counter" style={getProgressBadgeStyle(notesFields)}
+                                > ({calculateProgress(notesFields)})</span>
                             </a>
-
                         </div>
                     </FlexboxGrid.Item>
                 </FlexboxGrid>
