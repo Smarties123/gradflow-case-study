@@ -425,7 +425,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                                     <UploadFileIcon />
                                                 </div>
                                                 <p className="upload-instructions">
-                                                    <span>Click to Upload</span> or drag and drop
+                                                    <span>{formData.cv ? 'Click to replace file' : 'Click to upload'}</span> or drag and drop
                                                     <br />
                                                     (Max. File size: 25 MB)
                                                 </p>
@@ -475,7 +475,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                                     <UploadFileIcon />
                                                 </div>
                                                 <p className="upload-instructions">
-                                                    <span>Click to Upload</span> or drag and drop
+                                                    <span>{formData.coverLetter ? 'Click to replace file' : 'Click to upload'}</span> or drag and drop
                                                     <br />
                                                     (Max. File size: 25 MB)
                                                 </p>
