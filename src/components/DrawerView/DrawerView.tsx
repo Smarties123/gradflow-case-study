@@ -82,17 +82,17 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         console.log("DrawerView card prop:", card);
 
         const updatedData = {
-            company: formData.company || card.company || null,
-            position: formData.position || card.position || null,
-            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : card.deadline || null,
-            location: formData.location || card.location || null,
-            url: formData.url || card.url || null,
-            notes: formData.notes || card.notes || null,
-            salary: formData.salary !== undefined ? formData.salary : card.salary || null,
-            interview_stage: formData.interview_stage || card.interview_stage || null,
-            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : card.date_applied || null,
-            card_color: formData.card_color || card.card_color || null,
-            statusId: formData.StatusId || card.StatusId // Ensure StatusId is always included
+            company: formData.company,
+            position: formData.position,
+            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : null,
+            location: formData.location,
+            url: formData.url,
+            notes: formData.notes,  // This will now be included even if empty or null
+            salary: formData.salary,
+            interview_stage: formData.interview_stage,
+            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : null,
+            card_color: formData.card_color,
+            statusId: formData.StatusId || card.StatusId,
         };
 
         try {
