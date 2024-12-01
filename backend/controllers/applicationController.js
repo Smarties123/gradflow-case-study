@@ -45,91 +45,136 @@ export const getApplications = async (req, res) => {
 
 // Update general application details
 export const updateApplication = async (req, res) => {
-  // console.log('updateApplication called');
-
   let id = req.params.id;
-  const { company, position, salary, notes, deadline, location, url, card_color, date_applied, interview_stage, statusId } = req.body; 
-
   const userId = req.user.userId;
 
+  // Convert `id` to an integer and validate
+  id = parseInt(id, 10);
+  if (isNaN(id)) {
+    return res.status(400).json({ message: "Invalid Application ID." });
+  }
 
-    // Convert `id` to an integer and handle cases where it might be `undefined`
-    id = parseInt(id, 10);
-    if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid Application ID." });
-    }
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is missing." });
+  }
 
-    // Ensure userId is defined
-    if (!userId) {
-        return res.status(400).json({ message: "User ID is missing." });
-    }
-  
+  // Destructure fields from req.body
+  const {
+    company,
+    position,
+    salary,
+    notes,
+    deadline,
+    location,
+    url,
+    card_color,
+    date_applied,
+    interview_stage,
+    statusId,
+  } = req.body;
 
-  // // Log each field for debugging
-  // console.log('Updating application with the following details:');
-  // console.log(`Company: ${company}`);
-  // console.log(`Position: ${position}`);
-  // console.log(`Salary: ${salary}`);
-  // console.log(`Notes: ${notes}`);
-  // console.log(`Deadline: ${deadline}`);
-  // console.log(`Location: ${location}`);
-  // console.log(`URL: ${url}`);
-  // console.log(`Card Color: ${card_color}`);
-  // console.log(`Date Applied: ${date_applied}`);
-  // console.log(`Interview Stage: ${interview_stage}`);
-  // console.log(`Status ID: ${statusId}`);
-  // console.log(`User ID: ${userId}`);
-  // console.log(`Application ID: ${id}`);
+  // Build the SET clause dynamically
+  const fields = [];
+  const values = [];
+  let idx = 1;
 
-  try {
-    const query = `
+  if ("company" in req.body) {
+    fields.push(`"CompanyName" = $${idx}`);
+    values.push(company);
+    idx++;
+  }
+
+  if ("position" in req.body) {
+    fields.push(`"JobName" = $${idx}`);
+    values.push(position);
+    idx++;
+  }
+
+  if ("salary" in req.body) {
+    fields.push(`"Salary" = $${idx}`);
+    values.push(salary);
+    idx++;
+  }
+
+  if ("notes" in req.body) {
+    fields.push(`"Notes" = $${idx}`);
+    values.push(notes);
+    idx++;
+  }
+
+  if ("deadline" in req.body) {
+    fields.push(`"Deadline" = $${idx}`);
+    values.push(deadline);
+    idx++;
+  }
+
+  if ("location" in req.body) {
+    fields.push(`"Location" = $${idx}`);
+    values.push(location);
+    idx++;
+  }
+
+  if ("url" in req.body) {
+    fields.push(`"CompanyURL" = $${idx}`);
+    values.push(url);
+    idx++;
+  }
+
+  if ("card_color" in req.body) {
+    fields.push(`"Color" = $${idx}`);
+    values.push(card_color);
+    idx++;
+  }
+
+  if ("date_applied" in req.body) {
+    fields.push(`"DateApplied" = $${idx}`);
+    values.push(date_applied);
+    idx++;
+  }
+
+  if ("interview_stage" in req.body) {
+    fields.push(`"Interview" = $${idx}`);
+    values.push(interview_stage);
+    idx++;
+  }
+
+  if ("statusId" in req.body) {
+    fields.push(`"StatusId" = $${idx}`);
+    values.push(statusId);
+    idx++;
+  }
+
+  // Check if any fields are provided for update
+  if (fields.length === 0) {
+    return res.status(400).json({ message: "No valid fields provided for update" });
+  }
+
+  // Add the ApplicationId and UserId to the values array
+  values.push(id);
+  values.push(userId);
+
+  // Construct the query
+  const query = `
     UPDATE "Application"
-    SET "CompanyName" = COALESCE($1, "CompanyName"), 
-        "JobName" = COALESCE($2, "JobName"), 
-        "Salary" = COALESCE($3, "Salary"), 
-        "Notes" = COALESCE($4, "Notes"), 
-        "Deadline" = COALESCE($5, "Deadline"), 
-        "Location" = COALESCE($6, "Location"), 
-        "CompanyURL" = COALESCE($7, "CompanyURL"), 
-        "Color" = COALESCE($8, "Color"), 
-        "DateApplied" = COALESCE($9, "DateApplied"), 
-        "Interview" = COALESCE($10, "Interview"), 
-        "StatusId" = COALESCE($11, "StatusId")
-    WHERE "ApplicationId" = $12 AND "UserId" = $13
+    SET ${fields.join(", ")}
+    WHERE "ApplicationId" = $${idx} AND "UserId" = $${idx + 1}
     RETURNING *;
   `;
-    const values = [
-      company || null,
-      position || null,
-      salary !== undefined ? salary : null,
-      notes || null,
-      deadline || null,
-      location || null,
-      url || null,
-      card_color || null,
-      date_applied || null,
-      interview_stage || null,
-      statusId !== undefined ? statusId : null, // Ensure statusId is not undefined
-      id,
-      userId
-    ];
 
-    // Log the full values array before executing the query
-    // console.log('Values being passed to the query:', values);
-    // console.log('Values being passed to the query:', values);
-
+  try {
     const { rows } = await pool.query(query, values);
 
     if (rows.length > 0) {
-
-      res.status(200).json({ message: 'Application updated successfully', application: rows[0] });
+      res.status(200).json({
+        message: "Application updated successfully",
+        application: rows[0],
+      });
     } else {
-
-      res.status(404).json({ message: 'Application not found' });
+      res.status(404).json({ message: "Application not found" });
     }
   } catch (error) {
-    console.error('Error updating application:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error updating application:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
