@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import * as errors from '@/images/errors';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import { FormHelperText } from '@mui/material'; // Import FormHelperText from MUI
 
 import { Button as RemoveFile } from '@mui/material';
 
@@ -17,6 +18,8 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     const [currentView, setCurrentView] = useState('details');
     const { user } = useUser(); // Get the user object
     // const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
+    const [errors, setErrors] = useState({}); // State to track errors
+
 
     const parseDate = (dateStr) => {
         return dateStr ? dayjs(dateStr).toDate() : null;
@@ -36,6 +39,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         card_color: card.card_color || '#ffffff',  // Default color to white
         cv: card.cv || null,
         coverLetter: card.coverLetter || null,
+        StatusId: card.StatusId || null
     });
 
 
@@ -68,16 +72,43 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     }, [card]);
 
 
-    const handleChange = (value, name) => {
-        setFormData(prev => ({ ...prev, [name]: value }));
+    const validateForm = () => {
+        const validationErrors = {};
+
+
+        if (formData.salary < 0) {
+            validationErrors.salary = "Salary cannot be negative.";
+        } else if (!/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(formData.salary)) {
+            validationErrors.salary = "Salary must be a valid number";
+        }
+
+        if (formData.date_applied > formData.deadline) {
+            validationErrors.date_applied = "Date applied cannot be after the deadline.";
+        }
+
+
+
+        setErrors(validationErrors);
+
+        // Return true if no errors, otherwise false
+        return Object.keys(validationErrors).length === 0;
     };
 
+    const handleChange = (value, name) => {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: null })); // Clear error for the field being edited
+    };
 
     const handleColorChange = card_color => {
         setFormData(prev => ({ ...prev, card_color: card_color.hex }));
     };
 
     const handleSubmit = async () => {
+
+        if (!validateForm()) {
+            console.error("Form has validation errors.");
+            return; // Stop if there are validation errors
+        }
         console.log("Updating card with ID:", card.id); // Debug log to verify ID
         console.log("DrawerView card prop:", card);
 
@@ -156,6 +187,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     const calculateProgress = (fields) => {
         const filled = fields.filter((field) => {
             const value = formData[field];
+            console.log(value);
             return value !== null && value !== undefined && value !== ''; // Check for filled fields
         }).length;
 
@@ -165,12 +197,14 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     const detailsFields = [
         'company',
         'position',
-        'deadline',
-        'location',
-        'url',
-        'salary',
-        'interview_stage',
+        'notes',
+        'StatusId',
         'date_applied',
+        'deadline',
+        'salary',
+        'url',
+        'card_color',
+        'location'
     ];
 
     const documentsFields = ['cv', 'coverLetter'];
@@ -321,6 +355,12 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                             value={formData.date_applied || ''}
                                             onChange={value => handleChange(value, 'date_applied')}
                                         />
+                                        {errors.date_applied && (
+                                            <FormHelperText id="error" error>
+                                                {errors.date_applied}
+                                            </FormHelperText>
+                                        )}
+
                                     </Form.Group>
                                 </Col>
                             </Row>
@@ -335,6 +375,23 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                             value={formData.deadline || ''}
                                             onChange={value => handleChange(value, 'deadline')}
                                         />
+                                    </Form.Group>
+                                </Col>
+                                <Col xs={24} sm={12}>
+                                    <Form.Group controlId="salary" className="form-group">
+                                        <Form.ControlLabel className="formControlLabel">Salary (£)</Form.ControlLabel>
+                                        <Form.Control
+                                            name="salary"
+                                            value={formData.salary}
+                                            onChange={value => handleChange(value, 'salary')}
+                                            className="full-width"
+
+                                        />
+                                        {errors.salary && (
+                                            <FormHelperText id="error" error>
+                                                {errors.salary}
+                                            </FormHelperText>
+                                        )}
                                     </Form.Group>
                                 </Col>
                             </Row>
