@@ -1,0 +1,311 @@
+.file-popup-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent background */
+  backdrop-filter: blur(5px);
+  /* Add blur to the background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 3vw;
+
+
+  .file-popup-content {
+    // background: #fff;
+    // max-width: 100vw;
+    // max-width: 1000px;
+    width: -webkit-fill-available;
+    background-color: #333;
+    overflow: hidden;
+    position: relative;
+    border: 1px white solid;
+    border-radius: 8px;
+    height: 75vh;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  .file-popup-body {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+  }
+
+  .file-preview {
+    flex: 0 0 70%;
+  }
+
+  .file-details {
+    flex: 0 0 30%;
+    padding: 20px;
+    overflow-y: auto;
+
+  }
+
+
+
+  // Right Side Details 
+
+  .file-details {
+    flex: 0 0 30%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .file-details h4 {
+    font-size: 18px;
+    // color: #4a4a4a;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    background-color: transparent;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    // color: #4a4a4a;
+    margin-bottom: 4px;
+  }
+
+  .form-group .required {
+    // position: absolute;
+    right: 0;
+    top: 0;
+    font-size: 12px;
+    // color: #b30000;
+    font-weight: 600;
+  }
+
+  .form-control {
+    width: 100%;
+    font-size: 14px;
+    padding: 10px;
+    // border: 1px solid #ddd;
+    border-radius: 4px;
+    // background-color: #6a5858;
+    // color: #4a4a4a;
+    outline: none;
+  }
+
+  .form-control:focus {
+    border-color: white;
+  }
+
+  textarea.form-control {
+    resize: none;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+}
+
+
+
+/* Theme-specific styles */
+.rs-theme-dark .form-control {
+  background-color: #333;
+  /* Dark background */
+  color: #fff;
+  /* White text */
+  border-color: #555;
+  /* Darker border */
+}
+
+.rs-theme-dark .form-control:focus {
+  border-color: white;
+  /* Focus border color in dark mode */
+}
+
+.rs-theme-light .form-control {
+  background-color: #fff;
+  /* Light background */
+  color: #000;
+  /* Black text */
+  border-color: #ddd;
+  /* Light border */
+}
+
+.rs-theme-light .form-control:focus {
+  border-color: white;
+  /* Focus border color in light mode */
+}
+
+textarea {
+  resize: none;
+}
+
+.react-select__control {
+  background-color: inherit;
+  /* Inherit from theme */
+  color: inherit;
+  /* Inherit from theme */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.react-select__menu {
+  background-color: inherit;
+  /* Inherit from theme */
+  color: inherit;
+  /* Inherit from theme */
+}
+
+.react-select__multi-value {
+  background-color: #555;
+  /* Slightly darker for dark mode */
+}
+
+.rs-theme-light .react-select__multi-value {
+  background-color: #e0e0e0;
+  /* Light gray for light mode */
+}
+
+
+.react-select__control {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #ccc;
+}
+
+.react-select__control--is-focused {
+  border-color: #007bff;
+  box-shadow: 0 0 0 1px #007bff;
+}
+
+.react-select__menu {
+  background-color: #fff;
+  color: #000;
+}
+
+.react-select__option {
+  background-color: #fff;
+  color: #000;
+}
+
+.react-select__option--is-focused {
+  background-color: #f0f0f0;
+}
+
+.react-select__option--is-selected {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.react-select__single-value,
+.react-select__input {
+  color: #000;
+}
+
+.react-select__placeholder {
+  color: #666;
+}
+
+/* Dark theme overrides */
+.rs-theme-dark .react-select__control {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.rs-theme-dark .react-select__control--is-focused {
+  border-color: #007bff;
+  box-shadow: 0 0 0 1px #007bff;
+}
+
+.rs-theme-dark .react-select__menu {
+  background-color: #333;
+  color: #fff;
+}
+
+.rs-theme-dark .react-select__option {
+  background-color: #333;
+  color: #fff;
+}
+
+.rs-theme-dark .react-select__option--is-focused {
+  background-color: #444;
+}
+
+.rs-theme-dark .react-select__option--is-selected {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.rs-theme-dark .react-select__single-value,
+.rs-theme-dark .react-select__input {
+  color: #fff;
+}
+
+.rs-theme-dark .react-select__placeholder {
+  color: #aaa;
+}
+
+
+.rs-theme-light {
+  .file-popup-container .file-popup-content {
+    background-color: white;
+  }
+
+  .close-button {
+    color: black;
+  }
+
+}
+
+.react-select-container .react-select__control {
+  cursor: pointer;
+}
+
+.react-select-container .react-select__multi-value {
+  background-color: #ff6200;
+  color: white;
+  border-radius: 12px;
+  padding: 2px;
+  font-weight: bold;
+}
+
+.react-select-container .react-select__multi-value__label {
+  color: white;
+}
+
+.react-select-container .react-select__multi-value__remove {
+  color: white;
+  cursor: pointer;
+}
+
+.react-select-container .react-select__multi-value__remove:hover {
+  background-color: #d9534f;
+  color: white;
+  border-radius: 10px;
+}
+
+
+.rs-theme-dark .react-select__input {
+  color: white !important;
+}
