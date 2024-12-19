@@ -9,7 +9,7 @@ import * as errors from '@/images/errors';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { FormHelperText } from '@mui/material'; // Import FormHelperText from MUI
-
+import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress from MUI
 import { Button as RemoveFile } from '@mui/material';
 
 
@@ -230,6 +230,25 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     };
 
 
+    const calculateProgressPercentage = (fields) => {
+        const filled = fields.filter((field) => {
+            const value = formData[field];
+            return value !== null && value !== undefined && value !== '';
+        }).length;
+
+        const total = fields.length;
+        return Math.round((filled / total) * 100); // Return percentage
+    };
+
+    const getCircularProgressColor = (percentage) => {
+        if (percentage === 100) {
+            return '#28a745'; // Green for 100% completion
+        } else if (percentage >= 50) {
+            return '#ffc107'; // Yellow for 50%-99% completion
+        } else {
+            return '#dc3545'; // Red for less than 50% completion
+        }
+    };
 
 
 
@@ -248,10 +267,20 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                 className={currentView === 'details' ? 'active' : ''}
                             >
                                 Details
-                                <span className="progress-counter"
-                                    style={getProgressBadgeStyle(detailsFields)}
-                                >
-                                    ({calculateProgress(detailsFields)})</span>
+                                <div className="progress-ring">
+                                    <CircularProgress
+                                        variant="determinate"
+                                        value={calculateProgressPercentage(detailsFields)}
+                                        size={40}
+                                        thickness={4}
+                                        style={{
+                                            color: getCircularProgressColor(calculateProgressPercentage(detailsFields))
+                                        }}
+                                    />
+                                    <span className="progress-percentage">
+                                        {calculateProgressPercentage(detailsFields)}%
+                                    </span>
+                                </div>
                             </a>
                             <Divider vertical />
                             <a
@@ -259,8 +288,20 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                 className={currentView === 'documents' ? 'active' : ''}
                             >
                                 Documents
-                                <span className="progress-counter" style={getProgressBadgeStyle(documentsFields)}
-                                > ({calculateProgress(documentsFields)})</span>
+                                <div className="progress-ring">
+                                    <CircularProgress
+                                        variant="determinate"
+                                        value={calculateProgressPercentage(documentsFields)}
+                                        size={40}
+                                        thickness={4}
+                                        style={{
+                                            color: getCircularProgressColor(calculateProgressPercentage(documentsFields)),
+                                        }}
+                                    />
+                                    <span className="progress-percentage">
+                                        {calculateProgressPercentage(documentsFields)}%
+                                    </span>
+                                </div>
                             </a>
                             <Divider vertical />
                             <a
@@ -268,8 +309,20 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                 className={currentView === 'notes' ? 'active' : ''}
                             >
                                 Notes
-                                <span className="progress-counter" style={getProgressBadgeStyle(notesFields)}
-                                > ({calculateProgress(notesFields)})</span>
+                                <div className="progress-ring">
+                                    <CircularProgress
+                                        variant="determinate"
+                                        value={calculateProgressPercentage(notesFields)}
+                                        size={40}
+                                        thickness={4}
+                                        style={{
+                                            color: getCircularProgressColor(calculateProgressPercentage(notesFields)),
+                                        }}
+                                    />
+                                    <span className="progress-percentage">
+                                        {calculateProgressPercentage(notesFields)}%
+                                    </span>
+                                </div>
                             </a>
                         </div>
                     </FlexboxGrid.Item>
