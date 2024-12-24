@@ -45,7 +45,8 @@ button {
 }
 
 input,
-textarea {
+textarea,
+.MuiTypography-root {
   font-family: 'Inter', sans-serif !important;
   /* font-size: 14px !important; */
 }
