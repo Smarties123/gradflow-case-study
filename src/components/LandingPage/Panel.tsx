@@ -115,10 +115,10 @@ export default function BuiltForYou() {
           // height: 400,
         }}
       >
-        {/* Current Image (flipInX animation) */}
+        {/* Current Image */}
         <img
-          key={selectedIndex} // Ensure the animation triggers on index change
-          className="animate__animated animate__fadeIn"
+          // key={selectedIndex} // Ensure the animation triggers on index change
+          // className="animate__animated animate__fadeIn"
           src={items[selectedIndex]?.image.slice(4, -1).replace(/"/g, "")} // Extract the image URL
           // alt={items[selectedIndex]?.title}
           style={{
