@@ -33,7 +33,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         location: card.location || '',
         url: card.url || '',
         notes: card.notes || '',
-        salary: card.salary || 0,  // Default salary to 0
+        salary: card.salary,
         interview_stage: card.interview_stage || '',
         date_applied: card.date_applied ? parseDate(card.date_applied) : null,
         card_color: card.card_color || '#ffffff',  // Default color to white
@@ -82,8 +82,8 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
             validationErrors.salary = "Salary must be a valid number";
         }
 
-        if (formData.date_applied > formData.deadline) {
-            validationErrors.date_applied = "Date applied cannot be after the deadline.";
+        if (formData.deadline < formData.date_applied && formData.deadline) {
+            validationErrors.deadline = "Deadline cannot be before the date applied.";
         }
 
 
@@ -209,26 +209,6 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
 
     const documentsFields = ['cv', 'coverLetter'];
     const notesFields = ['notes'];
-
-    const getProgressBadgeStyle = (fields) => {
-        const filled = fields.filter((field) => {
-            const value = formData[field];
-            return value !== null && value !== undefined && value !== '';
-        }).length;
-
-        const total = fields.length;
-        const percentage = (filled / total) * 100;
-
-        // Return styles based on completion percentage
-        if (percentage === 100) {
-            return { backgroundColor: '#28a745', color: '#fff' }; // Green for 100% completion
-        } else if (percentage >= 50) {
-            return { backgroundColor: '#ffc107', color: '#fff' }; // Yellow for 50%-99% completion
-        } else {
-            return { backgroundColor: '#dc3545', color: '#fff' }; // Red for less than 50% completion
-        }
-    };
-
 
     const calculateProgressPercentage = (fields) => {
         const filled = fields.filter((field) => {
@@ -408,11 +388,6 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                             value={formData.date_applied || ''}
                                             onChange={value => handleChange(value, 'date_applied')}
                                         />
-                                        {errors.date_applied && (
-                                            <FormHelperText id="error" error>
-                                                {errors.date_applied}
-                                            </FormHelperText>
-                                        )}
 
                                     </Form.Group>
                                 </Col>
@@ -425,9 +400,15 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                             oneTap
                                             format="dd-MM-yyyy"
                                             className="full-width"
-                                            value={formData.deadline || ''}
+                                            value={formData.deadline instanceof Date && !isNaN(formData.deadline) ? formData.deadline : null}
                                             onChange={value => handleChange(value, 'deadline')}
                                         />
+                                        {errors.deadline && (
+                                            <FormHelperText id="error" error>
+                                                {errors.deadline}
+                                            </FormHelperText>
+                                        )}
+
                                     </Form.Group>
                                 </Col>
                                 <Col xs={24} sm={12}>
@@ -436,8 +417,13 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                         <Form.Control
                                             name="salary"
                                             value={formData.salary}
-                                            onChange={value => handleChange(value, 'salary')}
+                                            onChange={(value) => {
+                                                const numericValue = value.replace(/[^0-9.]/g, '');
+                                                handleChange(numericValue, 'salary');
+                                            }}
                                             className="full-width"
+                                            // placeholder="Enter Salary"
+                                            maxLength={10}
 
                                         />
                                         {errors.salary && (

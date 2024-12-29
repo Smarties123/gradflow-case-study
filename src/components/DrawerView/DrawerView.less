@@ -307,3 +307,43 @@
     color: inherit;
     /* Match the ring color */
 }
+
+
+/* For WebKit browsers (Chrome, Safari, etc.) */
+::-webkit-scrollbar {
+    width: 12px;
+    /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    /* Track color */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ff6200;
+    /* Scrollbar color */
+    border-radius: 6px;
+    /* Rounded edges */
+    border: 3px solid #f1f1f1;
+    /* Padding around the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #e55700;
+    /* Darker orange on hover */
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    /* Thin scrollbar */
+    scrollbar-color: #ff6200 #f1f1f1;
+    /* Scrollbar thumb and track colors */
+}
+
+/* For Edge and Internet Explorer */
+::-ms-scrollbar {
+    width: 12px;
+    background: #f1f1f1;
+}
