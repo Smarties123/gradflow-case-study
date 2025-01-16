@@ -1,0 +1,68 @@
+:root {
+  --x: 50;
+  --y: 50;
+  --a: 0%;
+  /* --hue: 170deg; */
+  --button: #ff6200;
+  /* --edge: 20px; */
+  --size: 2em;
+}
+
+.gooey-button {
+  /* --a: 0%; */
+  /* --x: 50; */
+  /* --y: 50; */
+  background: transparent;
+  color: white; /* Button text colour */
+  cursor: pointer;
+  /* isolation: isolate; Ensure the button's layer is independent */
+  transition: 
+    transform 0.3s ease-in-out, /* Smooth scaling on hover */
+    --a 0.4s ease-in-out; /* Smooth radial effect on unhover */
+
+  /* font-size: 4.2em; */
+  position: relative;
+  /* padding: 32px; */
+  animation: color 20s linear infinite both;
+  transition: --a 0.9s ease-in-out, scale var(--spring-duration) var(--spring-easing);
+  scale: 0.38;
+}
+
+.gooey-button:hover {
+  --a: 100%;
+  transition-duration: 0.4s, 2s;
+  box-shadow: none;
+  opacity: 1;
+  scale: 0.46;
+}
+.gooey-button:before {
+  content: '';
+  position: absolute;
+  inset: 0em;
+  filter: blur(12px) url(#goo) drop-shadow(0 0.25em 0.5em rgba(255, 98, 0, 0.8)); /* Updated gooey shadow */
+  background-image: linear-gradient(0deg, var(--button), var(--button)),
+    radial-gradient(
+      40% 70% at calc(var(--x) * 1%) calc(var(--y) * 1%),
+      rgba(255, 98, 0, var(--a)) 0%, /* Gooey radial effect colour */
+      transparent 90%
+    );
+  background-clip: content-box, border-box;
+  padding: 24px;
+  margin: 10px;
+  z-index: -1;
+  border: inherit;
+  animation: color 20s linear infinite both;
+  transition: opacity 0.3s ease-in-out; /* Smooth hover-out effect */
+}
+
+
+:root {
+    --spring-easing: linear(
+    0, 0.002, 0.01 0.9%, 0.038 1.8%, 0.156, 0.312 5.8%, 0.789 11.1%, 1.015 14.2%,
+    1.096, 1.157, 1.199, 1.224 20.3%, 1.231, 1.231, 1.226, 1.214 24.6%,
+    1.176 26.9%, 1.057 32.6%, 1.007 35.5%, 0.984, 0.968, 0.956, 0.949 42%,
+    0.946 44.1%, 0.95 46.5%, 0.998 57.2%, 1.007, 1.011 63.3%, 1.012 68.3%,
+    0.998 84%, 1
+  );
+    --spring-duration: 1.86s;
+}
