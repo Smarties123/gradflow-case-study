@@ -1,0 +1,7 @@
+.animated-button {
+  transition: transform 0.2s ease-in-out;
+  padding: 6px 15px !important;
+  font-weight: 600 !important;
+  font-size: 0.775rem !important;
+  transition: all 0.5s ease-in-out;
+}

@@ -58,7 +58,17 @@ export default function Hero() {
           pb: { xs: 2, sm: 2 },
         }}
       >
-        <Stack spacing={2} useFlexGap sx={{ width: { xs: "100%", sm: "70%" } }}>
+        <Stack
+          spacing={2}
+          useFlexGap
+          sx={{
+            width: { xs: "100%", sm: "70%" },
+            maxWidth: "800px", // Restrict overall width
+            margin: "0 auto", // Centre the Stack horizontally
+            justifyContent: "center", // Centre items vertically within the Stack
+            alignItems: "center", // Centre items horizontally
+          }}
+        >
           <Typography
             variant="h1"
             sx={{
@@ -88,7 +98,11 @@ export default function Hero() {
           <Typography
             textAlign="center"
             color="text.secondary"
-            sx={{ alignSelf: 'center', width: { sm: '100%', md: '80%' } }}
+            sx={{
+              alignSelf: "center",
+              width: { sm: "100%", md: "80%" },
+              maxWidth: "600px",
+            }}
           >
             {text.map((el, i) => (
               <motion.span
@@ -96,29 +110,42 @@ export default function Hero() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{
-                  duration: 0.5, // Increased duration for slower fade-in
-                  delay: i * 0.25 // Increased delay for a more gradual appearance
+                  duration: 0.5,
+                  delay: i * 0.25,
                 }}
               >
-                {el}{' '}
+                {el}{" "}
               </motion.span>
             ))}
           </Typography>
 
-
-          <Stack
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              margin: 0, // Remove top and bottom margin
+              padding: 0, // Remove padding
+              height: "auto", // Ensure the height is auto
+            }}
           >
             <button
               className="gooey-button"
               onMouseMove={moveBg}
               onClick={() => (window.location.href = "/signup")}
-              style={{ fontSize: "3rem", fontWeight: 600, padding: "3.5rem 4rem" }}
+              style={{
+                fontSize: "2.5rem",
+                padding: "4.5rem 4rem", // Adjust padding for button
+                margin: 0, // Remove margin
+                lineHeight: 0, // Adjust line-height for compactness
+              }}
             >
-
               Sign Up for Free
             </button>
-          </Stack>
+          </div>
         </Stack>
+
+
         <svg width="0" height="0" style={{ position: "absolute" }}>
           <filter id="goo" x="-50%" y="-50%" width="200%" height="200%">
             <feComponentTransfer>

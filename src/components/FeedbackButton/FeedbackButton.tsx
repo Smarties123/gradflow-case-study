@@ -14,23 +14,27 @@ const StyledButton = styled(Button)(({ theme }) => ({
     fontSize: '18px !important', // Increase text size
     minWidth: '200px !important', // Set a minimum width
     textTransform: 'none', // Prevent text from being capitalized
+    transition: 'transform 0.3s ease', // Add a smooth transition for transform
     '& .MuiButton-startIcon': {
         marginRight: '8px', // Adjust icon spacing
     },
+    '&:hover': {
+        transform: 'scale(1.1)', // Increase size slightly on hover
+        boxShadow: '0 4px 15px rgba(0,0,0,0.4)', // Add a stronger shadow on hover
+    },
+    '&:active': {
+        transform: 'scale(1)', // Ensure it returns to the original size when clicked
+    },
 }));
 
-// Put it in the function when we remove it form the sidebar
 export const handleButtonClick = () => {
     window.open('https://forms.gle/VP1gkvxKpuhg1cJU9', '_blank');
 };
 
 const FeedbackButton: React.FC = () => {
-    // const handleButtonClick = () => {
-    //     window.open('https://forms.gle/TzuxcFinXXdRzRZQ8', '_blank');
-    // };
-
     return (
-        <StyledButton size='sm'
+        <StyledButton
+            size="sm"
             variant="contained"
             onClick={handleButtonClick}
             startIcon={<FeedbackIcon />}

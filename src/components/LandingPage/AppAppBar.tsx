@@ -15,6 +15,7 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import ToggleColorMode from './ToggleColorMode';
 import LandingPageBrand from '../LandingPageBrand/LandingPageBrand';
+import './Styles/AppAppBar.css';
 
 const logoStyle = {
   width: { xs: 'auto', md: '140px' }, // Auto width for small screens, 140px for medium and larger
@@ -98,11 +99,11 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
               flexGrow: 2,
               alignItems: 'center',
               justifyContent: 'flex-start',
-              gap: 3
+              gap: 3,
 
             }}
           >
-            {['Panel', 'Insights', 'FAQ'].map((section) => (
+            {['Panel', 'Insights', 'FAQ'].map(section => (
               <MenuItem
                 key={section}
                 onClick={() => scrollToSection(section.toLowerCase())}
@@ -110,7 +111,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   transition: 'color 0.3s',
                   '&:hover': {
                     color: 'primary.main',
-                    fontWeight: 'bold'
+                    fontWeight: '800'
                   }
                 }}
               >
@@ -132,22 +133,23 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
             <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
             <Button
               color="primary"
-              variant="text"
-              size="small"
-              href="/SignIn"
-              sx={{ textTransform: 'none' }}
+              variant="outlined"
+              // fullWidth
+              href="/SignUp"
+              className="animated-button"
             >
-              Sign In
+              Sign Up
             </Button>
             <Button
               color="primary"
               variant="contained"
-              size="small"
-              href="/SignUp"
-              sx={{ textTransform: 'none' }}
+              // fullWidth
+              href="/SignIn"
+              className="animated-button"
             >
-              Sign Up
+              Sign In
             </Button>
+
           </Box>
 
           {/* Mobile Menu */}
@@ -194,11 +196,6 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   variant="contained"
                   fullWidth
                   href="/SignUp"
-                  sx={{
-                    textTransform: 'none',
-                    fontSize: '1rem',
-                    py: 1
-                  }}
                 >
                   Sign Up
                 </Button>
@@ -207,12 +204,6 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   variant="outlined"
                   fullWidth
                   href="/SignIn"
-                  sx={{
-                    mt: 1,
-                    textTransform: 'none',
-                    fontSize: '1rem',
-                    py: 1
-                  }}
                 >
                   Sign In
                 </Button>

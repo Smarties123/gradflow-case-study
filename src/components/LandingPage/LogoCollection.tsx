@@ -39,7 +39,7 @@ export default function CountUpSection() {
   }, []);
 
   return (
-    <Box id="countUpSection" sx={{ py: 4, pt: 0 }}>
+    <Box id="countUpSection" sx={{ pt: 0, pb: 14 }}>
       <Grid container justifyContent="center" spacing={2} sx={{ mt: 0, opacity: 0.8 }}>
         {/* Registered Users CountUp */}
         <Grid item xs={12} md={3} textAlign="center" sx={{ p: 1 }}>
