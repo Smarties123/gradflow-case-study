@@ -112,23 +112,24 @@ export default function BuiltForYou() {
           textAlign: "center",
           mt: 4,
           position: "relative", // Stack images
-          // height: 400,
         }}
       >
-        {/* Current Image */}
         <img
-          // key={selectedIndex} // Ensure the animation triggers on index change
-          // className="animate__animated animate__fadeIn"
+          className={`animate__animated ${selectedIndex !== null ? "animate__fadeIn" : ""
+            }`} // Add fade-in animation class
           src={items[selectedIndex]?.image.slice(4, -1).replace(/"/g, "")} // Extract the image URL
-          // alt={items[selectedIndex]?.title}
+          alt={items[selectedIndex]?.title}
           style={{
             display: "block",
             width: "100%",
             height: "auto", // Maintain the image's aspect ratio
             borderRadius: "8px", // Optional: Add rounded corners
+            transition: "opacity 0.3s ease-in-out", // Smooth transition
+            opacity: selectedIndex !== null ? 1 : 0, // Ensure smooth fade-in
           }}
         />
       </Box>
+
     </Container>
   );
 }

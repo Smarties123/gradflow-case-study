@@ -434,7 +434,7 @@ export const deleteUserAccount = async (req, res) => {
 
 export const getAllUsers = async () => {
   try {
-    const result = await pool.query('SELECT "UserId", "Email" FROM "Users"');
+    const result = await pool.query('SELECT "UserId", "Email", "ApplicationEmail" FROM "Users"');
     return result.rows;
   } 
   catch (error) {
