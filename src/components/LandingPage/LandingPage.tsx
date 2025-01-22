@@ -84,9 +84,9 @@ export default function LandingPage() {
           {/* <Divider />
         
           <Divider /> */}
-          {/* <Pricing />
+          {/* <Pricing /> */}
 
-          <Divider /> */}
+          <Divider />
           <Footer />
         </Box>
         <FeedbackButton />
