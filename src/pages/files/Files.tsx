@@ -7,6 +7,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { v4 as uuidv4 } from 'uuid';
 import FilePopup from '../../components/FilePopup/FilePopup';
 
+// If you have a UserContext that provides user + token:
+import { useUser } from '../../components/User/UserContext';
+
 const Files = () => {
   const [cvFiles, setCvFiles] = useState([]);
   const [coverLetterFiles, setCoverLetterFiles] = useState([]);
@@ -14,108 +17,234 @@ const Files = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [applications, setApplications] = useState([]);
 
-  useEffect(() => {
-    fetchApplications();
-  }, []);
+  // If you're using context to get the user object/token:
+  const { user } = useUser() || {}; 
+  // user?.token should contain your JWT, e.g. "Bearer <token>" is typically needed by your backend.
 
-  //I think when the page loads we call a function which fetch all applications and holds them. See if we can make this more efficient
-  useEffect(() => {
-    fetchApplications();
-  }, []);
+  // ----------------------------------------------------------------------
+  // 1) FETCH user files from the backend
+  // ----------------------------------------------------------------------
+  const fetchUserFiles = async () => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/files`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user?.token}`, 
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch files');
+      }
+      const data = await response.json();
 
-  const fetchApplications = async () => {
+      // Separate them into CV vs Cover Letter by fileType
+      const cvList = data.filter((f) => f.fileType === 'CV');
+      const coverLetterList = data.filter((f) => f.fileType === 'Cover Letter');
 
-    // We just need name and status for example
-    // Software Developer (To Do)
-    // Data Analyst (Assessment)
+      // Convert them to a local structure
+      const toLocalFormat = (file) => ({
+        id: file.fileId,       // the DB’s fileId
+        name: file.fileName,
+        size: '---',           // or parse if you store file size
+        progress: 100,         // already "complete"
+        status: 'completed',
+        url: file.fileUrl,     // S3 or your file URL
+      });
 
-    // Call the api and stuff in this function
-    const dummyJobs = ['Frontend Developer (To Do)', 'Backend Developer (Assessment)', 'Data Analyst (To Do)', 'Software Developer (Assessment)'];
-
-    setApplications(dummyJobs);
-
+      setCvFiles(cvList.map(toLocalFormat));
+      setCoverLetterFiles(coverLetterList.map(toLocalFormat));
+    } catch (error) {
+      console.error('Error fetching files:', error);
+    }
   };
 
-  // Handle file uploads for both CV and Cover Letter sections
+  // ----------------------------------------------------------------------
+  // 2) CREATE a new file record in the DB
+  // ----------------------------------------------------------------------
+  const createFileRecord = async (file, fileType) => {
+    // `file` is our local representation (with a local "url" from URL.createObjectURL).
+    // Typically, you'd do an actual S3 upload and pass the S3 URL in the request body.
+
+    // Example body shape for your backend:
+    const body = {
+      typeId: fileType === 'cv' ? 1 : 2,  // 1 => CV, 2 => Cover Letter
+      fileUrl: file.url,                  // Replace with real S3 URL if you do S3
+      fileName: file.name,
+      extns: '.pdf',                      // or parse from file.name
+      description: `Uploaded from UI (${fileType})`,
+    };
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/files`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify(body),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to create file record');
+      }
+      const { file: newFile } = await response.json();
+      console.log('File record created in DB:', newFile);
+      // If you want to refresh your list from DB after creating:
+      fetchUserFiles();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // ----------------------------------------------------------------------
+  // 3) DELETE a file record from the DB
+  // ----------------------------------------------------------------------
+  const deleteFileRecord = async (fileId) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/files/${fileId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user?.token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete file record');
+      }
+      console.log(`File with ID ${fileId} deleted in DB`);
+      // Optionally re-fetch the list
+      fetchUserFiles();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // ----------------------------------------------------------------------
+  // 4) Fetch job applications (dummy data in this example)
+  // ----------------------------------------------------------------------
+  const fetchApplications = async () => {
+    const dummyJobs = [
+      'Frontend Developer (To Do)',
+      'Backend Developer (Assessment)',
+      'Data Analyst (To Do)',
+      'Software Developer (Assessment)',
+    ];
+    setApplications(dummyJobs);
+  };
+
+  // ----------------------------------------------------------------------
+  // useEffect to fetch data on mount (only if user token is available)
+  // ----------------------------------------------------------------------
+  useEffect(() => {
+    fetchApplications();
+    if (user?.token) {
+      fetchUserFiles();
+    }
+  }, [user?.token]);
+
+  // ----------------------------------------------------------------------
+  // 5) Handle local file uploads
+  // ----------------------------------------------------------------------
   const handleFileUpload = (e, fileType) => {
     const uploadedFiles = Array.from(e.target.files);
     const newFiles = uploadedFiles.map((file) => ({
-      id: uuidv4(), // Generate a unique ID for each file
+      id: uuidv4(), // local unique ID
       name: file.name,
-      size: `${(file.size / 1024).toFixed(1)} KB`, // Convert size to KB
-      progress: 0, // Start with 0% progress
-      status: 'uploading', // Initial status
-      url: URL.createObjectURL(file), // Create a temporary URL for the file
+      size: `${(file.size / 1024).toFixed(1)} KB`, 
+      progress: 0,
+      status: 'uploading',
+      url: URL.createObjectURL(file), 
     }));
 
-    // Add files to the corresponding section
     if (fileType === 'cv') {
       setCvFiles((prevFiles) => [...prevFiles, ...newFiles]);
     } else if (fileType === 'coverLetter') {
       setCoverLetterFiles((prevFiles) => [...prevFiles, ...newFiles]);
     }
 
-    // Start the upload animation for each file
+    // Animate each file to simulate an "upload"
     newFiles.forEach((file) => animateUpload(file.id, fileType));
   };
 
-
+  // ----------------------------------------------------------------------
+  // Animate "upload" to 100%
+  // ----------------------------------------------------------------------
   const animateUpload = (fileId, fileType) => {
     const interval = setInterval(() => {
       const updater = (prevFiles) =>
         prevFiles.map((file) =>
           file.id === fileId
             ? {
-              ...file,
-              progress: Math.min(file.progress + getRandomIncrement(3, 10), 100), // Increment by random value
-              status: file.progress >= 97 ? 'completed' : 'uploading', // Mark as completed when progress is >= 100%
-            }
+                ...file,
+                progress: Math.min(file.progress + getRandomIncrement(3, 10), 100),
+                status: file.progress >= 97 ? 'completed' : 'uploading',
+              }
             : file
         );
-
-
-      // Update the correct file list
       if (fileType === 'cv') {
         setCvFiles(updater);
       } else {
         setCoverLetterFiles(updater);
       }
-    }, 100); // Update every 100ms
+    }, 100);
 
-    // Stop the animation once it reaches 100%
+    // After 2s, stop interval, then "createFileRecord"
     setTimeout(() => {
       clearInterval(interval);
-    }, 2000); // Animation duration (2 seconds to reach 100%)
+
+      // Grab the final file from state
+      const finalFile =
+        fileType === 'cv'
+          ? cvFiles.find((f) => f.id === fileId)
+          : coverLetterFiles.find((f) => f.id === fileId);
+
+      if (finalFile) {
+        createFileRecord(finalFile, fileType);
+      }
+    }, 2000);
   };
 
-  // Helper function to generate a random increment within a range
+  // Helper to generate random increment
   const getRandomIncrement = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
+
+  // ----------------------------------------------------------------------
+  // 6) Remove file from local state (and optionally from DB)
+  // ----------------------------------------------------------------------
   const removeFile = (fileId, fileType) => {
     if (fileType === 'CV') {
       setCvFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileId));
     } else {
       setCoverLetterFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileId));
     }
+
+    // If the file `id` was actually the DB’s fileId, you can call:
+    // deleteFileRecord(fileId);
+    //
+    // Otherwise, if `file.id` is just a UUID, you’d need to store the
+    // DB ID somewhere (like file.dbId) to properly delete from DB.
   };
 
+  // ----------------------------------------------------------------------
+  // 7) Modal handling
+  // ----------------------------------------------------------------------
   const openFileInModal = (file, type) => {
-    setSelectedFile({ ...file, documentType: type }); // Attach documentType to the selected file
+    setSelectedFile({ ...file, documentType: type });
     setIsModalOpen(true);
   };
-
-
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
+  // ----------------------------------------------------------------------
+  // 8) Render files in rows
+  // ----------------------------------------------------------------------
   const renderFiles = (files, fileType) => (
     <Row gutter={20}>
-      {files.map((file, index) => (
-        <Col xs={24} key={index} className="files-file-row">
+      {files.map((file) => (
+        <Col xs={24} key={file.id} className="files-file-row">
           <div
             className="files-file-card"
             style={{
-              borderColor: 'white', // Apply border color dynamically
+              borderColor: 'white',
               backgroundColor: fileType === 'CV' ? '#6597F7' : 'purple',
             }}
           >
@@ -127,10 +256,10 @@ const Files = () => {
                 percent={file.progress}
                 strokeColor={
                   file.status === 'completed'
-                    ? '#28a745' // Green for completed
+                    ? '#28a745'
                     : fileType === 'CV'
-                      ? 'blue' // Blue for CV
-                      : '#A020F0' // Purple for Cover Letter
+                    ? 'blue'
+                    : '#A020F0'
                 }
                 trailColor="#f0f0f0"
                 showInfo={false}
@@ -138,7 +267,7 @@ const Files = () => {
               {file.status === 'completed' && (
                 <p
                   className="files-file-view-text"
-                  onClick={() => openFileInModal(file, fileType)} // Pass the document type
+                  onClick={() => openFileInModal(file, fileType)}
                 >
                   Click to View
                 </p>
@@ -157,7 +286,9 @@ const Files = () => {
     </Row>
   );
 
-
+  // ----------------------------------------------------------------------
+  // Return the main UI
+  // ----------------------------------------------------------------------
   return (
     <div className="files-page">
       <Row gutter={20} className="upload-section">
@@ -181,7 +312,7 @@ const Files = () => {
                 <p className="upload-instructions">
                   <span>Click to Upload</span> or drag and drop
                   <br />
-                  (Max. File size: 25 MB per fie)
+                  (Max. File size: 25 MB per file)
                 </p>
               </div>
             </label>
@@ -194,7 +325,14 @@ const Files = () => {
           <div className="upload-card">
             <h4 className="upload-title">Cover Letter</h4>
             <label htmlFor="cover-letter-upload" className="upload-label">
-              <div className="files-upload-area" style={{ borderColor: '#7C41E3', borderWidth: '1px', borderStyle: 'dashed' }}>
+              <div
+                className="files-upload-area"
+                style={{
+                  borderColor: '#7C41E3',
+                  borderWidth: '1px',
+                  borderStyle: 'dashed',
+                }}
+              >
                 <input
                   type="file"
                   id="cover-letter-upload"
@@ -203,7 +341,7 @@ const Files = () => {
                   onChange={(e) => handleFileUpload(e, 'coverLetter')}
                   style={{ display: 'none' }}
                 />
-                <div className="upload-icon" >
+                <div className="upload-icon">
                   <UploadFileIcon />
                 </div>
                 <p className="upload-instructions">
@@ -215,8 +353,8 @@ const Files = () => {
             </label>
           </div>
           {renderFiles(coverLetterFiles, 'Cover Letter')}
-        </Col >
-      </Row >
+        </Col>
+      </Row>
 
       <FilePopup
         isOpen={isModalOpen}
@@ -224,7 +362,7 @@ const Files = () => {
         selectedFile={selectedFile}
         applications={applications}
       />
-    </div >
+    </div>
   );
 };
 
