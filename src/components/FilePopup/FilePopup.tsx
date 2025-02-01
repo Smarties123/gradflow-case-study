@@ -54,31 +54,32 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
 
   // Handle "Update" click
   const handleUpdate = async () => {
-    console.log('handleUpdate triggered!');
-    if (!selectedFile?.id) return;
-
+    // console.log('handleUpdate triggered!');
+    // Prefer fileId if available
+    const fileId = selectedFile?.fileId || selectedFile?.id;
+    if (!fileId) return;
+  
     const typeId = docType === 'CV' ? 1 : 2;
     let applicationsId = null;
     if (assignedJobs.length > 0) {
       applicationsId = assignedJobs[0].value;
     }
-
+  
     const updatePayload = {
       fileName: title,
       typeId,
       applicationsId,
       description,
     };
-
-    // 1) Await the updated record from the server
-    const updatedFile = await updateFile(selectedFile.id, updatePayload);
-    // 2) If it returned successfully, pass it to the parent for immediate local update
+  
+    // Pass the proper identifier to updateFile
+    const updatedFile = await updateFile(fileId, updatePayload);
     if (updatedFile) {
       onLocalUpdate(updatedFile);
     }
     toggle();
   };
-
+  
   return (
     <div className="file-popup-container">
       <div className="file-popup-content">

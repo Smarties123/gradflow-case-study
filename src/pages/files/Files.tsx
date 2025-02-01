@@ -64,7 +64,8 @@ const Files = () => {
   const dbCvFiles = localFiles
     .filter((f) => f.fileType === 'CV')
     .map((f) => ({
-      id: f.fileId,
+      id: f.fileId,           // for UI purposes
+      fileId: f.fileId,       // keep the original identifier for updates
       name: f.fileName,
       size: '---',
       progress: 100,
@@ -79,6 +80,7 @@ const Files = () => {
     .filter((f) => f.fileType === 'CL')
     .map((f) => ({
       id: f.fileId,
+      fileId: f.fileId,       // add fileId here as well
       name: f.fileName,
       size: '---',
       progress: 100,
