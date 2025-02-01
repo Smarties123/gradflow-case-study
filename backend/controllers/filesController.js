@@ -41,7 +41,7 @@ export const getUserFiles = async (req, res) => {
  */
 export const createFile = async (req, res) => {
   const userId = req.user.userId;
-  const { typeId, applicationsId, fileUrl, fileName, extns, description } = req.body;
+  const { typeId, applicationsId, fileUrl, fileName, extens, description } = req.body;
 
   if (!typeId || !fileUrl || !fileName) {
     return res.status(400).json({
@@ -52,11 +52,11 @@ export const createFile = async (req, res) => {
   try {
     const query = `
       INSERT INTO "Files"
-      ("userId", "typeId", "applicationsId", "fileUrl", "fileName", "extns", "description")
+      ("userId", "typeId", "applicationsId", "fileUrl", "fileName", "extens", "description")
       VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *;
     `;
-    const values = [userId, typeId, applicationsId || null, fileUrl, fileName, extns || null, description || null];
+    const values = [userId, typeId, applicationsId || null, fileUrl, fileName, extens || null, description || null];
 
     const { rows } = await pool.query(query, values);
     res.status(201).json({ message: 'File created successfully', file: rows[0] });
@@ -72,7 +72,7 @@ export const createFile = async (req, res) => {
 export const updateFile = async (req, res) => {
   const { id } = req.params; // fileId
   const userId = req.user.userId;
-  const { typeId, applicationsId, fileName, extns, description } = req.body;
+  const { typeId, applicationsId, fileName, extens, description } = req.body;
 
   // Build the SET clause dynamically
   const fields = [];
@@ -94,9 +94,9 @@ export const updateFile = async (req, res) => {
     values.push(fileName);
     idx++;
   }
-  if (extns !== undefined) {
-    fields.push(`"extns" = $${idx}`);
-    values.push(extns);
+  if (extens !== undefined) {
+    fields.push(`"extens" = $${idx}`);
+    values.push(extens);
     idx++;
   }
   if (description !== undefined) {

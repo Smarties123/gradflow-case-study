@@ -7,239 +7,206 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { v4 as uuidv4 } from 'uuid';
 import FilePopup from '../../components/FilePopup/FilePopup';
 
-// If you have a UserContext that provides user + token:
+// Pull in the user from context:
 import { useUser } from '../../components/User/UserContext';
+// Pull in the board data hook to sync application data
+import { useBoardData } from '../../hooks/useBoardData';
+// Pull in fileData hook (now has createFile, deleteFile, etc.)
+import { useFileData } from '../../hooks/useFileData';
 
 const Files = () => {
-  const [cvFiles, setCvFiles] = useState([]);
-  const [coverLetterFiles, setCoverLetterFiles] = useState([]);
+  // For local "uploading" states
+  const [uploadingCvFiles, setUploadingCvFiles] = useState([]);
+  const [uploadingCoverLetterFiles, setUploadingCoverLetterFiles] = useState([]);
+
+  // For opening a modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+
+  // For listing existing applications from the board data
   const [applications, setApplications] = useState([]);
 
-  // If you're using context to get the user object/token:
-  const { user } = useUser() || {}; 
-  // user?.token should contain your JWT, e.g. "Bearer <token>" is typically needed by your backend.
+  // Grab the user, then call useBoardData(user)
+  const { user } = useUser();
+  const { columns, loading: boardLoading } = useBoardData(user);
 
-  // ----------------------------------------------------------------------
-  // 1) FETCH user files from the backend
-  // ----------------------------------------------------------------------
-  const fetchUserFiles = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/files`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user?.token}`, 
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch files');
-      }
-      const data = await response.json();
+  // Load existing files from the DB using our custom hook
+  const {
+    files,
+    loading,
+    error,
+    createFile,
+    deleteFile,
+    // We'll still do global updates, but also maintain local updates
+    updateFile,
+  } = useFileData();
 
-      // Separate them into CV vs Cover Letter by fileType
-      const cvList = data.filter((f) => f.fileType === 'CV');
-      const coverLetterList = data.filter((f) => f.fileType === 'Cover Letter');
+  // 1) Create a local mirror of the DB's file list
+  const [localFiles, setLocalFiles] = useState(files);
 
-      // Convert them to a local structure
-      const toLocalFormat = (file) => ({
-        id: file.fileId,       // the DB’s fileId
-        name: file.fileName,
-        size: '---',           // or parse if you store file size
-        progress: 100,         // already "complete"
-        status: 'completed',
-        url: file.fileUrl,     // S3 or your file URL
-      });
-
-      setCvFiles(cvList.map(toLocalFormat));
-      setCoverLetterFiles(coverLetterList.map(toLocalFormat));
-    } catch (error) {
-      console.error('Error fetching files:', error);
-    }
-  };
-
-  // ----------------------------------------------------------------------
-  // 2) CREATE a new file record in the DB
-  // ----------------------------------------------------------------------
-  const createFileRecord = async (file, fileType) => {
-    // `file` is our local representation (with a local "url" from URL.createObjectURL).
-    // Typically, you'd do an actual S3 upload and pass the S3 URL in the request body.
-
-    // Example body shape for your backend:
-    const body = {
-      typeId: fileType === 'cv' ? 1 : 2,  // 1 => CV, 2 => Cover Letter
-      fileUrl: file.url,                  // Replace with real S3 URL if you do S3
-      fileName: file.name,
-      extns: '.pdf',                      // or parse from file.name
-      description: `Uploaded from UI (${fileType})`,
-    };
-
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/files`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user?.token}`,
-        },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to create file record');
-      }
-      const { file: newFile } = await response.json();
-      console.log('File record created in DB:', newFile);
-      // If you want to refresh your list from DB after creating:
-      fetchUserFiles();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // ----------------------------------------------------------------------
-  // 3) DELETE a file record from the DB
-  // ----------------------------------------------------------------------
-  const deleteFileRecord = async (fileId) => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/files/${fileId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user?.token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to delete file record');
-      }
-      console.log(`File with ID ${fileId} deleted in DB`);
-      // Optionally re-fetch the list
-      fetchUserFiles();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // ----------------------------------------------------------------------
-  // 4) Fetch job applications (dummy data in this example)
-  // ----------------------------------------------------------------------
-  const fetchApplications = async () => {
-    const dummyJobs = [
-      'Frontend Developer (To Do)',
-      'Backend Developer (Assessment)',
-      'Data Analyst (To Do)',
-      'Software Developer (Assessment)',
-    ];
-    setApplications(dummyJobs);
-  };
-
-  // ----------------------------------------------------------------------
-  // useEffect to fetch data on mount (only if user token is available)
-  // ----------------------------------------------------------------------
+  // 2) Whenever the global "files" changes (e.g. after refetch), sync to local
   useEffect(() => {
-    fetchApplications();
-    if (user?.token) {
-      fetchUserFiles();
-    }
-  }, [user?.token]);
+    setLocalFiles(files);
+  }, [files]);
 
-  // ----------------------------------------------------------------------
-  // 5) Handle local file uploads
-  // ----------------------------------------------------------------------
-  const handleFileUpload = (e, fileType) => {
-    const uploadedFiles = Array.from(e.target.files);
+  // 3) Callback to immediately update local state after an edit
+  const handleLocalFileUpdate = (updatedFile) => {
+    if (!updatedFile) return;
+    setLocalFiles((prev) =>
+      prev.map((f) =>
+        f.fileId === updatedFile.fileId ? updatedFile : f
+      )
+    );
+  };
+
+  // 4) Build final arrays (CV & CL) from localFiles
+  //    Merge with local "uploading" files for display
+  const dbCvFiles = localFiles
+    .filter((f) => f.fileType === 'CV')
+    .map((f) => ({
+      id: f.fileId,
+      name: f.fileName,
+      size: '---',
+      progress: 100,
+      status: 'completed',
+      url: f.fileUrl,
+      isDbFile: true,
+      description: f.description,
+      applicationsId: f.applicationsId
+    }));
+
+  const dbCoverLetterFiles = localFiles
+    .filter((f) => f.fileType === 'CL')
+    .map((f) => ({
+      id: f.fileId,
+      name: f.fileName,
+      size: '---',
+      progress: 100,
+      status: 'completed',
+      url: f.fileUrl,
+      isDbFile: true,
+      description: f.description,
+      applicationsId: f.applicationsId
+    }));
+
+  // Combine DB files with local "uploading" files
+  const cvFiles = [...dbCvFiles, ...uploadingCvFiles];
+  const coverLetterFiles = [...dbCoverLetterFiles, ...uploadingCoverLetterFiles];
+
+  // 5) If we need application data from board, set up the local array
+  useEffect(() => {
+    if (!boardLoading && columns?.length > 0) {
+      const newApplications = columns.flatMap((col) =>
+        col.cards.map((card) => ({
+          label: `${card.position} (${col.title})`,
+          value: card.id
+        }))
+      );
+      setApplications(newApplications);
+    }
+  }, [boardLoading, columns]);
+
+  // 6) Handle file uploads (CV / Cover Letter)
+  const handleFileUpload = (e, fileType: 'cv' | 'coverLetter') => {
+    const uploadedFiles = Array.from(e.target.files || []);
+
     const newFiles = uploadedFiles.map((file) => ({
-      id: uuidv4(), // local unique ID
+      id: uuidv4(),
       name: file.name,
-      size: `${(file.size / 1024).toFixed(1)} KB`, 
+      size: `${(file.size / 1024).toFixed(1)} KB`,
       progress: 0,
       status: 'uploading',
-      url: URL.createObjectURL(file), 
+      url: URL.createObjectURL(file),
+      isDbFile: false,
     }));
 
     if (fileType === 'cv') {
-      setCvFiles((prevFiles) => [...prevFiles, ...newFiles]);
-    } else if (fileType === 'coverLetter') {
-      setCoverLetterFiles((prevFiles) => [...prevFiles, ...newFiles]);
+      setUploadingCvFiles((prev) => [...prev, ...newFiles]);
+    } else {
+      setUploadingCoverLetterFiles((prev) => [...prev, ...newFiles]);
     }
 
-    // Animate each file to simulate an "upload"
-    newFiles.forEach((file) => animateUpload(file.id, fileType));
+    newFiles.forEach((file) => animateUpload(file, fileType));
   };
 
-  // ----------------------------------------------------------------------
-  // Animate "upload" to 100%
-  // ----------------------------------------------------------------------
-  const animateUpload = (fileId, fileType) => {
+  const animateUpload = (file, fileType) => {
     const interval = setInterval(() => {
-      const updater = (prevFiles) =>
-        prevFiles.map((file) =>
-          file.id === fileId
-            ? {
-                ...file,
-                progress: Math.min(file.progress + getRandomIncrement(3, 10), 100),
-                status: file.progress >= 97 ? 'completed' : 'uploading',
-              }
-            : file
-        );
       if (fileType === 'cv') {
-        setCvFiles(updater);
+        setUploadingCvFiles((prevFiles) =>
+          prevFiles.map((f) =>
+            f.id === file.id
+              ? {
+                  ...f,
+                  progress: Math.min(f.progress + getRandomIncrement(3, 10), 100),
+                  status: f.progress >= 97 ? 'completed' : 'uploading',
+                }
+              : f
+          )
+        );
       } else {
-        setCoverLetterFiles(updater);
+        setUploadingCoverLetterFiles((prevFiles) =>
+          prevFiles.map((f) =>
+            f.id === file.id
+              ? {
+                  ...f,
+                  progress: Math.min(f.progress + getRandomIncrement(3, 10), 100),
+                  status: f.progress >= 97 ? 'completed' : 'uploading',
+                }
+              : f
+          )
+        );
       }
     }, 100);
 
-    // After 2s, stop interval, then "createFileRecord"
+    // After ~2s, "upload" is "done"
     setTimeout(() => {
       clearInterval(interval);
 
-      // Grab the final file from state
-      const finalFile =
-        fileType === 'cv'
-          ? cvFiles.find((f) => f.id === fileId)
-          : coverLetterFiles.find((f) => f.id === fileId);
+      // Create the file in DB
+      const body = {
+        typeId: fileType === 'cv' ? 1 : 2,
+        fileUrl: file.url,
+        fileName: file.name,
+        extens: '.pdf',
+        description: `Uploaded from UI (${fileType})`,
+      };
+      createFile(body);
 
-      if (finalFile) {
-        createFileRecord(finalFile, fileType);
+      // Remove from local uploading
+      if (fileType === 'cv') {
+        setUploadingCvFiles((prev) => prev.filter((f) => f.id !== file.id));
+      } else {
+        setUploadingCoverLetterFiles((prev) => prev.filter((f) => f.id !== file.id));
       }
     }, 2000);
   };
 
-  // Helper to generate random increment
-  const getRandomIncrement = (min, max) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  };
+  const getRandomIncrement = (min: number, max: number) =>
+    Math.floor(Math.random() * (max - min + 1)) + min;
 
-  // ----------------------------------------------------------------------
-  // 6) Remove file from local state (and optionally from DB)
-  // ----------------------------------------------------------------------
-  const removeFile = (fileId, fileType) => {
-    if (fileType === 'CV') {
-      setCvFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileId));
+  // 7) Handle removal from local UI + DB
+  const removeFile = (fileId: string | number, fileType: 'CV' | 'CL') => {
+    if (typeof fileId === 'number') {
+      deleteFile(fileId);
     } else {
-      setCoverLetterFiles((prevFiles) => prevFiles.filter((file) => file.id !== fileId));
+      if (fileType === 'CV') {
+        setUploadingCvFiles((prev) => prev.filter((f) => f.id !== fileId));
+      } else {
+        setUploadingCoverLetterFiles((prev) => prev.filter((f) => f.id !== fileId));
+      }
     }
-
-    // If the file `id` was actually the DB’s fileId, you can call:
-    // deleteFileRecord(fileId);
-    //
-    // Otherwise, if `file.id` is just a UUID, you’d need to store the
-    // DB ID somewhere (like file.dbId) to properly delete from DB.
   };
 
-  // ----------------------------------------------------------------------
-  // 7) Modal handling
-  // ----------------------------------------------------------------------
+  // 8) Modal handling
   const openFileInModal = (file, type) => {
     setSelectedFile({ ...file, documentType: type });
     setIsModalOpen(true);
   };
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
-  // ----------------------------------------------------------------------
-  // 8) Render files in rows
-  // ----------------------------------------------------------------------
-  const renderFiles = (files, fileType) => (
+  const renderFiles = (filesArray, fileType: 'CV' | 'CL') => (
     <Row gutter={20}>
-      {files.map((file) => (
+      {filesArray.map((file) => (
         <Col xs={24} key={file.id} className="files-file-row">
           <div
             className="files-file-card"
@@ -286,9 +253,7 @@ const Files = () => {
     </Row>
   );
 
-  // ----------------------------------------------------------------------
-  // Return the main UI
-  // ----------------------------------------------------------------------
+  // 9) Main Return
   return (
     <div className="files-page">
       <Row gutter={20} className="upload-section">
@@ -323,7 +288,7 @@ const Files = () => {
         {/* Cover Letter Column */}
         <Col xs={12}>
           <div className="upload-card">
-            <h4 className="upload-title">Cover Letter</h4>
+            <h4 className="upload-title">CL</h4>
             <label htmlFor="cover-letter-upload" className="upload-label">
               <div
                 className="files-upload-area"
@@ -352,15 +317,17 @@ const Files = () => {
               </div>
             </label>
           </div>
-          {renderFiles(coverLetterFiles, 'Cover Letter')}
+          {renderFiles(coverLetterFiles, 'CL')}
         </Col>
       </Row>
 
+      {/* Pass onLocalUpdate for immediate local UI changes */}
       <FilePopup
         isOpen={isModalOpen}
         toggle={toggleModal}
         selectedFile={selectedFile}
         applications={applications}
+        onLocalUpdate={handleLocalFileUpdate}
       />
     </div>
   );
