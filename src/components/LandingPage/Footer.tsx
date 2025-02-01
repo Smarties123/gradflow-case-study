@@ -22,7 +22,7 @@ function Copyright() {
     <Typography variant="body2" color="text.secondary" mt={1}>
       {'Copyright © '}
       <Link href="https://find-and-update.company-information.service.gov.uk/company/16020364" target="_blank" rel="noopener noreferrer">
-      HAD TECHNOLOGIES LTD&nbsp;
+        HAD TECHNOLOGIES LTD&nbsp;
       </Link>
       {new Date().getFullYear()}
     </Typography>
@@ -97,8 +97,8 @@ export default function Footer() {
           <Typography variant="body2" fontWeight={600}>
             Product
           </Typography>
-          <Link color="text.secondary" href="#panel">
-            Panel
+          <Link color="text.secondary" href="#terminal">
+            Terminal
           </Link>
           <Link color="text.secondary" href="#insights">
             Insights

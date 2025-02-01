@@ -5,6 +5,8 @@ const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea
 import Github from '@uiw/react-color-github';
 import './DrawerView.less';
 import dayjs from 'dayjs';
+import * as errors from '@/images/errors';
+
 
 
 const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateStatus, statuses = [], updateStatusLocally }) => {
@@ -78,17 +80,17 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         console.log("DrawerView card prop:", card);
 
         const updatedData = {
-            company: formData.company || card.company || null,
-            position: formData.position || card.position || null,
-            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : card.deadline || null,
-            location: formData.location || card.location || null,
-            url: formData.url || card.url || null,
-            notes: formData.notes || card.notes || null,
-            salary: formData.salary !== undefined ? formData.salary : card.salary || null,
-            interview_stage: formData.interview_stage || card.interview_stage || null,
-            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : card.date_applied || null,
-            card_color: formData.card_color || card.card_color || null,
-            statusId: formData.StatusId || card.StatusId // Ensure StatusId is always included
+            company: formData.company,
+            position: formData.position,
+            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : null,
+            location: formData.location,
+            url: formData.url,
+            notes: formData.notes,  // This will now be included even if empty or null
+            salary: formData.salary,
+            interview_stage: formData.interview_stage,
+            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : null,
+            card_color: formData.card_color,
+            statusId: formData.StatusId || card.StatusId,
         };
 
         try {
@@ -153,11 +155,19 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                             </a>
                             <Divider vertical />
                             <a
+                                onClick={() => setCurrentView('documents')}
+                                className={currentView === 'documents' ? 'active' : ''}
+                            >
+                                Documents
+                            </a>
+                            <Divider vertical />
+                            <a
                                 onClick={() => setCurrentView('notes')}
                                 className={currentView === 'notes' ? 'active' : ''}
                             >
                                 Notes
                             </a>
+
                         </div>
                     </FlexboxGrid.Item>
                 </FlexboxGrid>
@@ -323,6 +333,21 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                         </Form>
                     </div>
                 )}
+
+                {currentView === 'documents' && (
+                    <div className="coming-soon-page" style={{ background: 'transparent', height: 'inherit' }}>
+                        <div className="item">
+                            <img src={errors['Error404Img']} alt="Coming Soon" className="coming-soon-image" style={{ maxWidth: '70%' }} />
+                            <div className="text">
+                                <h3 className="coming-soon-message" >
+                                    Coming soon: Upload and manage your cover letters and CVs for each job application. Stay tuned!"
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
 
                 <Grid fluid>
                     <Row gutter={10} className="drawer-buttons">

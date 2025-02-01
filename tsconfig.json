@@ -15,6 +15,7 @@
     "jsx": "react",
     "skipLibCheck": true,
     "baseUrl": ".",
+    "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/*"]
     }
