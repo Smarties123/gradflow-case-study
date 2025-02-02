@@ -113,19 +113,29 @@ export const updateFile = async (req, res) => {
   values.push(id);
   values.push(userId);
 
-  const updateQuery = `
-    UPDATE "Files"
-    SET ${fields.join(', ')}
-    WHERE "fileId" = $${idx} AND "userId" = $${idx + 1}
-    RETURNING *;
-  `;
-
   try {
-    const { rows } = await pool.query(updateQuery, values);
-    if (rows.length === 0) {
+    const updateWithJoin = `
+      WITH updated AS (
+        UPDATE "Files"
+        SET ${fields.join(', ')}
+        WHERE "fileId" = $${idx} AND "userId" = $${idx + 1}
+        RETURNING *
+      )
+      SELECT u.*, ft."type" as "fileType"
+      FROM updated u
+      JOIN "FileTypes" ft ON ft."typeId" = u."typeId";
+    `;
+
+    const { rows: joinedRows } = await pool.query(updateWithJoin, values);
+
+    if (joinedRows.length === 0) {
       return res.status(404).json({ message: 'File not found or not authorized' });
     }
-    res.status(200).json({ message: 'File updated successfully', file: rows[0] });
+
+    res.status(200).json({
+      message: 'File updated successfully',
+      file: joinedRows[0],
+    });
   } catch (error) {
     console.error('Error updating file record:', error);
     res.status(500).json({ message: 'Server error' });

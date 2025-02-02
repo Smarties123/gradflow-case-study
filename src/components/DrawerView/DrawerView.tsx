@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Grid, Row, Col, SelectPicker, Button } from 'rsuite';
-import { useUser } from '@/components/User/UserContext'; // Import useUser to get the user
+import { useUser } from '@/components/User/UserContext';
+import { useFileData } from '../../hooks/useFileData'; // <-- Added
 const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea" ref={ref} />);
 import Github from '@uiw/react-color-github';
 import './DrawerView.less';
@@ -19,6 +20,9 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     const { user } = useUser(); // Get the user object
     // const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
     const [errors, setErrors] = useState({}); // State to track errors
+    
+    const { createFile, files } = useFileData(); // <-- Added
+    const [appFiles, setAppFiles] = useState([]); // <-- Added to store this application's files
 
 
     const parseDate = (dateStr) => {
@@ -66,10 +70,16 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     useEffect(() => {
         if (!card.id) {
             console.warn("ID is missing from card prop:", card);
-            // Optionally, prevent drawer from opening if no ID
             onClose();
         }
-    }, [card]);
+        
+        // Filter files that belong to this application
+        const relevantFiles = files.filter(f => {
+            if (!f.applicationsId) return false;
+            return parseInt(f.applicationsId, 10) === parseInt(card.id, 10);
+        });
+        setAppFiles(relevantFiles);
+    }, [card, files, onClose]);
 
 
     const validateForm = () => {
@@ -112,6 +122,31 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         console.log("Updating card with ID:", card.id); // Debug log to verify ID
         console.log("DrawerView card prop:", card);
 
+
+        // 1) If a new CV file is chosen, create a DB record
+        if (formData.cv && formData.cv.file) {
+            await createFile({
+            typeId: 1, // 1 for CV
+            fileUrl: URL.createObjectURL(formData.cv.file),
+            fileName: formData.cv.file.name,
+            extens: '.pdf',
+            description: `CV uploaded via DrawerView`,
+            applicationsId: Number(card.id)
+            });
+        }
+    
+        // 2) If a new Cover Letter file is chosen, create a DB record
+        if (formData.coverLetter && formData.coverLetter.file) {
+            await createFile({
+            typeId: 2, // 2 for Cover Letter
+            fileUrl: URL.createObjectURL(formData.coverLetter.file),
+            fileName: formData.coverLetter.file.name,
+            extens: '.pdf',
+            description: `Cover Letter uploaded via DrawerView`,
+            applicationsId: Number(card.id)
+            });
+        }
+        
         const updatedData = {
             company: formData.company,
             position: formData.position,
@@ -501,6 +536,18 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
 
                 {currentView === 'documents' && (
                     <div className='document-section'>
+                        {/* Show existing files for this application */}
+                            {appFiles.length > 0 && (
+                                <div style={{ marginBottom: '1rem' }}>
+                                <h5>Existing Files for this Application:</h5>
+                                {appFiles.map(file => (
+                                    <div key={file.fileId} style={{ display: 'flex', alignItems: 'center', marginTop: '5px' }}>
+                                    <InsertDriveFileIcon style={{ marginRight: '5px' }} />
+                                    {file.fileName} ({file.fileType})
+                                    </div>
+                                ))}
+                                </div>
+                            )}
                         <Grid fluid>
                             <Row gutter={20}>
                                 {/* CV Section */}

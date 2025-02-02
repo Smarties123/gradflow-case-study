@@ -7,12 +7,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { v4 as uuidv4 } from 'uuid';
 import FilePopup from '../../components/FilePopup/FilePopup';
 
-// Pull in the user from context:
 import { useUser } from '../../components/User/UserContext';
-// Pull in the board data hook to sync application data
 import { useBoardData } from '../../hooks/useBoardData';
-// Pull in fileData hook (now has createFile, deleteFile, etc.)
 import { useFileData } from '../../hooks/useFileData';
+import { SelectPicker } from 'rsuite';
 
 const Files = () => {
   // For local "uploading" states
@@ -26,25 +24,26 @@ const Files = () => {
   // For listing existing applications from the board data
   const [applications, setApplications] = useState([]);
 
-  // Grab the user, then call useBoardData(user)
+  // Track the selected application for CV or CL
+  const [selectedAppCV, setSelectedAppCV] = useState(null);
+  const [selectedAppCL, setSelectedAppCL] = useState(null);
+
   const { user } = useUser();
   const { columns, loading: boardLoading } = useBoardData(user);
 
-  // Load existing files from the DB using our custom hook
   const {
     files,
     loading,
     error,
     createFile,
     deleteFile,
-    // We'll still do global updates, but also maintain local updates
     updateFile,
   } = useFileData();
 
-  // 1) Create a local mirror of the DB's file list
+  // 1) Local mirror of DB's file list
   const [localFiles, setLocalFiles] = useState(files);
 
-  // 2) Whenever the global "files" changes (e.g. after refetch), sync to local
+  // 2) Sync whenever global "files" changes
   useEffect(() => {
     setLocalFiles(files);
   }, [files]);
@@ -59,13 +58,12 @@ const Files = () => {
     );
   };
 
-  // 4) Build final arrays (CV & CL) from localFiles
-  //    Merge with local "uploading" files for display
+  // 4) Separate out CV & Cover Letter from localFiles
   const dbCvFiles = localFiles
     .filter((f) => f.fileType === 'CV')
     .map((f) => ({
-      id: f.fileId,           // for UI purposes
-      fileId: f.fileId,       // keep the original identifier for updates
+      id: f.fileId,
+      fileId: f.fileId,
       name: f.fileName,
       size: '---',
       progress: 100,
@@ -80,7 +78,7 @@ const Files = () => {
     .filter((f) => f.fileType === 'CL')
     .map((f) => ({
       id: f.fileId,
-      fileId: f.fileId,       // add fileId here as well
+      fileId: f.fileId,
       name: f.fileName,
       size: '---',
       progress: 100,
@@ -91,17 +89,16 @@ const Files = () => {
       applicationsId: f.applicationsId
     }));
 
-  // Combine DB files with local "uploading" files
   const cvFiles = [...dbCvFiles, ...uploadingCvFiles];
   const coverLetterFiles = [...dbCoverLetterFiles, ...uploadingCoverLetterFiles];
 
-  // 5) If we need application data from board, set up the local array
+  // 5) Gather all applications (Board columns -> cards)
   useEffect(() => {
     if (!boardLoading && columns?.length > 0) {
       const newApplications = columns.flatMap((col) =>
         col.cards.map((card) => ({
           label: `${card.position} (${col.title})`,
-          value: card.id
+          value: Number(card.id), // parse to number
         }))
       );
       setApplications(newApplications);
@@ -160,21 +157,23 @@ const Files = () => {
       }
     }, 100);
 
-    // After ~2s, "upload" is "done"
+    // After ~2s, consider the "upload" done, call createFile
     setTimeout(() => {
       clearInterval(interval);
 
-      // Create the file in DB
+      // Create the file in DB with the chosen applicationsId (if any)
       const body = {
         typeId: fileType === 'cv' ? 1 : 2,
         fileUrl: file.url,
         fileName: file.name,
         extens: '.pdf',
         description: `Uploaded from UI (${fileType})`,
+        applicationsId:
+          fileType === 'cv' ? selectedAppCV || null : selectedAppCL || null,
       };
       createFile(body);
 
-      // Remove from local uploading
+      // Remove from local "uploading"
       if (fileType === 'cv') {
         setUploadingCvFiles((prev) => prev.filter((f) => f.id !== file.id));
       } else {
@@ -188,9 +187,11 @@ const Files = () => {
 
   // 7) Handle removal from local UI + DB
   const removeFile = (fileId: string | number, fileType: 'CV' | 'CL') => {
+    // If fileId is a DB numeric ID, call deleteFile
     if (typeof fileId === 'number') {
       deleteFile(fileId);
     } else {
+      // Otherwise, remove from local uploading array
       if (fileType === 'CV') {
         setUploadingCvFiles((prev) => prev.filter((f) => f.id !== fileId));
       } else {
@@ -259,10 +260,19 @@ const Files = () => {
   return (
     <div className="files-page">
       <Row gutter={20} className="upload-section">
+
         {/* CV Column */}
         <Col xs={12}>
           <div className="upload-card">
             <h4 className="upload-title">CV</h4>
+            {/* Let the user pick an application for the CV files */}
+            <SelectPicker
+              data={applications}
+              placeholder="Select Application (optional)"
+              value={selectedAppCV}
+              onChange={setSelectedAppCV}
+              style={{ width: '100%', marginBottom: '1rem' }}
+            />
             <label htmlFor="cv-upload" className="upload-label">
               <div className="files-upload-area">
                 <input
@@ -290,7 +300,15 @@ const Files = () => {
         {/* Cover Letter Column */}
         <Col xs={12}>
           <div className="upload-card">
-            <h4 className="upload-title">CL</h4>
+            <h4 className="upload-title">Cover Letter</h4>
+            {/* Let the user pick an application for the Cover Letter files */}
+            <SelectPicker
+              data={applications}
+              placeholder="Select Application (optional)"
+              value={selectedAppCL}
+              onChange={setSelectedAppCL}
+              style={{ width: '100%', marginBottom: '1rem' }}
+            />
             <label htmlFor="cover-letter-upload" className="upload-label">
               <div
                 className="files-upload-area"
@@ -323,7 +341,6 @@ const Files = () => {
         </Col>
       </Row>
 
-      {/* Pass onLocalUpdate for immediate local UI changes */}
       <FilePopup
         isOpen={isModalOpen}
         toggle={toggleModal}
