@@ -20,11 +20,20 @@ export const getUserFiles = async (req, res) => {
   const userId = req.user.userId; // from authMiddleware
   try {
     const result = await pool.query(
-      `SELECT f.*, ft."type" AS "fileType"
-       FROM "Files" f
-       JOIN "FileTypes" ft ON f."typeId" = ft."typeId"
-       WHERE f."userId" = $1
-       ORDER BY f."fileId" DESC;`,
+      `SELECT
+        f.*,
+        ft."type" AS "fileType",
+        COALESCE(
+          JSON_AGG(fa."ApplicationId") FILTER (WHERE fa."ApplicationId" IS NOT NULL),
+          '[]'
+        ) AS "ApplicationIds"
+      FROM "Files" f
+      JOIN "FileTypes" ft ON f."typeId" = ft."typeId"
+      LEFT JOIN "FileApplications" fa ON fa."fileId" = f."fileId"
+      WHERE f."userId" = $1
+      GROUP BY f."fileId", ft."type"
+      ORDER BY f."fileId" DESC;
+      `,
       [userId]
     );
     res.status(200).json(result.rows);
@@ -41,8 +50,8 @@ export const getUserFiles = async (req, res) => {
  */
 export const createFile = async (req, res) => {
   const userId = req.user.userId;
-  const { typeId, applicationsId, fileUrl, fileName, extens, description } = req.body;
-
+  const { typeId, applicationsId, fileUrl, fileName, extens, description, applicationsIds = [],} = req.body;
+  
   if (!typeId || !fileUrl || !fileName) {
     return res.status(400).json({
       message: 'typeId, fileUrl, and fileName are required',
@@ -50,16 +59,39 @@ export const createFile = async (req, res) => {
   }
 
   try {
-    const query = `
+    // 1) Insert the file row
+    const fileInsertQuery = `
       INSERT INTO "Files"
-      ("userId", "typeId", "applicationsId", "fileUrl", "fileName", "extens", "description")
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      ("userId", "typeId", "fileUrl", "fileName", "extens", "description")
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
-    const values = [userId, typeId, applicationsId || null, fileUrl, fileName, extens || null, description || null];
+    const fileValues = [userId, typeId, fileUrl, fileName, extens, description];
+    const { rows } = await pool.query(fileInsertQuery, fileValues);
+    const newFile = rows[0];
 
-    const { rows } = await pool.query(query, values);
-    res.status(201).json({ message: 'File created successfully', file: rows[0] });
+    // 2) Insert many rows in "FileApplications"
+    if (applicationsIds.length > 0) {
+      const insertValues = [];
+      const placeholders = [];
+
+      applicationsIds.forEach((appId, idx) => {
+        // For uniqueness or "only one CV per app," you can do checks here
+        const paramIndex1 = 1 + insertValues.length; // next param
+        const paramIndex2 = 1 + insertValues.length + 1;
+        placeholders.push(`($${paramIndex1}, $${paramIndex2})`);
+        insertValues.push(newFile.fileId, appId);
+      });
+
+      const faQuery = `
+        INSERT INTO "FileApplications" ("fileId","ApplicationId")
+        VALUES ${placeholders.join(', ')}
+      `;
+      await pool.query(faQuery, insertValues);
+    }
+
+    // 3) Return the newly created file
+    res.status(201).json({ message: 'File created successfully', file: newFile });
   } catch (error) {
     console.error('Error creating file record:', error);
     res.status(500).json({ message: 'Server error' });
@@ -72,7 +104,7 @@ export const createFile = async (req, res) => {
 export const updateFile = async (req, res) => {
   const { id } = req.params; // fileId
   const userId = req.user.userId;
-  const { typeId, applicationsId, fileName, extens, description } = req.body;
+  const { typeId, applicationsIds = [], fileName, extens, description } = req.body;
 
   // Build the SET clause dynamically
   const fields = [];
@@ -82,11 +114,6 @@ export const updateFile = async (req, res) => {
   if (typeId !== undefined) {
     fields.push(`"typeId" = $${idx}`);
     values.push(typeId);
-    idx++;
-  }
-  if (applicationsId !== undefined) {
-    fields.push(`"applicationsId" = $${idx}`);
-    values.push(applicationsId);
     idx++;
   }
   if (fileName !== undefined) {
@@ -109,11 +136,11 @@ export const updateFile = async (req, res) => {
     return res.status(400).json({ message: 'No valid fields provided for update' });
   }
 
-  // Where clause
   values.push(id);
   values.push(userId);
 
   try {
+    // 1) Update "Files" table
     const updateWithJoin = `
       WITH updated AS (
         UPDATE "Files"
@@ -132,13 +159,33 @@ export const updateFile = async (req, res) => {
       return res.status(404).json({ message: 'File not found or not authorized' });
     }
 
-    res.status(200).json({
+    // 2) Rebuild the "FileApplications" bridging table
+    await pool.query(`
+      DELETE FROM "FileApplications"
+      WHERE "fileId" = $1
+    `, [id]);
+
+    if (applicationsIds.length > 0) {
+      const insertValues = [];
+      const placeholders = [];
+      applicationsIds.forEach((appId, idx) => {
+        placeholders.push(`($${1 + insertValues.length}, $${2 + insertValues.length})`);
+        insertValues.push(id, appId);
+      });
+      await pool.query(`
+        INSERT INTO "FileApplications" ("fileId", "ApplicationId")
+        VALUES ${placeholders.join(', ')}
+      `, insertValues);
+    }
+
+    // 3) Return updated file details
+    return res.status(200).json({
       message: 'File updated successfully',
       file: joinedRows[0],
     });
   } catch (error) {
     console.error('Error updating file record:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 

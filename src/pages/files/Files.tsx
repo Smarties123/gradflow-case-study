@@ -10,7 +10,7 @@ import FilePopup from '../../components/FilePopup/FilePopup';
 import { useUser } from '../../components/User/UserContext';
 import { useBoardData } from '../../hooks/useBoardData';
 import { useFileData } from '../../hooks/useFileData';
-import { SelectPicker } from 'rsuite';
+// import { SelectPicker } from 'rsuite';
 
 const Files = () => {
   // For local "uploading" states
@@ -71,7 +71,7 @@ const Files = () => {
       url: f.fileUrl,
       isDbFile: true,
       description: f.description,
-      applicationsId: f.applicationsId
+      ApplicationIds: f.ApplicationIds
     }));
 
   const dbCoverLetterFiles = localFiles
@@ -86,7 +86,7 @@ const Files = () => {
       url: f.fileUrl,
       isDbFile: true,
       description: f.description,
-      applicationsId: f.applicationsId
+      ApplicationIds: f.ApplicationIds
     }));
 
   const cvFiles = [...dbCvFiles, ...uploadingCvFiles];
@@ -168,8 +168,9 @@ const Files = () => {
         fileName: file.name,
         extens: '.pdf',
         description: `Uploaded from UI (${fileType})`,
-        applicationsId:
-          fileType === 'cv' ? selectedAppCV || null : selectedAppCL || null,
+        ApplicationsIds: fileType === 'cv'
+          ? selectedAppCV ? [selectedAppCV] : []
+          : selectedAppCL ? [selectedAppCL] : [],
       };
       createFile(body);
 
@@ -266,13 +267,13 @@ const Files = () => {
           <div className="upload-card">
             <h4 className="upload-title">CV</h4>
             {/* Let the user pick an application for the CV files */}
-            <SelectPicker
+            {/* <SelectPicker
               data={applications}
               placeholder="Select Application (optional)"
               value={selectedAppCV}
               onChange={setSelectedAppCV}
               style={{ width: '100%', marginBottom: '1rem' }}
-            />
+            /> */}
             <label htmlFor="cv-upload" className="upload-label">
               <div className="files-upload-area">
                 <input
@@ -302,13 +303,13 @@ const Files = () => {
           <div className="upload-card">
             <h4 className="upload-title">Cover Letter</h4>
             {/* Let the user pick an application for the Cover Letter files */}
-            <SelectPicker
+            {/* <SelectPicker
               data={applications}
               placeholder="Select Application (optional)"
               value={selectedAppCL}
               onChange={setSelectedAppCL}
               style={{ width: '100%', marginBottom: '1rem' }}
-            />
+            /> */}
             <label htmlFor="cover-letter-upload" className="upload-label">
               <div
                 className="files-upload-area"

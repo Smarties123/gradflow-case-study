@@ -69,17 +69,17 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
 
     useEffect(() => {
         if (!card.id) {
-            console.warn("ID is missing from card prop:", card);
-            onClose();
+          console.warn("ID is missing from card prop:", card);
+          onClose();
         }
         
-        // Filter files that belong to this application
-        const relevantFiles = files.filter(f => {
-            if (!f.applicationsId) return false;
-            return parseInt(f.applicationsId, 10) === parseInt(card.id, 10);
+        // Filter files that have this card's ID in their ApplicationIds array
+        const relevantFiles = files.filter((f) => {
+          if (!Array.isArray(f.ApplicationIds)) return false;
+          return f.ApplicationIds.includes(parseInt(card.id, 10));
         });
         setAppFiles(relevantFiles);
-    }, [card, files, onClose]);
+      }, [card, files, onClose]);
 
 
     const validateForm = () => {
@@ -131,7 +131,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
             fileName: formData.cv.file.name,
             extens: '.pdf',
             description: `CV uploaded via DrawerView`,
-            applicationsId: Number(card.id)
+            ApplicationIds: Number(card.id)
             });
         }
     
@@ -143,7 +143,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
             fileName: formData.coverLetter.file.name,
             extens: '.pdf',
             description: `Cover Letter uploaded via DrawerView`,
-            applicationsId: Number(card.id)
+            ApplicationIds: Number(card.id)
             });
         }
         

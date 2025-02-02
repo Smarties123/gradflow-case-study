@@ -16,13 +16,14 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
   const [docType, setDocType] = useState(
     selectedFile?.documentType === 'CV' ? 'CV' : 'CL'
   );
+
+  // The multi-selected apps
   const [assignedJobs, setAssignedJobs] = useState([]);
 
   // Filter function for the AsyncSelect
   const filterApplications = (inputValue) => {
     return applications
       .filter((jobObj) =>
-        // jobObj.label might be "Software Eng..."
         jobObj.label.toLowerCase().includes(inputValue.toLowerCase())
       )
       .map((jobObj) => ({ label: jobObj.label, value: jobObj.value }));
@@ -33,7 +34,7 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
     new Promise((resolve) => {
       setTimeout(() => {
         resolve(filterApplications(inputValue));
-      }, 1000);
+      }, 300);
     });
 
   // Document type dropdown options
@@ -42,44 +43,57 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
     { value: 'CL', label: 'Cover Letter' },
   ];
 
-  // Reset local state each time a new file is passed in
+  // 1) On mount OR whenever "selectedFile" changes,
+  //    set local states: title, description, docType, assignedJobs
   useEffect(() => {
     if (selectedFile) {
       setTitle(selectedFile.name || '');
       setDescription(selectedFile.description || '');
       setDocType(selectedFile.documentType === 'CV' ? 'CV' : 'CL');
-      setAssignedJobs([]);
-    }
-  }, [selectedFile]);
 
-  // Handle "Update" click
+      // If the file has an array of assigned apps (ApplicationIds),
+      // map them to { label, value } objects for react-select
+      if (Array.isArray(selectedFile.ApplicationIds)) {
+        const matched = selectedFile.ApplicationIds.map((appId) => {
+          // see if we find a matching app in "applications"
+          const found = applications.find((a) => a.value === appId);
+          return found
+            ? { label: found.label, value: found.value }
+            : { label: `App #${appId}`, value: appId };
+        });
+        setAssignedJobs(matched);
+      } else {
+        setAssignedJobs([]);
+      }
+    }
+  }, [selectedFile, applications]);
+
+  // 2) Handle "Update"
   const handleUpdate = async () => {
-    // console.log('handleUpdate triggered!');
-    // Prefer fileId if available
     const fileId = selectedFile?.fileId || selectedFile?.id;
     if (!fileId) return;
-  
+
+    // convert docType back to a numeric typeId
     const typeId = docType === 'CV' ? 1 : 2;
-    let applicationsId = null;
-    if (assignedJobs.length > 0) {
-      applicationsId = assignedJobs[0].value;
-    }
-  
+
+    // get the array of app IDs from assignedJobs
+    const applicationsIds = assignedJobs.map((j) => j.value);
+
+    // build payload
     const updatePayload = {
       fileName: title,
       typeId,
-      applicationsId,
+      applicationsIds, // pass the array to the server
       description,
     };
-  
-    // Pass the proper identifier to updateFile
+
     const updatedFile = await updateFile(fileId, updatePayload);
     if (updatedFile) {
       onLocalUpdate(updatedFile);
     }
     toggle();
   };
-  
+
   return (
     <div className="file-popup-container">
       <div className="file-popup-content">
@@ -129,7 +143,7 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
 
             <div className="form-group">
               <label>
-                Assign to Job<span className="required">*</span>
+                Assign to Job (Multi-Select)
               </label>
               <AsyncSelect
                 cacheOptions
