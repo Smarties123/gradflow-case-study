@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '../components/User/UserContext';
 
+
+type CreateFileBody = {
+  typeId: number;          // 1 for CV, 2 for CL, etc.
+  fileUrl: string;         // final S3 https link
+  fileName: string;        
+  extens?: string;
+  description?: string;
+  applicationsIds?: number[];  // (Optional) to link this file to apps
+};
+
+
+
+
 export function useFileData() {
   const { user } = useUser();
   const [files, setFiles] = useState([]);
@@ -43,13 +56,7 @@ export function useFileData() {
   };
 
   // Create file
-  const createFile = async (body: {
-    typeId: number;
-    fileUrl: string;
-    fileName: string;
-    extens?: string;
-    description?: string;
-  }) => {
+  const createFile = async (body: CreateFileBody) => {
     if (!user?.token) return;
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/files`, {
@@ -73,16 +80,23 @@ export function useFileData() {
   const deleteFile = async (fileId: number) => {
     if (!user?.token) return;
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/files/${fileId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/files/${fileId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
       if (!response.ok) {
         throw new Error('Failed to delete file record');
       }
+      // If your backend also calls s3.deleteObject, 
+      // the S3 object will be removed as well.
+
+      // Refresh local list
       await refetch();
     } catch (error) {
       console.error('Error deleting file:', error);
@@ -90,30 +104,32 @@ export function useFileData() {
   };
 
   // Update file (return the updated row from server)
-  const updateFile = async (fileId, updateData) => {
+  const updateFile = async (fileId: number, updateData: any) => {
     if (!user?.token) return null;
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/files/${fileId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`,
-        },
-        body: JSON.stringify(updateData),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/files/${fileId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`,
+          },
+          body: JSON.stringify(updateData),
+        }
+      );
       if (!response.ok) {
         throw new Error('Failed to update file');
       }
-      // Parse the updated file data
       const data = await response.json();
-      // data.file is the newly updated row
       await refetch();
-      return data.file; // Return the updated file so the UI can use it immediately
+      return data.file; // The updated row from server
     } catch (error) {
       console.error('Error updating file:', error);
       return null;
     }
   };
+
 
   // Re-fetch everything
   const refetch = async () => {
@@ -126,6 +142,105 @@ export function useFileData() {
     await fetchAllFiles();
   };
 
+  // Get a presigned upload URL from your server
+  const getPresignedUploadUrl = async (
+    fileName: string,
+    fileMime: string,
+    docType: string
+  ) => {
+    if (!user?.token) throw new Error('No user token, cannot upload');
+    const res = await fetch(
+      `${process.env.REACT_APP_API_URL}/files/presigned-upload`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user.token}`,
+        },
+        body: JSON.stringify({ fileName, fileMime, docType }),
+      }
+    );
+    if (!res.ok) {
+      throw new Error('Failed to obtain presigned URL');
+    }
+    return res.json(); // { uploadUrl, objectKey }
+  };
+
+  const uploadFileToS3 = async (
+    uploadUrl: string,
+    file: File
+  ) => {
+    // Use fetch PUT (or Axios with progress events)
+    const res = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    });
+    if (!res.ok) {
+      throw new Error('File upload to S3 failed');
+    }
+    // No return needed; if no error, it succeeded
+  };
+
+
+
+    // ----------------------------------------------------------
+  //  3) Combined flow: "uploadAndCreateFile"
+  //     - get presigned URL
+  //     - PUT file to S3
+  //     - create DB record
+  // ----------------------------------------------------------
+  const uploadAndCreateFile = async ({
+    file,
+    docType,         // e.g. 'cv' or 'cl'
+    typeId,          // numeric type ID
+    description,
+    applicationsIds  // array of app IDs
+  }: {
+    file: File;
+    docType: string;
+    typeId: number;
+    description?: string;
+    applicationsIds?: number[];
+  }) => {
+    if (!file) return;
+    try {
+      // 1) Get presigned upload URL
+      const { uploadUrl, objectKey } = await getPresignedUploadUrl(
+        file.name,
+        file.type,
+        docType
+      );
+
+      // 2) Upload file to S3
+      await uploadFileToS3(uploadUrl, file);
+
+      // 3) Build final S3 link from your bucket name & region
+      //    (Or parse from uploadUrl, but it has query params.)
+      const s3Bucket = process.env.REACT_APP_S3_BUCKET || 'gradflow-user-files';
+      const s3Region = process.env.REACT_APP_AWS_REGION || 'us-east-1';
+      // e.g. https://gradflow-user-files.s3.us-east-1.amazonaws.com/123/cv/uuid-fileName.pdf
+      const fileUrl = `https://${s3Bucket}.s3.${s3Region}.amazonaws.com/${objectKey}`;
+
+      // 4) Call createFile in DB
+      await createFile({
+        typeId,
+        fileUrl,
+        fileName: file.name,
+        extens: '', // or parse from file.name
+        description,
+        applicationsIds, // optional bridging to applications
+      });
+    } catch (err) {
+      console.error('Error in uploadAndCreateFile:', err);
+      setError((err as Error).message);
+    }
+  };
+
+
+  // ----------------------------------------------------------
+  //  useEffect: fetch data on mount if token present
+  // ----------------------------------------------------------
   useEffect(() => {
     if (!user?.token) {
       setLoading(false);
@@ -135,14 +250,20 @@ export function useFileData() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  // Return everything
   return {
     files,
     fileTypes,
     loading,
     error,
+    // existing methods
     createFile,
     deleteFile,
     updateFile,
     refetch,
+    // new methods for S3 upload flow
+    uploadAndCreateFile,
+    getPresignedUploadUrl,
+    uploadFileToS3
   };
 }

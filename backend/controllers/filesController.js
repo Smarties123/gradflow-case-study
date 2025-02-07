@@ -1,5 +1,53 @@
 import pool from '../config/db.js';
 
+import { v4 as uuidv4 } from 'uuid';
+import s3 from '../services/s3Service.js';
+
+const BUCKET_NAME = 'gradflow-user-files';
+
+/**
+ * Provide a presigned URL so the client can upload directly to S3.
+ */
+export const getPresignedUploadUrl = async (req, res) => {
+  try {
+    const userId = req.user.userId; 
+    const { fileName, fileMime, docType } = req.body;
+    // docType could be "cv" or "cl" or anything else you define
+    // fileMime might be "application/pdf", "application/msword", etc.
+
+    if (!fileName || !fileMime || !docType) {
+      return res.status(400).json({
+        message: 'fileName, fileMime, and docType (cv|cl) are required.'
+      });
+    }
+
+    // Decide which subfolder: "cv" or "cl"
+    const subfolder = docType.toLowerCase() === 'cv' ? 'cv' : 'cl';
+
+    // Build the S3 object key, e.g. "123/cv/<uniqueId>-myResume.pdf"
+    const objectKey = `${userId}/${subfolder}/${uuidv4()}-${fileName}`;
+
+    // Create presigned PUT URL so client can directly upload
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: objectKey,
+      ContentType: fileMime, 
+      Expires: 60 // URL expires in 60 seconds
+    };
+
+    const uploadUrl = s3.getSignedUrl('putObject', params);
+
+    // Return both the presigned URL and the S3 key
+    return res.status(200).json({ uploadUrl, objectKey });
+  } catch (error) {
+    console.error('Error generating presigned upload URL:', error);
+    return res.status(500).json({ message: 'Error generating presigned URL' });
+  }
+};
+
+
+
+
 /**
  * Get all file types from the "FileTypes" table.
  */
@@ -198,23 +246,54 @@ export const deleteFile = async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    const result = await pool.query(
-      `DELETE FROM "Files"
+    // 1) Fetch the file row to see if it exists and to get its S3 URL
+    const fileResult = await pool.query(
+      `SELECT * FROM "Files" 
        WHERE "fileId" = $1 AND "userId" = $2
-       RETURNING *;`,
+       LIMIT 1`,
+      [id, userId]
+    );
+    if (fileResult.rowCount === 0) {
+      return res
+        .status(404)
+        .json({ message: 'File not found or not authorized to delete' });
+    }
+
+    const fileRow = fileResult.rows[0];
+    const { fileUrl } = fileRow;
+
+    // 2) (Optional) remove the file from S3 as well
+    if (fileUrl) {
+      // For example, "https://gradflow-user-files.s3.<region>.amazonaws.com/123/cv/someKey"
+      const key = fileUrl.split('.com/')[1]; // everything after "s3.amazonaws.com/"
+      if (key) {
+        await s3
+          .deleteObject({
+            Bucket: BUCKET_NAME,
+            Key: key
+          })
+          .promise();
+      }
+    }
+
+    // 3) Remove from "FileApplications" bridging table, if you want
+    await pool.query(
+      `DELETE FROM "FileApplications"
+       WHERE "fileId" = $1`,
+      [id]
+    );
+
+    // 4) Remove from "Files" table
+    await pool.query(
+      `DELETE FROM "Files"
+       WHERE "fileId" = $1 AND "userId" = $2`,
       [id, userId]
     );
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'File not found or not authorized to delete' });
-    }
-
-    // If you need to remove from S3, do it here
-
-    res.status(200).json({ message: 'File deleted successfully' });
+    return res.status(200).json({ message: 'File deleted successfully' });
   } catch (error) {
     console.error('Error deleting file:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 

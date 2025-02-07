@@ -5,6 +5,9 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { sendResetPasswordEmail } from '../services/emailService.js';
 
+import { createUserFoldersInS3 } from '../services/s3Service.js';
+
+
 const SECRET_KEY = process.env.JWT_SECRET;
 const TOKEN_EXPIRATION_MINUTES = 15;
 const SALT_ROUNDS = 10; // Adjust this value as necessary
@@ -62,6 +65,8 @@ export const signUp = async (req, res) => {
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
         // Add JWT sign and return it after successful user creation
+
+    await createUserFoldersInS3(userId);
 
     // Insert default statuses (as per your previous logic)
     const defaultStatusNames = ['TO DO', 'APPLIED', 'INTERVIEW', 'OFFERED', 'REJECTED'];
@@ -148,6 +153,8 @@ export const googleSignUp = async (req, res) => {
     const values = [uniqueUsername, email, firebaseUid, profilePicture];
     const result = await pool.query(insertUserQuery, values);
     const userId = result.rows[0].UserId;
+
+    await createUserFoldersInS3(userId);
 
     // Insert default statuses for the new user
     const defaultStatusNames = ['TO DO', 'APPLIED', 'INTERVIEW', 'OFFERED', 'REJECTED'];

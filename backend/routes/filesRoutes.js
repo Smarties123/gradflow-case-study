@@ -5,7 +5,8 @@ import {
   createFile,
   updateFile,
   deleteFile,
-  getFileById
+  getFileById,
+  getPresignedUploadUrl,
 } from '../controllers/filesController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
@@ -28,5 +29,8 @@ router.put('/:id', authenticateToken, updateFile);
 
 // Delete a file record
 router.delete('/:id', authenticateToken, deleteFile);
+
+router.post('/presigned-upload', authenticateToken, getPresignedUploadUrl);
+
 
 export default router;
