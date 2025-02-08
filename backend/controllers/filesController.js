@@ -12,8 +12,6 @@ export const getPresignedUploadUrl = async (req, res) => {
   try {
     const userId = req.user.userId; 
     const { fileName, fileMime, docType } = req.body;
-    // docType could be "cv" or "cl" or anything else you define
-    // fileMime might be "application/pdf", "application/msword", etc.
 
     if (!fileName || !fileMime || !docType) {
       return res.status(400).json({
@@ -24,15 +22,17 @@ export const getPresignedUploadUrl = async (req, res) => {
     // Decide which subfolder: "cv" or "cl"
     const subfolder = docType.toLowerCase() === 'cv' ? 'cv' : 'cl';
 
-    // Build the S3 object key, e.g. "123/cv/<uniqueId>-myResume.pdf"
+    // Build the S3 object key, e.g. "123/cv/<uuid>-myResume.pdf"
     const objectKey = `${userId}/${subfolder}/${uuidv4()}-${fileName}`;
 
     // Create presigned PUT URL so client can directly upload
+    // CHANGED: Add ACL: 'public-read' so the file can be viewed via a direct URL
     const params = {
       Bucket: BUCKET_NAME,
       Key: objectKey,
-      ContentType: fileMime, 
-      Expires: 60 // URL expires in 60 seconds
+      ContentType: fileMime,
+      Expires: 60, // URL expires in 60 seconds
+      // ACL: 'public-read'
     };
 
     const uploadUrl = s3.getSignedUrl('putObject', params);
@@ -44,6 +44,7 @@ export const getPresignedUploadUrl = async (req, res) => {
     return res.status(500).json({ message: 'Error generating presigned URL' });
   }
 };
+
 
 
 
@@ -98,7 +99,14 @@ export const getUserFiles = async (req, res) => {
  */
 export const createFile = async (req, res) => {
   const userId = req.user.userId;
-  const { typeId, applicationsId, fileUrl, fileName, extens, description, applicationsIds = [],} = req.body;
+  const { 
+    typeId,
+    fileUrl, 
+    fileName, 
+    extens, 
+    description, 
+    applicationsIds = [],  // Keep this
+  } = req.body;
   
   if (!typeId || !fileUrl || !fileName) {
     return res.status(400).json({
@@ -124,10 +132,7 @@ export const createFile = async (req, res) => {
       const placeholders = [];
 
       applicationsIds.forEach((appId, idx) => {
-        // For uniqueness or "only one CV per app," you can do checks here
-        const paramIndex1 = 1 + insertValues.length; // next param
-        const paramIndex2 = 1 + insertValues.length + 1;
-        placeholders.push(`($${paramIndex1}, $${paramIndex2})`);
+        placeholders.push(`($${insertValues.length + 1}, $${insertValues.length + 2})`);
         insertValues.push(newFile.fileId, appId);
       });
 

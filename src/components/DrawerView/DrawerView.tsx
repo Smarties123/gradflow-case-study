@@ -21,8 +21,9 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     // const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
     const [errors, setErrors] = useState({}); // State to track errors
     
-    const { createFile, files } = useFileData(); // <-- Added
     const [appFiles, setAppFiles] = useState([]); // <-- Added to store this application's files
+    
+    const { uploadAndCreateFile, files } = useFileData();
 
 
     const parseDate = (dateStr) => {
@@ -114,91 +115,92 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     };
 
     const handleSubmit = async () => {
-
         if (!validateForm()) {
-            console.error("Form has validation errors.");
-            return; // Stop if there are validation errors
+          console.error("Form has validation errors.");
+          return; // Stop if there are validation errors
         }
         console.log("Updating card with ID:", card.id); // Debug log to verify ID
         console.log("DrawerView card prop:", card);
-
-
-        // 1) If a new CV file is chosen, create a DB record
-        if (formData.cv && formData.cv.file) {
-            await createFile({
-            typeId: 1, // 1 for CV
-            fileUrl: URL.createObjectURL(formData.cv.file),
-            fileName: formData.cv.file.name,
-            extens: '.pdf',
-            description: `CV uploaded via DrawerView`,
-            ApplicationIds: Number(card.id)
-            });
+      
+        // 1) Upload CV to S3 + DB if present
+        if (formData.cv?.file) {
+          await uploadAndCreateFile({
+            file: formData.cv.file,
+            docType: 'cv',  // or 'CV' if you'd rather keep it uppercase
+            typeId: 1,      // 1 for CV in your FileTypes table
+            description: 'CV uploaded via DrawerView',
+            applicationsIds: [Number(card.id)]
+          });
         }
-    
-        // 2) If a new Cover Letter file is chosen, create a DB record
-        if (formData.coverLetter && formData.coverLetter.file) {
-            await createFile({
-            typeId: 2, // 2 for Cover Letter
-            fileUrl: URL.createObjectURL(formData.coverLetter.file),
-            fileName: formData.coverLetter.file.name,
-            extens: '.pdf',
-            description: `Cover Letter uploaded via DrawerView`,
-            ApplicationIds: Number(card.id)
-            });
+      
+        // 2) Upload Cover Letter to S3 + DB if present
+        if (formData.coverLetter?.file) {
+          await uploadAndCreateFile({
+            file: formData.coverLetter.file,
+            docType: 'cl', // or 'CL'
+            typeId: 2,     // 2 for CL in your FileTypes table
+            description: 'Cover Letter uploaded via DrawerView',
+            applicationsIds: [Number(card.id)]
+          });
         }
-        
+      
+        // Build the rest of the application data
         const updatedData = {
-            company: formData.company,
-            position: formData.position,
-            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : null,
-            location: formData.location,
-            url: formData.url,
-            notes: formData.notes,  // This will now be included even if empty or null
-            salary: formData.salary,
-            interview_stage: formData.interview_stage,
-            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : null,
-            card_color: formData.card_color,
-            statusId: formData.StatusId || card.StatusId,
+          company: formData.company,
+          position: formData.position,
+          deadline: formData.deadline 
+            ? dayjs(formData.deadline).format('YYYY-MM-DD') 
+            : null,
+          location: formData.location,
+          url: formData.url,
+          notes: formData.notes,
+          salary: formData.salary,
+          interview_stage: formData.interview_stage,
+          date_applied: formData.date_applied 
+            ? dayjs(formData.date_applied).format('YYYY-MM-DD') 
+            : null,
+          card_color: formData.card_color,
+          statusId: formData.StatusId || card.StatusId,
         };
-
+      
         try {
-            if (!user || !user.token) {
-                throw new Error('User not authenticated');
+          if (!user || !user.token) {
+            throw new Error('User not authenticated');
+          }
+      
+          // Send the updated application data to your backend
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URL}/applications/${card.id}`,
+            {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`,
+              },
+              body: JSON.stringify(updatedData),
             }
-
-            // console.log('User token:', user.token);  // Debug token value
-            // console.log('Updated data:', updatedData);  // Debug the data being sent to the backend
-            // console.log('process.env.REACT_APP_API_URL', process.env.REACT_APP_API_URL); //
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${card.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`,  // Ensure token is valid
-                },
-                body: JSON.stringify(updatedData),
-            });
-
-            if (response.ok) {
-                const updatedCard = await response.json();
-                // console.log('Card updated:', updatedCard);
-
-                // Check if the status has changed and update the card's location accordingly
-                if (updatedData.statusId !== card.StatusId) {
-                    updateStatusLocally(card.id, updatedData.statusId);  // Use the function passed via props
-                } else {
-                    updateCard(card.id, updatedData);  // Update the card details in local state
-                }
-
-                onClose(); // Close the drawer
+          );
+      
+          if (response.ok) {
+            const updatedCard = await response.json();
+      
+            // Check if the status changed
+            if (updatedData.statusId !== card.StatusId) {
+              updateStatusLocally(card.id, updatedData.statusId);
             } else {
-                const errorText = await response.text();
-                console.error('Failed to update the card:', errorText);
+              updateCard(card.id, updatedData);
             }
+      
+            onClose(); // Close the drawer
+          } else {
+            const errorText = await response.text();
+            console.error('Failed to update the card:', errorText);
+          }
         } catch (error) {
-            console.error('Error updating card:', error);
+          console.error('Error updating card:', error);
         }
-    };
-
+      };
+      
     const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
     const drawerPlacement = window.innerWidth <= 600 ? 'top' : 'right'; // Open from bottom on small screens
 

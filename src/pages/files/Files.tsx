@@ -123,17 +123,22 @@ const Files = () => {
       status: 'uploading',
       url: URL.createObjectURL(file), // local preview
       isDbFile: false,
-      file, // store the actual File object
+      file // store the actual File object
     }));
-
+  
     if (fileType === 'CV') {
       setUploadingCvFiles((prev) => [...prev, ...uploadedFiles]);
     } else {
       setUploadingCoverLetterFiles((prev) => [...prev, ...uploadedFiles]);
     }
-
+  
+    // Animate + upload each file
     uploadedFiles.forEach((fileObj) => animateUpload(fileObj, fileType));
+  
+    // IMPORTANT: Reset the input value, so user can pick again
+    e.target.value = '';
   };
+  
 
   const animateUpload = (fileObj, fileType: 'CV' | 'CL') => {
     // Fake progress

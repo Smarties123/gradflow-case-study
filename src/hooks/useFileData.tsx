@@ -192,10 +192,10 @@ export function useFileData() {
   // ----------------------------------------------------------
   const uploadAndCreateFile = async ({
     file,
-    docType,         // e.g. 'cv' or 'cl'
-    typeId,          // numeric type ID
+    docType,   // 'cv' or 'cl'
+    typeId,    // numeric type ID
     description,
-    applicationsIds  // array of app IDs
+    applicationsIds,
   }: {
     file: File;
     docType: string;
@@ -211,25 +211,30 @@ export function useFileData() {
         file.type,
         docType
       );
-
+  
       // 2) Upload file to S3
       await uploadFileToS3(uploadUrl, file);
-
+  
       // 3) Build final S3 link from your bucket name & region
-      //    (Or parse from uploadUrl, but it has query params.)
       const s3Bucket = process.env.REACT_APP_S3_BUCKET || 'gradflow-user-files';
-      const s3Region = process.env.REACT_APP_AWS_REGION || 'us-east-1';
-      // e.g. https://gradflow-user-files.s3.us-east-1.amazonaws.com/123/cv/uuid-fileName.pdf
+      const s3Region = process.env.REACT_APP_S3_REGION || 'eu-west-2';
       const fileUrl = `https://${s3Bucket}.s3.${s3Region}.amazonaws.com/${objectKey}`;
-
-      // 4) Call createFile in DB
+  
+      // NEW: parse extension from the file name
+      let extension = '';
+      if (file.name.includes('.')) {
+        const parts = file.name.split('.');
+        extension = parts[parts.length - 1]; // e.g. "pdf" or "docx"
+      }
+  
+      // 4) Create file in DB
       await createFile({
         typeId,
         fileUrl,
         fileName: file.name,
-        extens: '', // or parse from file.name
+        extens: extension,   // pass the extension here
         description,
-        applicationsIds, // optional bridging to applications
+        applicationsIds
       });
     } catch (err) {
       console.error('Error in uploadAndCreateFile:', err);
