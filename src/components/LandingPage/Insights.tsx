@@ -59,13 +59,13 @@ export default function Insights() {
       <Grid container spacing={6}>
         {/* Left-hand side: Stack with clickable items */}
         <Grid item xs={12} md={6}>
-          <Typography component="h2" variant="h4" color="text.primary">
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
             Insights
           </Typography>
           <Typography
             variant="body1"
             color="text.secondary"
-            sx={{ mb: { xs: 2, sm: 4 } }}
+            sx={{ mb: 4, maxWidth: 700, mx: "auto" }}
           >
             Insights by GradFlow is an advanced analytics dashboard that offers
             a comprehensive view of job application efforts, tracking progress,

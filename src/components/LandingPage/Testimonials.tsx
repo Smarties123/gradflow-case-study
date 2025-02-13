@@ -92,7 +92,8 @@ export default function Testimonials() {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: { xs: 3, sm: 6 }
+        gap: { xs: 3, sm: 6 },
+        textAlign: "center"
       }}
     >
       <Box
@@ -101,11 +102,14 @@ export default function Testimonials() {
           textAlign: { sm: 'left', md: 'center' }
         }}
       >
-        <Typography component="h2" variant="h4" color="text.primary">
+        <Typography variant="h4" fontWeight="bold" gutterBottom>
           Testimonials
         </Typography>
-        <Typography variant="body1" color="text.secondary">
-          See what our customers love about our products. Discover how we excel in efficiency,
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          sx={{ mb: 4, maxWidth: 700, mx: "auto" }}
+        >          See what our customers love about our products. Discover how we excel in efficiency,
           durability, and satisfaction. Join us for quality, innovation, and reliable support.
         </Typography>
       </Box>
