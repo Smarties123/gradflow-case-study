@@ -377,6 +377,7 @@ const Files = () => {
         selectedFile={selectedFile}
         applications={applications}
         onLocalUpdate={handleLocalFileUpdate}
+        readOnly={false}
       />
     </div>
   );

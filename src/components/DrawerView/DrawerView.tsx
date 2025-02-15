@@ -12,6 +12,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { FormHelperText } from '@mui/material'; // Import FormHelperText from MUI
 import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress from MUI
 import { Button as RemoveFile } from '@mui/material';
+import { useBoardData } from '../../hooks/useBoardData'; // <-- 1) Import (assuming that’s where you get columns)
 
 // NEW ICON IMPORTS FOR REMOVE & DELETE
 import { IoMdRemove } from 'react-icons/io';
@@ -33,6 +34,9 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     const [selectedFile, setSelectedFile] = useState(null);
     const [isFilePopupOpen, setFilePopupOpen] = useState(false);
 
+    const { columns, loading: boardLoading } = useBoardData(user);
+    const [allApps, setAllApps] = useState([]); // The array we’ll pass to FilePopup
+  
     const { uploadAndCreateFile, files, updateFile, deleteFile } = useFileData();
 
     const parseDate = (dateStr) => {
@@ -55,6 +59,19 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         coverLetter: card.coverLetter || null,
         StatusId: card.StatusId || null
     });
+
+    useEffect(() => {
+        if (!boardLoading && columns?.length > 0) {
+          const newApplications = columns.flatMap((col) =>
+            col.cards.map((thisCard) => ({
+              label: `${thisCard.position} (${col.title})`,
+              value: Number(thisCard.id),
+            }))
+          );
+          setAllApps(newApplications);
+        }
+      }, [boardLoading, columns]);
+    
 
     useEffect(() => {
         if (card.deadline) {
@@ -244,10 +261,16 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     };
 
     const openFile = (file) => {
-      setSelectedFile(file);
-      setFilePopupOpen(true);
-    };
-    // ==================================================================
+        setSelectedFile({
+          ...file,
+          // FilePopup expects these fields:
+          url: file.fileUrl,
+          name: file.fileName,
+          documentType: file.fileType  // 'CV' or 'CL'
+        });
+        setFilePopupOpen(true);
+      };
+          // ==================================================================
 
     const calculateProgress = (fields) => {
         const filled = fields.filter((field) => {
@@ -717,10 +740,11 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
             isOpen={isFilePopupOpen}
             toggle={() => setFilePopupOpen(false)}
             selectedFile={selectedFile}
-            applications={[]}  // pass your actual applications if needed
+            applications={allApps}  // pass your actual applications if needed
             onLocalUpdate={(updatedFile) => {
               // If you need to do anything locally after the file is updated.
             }}
+            readOnly={true}
           />
         )}
         </>

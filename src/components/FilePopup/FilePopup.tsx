@@ -5,7 +5,15 @@ import AwesomeButton from '../../components/AwesomeButton/AwesomeButton';
 import Select from 'react-select';
 import { useFileData } from '../../hooks/useFileData';
 
-const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }) => {
+const FilePopup = ({
+  isOpen,
+  toggle,
+  selectedFile,
+  applications,
+  onLocalUpdate,
+  // NEW: allow readOnly, default to false
+  readOnly = false
+}) => {
   if (!isOpen) return null;
 
   const { updateFile } = useFileData();
@@ -19,6 +27,12 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
 
   // The multi-selected apps
   const [assignedJobs, setAssignedJobs] = useState([]);
+
+  // Document type dropdown options
+  const documentOptions = [
+    { value: 'CV', label: 'CV' },
+    { value: 'CL', label: 'Cover Letter' }
+  ];
 
   // Filter function for the AsyncSelect
   const filterApplications = (inputValue) => {
@@ -37,12 +51,6 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
       }, 300);
     });
 
-  // Document type dropdown options
-  const documentOptions = [
-    { value: 'CV', label: 'CV' },
-    { value: 'CL', label: 'Cover Letter' },
-  ];
-
   // 1) On mount OR whenever "selectedFile" changes,
   //    set local states: title, description, docType, assignedJobs
   useEffect(() => {
@@ -55,7 +63,6 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
       // map them to { label, value } objects for react-select
       if (Array.isArray(selectedFile.ApplicationIds)) {
         const matched = selectedFile.ApplicationIds.map((appId) => {
-          // see if we find a matching app in "applications"
           const found = applications.find((a) => a.value === appId);
           return found
             ? { label: found.label, value: found.value }
@@ -68,7 +75,7 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
     }
   }, [selectedFile, applications]);
 
-  // 2) Handle "Update"
+  // 2) Handle "Update" (only relevant if not read-only)
   const handleUpdate = async () => {
     const fileId = selectedFile?.fileId || selectedFile?.id;
     if (!fileId) return;
@@ -83,7 +90,7 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
     const updatePayload = {
       fileName: title,
       typeId,
-      applicationsIds, // pass the array to the server
+      applicationsIds,
       description,
     };
 
@@ -116,61 +123,91 @@ const FilePopup = ({ isOpen, toggle, selectedFile, applications, onLocalUpdate }
           </div>
 
           <div className="file-details">
-            <h4>Edit Document</h4>
+            {/* Change heading based on readOnly */}
+            <h4>{readOnly ? 'Document Info' : 'Edit Document'}</h4>
 
+            {/* Title */}
             <div className="form-group">
               <label>
                 Title<span className="required"> *</span>
               </label>
-              <input
-                type="text"
-                className="form-control"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+              {readOnly ? (
+                <div style={{ marginTop: '8px' }}>{title}</div>
+              ) : (
+                <input
+                  type="text"
+                  className="form-control"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              )}
             </div>
 
+            {/* Document Type */}
             <div className="form-group">
               <label>
                 Document Type<span className="required">*</span>
               </label>
-              <Select
-                options={documentOptions}
-                value={documentOptions.find((opt) => opt.value === docType)}
-                onChange={(selected) => setDocType(selected.value)}
-              />
+              {readOnly ? (
+                <div style={{ marginTop: '8px' }}>
+                  {docType === 'CV' ? 'CV' : 'Cover Letter'}
+                </div>
+              ) : (
+                <Select
+                  options={documentOptions}
+                  value={documentOptions.find((opt) => opt.value === docType)}
+                  onChange={(selected) => setDocType(selected.value)}
+                />
+              )}
             </div>
 
+            {/* Assign to Job(s) */}
             <div className="form-group">
-              <label>
-                Assign to Job (Multi-Select)
-              </label>
-              <AsyncSelect
-                cacheOptions
-                defaultOptions={applications}
-                loadOptions={loadOptions}
-                isMulti
-                placeholder="Search and select jobs..."
-                className="react-select-container"
-                classNamePrefix="react-select"
-                value={assignedJobs}
-                onChange={(selected) => setAssignedJobs(selected || [])}
-              />
+              <label>Assign to Job (Multi-Select)</label>
+              {readOnly ? (
+                <div style={{ marginTop: '8px' }}>
+                  {assignedJobs.length
+                    ? assignedJobs.map((job) => job.label).join(', ')
+                    : 'No jobs assigned'}
+                </div>
+              ) : (
+                <AsyncSelect
+                  cacheOptions
+                  defaultOptions={applications}
+                  loadOptions={loadOptions}
+                  isMulti
+                  placeholder="Search and select jobs..."
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  value={assignedJobs}
+                  onChange={(selected) => setAssignedJobs(selected || [])}
+                />
+              )}
             </div>
 
+            {/* Description */}
             <div className="form-group">
               <label>Description</label>
-              <textarea
-                className="form-control"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows="3"
-              />
+              {readOnly ? (
+                <div style={{ marginTop: '8px' }}>
+                  {description || 'No description'}
+                </div>
+              ) : (
+                <textarea
+                  className="form-control"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows="3"
+                />
+              )}
             </div>
 
-            <AwesomeButton className="fileUpdate" onClick={handleUpdate}>
-              <span>Update</span>
-            </AwesomeButton>
+            {/* Only show update button if not readOnly */}
+            {!readOnly && (
+              <AwesomeButton className="fileUpdate" onClick={handleUpdate}>
+                <span>Update</span>
+              </AwesomeButton>
+            )}
           </div>
         </div>
       </div>
