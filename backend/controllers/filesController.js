@@ -185,39 +185,53 @@ export const updateFile = async (req, res) => {
     idx++;
   }
 
-  if (fields.length === 0) {
-    return res.status(400).json({ message: 'No valid fields provided for update' });
-  }
+
 
   values.push(id);
   values.push(userId);
 
   try {
-    // 1) Update "Files" table
-    const updateWithJoin = `
-      WITH updated AS (
-        UPDATE "Files"
-        SET ${fields.join(', ')}
-        WHERE "fileId" = $${idx} AND "userId" = $${idx + 1}
-        RETURNING *
-      )
-      SELECT u.*, ft."type" as "fileType"
-      FROM updated u
-      JOIN "FileTypes" ft ON ft."typeId" = u."typeId";
-    `;
-
-    const { rows: joinedRows } = await pool.query(updateWithJoin, values);
-
-    if (joinedRows.length === 0) {
-      return res.status(404).json({ message: 'File not found or not authorized' });
+    let updatedRow;
+  
+    if (fields.length > 0) {
+      // We have actual file fields to update
+      const updateWithJoin = `
+        WITH updated AS (
+          UPDATE "Files"
+          SET ${fields.join(', ')}
+          WHERE "fileId" = $${idx} AND "userId" = $${idx + 1}
+          RETURNING *
+        )
+        SELECT u.*, ft."type" as "fileType"
+        FROM updated u
+        JOIN "FileTypes" ft ON ft."typeId" = u."typeId";
+      `;
+      const { rows: joinedRows } = await pool.query(updateWithJoin, values);
+      if (joinedRows.length === 0) {
+        return res.status(404).json({ message: 'File not found or not authorized' });
+      }
+      updatedRow = joinedRows[0];
+    } else {
+      // No file fields to update, so just fetch existing row
+      const existing = await pool.query(
+        `SELECT f.*, ft."type" as "fileType"
+         FROM "Files" f
+         JOIN "FileTypes" ft ON ft."typeId" = f."typeId"
+         WHERE f."fileId" = $1 AND f."userId" = $2`,
+        [id, userId]
+      );
+      if (existing.rowCount === 0) {
+        return res.status(404).json({ message: 'File not found or not authorized' });
+      }
+      updatedRow = existing.rows[0];
     }
+  
 
     // 2) Rebuild the "FileApplications" bridging table
-    await pool.query(`
-      DELETE FROM "FileApplications"
-      WHERE "fileId" = $1
-    `, [id]);
-
+    await pool.query(
+      'DELETE FROM "FileApplications" WHERE "fileId" = $1',
+      [id]
+    );
     if (applicationsIds.length > 0) {
       const insertValues = [];
       const placeholders = [];
@@ -225,21 +239,23 @@ export const updateFile = async (req, res) => {
         placeholders.push(`($${1 + insertValues.length}, $${2 + insertValues.length})`);
         insertValues.push(id, appId);
       });
-      await pool.query(`
-        INSERT INTO "FileApplications" ("fileId", "ApplicationId")
-        VALUES ${placeholders.join(', ')}
-      `, insertValues);
+      await pool.query(
+        `INSERT INTO "FileApplications" ("fileId", "ApplicationId")
+         VALUES ${placeholders.join(', ')}`,
+        insertValues
+      );
     }
-
-    // 3) Return updated file details
+  
+    // Return updated row
     return res.status(200).json({
       message: 'File updated successfully',
-      file: joinedRows[0],
+      file: updatedRow,
     });
   } catch (error) {
     console.error('Error updating file record:', error);
     return res.status(500).json({ message: 'Server error' });
   }
+  
 };
 
 /**

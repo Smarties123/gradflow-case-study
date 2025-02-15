@@ -13,40 +13,48 @@ import { FormHelperText } from '@mui/material'; // Import FormHelperText from MU
 import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress from MUI
 import { Button as RemoveFile } from '@mui/material';
 
+// NEW ICON IMPORTS FOR REMOVE & DELETE
+import { IoMdRemove } from 'react-icons/io';
+import { MdDelete } from 'react-icons/md';
+
+// If you use the FilePopup in this component:
+import FilePopup from '../FilePopup/FilePopup'; // Adjust path as needed
 
 
 const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateStatus, statuses = [], updateStatusLocally }) => {
     const [currentView, setCurrentView] = useState('details');
     const { user } = useUser(); // Get the user object
-    // const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
     const [errors, setErrors] = useState({}); // State to track errors
     
-    const [appFiles, setAppFiles] = useState([]); // <-- Added to store this application's files
+    const [appFiles, setAppFiles] = useState([]); // <-- Store this application's files here
     
-    const { uploadAndCreateFile, files } = useFileData();
+    // NEW STATES FOR HOVER & FILE POPUP
+    const [hoveredFileId, setHoveredFileId] = useState(null);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [isFilePopupOpen, setFilePopupOpen] = useState(false);
 
+    const { uploadAndCreateFile, files, updateFile, deleteFile } = useFileData();
 
     const parseDate = (dateStr) => {
         return dateStr ? dayjs(dateStr).toDate() : null;
     };
 
     const [formData, setFormData] = useState({
-        company: card.company || '',  // Default to an empty string if null
+        company: card.company || '',
         companyLogo: card.companyLogo || '',
         position: card.position || '',
-        deadline: card.deadline ? parseDate(card.deadline) : null,  // Allow null for dates
+        deadline: card.deadline ? parseDate(card.deadline) : null,
         location: card.location || '',
         url: card.url || '',
         notes: card.notes || '',
         salary: card.salary,
         interview_stage: card.interview_stage || '',
         date_applied: card.date_applied ? parseDate(card.date_applied) : null,
-        card_color: card.card_color || '#ffffff',  // Default color to white
+        card_color: card.card_color || '#ffffff',
         cv: card.cv || null,
         coverLetter: card.coverLetter || null,
         StatusId: card.StatusId || null
     });
-
 
     useEffect(() => {
         if (card.deadline) {
@@ -80,12 +88,10 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
           return f.ApplicationIds.includes(parseInt(card.id, 10));
         });
         setAppFiles(relevantFiles);
-      }, [card, files, onClose]);
-
+    }, [card, files, onClose]);
 
     const validateForm = () => {
         const validationErrors = {};
-
 
         if (formData.salary < 0) {
             validationErrors.salary = "Salary cannot be negative.";
@@ -97,17 +103,13 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
             validationErrors.deadline = "Deadline cannot be before the date applied.";
         }
 
-
-
         setErrors(validationErrors);
-
-        // Return true if no errors, otherwise false
         return Object.keys(validationErrors).length === 0;
     };
 
     const handleChange = (value, name) => {
         setFormData((prev) => ({ ...prev, [name]: value }));
-        setErrors((prevErrors) => ({ ...prevErrors, [name]: null })); // Clear error for the field being edited
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: null }));
     };
 
     const handleColorChange = card_color => {
@@ -117,23 +119,23 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     const handleSubmit = async () => {
         if (!validateForm()) {
           console.error("Form has validation errors.");
-          return; // Stop if there are validation errors
+          return;
         }
-        console.log("Updating card with ID:", card.id); // Debug log to verify ID
+        console.log("Updating card with ID:", card.id);
         console.log("DrawerView card prop:", card);
       
-        // 1) Upload CV to S3 + DB if present
+        // 1) Upload CV if present
         if (formData.cv?.file) {
           await uploadAndCreateFile({
             file: formData.cv.file,
-            docType: 'cv',  // or 'CV' if you'd rather keep it uppercase
+            docType: 'cv',  // or 'CV'
             typeId: 1,      // 1 for CV in your FileTypes table
             description: 'CV uploaded via DrawerView',
             applicationsIds: [Number(card.id)]
           });
         }
       
-        // 2) Upload Cover Letter to S3 + DB if present
+        // 2) Upload Cover Letter if present
         if (formData.coverLetter?.file) {
           await uploadAndCreateFile({
             file: formData.coverLetter.file,
@@ -168,7 +170,6 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
             throw new Error('User not authenticated');
           }
       
-          // Send the updated application data to your backend
           const response = await fetch(
             `${process.env.REACT_APP_API_URL}/applications/${card.id}`,
             {
@@ -191,7 +192,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
               updateCard(card.id, updatedData);
             }
       
-            onClose(); // Close the drawer
+            onClose();
           } else {
             const errorText = await response.text();
             console.error('Failed to update the card:', errorText);
@@ -199,17 +200,17 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         } catch (error) {
           console.error('Error updating card:', error);
         }
-      };
+    };
       
-    const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
-    const drawerPlacement = window.innerWidth <= 600 ? 'top' : 'right'; // Open from bottom on small screens
+    const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm';
+    const drawerPlacement = window.innerWidth <= 600 ? 'top' : 'right';
 
     const handleFileUpload = (e, type) => {
         const file = e.target.files[0];
         if (file) {
             setFormData(prev => ({
                 ...prev,
-                [type]: { name: file.name, file } // Store file object along with its name
+                [type]: { name: file.name, file }
             }));
         }
     };
@@ -217,17 +218,42 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
     const removeFile = (type) => {
         setFormData(prev => ({
             ...prev,
-            [type]: null // Dynamically remove the file by type
+            [type]: null
         }));
     };
+
+    // ========== NEW FUNCTIONS FOR REMOVE & DELETE & OPEN POPUP ==========
+    const handleRemove = async (file) => {
+        // Remove this application ID from that file's ApplicationIds array
+        const updatedApps = file.ApplicationIds.filter(
+          (appId) => appId !== parseInt(card.id, 10)
+        );
+        try {
+          await updateFile(file.fileId, { applicationsIds: updatedApps });
+        } catch (err) {
+          console.error('Error removing application from file:', err);
+        }
+    };
+
+    const handleDelete = async (fileId) => {
+        try {
+          await deleteFile(fileId);
+        } catch (err) {
+          console.error('Error deleting file:', err);
+        }
+    };
+
+    const openFile = (file) => {
+      setSelectedFile(file);
+      setFilePopupOpen(true);
+    };
+    // ==================================================================
 
     const calculateProgress = (fields) => {
         const filled = fields.filter((field) => {
             const value = formData[field];
-            console.log(value);
-            return value !== null && value !== undefined && value !== ''; // Check for filled fields
+            return value !== null && value !== undefined && value !== '';
         }).length;
-
         return `${filled}/${fields.length}`;
     };
 
@@ -254,25 +280,21 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
         }).length;
 
         const total = fields.length;
-        return Math.round((filled / total) * 100); // Return percentage
+        return Math.round((filled / total) * 100);
     };
 
     const getCircularProgressColor = (percentage) => {
         if (percentage === 100) {
-            return '#28a745'; // Green for 100% completion
+            return '#28a745';
         } else if (percentage >= 50) {
-            return '#ffc107'; // Yellow for 50%-99% completion
+            return '#ffc107';
         } else {
-            return '#dc3545'; // Red for less than 50% completion
+            return '#dc3545';
         }
     };
 
-
-
-
-
     return (
-
+        <>
         <Drawer open={show} onClose={onClose} size={drawerSize} placement={drawerPlacement}>
             <Drawer.Header>
                 <Drawer.Title>Edit Card</Drawer.Title>
@@ -399,8 +421,8 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                         <Form.ControlLabel className="formControlLabel">Status</Form.ControlLabel>
                                         <SelectPicker
                                             name="StatusId"
-                                            value={formData.StatusId || card.StatusId} // Reflect the current status
-                                            onChange={(value) => handleChange(value, 'StatusId')} // Update formData when a new status is selected
+                                            value={formData.StatusId || card.StatusId}
+                                            onChange={(value) => handleChange(value, 'StatusId')}
                                             data={statuses.map(status => ({
                                                 label: status.StatusName,
                                                 value: status.StatusId
@@ -409,10 +431,6 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                             placeholder="Select Status"
                                             searchable={false}
                                         />
-
-
-
-
                                     </Form.Group>
                                 </Col>
                                 <Col xs={24} sm={12}>
@@ -425,7 +443,6 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                             value={formData.date_applied || ''}
                                             onChange={value => handleChange(value, 'date_applied')}
                                         />
-
                                     </Form.Group>
                                 </Col>
                             </Row>
@@ -445,7 +462,6 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                                 {errors.deadline}
                                             </FormHelperText>
                                         )}
-
                                     </Form.Group>
                                 </Col>
                                 <Col xs={24} sm={12}>
@@ -459,9 +475,7 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                                 handleChange(numericValue, 'salary');
                                             }}
                                             className="full-width"
-                                            // placeholder="Enter Salary"
                                             maxLength={10}
-
                                         />
                                         {errors.salary && (
                                             <FormHelperText id="error" error>
@@ -501,11 +515,9 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                 <Col xs={24}>
                                     <Form.Group controlId="card_color" className="form-group">
                                         <div className="card-color-picker">
-
                                             <Form.ControlLabel className="formControlLabel">Card Color</Form.ControlLabel>
                                             <Github
                                                 placement='Top'
-
                                                 color={formData.card_color}
                                                 onChange={color => handleColorChange(color)}
                                                 className="color-picker"
@@ -539,17 +551,47 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                 {currentView === 'documents' && (
                     <div className='document-section'>
                         {/* Show existing files for this application */}
-                            {appFiles.length > 0 && (
-                                <div style={{ marginBottom: '1rem' }}>
-                                <h5>Existing Files for this Application:</h5>
-                                {appFiles.map(file => (
-                                    <div key={file.fileId} style={{ display: 'flex', alignItems: 'center', marginTop: '5px' }}>
+                        {appFiles.length > 0 && (
+                            <div style={{ marginBottom: '1rem' }}>
+                              <h5>Existing Files for this Application:</h5>
+                              {appFiles.map(file => (
+                                <div
+                                  key={file.fileId}
+                                  style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    marginTop: '5px'
+                                  }}
+                                  onMouseEnter={() => setHoveredFileId(file.fileId)}
+                                  onMouseLeave={() => setHoveredFileId(null)}
+                                >
+                                  {/* Left side: Icon + filename (click to open FilePopup) */}
+                                  <div
+                                    style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                                    onClick={() => openFile(file)}
+                                  >
                                     <InsertDriveFileIcon style={{ marginRight: '5px' }} />
-                                    {file.fileName} ({file.fileType})
+                                    <span>{file.fileName} ({file.fileType})</span>
+                                  </div>
+
+                                  {/* Right side: Remove + Delete icons (appear on hover) */}
+                                  {hoveredFileId === file.fileId && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                      <IoMdRemove
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => handleRemove(file)}
+                                      />
+                                      <MdDelete
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => handleDelete(file.fileId)}
+                                      />
                                     </div>
-                                ))}
+                                  )}
                                 </div>
-                            )}
+                              ))}
+                            </div>
+                        )}
                         <Grid fluid>
                             <Row gutter={20}>
                                 {/* CV Section */}
@@ -557,7 +599,6 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                     <div className={`document-card ${formData.cv ? 'cv-uploaded' : ''}`}>
                                         <h4 className="document-title">CV</h4>
                                         <label htmlFor="cv" className="upload-label">
-
                                             <div className="upload-area">
                                                 <input
                                                     type="file"
@@ -607,7 +648,6 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                     <div id="coverLetter" className={`document-card ${formData.coverLetter ? 'coverLetter-uploaded' : ''}`}>
                                         <h4 className="document-title">Cover Letter</h4>
                                         <label htmlFor="coverLetterUpload" className="upload-label">
-
                                             <div className="upload-area">
                                                 <input
                                                     type="file"
@@ -650,18 +690,9 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                                     </div>
                                 </Col>
                             </Row>
-
-
                         </Grid>
-
                     </div>
-
-
                 )}
-
-
-
-
 
                 <Grid fluid>
                     <Row gutter={10} className="drawer-buttons">
@@ -678,7 +709,21 @@ const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateSt
                     </Row>
                 </Grid>
             </Drawer.Body>
-        </Drawer >
+        </Drawer>
+
+        {/* FILE POPUP (if used here) */}
+        {isFilePopupOpen && (
+          <FilePopup
+            isOpen={isFilePopupOpen}
+            toggle={() => setFilePopupOpen(false)}
+            selectedFile={selectedFile}
+            applications={[]}  // pass your actual applications if needed
+            onLocalUpdate={(updatedFile) => {
+              // If you need to do anything locally after the file is updated.
+            }}
+          />
+        )}
+        </>
     );
 };
 
