@@ -34,3 +34,35 @@ export async function createUserFoldersInS3(userId) {
 }
 
 export default s3;
+
+
+/**
+ * Delete all objects under a user's prefix (e.g. "userId/").
+ * This is optional, but can be handy if you want a bulk delete approach.
+ */
+export async function deleteAllObjectsForUser(userId) {
+  const prefix = `${userId}/`; // e.g. "123/"
+
+  // 1) List all objects with this prefix
+  const listResult = await s3
+    .listObjectsV2({
+      Bucket: BUCKET_NAME,
+      Prefix: prefix
+    })
+    .promise();
+
+  if (!listResult.Contents.length) {
+    return; // No objects, nothing to delete
+  }
+
+  // 2) Build an array of { Key: '...' } for each object
+  const Objects = listResult.Contents.map((obj) => ({ Key: obj.Key }));
+
+  // 3) Delete them in a single bulk request
+  await s3
+    .deleteObjects({
+      Bucket: BUCKET_NAME,
+      Delete: { Objects }
+    })
+    .promise();
+}
