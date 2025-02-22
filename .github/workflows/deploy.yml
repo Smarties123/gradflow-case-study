@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
     paths:
       - 'src/**'
       - 'public/**'
@@ -21,6 +20,12 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+
+    - name: Create .env file
+      run: |
+        echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" >> .env
+        echo "REACT_APP_S3_BUCKET=${{ secrets.REACT_APP_S3_BUCKET }}" >> .env
+        echo "REACT_APP_S3_REGION=${{ secrets.REACT_APP_S3_REGION }}" >> .env
 
     - name: Install dependencies
       run: npm install

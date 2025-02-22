@@ -16,7 +16,7 @@ import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
 
-console.log(process.env.AWS_REGION);
+
 
 // Schedule the task to run every wednesday at 9:00 AM 
 //for more info: https://www.npmjs.com/package/node-cron

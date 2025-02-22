@@ -216,8 +216,10 @@ export function useFileData() {
       await uploadFileToS3(uploadUrl, file);
   
       // 3) Build final S3 link from your bucket name & region
-      const s3Bucket = process.env.REACT_APP_S3_BUCKET || 'gradflow-user-files';
-      const s3Region = process.env.REACT_APP_S3_REGION || 'eu-west-2';
+      const s3Bucket = process.env.REACT_APP_S3_BUCKET;
+      const s3Region = process.env.REACT_APP_S3_REGION;
+      // console.log('s3Bucket:', s3Bucket, 's3Region:', s3Region);
+
       const fileUrl = `https://${s3Bucket}.s3.${s3Region}.amazonaws.com/${objectKey}`;
   
       // NEW: parse extension from the file name

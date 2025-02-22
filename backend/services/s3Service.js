@@ -7,7 +7,7 @@ const s3 = new AWS.S3({
   region: process.env.AWS_REGION, // e.g. "us-east-1"
 });
 
-const BUCKET_NAME = 'gradflow-user-files';
+const BUCKET_NAME = process.env.BUCKET_NAME;
 
 /**
  * Create empty “folders” in S3 for a new user:
