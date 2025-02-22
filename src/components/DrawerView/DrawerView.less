@@ -35,8 +35,7 @@
 .drawer-links {
     a {
         cursor: pointer;
-        padding: 10px;
-        text-decoration: none;
+        0px 0px 10px text-decoration: none;
         color: #787777;
         font-weight: bold;
         transition: color 0.3s ease, background-color 0.3s ease;
@@ -127,3 +126,236 @@
 
     }
 }
+
+#coverLetter,
+.document-card {
+    border-radius: 8px;
+    margin-bottom: 20px;
+    /* Add spacing between sections */
+    background: #1f1f1f;
+}
+
+.rs-theme-light {
+
+    .document-card,
+    #coverLetter {
+        background: #fff;
+    }
+}
+
+.document-card {
+    border: 1px dashed #6597F7;
+
+}
+
+.document-card.cv-uploaded {
+    border: 1px solid #6597F7;
+}
+
+#coverLetter {
+    border: 1px dashed purple
+}
+
+#coverLetter.coverLetter-uploaded {
+    border: 1px solid purple;
+}
+
+
+.document-card {
+    padding: 20px 0px 10px 0px;
+    text-align: center;
+    // border-radius: 8px;
+}
+
+.document-title {
+    font-size: 18px;
+    color: #fff;
+    // margin-bottom: 15px;
+    // float:left;
+}
+
+.upload-area {
+    margin-bottom: 20px;
+    cursor: pointer;
+
+}
+
+.upload-icon img {
+    max-width: 50px;
+    margin-bottom: 10px;
+}
+
+.upload-instructions {
+    color: #999;
+    font-size: 14px;
+}
+
+.upload-instructions span {
+    color: #6597F7;
+    font-weight: bold;
+}
+
+#coverLetter span {
+    color: #ff6200;
+    font-weight: bold;
+}
+
+.upload-or {
+    margin: 10px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.link-button {
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.link-button:hover {
+    opacity: 0.9;
+}
+
+.uploaded-file-container {
+    display: flex;
+    justify-content: center;
+    /* Center horizontally */
+    align-items: center;
+    /* Center vertically */
+}
+
+/* Styling for uploaded file */
+.uploaded-file {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 250px;
+    /* Fixed width for the file box */
+    padding: 5px;
+    // background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 24px;
+    /* Rounded corners */
+}
+
+/* Icon styling */
+.file-icon {
+    margin-right: 6px;
+    margin-left: 6px;
+    // color: #555;
+    font-size: 14px;
+}
+
+/* File name styling */
+.file-name {
+    flex: 1;
+    font-size: 14px;
+    // color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+}
+
+/* Remove button styling */
+.remove-file-button {
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    margin-left: 10px;
+}
+
+#ddn a {
+    font-weight: 900 !important;
+}
+
+.progress-counter {
+    display: table-caption;
+    margin-left: 8px;
+    font-weight: bold !important;
+    border-radius: 12px;
+    font-size: 12px;
+    padding: 2px 8px;
+    vertical-align: middle;
+    box-shadow: 0 6px 6px -4px lightblue;
+
+}
+
+
+#error {
+    margin-left: 5px;
+}
+
+.progress-ring {
+    position: relative;
+    display: inline-block;
+    margin-left: 8px;
+    text-align: center;
+}
+
+.progress-ring .progress-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.7rem;
+    font-weight: 1000 !important;
+    color: inherit;
+    /* Match the ring color */
+}
+
+
+/* For WebKit browsers (Chrome, Safari, etc.) */
+::-webkit-scrollbar {
+    width: 12px;
+    /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    /* Track color */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ff6200;
+    /* Scrollbar color */
+    border-radius: 6px;
+    /* Rounded edges */
+    border: 3px solid #f1f1f1;
+    /* Padding around the thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #e55700;
+    /* Darker orange on hover */
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    /* Thin scrollbar */
+    scrollbar-color: #ff6200 #f1f1f1;
+    /* Scrollbar thumb and track colors */
+}
+
+/* For Edge and Internet Explorer */
+::-ms-scrollbar {
+    width: 12px;
+    background: #f1f1f1;
+}
+
+
+
+.attach-existing-file {
+    margin: 1rem 0;
+  
+    .attach-file-row {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+  }

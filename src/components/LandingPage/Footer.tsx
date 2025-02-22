@@ -21,7 +21,7 @@ function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" mt={1}>
       {'Copyright © '}
-      <Link rel="noopener noreferrer">
+      <Link target="_blank" rel="noopener noreferrer">
         HAD TECHNOLOGIES LTD&nbsp;
       </Link>
       {new Date().getFullYear()}
