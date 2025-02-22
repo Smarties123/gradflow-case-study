@@ -65,3 +65,28 @@
   );
     --spring-duration: 1.86s;
 }
+
+.gooey-button {
+  font-size: 2.5rem;
+  padding: 4.5rem 4rem;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+  max-width: --webkit-fill-available;
+  line-height: -1;
+}
+
+/* Adjust styles for smaller screens */
+@media (max-width: 768px) {
+  .gooey-button {
+    font-size: 1.8rem; /* Reduce font size */
+    padding: 2rem 2.5rem; /* Reduce padding */
+  }
+}
+
+@media (max-width: 480px) {
+  .gooey-button {
+    font-size: 1.5rem;
+    padding: 1.5rem 2rem;
+  }
+}

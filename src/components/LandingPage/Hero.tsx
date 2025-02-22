@@ -124,9 +124,9 @@ export default function Hero() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              margin: 0, // Remove top and bottom margin
-              padding: 0, // Remove padding
-              height: "auto", // Ensure the height is auto
+              margin: 0,
+              padding: 0,
+              height: "auto",
             }}
           >
             <button
@@ -135,9 +135,13 @@ export default function Hero() {
               onClick={() => (window.location.href = "/signup")}
               style={{
                 fontSize: "2.5rem",
-                padding: "4.5rem 4rem", // Adjust padding for button
-                margin: 0, // Remove margin
-                lineHeight: 0, // Adjust line-height for compactness
+                padding: "4.5rem 4rem",
+                margin: 0,
+                lineHeight: 1, // Ensure text height is correct
+                maxWidth: "90%", // Prevents button from expanding beyond the screen
+                textAlign: "center", // Centers text properly
+                whiteSpace: "normal", // Allows wrapping
+                wordBreak: "break-word", // Ensures long words don't overflow
               }}
             >
               Sign Up for Free
