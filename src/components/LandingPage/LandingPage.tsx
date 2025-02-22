@@ -16,7 +16,7 @@ import { Divider } from '@mui/material';
 import Highlights from './Highlights';
 import Footer from './Footer';
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
-
+import Pricing from './Pricing';
 
 
 export default function LandingPage() {
@@ -76,7 +76,7 @@ export default function LandingPage() {
             <Testimonials />
           </Box>
 
-          {/* <Divider /> */}
+          <Divider />
 
           {/* <Box id="faq" sx={{ bgcolor: 'background.default' }}> */}
           {/* <FAQ /> */}

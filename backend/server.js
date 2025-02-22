@@ -10,6 +10,8 @@ import cors from 'cors';
 import pool from './config/db.js';  // Database import
 import userRoutes from './routes/userRoutes.js';  
 import applicationRoutes from './routes/applicationRoutes.js';
+import filesRoutes from './routes/filesRoutes.js';
+
 import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
@@ -88,6 +90,8 @@ app.use(logoDevProxy);
 app.use('/api/users', userRoutes);  // '/forgot-password' will be accessible as '/api/users/forgot-password'
 app.use(applicationRoutes);
 app.use(statusRoutes);
+app.use('/files', filesRoutes);
+
 
 const port = process.env.PORT || 3001;
 

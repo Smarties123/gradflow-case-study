@@ -14,46 +14,32 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 
 const tiers = [
   {
-    title: 'Free',
+    title: 'Free Plan',
+    price: '0', // Assuming free; adjust accordingly
+    description: [
+      'Track up to 20 active applications',
+      'Access to basic dashboards',
+      'Store up to 5 CVs & Cover Letters',
+      'Receive standard email notifications for deadlines and updates',
+    ],
+    buttonText: 'Get Started for Free',
+    buttonVariant: 'outlined',
+  },
+  {
+    title: 'Premium Plan',
+    subheader: 'Best Value',
     price: '0',
     description: [
-      '10 users included',
-      '2 GB of storage',
-      'Help center access',
-      'Email support',
+      'Unlimited application tracking for complete flexibility',
+      'Comprehensive dashboard analytics and insights',
+      'Unlimited CVs & Cover Letters',
+      'Enhanced email notifications with customization options',
+      'Assign up to 5 applications to a CV/CL'
     ],
-    buttonText: 'Sign up for free',
-    buttonVariant: 'outlined',
-  },
-  {
-    title: 'Professional',
-    subheader: 'Recommended',
-    price: '15',
-    description: [
-      '20 users included',
-      '10 GB of storage',
-      'Help center access',
-      'Priority email support',
-      'Dedicated team',
-      'Best deals',
-    ],
-    buttonText: 'Start now',
+    buttonText: 'Upgrade to Premium',
     buttonVariant: 'contained',
   },
-  {
-    title: 'Enterprise',
-    price: '30',
-    description: [
-      '50 users included',
-      '30 GB of storage',
-      'Help center access',
-      'Phone & email support',
-    ],
-    buttonText: 'Contact us',
-    buttonVariant: 'outlined',
-  },
 ];
-
 export default function Pricing() {
   return (
     <Container
@@ -78,10 +64,9 @@ export default function Pricing() {
           Pricing
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Quickly build an effective pricing table for your potential customers with
-          this layout. <br />
-          It&apos;s built with default Material UI components with little
-          customization.
+          Discover flexible pricing options tailored to help you achieve your dream job. Upgrade at any time to unlock advanced features and benefits.
+
+
         </Typography>
       </Box>
       <Grid container spacing={3} alignItems="center" justifyContent="center">
@@ -99,11 +84,11 @@ export default function Pricing() {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 4,
-                border: tier.title === 'Professional' ? '1px solid' : undefined,
+                border: tier.title === 'Premium Plan' ? '1px solid' : undefined,
                 borderColor:
-                  tier.title === 'Professional' ? 'primary.main' : undefined,
+                  tier.title === 'Premium Plan' ? 'primary.main' : undefined,
                 background:
-                  tier.title === 'Professional'
+                  tier.title === 'Premium Plan'
                     ? 'linear-gradient(#033363, #021F3B)'
                     : undefined,
               }}
@@ -115,40 +100,42 @@ export default function Pricing() {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    color: tier.title === 'Professional' ? 'grey.100' : '',
+                    color: tier.title === 'Premium Plan' ? 'grey.100' : '',
                   }}
                 >
                   <Typography component="h3" variant="h6">
                     {tier.title}
                   </Typography>
-                  {tier.title === 'Professional' && (
+                  {tier.title === 'Premium Plan' && (
                     <Chip
                       icon={<AutoAwesomeIcon />}
                       label={tier.subheader}
                       size="small"
                       sx={{
-                        background: (theme) =>
-                          theme.palette.mode === 'light' ? '' : 'none',
-                        backgroundColor: 'primary.contrastText',
+                        backgroundColor: '#FF6200 !important', // Force black background
                         '& .MuiChip-label': {
-                          color: 'primary.dark',
+                          color: 'white !important', // Force white label color
                         },
                         '& .MuiChip-icon': {
-                          color: 'primary.dark',
+                          color: 'white !important', // Force white icon color
                         },
+                        boxShadow: 'none', // Remove any shadow that might create a gradient effect
+                        backgroundImage: 'none !important', // Ensure no gradient background
+                        padding: '15px 4px',
                       }}
                     />
                   )}
+
                 </Box>
                 <Box
                   sx={{
                     display: 'flex',
                     alignItems: 'baseline',
-                    color: tier.title === 'Professional' ? 'grey.50' : undefined,
+                    color: tier.title === 'Premium Plan' ? 'grey.50' : undefined,
                   }}
                 >
                   <Typography component="h3" variant="h2">
-                    ${tier.price}
+                    £{tier.price}
                   </Typography>
                   <Typography component="h3" variant="h6">
                     &nbsp; per month
@@ -175,7 +162,7 @@ export default function Pricing() {
                       sx={{
                         width: 20,
                         color:
-                          tier.title === 'Professional'
+                          tier.title === 'Premium Plan'
                             ? 'primary.light'
                             : 'primary.main',
                       }}
@@ -185,7 +172,7 @@ export default function Pricing() {
                       variant="subtitle2"
                       sx={{
                         color:
-                          tier.title === 'Professional' ? 'grey.200' : undefined,
+                          tier.title === 'Premium Plan' ? 'grey.200' : undefined,
                       }}
                     >
                       {line}

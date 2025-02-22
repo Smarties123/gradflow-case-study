@@ -1,371 +1,434 @@
 import React, { useState, useEffect } from 'react';
-import { DatePicker, Drawer, FlexboxGrid, Divider, Input, Form, Button, Grid, Row, Col, SelectPicker } from 'rsuite';
-import { useUser } from '@/components/User/UserContext'; // Import useUser to get the user
-const Textarea = React.forwardRef((props, ref) => <Input {...props} as="textarea" ref={ref} />);
-import Github from '@uiw/react-color-github';
-import './DrawerView.less';
+import { Drawer, FlexboxGrid, Grid, Row, Col, Button } from 'rsuite';
+import { useUser } from '@/components/User/UserContext';
 import dayjs from 'dayjs';
-import * as errors from '@/images/errors';
+import { useBoardData } from '../../hooks/useBoardData';
+import { useFileData } from '../../hooks/useFileData';
 
+import ProgressNavigation from './ProgressNavigation';
+import DetailsView from './DetailsView';
+import NotesView from './NotesView';
+import DocumentsView from './DocumentsView';
+import FilePopup from '../FilePopup/FilePopup';
 
+import './DrawerView.less';
 
-const DrawerView = ({ show, onClose, card = {}, updateCard, columnName, updateStatus, statuses = [], updateStatusLocally }) => {
-    const [currentView, setCurrentView] = useState('details');
-    const { user } = useUser(); // Get the user object
-    // const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
+const DrawerView = ({
+  show,
+  onClose,
+  card = {},
+  updateCard,
+  columnName,
+  updateStatus,
+  statuses = [],
+  updateStatusLocally
+}) => {
+  const { user } = useUser();
+  const { columns, loading: boardLoading } = useBoardData(user);
+  const { uploadAndCreateFile, files, updateFile, deleteFile } = useFileData();
 
+  const [currentView, setCurrentView] = useState<'details' | 'documents' | 'notes'>('details');
+  const [errors, setErrors] = useState({});
+  const [appFiles, setAppFiles] = useState([]);
 
-    const parseDate = (dateStr) => {
-        return dateStr ? dayjs(dateStr).toDate() : null;
-    };
+  // Hover & File popup
+  const [hoveredFileId, setHoveredFileId] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isFilePopupOpen, setFilePopupOpen] = useState(false);
 
+  // Building the "Attach existing file" dropdown
+  const [attachFileSelections, setAttachFileSelections] = useState<number[]>([]);
 
+  const [allApps, setAllApps] = useState([]);
 
-    const [formData, setFormData] = useState({
-        company: card.company || '',  // Default to an empty string if null
-        companyLogo: card.companyLogo || '',
-        position: card.position || '',
-        deadline: card.deadline ? parseDate(card.deadline) : null,  // Allow null for dates
-        location: card.location || '',
-        url: card.url || '',
-        notes: card.notes || '',
-        salary: card.salary || 0,  // Default salary to 0
-        interview_stage: card.interview_stage || '',
-        date_applied: card.date_applied ? parseDate(card.date_applied) : null,
-        card_color: card.card_color || '#ffffff',  // Default color to white
+  // Helpers
+  const parseDate = (dateStr) => {
+    return dateStr ? dayjs(dateStr).toDate() : null;
+  };
+
+  // Form data
+  const [formData, setFormData] = useState({
+    company: card.company || '',
+    companyLogo: card.companyLogo || '',
+    position: card.position || '',
+    deadline: card.deadline ? parseDate(card.deadline) : null,
+    location: card.location || '',
+    url: card.url || '',
+    notes: card.notes || '',
+    salary: card.salary,
+    interview_stage: card.interview_stage || '',
+    date_applied: card.date_applied ? parseDate(card.date_applied) : null,
+    card_color: card.card_color || '#ffffff',
+    cv: card.cv || null,
+    coverLetter: card.coverLetter || null,
+    StatusId: card.StatusId || null
+  });
+
+  // Fetch applications (for FilePopup) once columns are loaded
+  useEffect(() => {
+    if (!boardLoading && columns?.length > 0) {
+      const newApplications = columns.flatMap((col) =>
+        col.cards.map((thisCard) => ({
+          label: `${thisCard.position} (${col.title})`,
+          value: Number(thisCard.id)
+        }))
+      );
+      setAllApps(newApplications);
+    }
+  }, [boardLoading, columns]);
+
+  // If there's a new deadline, parse it
+  useEffect(() => {
+    if (card.deadline) {
+      const parsedDeadline = parseDate(card.deadline);
+      if (parsedDeadline) {
+        setFormData((prevData) => ({
+          ...prevData,
+          deadline: parsedDeadline
+        }));
+      }
+    }
+  }, [card.deadline]);
+
+  // Filter the files for *this* application
+  useEffect(() => {
+    if (!card.id) {
+      console.warn('ID is missing from card prop:', card);
+      onClose();
+    }
+    if (!files) return;
+
+    const relevantFiles = files.filter((f) => {
+      if (!Array.isArray(f.ApplicationIds)) return false;
+      return f.ApplicationIds.includes(parseInt(card.id, 10));
     });
+    setAppFiles(relevantFiles);
+  }, [card, files, onClose]);
 
+  // Avoid "ResizeObserver loop completed" console spam in some browsers
+  useEffect(() => {
+    window.addEventListener('error', (e) => {
+      if (e.message.includes('ResizeObserver loop completed')) {
+        e.preventDefault();
+      }
+    });
+  }, []);
 
+  // ========== FORM VALIDATION ==========
+  const validateForm = () => {
+    const validationErrors: any = {};
 
-    useEffect(() => {
-        if (card.deadline) {
-            const parsedDeadline = parseDate(card.deadline);
-            if (parsedDeadline) {
-                setFormData(prevData => ({
-                    ...prevData,
-                    deadline: parsedDeadline
-                }));
-            }
-        }
-    }, [card.deadline]);
+    if (formData.salary < 0) {
+      validationErrors.salary = 'Salary cannot be negative.';
+    } else if (formData.salary && !/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(formData.salary)) {
+      validationErrors.salary = 'Salary must be a valid number';
+    }
 
-    useEffect(() => {
-        window.addEventListener('error', (e) => {
-            if (e.message.includes('ResizeObserver loop completed')) {
-                e.preventDefault();
-            }
-        });
-    }, []);
+    if (formData.deadline && formData.date_applied && formData.deadline < formData.date_applied) {
+      validationErrors.deadline = 'Deadline cannot be before the date applied.';
+    }
 
-    useEffect(() => {
-        if (!card.id) {
-            console.warn("ID is missing from card prop:", card);
-            // Optionally, prevent drawer from opening if no ID
-            onClose();
-        }
-    }, [card]);
+    setErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0;
+  };
 
+  const handleChange = (value, name) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: null }));
+  };
 
-    const handleChange = (value, name) => {
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
+  // ========== COLOR PICKER ==========
+  const handleColorChange = (color) => {
+    setFormData((prev) => ({ ...prev, card_color: color.hex }));
+  };
 
+  // ========== FILE UPLOAD HANDLERS ==========
+  const handleFileUpload = (e, type: 'cv' | 'coverLetter') => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        [type]: { name: file.name, file }
+      }));
+    }
+  };
 
-    const handleColorChange = card_color => {
-        setFormData(prev => ({ ...prev, card_color: card_color.hex }));
-    };
+  const removeFile = (type: 'cv' | 'coverLetter') => {
+    setFormData((prev) => ({
+      ...prev,
+      [type]: null
+    }));
+  };
 
-    const handleSubmit = async () => {
-        console.log("Updating card with ID:", card.id); // Debug log to verify ID
-        console.log("DrawerView card prop:", card);
-
-        const updatedData = {
-            company: formData.company,
-            position: formData.position,
-            deadline: formData.deadline ? dayjs(formData.deadline).format('YYYY-MM-DD') : null,
-            location: formData.location,
-            url: formData.url,
-            notes: formData.notes,  // This will now be included even if empty or null
-            salary: formData.salary,
-            interview_stage: formData.interview_stage,
-            date_applied: formData.date_applied ? dayjs(formData.date_applied).format('YYYY-MM-DD') : null,
-            card_color: formData.card_color,
-            statusId: formData.StatusId || card.StatusId,
-        };
-
-        try {
-            if (!user || !user.token) {
-                throw new Error('User not authenticated');
-            }
-
-            // console.log('User token:', user.token);  // Debug token value
-            // console.log('Updated data:', updatedData);  // Debug the data being sent to the backend
-            // console.log('process.env.REACT_APP_API_URL', process.env.REACT_APP_API_URL); //
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${card.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`,  // Ensure token is valid
-                },
-                body: JSON.stringify(updatedData),
-            });
-
-            if (response.ok) {
-                const updatedCard = await response.json();
-                // console.log('Card updated:', updatedCard);
-
-                // Check if the status has changed and update the card's location accordingly
-                if (updatedData.statusId !== card.StatusId) {
-                    updateStatusLocally(card.id, updatedData.statusId);  // Use the function passed via props
-                } else {
-                    updateCard(card.id, updatedData);  // Update the card details in local state
-                }
-
-                onClose(); // Close the drawer
-            } else {
-                const errorText = await response.text();
-                console.error('Failed to update the card:', errorText);
-            }
-        } catch (error) {
-            console.error('Error updating card:', error);
-        }
-    };
-
-
-
-
-    const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm'; // Set 'xs' for small screens
-    const drawerPlacement = window.innerWidth <= 600 ? 'top' : 'right'; // Open from bottom on small screens
-
-
-
-
-    return (
-        <Drawer open={show} onClose={onClose} size={drawerSize} placement={drawerPlacement}>
-            <Drawer.Header>
-                <Drawer.Title>Edit Card</Drawer.Title>
-                <FlexboxGrid justify="space-between" className="drawer-links">
-                    <FlexboxGrid.Item>
-                        <div>
-                            <a
-                                onClick={() => setCurrentView('details')}
-                                className={currentView === 'details' ? 'active' : ''}
-                            >
-                                Details
-                            </a>
-                            <Divider vertical />
-                            <a
-                                onClick={() => setCurrentView('documents')}
-                                className={currentView === 'documents' ? 'active' : ''}
-                            >
-                                Documents
-                            </a>
-                            <Divider vertical />
-                            <a
-                                onClick={() => setCurrentView('notes')}
-                                className={currentView === 'notes' ? 'active' : ''}
-                            >
-                                Notes
-                            </a>
-
-                        </div>
-                    </FlexboxGrid.Item>
-                </FlexboxGrid>
-            </Drawer.Header>
-            <Drawer.Body>
-                {currentView === 'details' && (
-                    <Form fluid>
-                        <Grid fluid>
-                            <Row gutter={10}>
-                                <Col xs={24} sm={12}>
-                                    <Form.Group controlId="company" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Company</Form.ControlLabel>
-                                        <div className="company-input-wrapper">
-                                            <Form.Control
-                                                name="company"
-                                                value={formData.company}
-                                                onChange={value => handleChange(value, 'company')}
-                                                className="full-width"
-                                            />
-                                            {formData.companyLogo && (
-                                                <img src={formData.companyLogo} alt={formData.company} className="drawer-company-logo" />
-                                            )}
-                                        </div>
-                                    </Form.Group>
-                                </Col>
-                                <Col xs={24} sm={12}>
-                                    <Form.Group controlId="position" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Position</Form.ControlLabel>
-                                        <Form.Control
-                                            name="position"
-                                            value={formData.position}
-                                            onChange={value => handleChange(value, 'position')}
-                                            className="full-width"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row gutter={10}>
-                                <Col xs={24}>
-                                    <Form.Group controlId="notes" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Notes</Form.ControlLabel>
-                                        <Form.Control
-                                            name="notes"
-                                            rows={5}
-                                            accepter={Textarea}
-                                            value={formData.notes || ''}
-                                            onChange={value => handleChange(value, 'notes')}
-                                            className="full-width"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row gutter={10}>
-                                <Col xs={24} sm={12}>
-                                    <Form.Group controlId="columnName" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Status</Form.ControlLabel>
-                                        <SelectPicker
-                                            name="StatusId"
-                                            value={formData.StatusId || card.StatusId} // Reflect the current status
-                                            onChange={(value) => handleChange(value, 'StatusId')} // Update formData when a new status is selected
-                                            data={statuses.map(status => ({
-                                                label: status.StatusName,
-                                                value: status.StatusId
-                                            }))}
-                                            className="full-width"
-                                            placeholder="Select Status"
-                                            searchable={false}
-                                        />
-
-
-
-
-                                    </Form.Group>
-                                </Col>
-                                <Col xs={24} sm={12}>
-                                    <Form.Group controlId="date_applied" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Date Applied</Form.ControlLabel>
-                                        <DatePicker
-                                            oneTap
-                                            format="dd-MM-yyyy"
-                                            className="full-width"
-                                            value={formData.date_applied || ''}
-                                            onChange={value => handleChange(value, 'date_applied')}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row gutter={10}>
-                                <Col xs={24} sm={12}>
-                                    <Form.Group controlId="deadline" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Deadline</Form.ControlLabel>
-                                        <DatePicker
-                                            oneTap
-                                            format="dd-MM-yyyy"
-                                            className="full-width"
-                                            value={formData.deadline || ''}
-                                            onChange={value => handleChange(value, 'deadline')}
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row gutter={10}>
-                                <Col xs={24}>
-                                    <Form.Group controlId="location" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Location</Form.ControlLabel>
-                                        <Form.Control
-                                            name="location"
-                                            value={formData.location || ''}
-                                            onChange={value => handleChange(value, 'location')}
-                                            className="full-width"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row gutter={10}>
-                                <Col xs={24}>
-                                    <Form.Group controlId="url" className="form-group">
-                                        <Form.ControlLabel className="formControlLabel">Edit URL</Form.ControlLabel>
-                                        <Form.Control
-                                            name="url"
-                                            value={formData.url || ''}
-                                            onChange={value => handleChange(value, 'url')}
-                                            className="full-width"
-                                        />
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                            <Row gutter={10}>
-                                <Col xs={24}>
-                                    <Form.Group controlId="card_color" className="form-group">
-                                        <div className="card-color-picker">
-
-                                            <Form.ControlLabel className="formControlLabel">Card Color</Form.ControlLabel>
-                                            <Github
-                                                placement='Top'
-
-                                                color={formData.card_color}
-                                                onChange={color => handleColorChange(color)}
-                                                className="color-picker"
-                                            />
-                                        </div>
-                                    </Form.Group>
-                                </Col>
-                            </Row>
-                        </Grid>
-                    </Form>
-                )}
-
-                {currentView === 'notes' && (
-                    <div className="notes-view">
-                        <Form fluid>
-                            <Form.Group controlId="notes" className="form-group">
-                                <Form.ControlLabel className="formControlLabel">Notes</Form.ControlLabel>
-                                <Form.Control
-                                    name="notes"
-                                    rows={5}
-                                    accepter={Textarea}
-                                    value={formData.notes}
-                                    onChange={value => handleChange(value, 'notes')}
-                                    className="full-width"
-                                />
-                            </Form.Group>
-                        </Form>
-                    </div>
-                )}
-
-                {currentView === 'documents' && (
-                    <div className="coming-soon-page" style={{ background: 'transparent', height: 'inherit' }}>
-                        <div className="item">
-                            <img src={errors['Error404Img']} alt="Coming Soon" className="coming-soon-image" style={{ maxWidth: '70%' }} />
-                            <div className="text">
-                                <h3 className="coming-soon-message" >
-                                    Coming soon: Upload and manage your cover letters and CVs for each job application. Stay tuned!"
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-
-
-                <Grid fluid>
-                    <Row gutter={10} className="drawer-buttons">
-                        <Col xs={24} sm={12}>
-                            <Button onClick={handleSubmit} appearance="primary" block>
-                                Update
-                            </Button>
-                        </Col>
-                        <Col xs={24} sm={12}>
-                            <Button onClick={onClose} appearance="subtle" block>
-                                Close
-                            </Button>
-                        </Col>
-                    </Row>
-                </Grid>
-            </Drawer.Body>
-        </Drawer>
+  // ========== EXISTING FILES - DETACH/DELETE ==========
+  const handleRemove = async (file) => {
+    const updatedApps = file.ApplicationIds.filter(
+      (appId) => appId !== parseInt(card.id, 10)
     );
+    try {
+      await updateFile(file.fileId, { applicationsIds: updatedApps });
+    } catch (err) {
+      console.error('Error removing application from file:', err);
+    }
+  };
+
+  const handleDelete = async (fileId) => {
+    try {
+      await deleteFile(fileId);
+    } catch (err) {
+      console.error('Error deleting file:', err);
+    }
+  };
+
+  // ========== FILE POPUP ==========
+  const openFile = (file) => {
+    setSelectedFile({
+      ...file,
+      url: file.fileUrl,
+      name: file.fileName,
+      documentType: file.fileType
+    });
+    setFilePopupOpen(true);
+  };
+
+  // ========== ATTACH EXISTING FILES ==========
+  // 1) Unused files (not attached to this app)
+  const unusedFiles = files.filter((f) => {
+    if (f.ApplicationIds.includes(parseInt(card.id, 10))) return false;
+    return true;
+  });
+
+  // 2) Convert to array for <SelectPicker>
+  const unusedFilesData = unusedFiles.map((f) => ({
+    label: `${f.fileName} (${f.fileType})`,
+    value: f.fileId
+  }));
+
+  // 3) Attach them
+  const handleAttachFiles = async () => {
+    const selections = Array.isArray(attachFileSelections) ? attachFileSelections : [];
+    for (const fileId of selections) {
+      const targetFile = files.find((f) => f.fileId === fileId);
+      if (!targetFile) continue;
+
+      const currentAppIds = Array.isArray(targetFile.ApplicationIds)
+        ? targetFile.ApplicationIds
+        : [];
+      const updatedAppIds = [...currentAppIds, parseInt(card.id, 10)];
+
+      await updateFile(targetFile.fileId, { applicationsIds: updatedAppIds });
+    }
+    setAttachFileSelections([]);
+  };
+
+  // ========== SUBMIT ==========
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      console.error('Form has validation errors.');
+      return;
+    }
+    console.log('Updating card with ID:', card.id);
+
+    try {
+      // 1) Upload CV if present
+      if (formData.cv?.file) {
+        await uploadAndCreateFile({
+          file: formData.cv.file,
+          docType: 'cv',
+          typeId: 1,
+          description: 'CV uploaded via DrawerView',
+          applicationsIds: [Number(card.id)]
+        });
+      }
+
+      // 2) Upload Cover Letter if present
+      if (formData.coverLetter?.file) {
+        await uploadAndCreateFile({
+          file: formData.coverLetter.file,
+          docType: 'cl',
+          typeId: 2,
+          description: 'Cover Letter uploaded via DrawerView',
+          applicationsIds: [Number(card.id)]
+        });
+      }
+
+      // 3) Build the updated application data
+      const updatedData = {
+        company: formData.company,
+        position: formData.position,
+        deadline: formData.deadline
+          ? dayjs(formData.deadline).format('YYYY-MM-DD')
+          : null,
+        location: formData.location,
+        url: formData.url,
+        notes: formData.notes,
+        salary: formData.salary,
+        interview_stage: formData.interview_stage,
+        date_applied: formData.date_applied
+          ? dayjs(formData.date_applied).format('YYYY-MM-DD')
+          : null,
+        card_color: formData.card_color,
+        statusId: formData.StatusId || card.StatusId
+      };
+
+      if (!user?.token) {
+        throw new Error('User not authenticated');
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/applications/${card.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`
+          },
+          body: JSON.stringify(updatedData)
+        }
+      );
+
+      if (response.ok) {
+        const updatedCard = await response.json();
+
+        // If the status changed, update locally
+        if (updatedData.statusId !== card.StatusId) {
+          updateStatusLocally(card.id, updatedData.statusId);
+        } else {
+          updateCard(card.id, updatedData);
+        }
+        onClose();
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to update the card:', errorText);
+      }
+    } catch (error) {
+      console.error('Error updating card:', error);
+    }
+  };
+
+  // ========== RESPONSIVE DRAWER SETTINGS ==========
+  const drawerSize = window.innerWidth <= 600 ? 'xs' : 'sm';
+  const drawerPlacement = window.innerWidth <= 600 ? 'top' : 'right';
+
+  // ========== PROGRESS CALCULATIONS ==========
+  const calculateProgressPercentage = (fields: string[]) => {
+    const filled = fields.filter((field) => {
+      const value = formData[field];
+      return value !== null && value !== undefined && value !== '';
+    }).length;
+    const total = fields.length;
+    return Math.round((filled / total) * 100);
+  };
+
+  const detailsFields = [
+    'company',
+    'position',
+    'notes',
+    'StatusId',
+    'date_applied',
+    'deadline',
+    'salary',
+    'url',
+    'card_color',
+    'location'
+  ];
+  const documentsFields = ['cv', 'coverLetter'];
+  const notesFields = ['notes'];
+
+  const detailsProgress = calculateProgressPercentage(detailsFields);
+  const documentsProgress = calculateProgressPercentage(documentsFields);
+  const notesProgress = calculateProgressPercentage(notesFields);
+
+  return (
+    <>
+      <Drawer open={show} onClose={onClose} size={drawerSize} placement={drawerPlacement}>
+        <Drawer.Header>
+          <Drawer.Title>Edit Card</Drawer.Title>
+          <FlexboxGrid justify="space-between" className="drawer-links">
+            <FlexboxGrid.Item>
+              <ProgressNavigation
+                currentView={currentView}
+                setCurrentView={setCurrentView}
+                detailsProgress={detailsProgress}
+                documentsProgress={documentsProgress}
+                notesProgress={notesProgress}
+              />
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+        </Drawer.Header>
+
+        <Drawer.Body>
+          {/* RENDER DIFFERENT SECTIONS BASED ON currentView */}
+          {currentView === 'details' && (
+            <DetailsView
+              formData={formData}
+              errors={errors}
+              handleChange={handleChange}
+              handleColorChange={handleColorChange}
+              statuses={statuses}
+              card={card}
+            />
+          )}
+
+          {currentView === 'notes' && (
+            <NotesView
+              formData={formData}
+              handleChange={handleChange}
+            />
+          )}
+
+          {currentView === 'documents' && (
+            <DocumentsView
+              card={card}
+              formData={formData}
+              appFiles={appFiles}
+              hoveredFileId={hoveredFileId}
+              setHoveredFileId={setHoveredFileId}
+              openFile={openFile}
+              handleRemove={handleRemove}
+              handleDelete={handleDelete}
+              handleFileUpload={handleFileUpload}
+              removeFile={removeFile}
+              attachFileSelections={attachFileSelections}
+              setAttachFileSelections={setAttachFileSelections}
+              handleAttachFiles={handleAttachFiles}
+              unusedFilesData={unusedFilesData}
+            />
+          )}
+
+          {/* Drawer Buttons */}
+          <Grid fluid>
+            <Row gutter={10} className="drawer-buttons">
+              <Col xs={24} sm={12}>
+                <Button onClick={handleSubmit} appearance="primary" block>
+                  Update
+                </Button>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Button onClick={onClose} appearance="subtle" block>
+                  Close
+                </Button>
+              </Col>
+            </Row>
+          </Grid>
+        </Drawer.Body>
+      </Drawer>
+
+      {/* FILE POPUP */}
+      {isFilePopupOpen && (
+        <FilePopup
+          isOpen={isFilePopupOpen}
+          toggle={() => setFilePopupOpen(false)}
+          selectedFile={selectedFile}
+          applications={allApps}
+          onLocalUpdate={(updatedFile) => {
+            // Optionally handle any local updates to the file
+          }}
+          readOnly={true}
+        />
+      )}
+    </>
+  );
 };
 
 export default DrawerView;

@@ -4,7 +4,12 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { sendResetPasswordEmail } from '../services/emailService.js';
+// userController.js
 
+
+import { createUserFoldersInS3, deleteAllObjectsForUser } from '../services/s3Service.js';
+
+const BUCKET_NAME = 'gradflow-user-files';
 const SECRET_KEY = process.env.JWT_SECRET;
 const TOKEN_EXPIRATION_MINUTES = 15;
 const SALT_ROUNDS = 10; // Adjust this value as necessary
@@ -62,6 +67,8 @@ export const signUp = async (req, res) => {
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
         // Add JWT sign and return it after successful user creation
+
+    await createUserFoldersInS3(userId);
 
     // Insert default statuses (as per your previous logic)
     const defaultStatusNames = ['TO DO', 'APPLIED', 'INTERVIEW', 'OFFERED', 'REJECTED'];
@@ -148,6 +155,8 @@ export const googleSignUp = async (req, res) => {
     const values = [uniqueUsername, email, firebaseUid, profilePicture];
     const result = await pool.query(insertUserQuery, values);
     const userId = result.rows[0].UserId;
+
+    await createUserFoldersInS3(userId);
 
     // Insert default statuses for the new user
     const defaultStatusNames = ['TO DO', 'APPLIED', 'INTERVIEW', 'OFFERED', 'REJECTED'];
@@ -413,20 +422,49 @@ export const deleteUserAccount = async (req, res) => {
   const userId = req.user.userId;
 
   try {
-      await pool.query('DELETE FROM "Application" WHERE "UserId" = $1', [userId]);
+    // 1) Remove all files from S3 for this user (bulk folder deletion)
+    await deleteAllObjectsForUser(userId);
 
-      await pool.query('DELETE FROM "Status" WHERE "UserId" = $1', [userId]);
+    // 2) Remove bridging table references (FileApplications)
+    await pool.query(`
+      DELETE FROM "FileApplications"
+      WHERE "fileId" IN (
+        SELECT "fileId" FROM "Files" WHERE "userId" = $1
+      )
+    `, [userId]);
 
-      const result = await pool.query('DELETE FROM "Users" WHERE "UserId" = $1', [userId]);
+    // 3) Delete from "Files"
+    await pool.query(`
+      DELETE FROM "Files"
+      WHERE "userId" = $1
+    `, [userId]);
 
-      if (result.rowCount > 0) {
-          res.status(200).json({ message: 'User account deleted successfully' });
-      } else {
-          res.status(404).json({ message: 'User not found' });
-      }
+    // 4) Delete from "Application"
+    await pool.query(`
+      DELETE FROM "Application"
+      WHERE "UserId" = $1
+    `, [userId]);
+
+    // 5) Delete from "Status"
+    await pool.query(`
+      DELETE FROM "Status"
+      WHERE "UserId" = $1
+    `, [userId]);
+
+    // 6) Finally, delete the user record
+    const result = await pool.query(`
+      DELETE FROM "Users"
+      WHERE "UserId" = $1
+    `, [userId]);
+
+    if (result.rowCount > 0) {
+      return res.status(200).json({ message: 'User account and all files deleted successfully' });
+    } else {
+      return res.status(404).json({ message: 'User not found' });
+    }
   } catch (error) {
-      console.error('Error deleting user account:', error);
-      res.status(500).json({ message: 'Server error' });
+    console.error('Error deleting user account:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
