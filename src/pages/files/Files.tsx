@@ -125,19 +125,38 @@ const Files = () => {
       isDbFile: false,
       file // store the actual File object
     }));
+
+    let remainingSlots = 0
   
     if (fileType === 'CV') {
-      setUploadingCvFiles((prev) => [...prev, ...uploadedFiles]);
+      const totalCvCount = [...uploadingCvFiles, ...dbCvFiles].length;
+      remainingSlots = 5 - totalCvCount;
+  
+      if (remainingSlots <= 0) {
+        alert('You can only upload up to 5 CVs.');
+        return;
+      }
+  
+      setUploadingCvFiles((prev) => [...prev, ...uploadedFiles.slice(0, remainingSlots)]);
     } else {
-      setUploadingCoverLetterFiles((prev) => [...prev, ...uploadedFiles]);
+      const totalClCount = [...uploadingCoverLetterFiles, ...dbCoverLetterFiles].length;
+      remainingSlots = 5 - totalClCount;
+  
+      if (remainingSlots <= 0) {
+        alert('You can only upload up to 5 Cover Letters.');
+        return;
+      }
+  
+      setUploadingCoverLetterFiles((prev) => [...prev, ...uploadedFiles.slice(0, remainingSlots)]);
     }
   
-    // Animate + upload each file
-    uploadedFiles.forEach((fileObj) => animateUpload(fileObj, fileType));
+    // Animate + upload only the allowed files
+    uploadedFiles.slice(0, remainingSlots).forEach((fileObj) => animateUpload(fileObj, fileType));
   
-    // IMPORTANT: Reset the input value, so user can pick again
+    // Reset the input value to allow re-selection
     e.target.value = '';
   };
+  
   
 
   const animateUpload = (fileObj, fileType: 'CV' | 'CL') => {

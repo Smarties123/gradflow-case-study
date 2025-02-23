@@ -1,9 +1,11 @@
 import pool from '../config/db.js';
-
 import { v4 as uuidv4 } from 'uuid';
 import s3 from '../services/s3Service.js';
+import dotenv from 'dotenv';
 
-const BUCKET_NAME = 'gradflow-user-files';
+dotenv.config();
+
+
 
 /**
  * Provide a presigned URL so the client can upload directly to S3.
@@ -28,7 +30,7 @@ export const getPresignedUploadUrl = async (req, res) => {
     // Create presigned PUT URL so client can directly upload
     // CHANGED: Add ACL: 'public-read' so the file can be viewed via a direct URL
     const params = {
-      Bucket: BUCKET_NAME,
+      Bucket: process.env.BUCKET_NAME,
       Key: objectKey,
       ContentType: fileMime,
       Expires: 60, // URL expires in 60 seconds
@@ -290,7 +292,7 @@ export const deleteFile = async (req, res) => {
       if (key) {
         await s3
           .deleteObject({
-            Bucket: BUCKET_NAME,
+            Bucket: process.env.BUCKET_NAME,
             Key: key
           })
           .promise();
