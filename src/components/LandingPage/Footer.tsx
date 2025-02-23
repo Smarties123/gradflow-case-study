@@ -67,21 +67,28 @@ export default function Footer() {
             <Typography variant="body2" color="text.secondary" mb={2}>
               Subscribe to our newsletter for weekly updates and promotions.
             </Typography>
-            <Stack direction="row" spacing={1} useFlexGap>
+            <Stack
+              direction={{ xs: "column", sm: "row" }} // Stack vertically on small screens
+              spacing={{ xs: 2, sm: 3, md: 2 }} // Adjust spacing based on screen size
+              useFlexGap
+            >
               <TextField
                 id="outlined-basic"
                 hiddenLabel
                 size="small"
                 variant="outlined"
                 fullWidth
-                aria-label="Enter your email address"
                 placeholder="Your email address"
                 inputProps={{
-                  autoComplete: 'off',
-                  'aria-label': 'Enter your email address'
+                  autoComplete: "off",
+                  "aria-label": "Enter your email address",
                 }}
               />
-              <Button variant="contained" color="primary" sx={{ flexShrink: 0 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ flexShrink: 0, width: { xs: "100%", sm: "auto" } }} // Full width on mobile
+              >
                 Subscribe
               </Button>
             </Stack>
