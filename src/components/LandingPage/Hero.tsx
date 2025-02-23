@@ -138,9 +138,9 @@ export default function Hero() {
                 padding: "4.5rem 4rem",
                 margin: 0,
                 lineHeight: 1, // Ensure text height is correct
-                maxWidth: "90%", // Prevents button from expanding beyond the screen
+                maxWidth: "-webkit-fill-available", // Prevents button from expanding beyond the screen
                 textAlign: "center", // Centers text properly
-                whiteSpace: "normal", // Allows wrapping
+                whiteSpace: window.innerWidth < 768 ? "pre" : "normal", // Allows wrapping
                 wordBreak: "break-word", // Ensures long words don't overflow
               }}
             >
