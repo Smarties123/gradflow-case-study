@@ -28,7 +28,7 @@ cron.schedule('0 9 * * 3', async () => {
 
 const app = express();
 
-
+// console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
 // // Test email route
 // app.get('/test-email/:email', async (req, res) => {
 //   const email = req.params.email;
