@@ -270,7 +270,7 @@ const Files = () => {
             <InsertDriveFileIcon className="files-file-icon" />
             <div className="files-file-info">
               <p className="files-file-name">{file.name}</p>
-              <p className="files-file-size">{file.size}</p>
+              {/* <p className="files-file-size">{file.size}</p> */}
               <Progress.Line
                 percent={file.progress}
                 strokeColor={
