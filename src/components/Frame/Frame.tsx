@@ -21,7 +21,7 @@ import TutorialPopup from '../TutorialPopup/TutorialPopup'; // Adjust the path i
 import FeedbackPopup from '../Feedback/FeedbackPopup';
 import OnDemandFeedbackPopup from '../Feedback/OnDemandFeedback';
 import { useUser } from '@/components/User/UserContext'; // Adjust the import path as needed
-
+import './styles.less';
 
 const { getHeight, on } = DOMHelper;
 
@@ -169,13 +169,37 @@ const Frame = () => {
                   icon={<Icon as={MdContacts} />}
                   animate={animate} // Pass the animate state
                 /> */}
-                <NavItem
-                  title="Files"
-                  to="/main/files" // Updated to direct to Files.tsx
-                  eventKey="files"
-                  icon={<Icon as={TbFiles} />}
-                  animate={animate} // Pass the animate state
-                />
+               <NavItem
+                    title={
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                        <span>Files</span>
+                        <button
+                          style={{
+                            backgroundColor: '#ffa500', // Highlight color
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '4px 8px',
+                            fontSize: '12px',
+                            cursor: 'not-allowed', // Indicate disabled state
+                            opacity: 0.7,
+                            marginLeft: 'auto',
+                            boxShadow: '0 0 10px rgba(255, 165, 0, 0.6)', // Glow effect
+                            animation: 'glow 1.5s infinite alternate'
+                          }}
+                          disabled
+                          title="New Feature Coming Soon"
+                        >
+                          New
+                        </button>
+                      </div>
+                    }
+                    to="/main/files"
+                    eventKey="files"
+                    icon={<Icon as={TbFiles} />}
+                    animate={animate}
+                  />
+
               </Nav>
             </Sidenav.Body>
 
