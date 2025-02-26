@@ -21,10 +21,8 @@ function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" mt={1}>
       {'Copyright © '}
-      <Link target="_blank" rel="noopener noreferrer">
         HAD TECHNOLOGIES LTD&nbsp;
-      </Link>
-      {new Date().getFullYear()}
+      2025
     </Typography>
   );
 }
@@ -178,7 +176,7 @@ export default function Footer() {
           <Typography display="inline" sx={{ mx: 0.5, opacity: 0.5 }}>
             &nbsp;•&nbsp;
           </Typography>
-          <Link color="text.secondary" href="/terms-and-conditions">
+          <Link color="text.secondary" target="_blank" href="/terms-and-conditions">
             Terms of Service
           </Link>
           <Copyright />
