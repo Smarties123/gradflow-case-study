@@ -1,23 +1,16 @@
-@keyframes rainbow-glow {
-    0% { color: #ff0000; text-shadow: 0 0 3px #ff0000; }
-    16% { color: #ff7f00; text-shadow: 0 0 3px #ff7f00; }
-    33% { color: #ffff00; text-shadow: 0 0 3px #ffff00; }
-    50% { color: #00ff00; text-shadow: 0 0 3px #00ff00; }
-    66% { color: #0000ff; text-shadow: 0 0 3px #0000ff; }
-    83% { color: #4b0082; text-shadow: 0 0 3px #4b0082; }
-    100% { color: #9400d3; text-shadow: 0 0 3px #9400d3; }
-}
-
 .beta-badge {
-    font-size: 10px; /* Smaller size */
+    font-size: 11px; 
     font-weight: bold;
     text-transform: uppercase;
-    padding: 2px 4px;
+    padding: 4px 6px;
     border-radius: 4px;
-    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+    background: #FF6200;
     background-size: 400% 400%;
-    animation: rainbow-glow 2s infinite linear;
     position: relative;
     top: -10px; /* Moves it above GradFlow */
     right: -10px; /* Moves it to the top-right */
+    color: white !important; 
+    text-shadow: 0 0 6px rgba(255, 140, 0, 0.5);
+
+
 }
