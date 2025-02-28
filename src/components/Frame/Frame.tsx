@@ -21,7 +21,7 @@ import TutorialPopup from '../TutorialPopup/TutorialPopup'; // Adjust the path i
 import FeedbackPopup from '../Feedback/FeedbackPopup';
 import OnDemandFeedbackPopup from '../Feedback/OnDemandFeedback';
 import { useUser } from '@/components/User/UserContext'; // Adjust the import path as needed
-import './styles.less';
+import NewButton from '../NewButton/NewButton';
 
 const { getHeight, on } = DOMHelper;
 
@@ -59,7 +59,7 @@ const Frame = () => {
       localStorage.removeItem('isNewUser'); // Remove the flag after showing the tutorial
     }
   }, []);
-  
+
   useEffect(() => {
     const checkFeedbackTrigger = async () => {
       try {
@@ -70,7 +70,7 @@ const Frame = () => {
           }
         });
         const data = await response.json();
-  
+
         if (data.FeedbackTrigger) {
           setFeedbackPopupOpen(true);
           await fetch(`${process.env.REACT_APP_API_URL}/api/users/disable-feedback`, {
@@ -85,14 +85,14 @@ const Frame = () => {
         console.error('Failed to check feedback trigger', error);
       }
     };
-  
+
     if (user && user.token) {
       checkFeedbackTrigger();
     }
   }, [user]); // Use `user` as the dependency instead of `user.token`
-  
 
-  
+
+
   useEffect(() => {
     const updateExpand = () => {
       setExpand(window.innerWidth > 768);
@@ -169,36 +169,18 @@ const Frame = () => {
                   icon={<Icon as={MdContacts} />}
                   animate={animate} // Pass the animate state
                 /> */}
-               <NavItem
-                    title={
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                        <span>Files</span>
-                        <button
-                          style={{
-                            backgroundColor: '#ffa500', // Highlight color
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '4px',
-                            padding: '4px 8px',
-                            fontSize: '12px',
-                            cursor: 'not-allowed', // Indicate disabled state
-                            opacity: 0.7,
-                            marginLeft: 'auto',
-                            boxShadow: '0 0 10px rgba(255, 165, 0, 0.6)', // Glow effect
-                            animation: 'glow 1.5s infinite alternate'
-                          }}
-                          disabled
-                          title="New Feature Coming Soon"
-                        >
-                          New
-                        </button>
-                      </div>
-                    }
-                    to="/main/files"
-                    eventKey="files"
-                    icon={<Icon as={TbFiles} />}
-                    animate={animate}
-                  />
+                <NavItem
+                  title={
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <span>Files</span>
+                      <NewButton />
+                    </div>
+                  }
+                  to="/main/files"
+                  eventKey="files"
+                  icon={<Icon as={TbFiles} />}
+                  animate={animate}
+                />
 
               </Nav>
             </Sidenav.Body>
@@ -212,7 +194,7 @@ const Frame = () => {
                 icon={<Icon as={FeedbackIcon} />}
               >
                 Feedback
-            </Nav.Item>
+              </Nav.Item>
 
               <Nav.Item
                 title="Settings"
@@ -238,9 +220,9 @@ const Frame = () => {
         {showTutorial && <TutorialPopup />}
         <FeedbackPopup show={showFeedbackPopup} onClose={() => setShowFeedbackPopup(false)} />
         <OnDemandFeedbackPopup
-      show={isFeedbackPopupOpen}
-      onClose={() => setFeedbackPopupOpen(false)}
-    />
+          show={isFeedbackPopupOpen}
+          onClose={() => setFeedbackPopupOpen(false)}
+        />
 
 
       </Container>

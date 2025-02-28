@@ -141,27 +141,3 @@
     transform: translateX(0);
   }
 }
-
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 5px rgba(255, 165, 0, 0.6);
-  }
-  100% {
-    box-shadow: 0 0 20px rgba(255, 165, 0, 1);
-  }
-}
-
-@keyframes shine {
-  0% {
-    background-position: -100px;
-  }
-  100% {
-    background-position: 100px;
-  }
-}
-
-.shiny-button {
-  background: linear-gradient(120deg, #FFA500, #FFC107, #FFA500);
-  background-size: 200% 200%;
-  animation: shine 2s linear infinite;
-}
