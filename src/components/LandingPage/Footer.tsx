@@ -21,10 +21,8 @@ function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" mt={1}>
       {'Copyright © '}
-      <Link target="_blank" rel="noopener noreferrer">
         HAD TECHNOLOGIES LTD&nbsp;
-      </Link>
-      {new Date().getFullYear()}
+      2025
     </Typography>
   );
 }
@@ -67,21 +65,28 @@ export default function Footer() {
             <Typography variant="body2" color="text.secondary" mb={2}>
               Subscribe to our newsletter for weekly updates and promotions.
             </Typography>
-            <Stack direction="row" spacing={1} useFlexGap>
+            <Stack
+              direction={{ xs: "column", sm: "row" }} // Stack vertically on small screens
+              spacing={{ xs: 2, sm: 3, md: 2 }} // Adjust spacing based on screen size
+              useFlexGap
+            >
               <TextField
                 id="outlined-basic"
                 hiddenLabel
                 size="small"
                 variant="outlined"
                 fullWidth
-                aria-label="Enter your email address"
                 placeholder="Your email address"
                 inputProps={{
-                  autoComplete: 'off',
-                  'aria-label': 'Enter your email address'
+                  autoComplete: "off",
+                  "aria-label": "Enter your email address",
                 }}
               />
-              <Button variant="contained" color="primary" sx={{ flexShrink: 0 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                sx={{ flexShrink: 0, width: { xs: "100%", sm: "auto" } }} // Full width on mobile
+              >
                 Subscribe
               </Button>
             </Stack>
@@ -171,7 +176,7 @@ export default function Footer() {
           <Typography display="inline" sx={{ mx: 0.5, opacity: 0.5 }}>
             &nbsp;•&nbsp;
           </Typography>
-          <Link color="text.secondary" href="/terms-and-conditions">
+          <Link color="text.secondary" target="_blank" href="/terms-and-conditions">
             Terms of Service
           </Link>
           <Copyright />
