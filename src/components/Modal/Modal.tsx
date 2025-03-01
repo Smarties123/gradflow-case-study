@@ -6,6 +6,7 @@ import { FormHelperText } from '@mui/material'; // Import FormHelperText from MU
 import dayjs from 'dayjs';
 import Github from '@uiw/react-color-github';  // Import the color picker
 import 'animate.css';
+import { useTransition, animated } from 'react-spring'; // ✅ Import useTransition
 
 
 const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
@@ -14,27 +15,21 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
 
     if (!isOpen) return null;
 
+    const [modalVisible, setModalVisible] = useState(isOpen);
     const [company, setCompany] = useState('');
     const [position, setPosition] = useState('');
     const [deadline, setDeadline] = useState('');
     const [location, setLocation] = useState('');
     const [url, setUrl] = useState('');
     const [selectedColumn, setSelectedColumn] = useState(activeColumn ? activeColumn.id : columns[0]?.id);
-
     const [companyLogo, setCompanyLogo] = useState('');
-
     const [errors, setErrors] = useState({});
-
     const [companySuggestions, setCompanySuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false); // Add this
+    const [showSuggestions, setShowSuggestions] = useState(false);
     const [suggestionSelected, setSuggestionSelected] = useState(false);
-    const [selectedColor, setSelectedColor] = useState(''); // No default color initially
-    const [isColorPickerOpen, setIsColorPickerOpen] = useState(false); // Toggle state for color picker visibility
+    const [selectedColor, setSelectedColor] = useState('');
+    const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
     const colorOptions = ['#ff6200', '#1abc9c', '#3498db', '#9b59b6', '#e74c3c', '#f1c40f', '#2ecc71', '#e67e22'];
-
-    // Animation
-    const [animation, setAnimation] = useState('animate__animated animate__zoomIn');
-
 
     useEffect(() => {
         const randomColor = colorOptions[Math.floor(Math.random() * colorOptions.length)];
@@ -69,26 +64,26 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
         }
     }, [company, suggestionSelected]);  // Include suggestionSelected in the dependency array
 
-    useEffect(() => {
-        const handleAnimationEnd = () => {
-            if (animation === 'animate__animated animate__zoomOut') {
-                onClose(); // Close the modal after the zoom out animation finishes
-            }
-        };
+    // useEffect(() => {
+    //     const handleAnimationEnd = () => {
+    //         if (animation === 'animate__animated animate__zoomOut') {
+    //             onClose(); // Close the modal after the zoom out animation finishes
+    //         }
+    //     };
 
-        // Add event listener for animation end
-        const modalContent = document.querySelector('.modal-content');
-        if (modalContent) {
-            modalContent.addEventListener('animationend', handleAnimationEnd);
-        }
+    //     // Add event listener for animation end
+    //     const modalContent = document.querySelector('.modal-content');
+    //     if (modalContent) {
+    //         modalContent.addEventListener('animationend', handleAnimationEnd);
+    //     }
 
-        // Cleanup the event listener when the component unmounts
-        return () => {
-            if (modalContent) {
-                modalContent.removeEventListener('animationend', handleAnimationEnd);
-            }
-        };
-    }, [animation, onClose]);
+    //     // Cleanup the event listener when the component unmounts
+    //     return () => {
+    //         if (modalContent) {
+    //             modalContent.removeEventListener('animationend', handleAnimationEnd);
+    //         }
+    //     };
+    // }, [animation, onClose]);
 
     // Handle suggestion click to select the suggestion
     const handleSuggestionClick = (suggestion) => {
@@ -211,20 +206,23 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
 
                     const newCardId = savedCard.job?.ApplicationId;
                     if (newCardId) {
+
                         addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, { ...card, id: String(newCardId) });
+                        handleClose();
+                        // setModalVisible(false);
                         await fetchCardDetails(newCardId);  // Wait for background fetch
                     }
                 } else {
                     console.error('Failed to add job');
                 }
                 // Close modal regardless of success or failure in adding job
-                setAnimation('animate__animated animate__zoomOut');
-                setTimeout(onClose, 250); // Delay the onClose handler to allow animation to complete
+                // setModalAnimation({ opacity: 0, transform: 'scale(0.8)' });
+                // setTimeout(onClose, 200); // Delay the onClose handler to allow animation to complete
             } catch (err) {
                 console.error('Error adding job:', err);
                 // Close modal even if there's an error
-                setAnimation('animate__animated animate__zoomOut');
-                setTimeout(onClose, 250); // Delay the onClose handler to allow animation to complete
+                // setModalAnimation({ opacity: 0, transform: 'scale(0.8)' });
+                handleClose();
             }
         }
     };
@@ -251,168 +249,182 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
         }
     };
 
+
     const handleClose = () => {
-        setAnimation('animate__animated animate__zoomOut');
-        setTimeout(onClose, 250); // Delay the onClose handler to allow animation to complete
+        setModalVisible(false); // Trigger leave animation
+        setTimeout(() => onClose(), 250); // Wait for animation to finish
     };
 
 
 
+    const transitions = useTransition(modalVisible, {
+        from: { opacity: 0, transform: "translateY(-40px)" },
+        enter: { opacity: 1, transform: "translateY(0px)" },
+        leave: { opacity: 0, transform: "translateY(-40px)" }
+    });
 
-    return (
-        <div className="modal-overlay" onClick={handleClose}>
-            <div className={`modal-content ${theme === 'dark' ? 'rs-theme-dark' : ''} ${animation}`} onClick={(e) => e.stopPropagation()}>
-                <h2>Add Job</h2>
-                <form onSubmit={handleSubmit}>
-                    <div className="input-wrapper">
-                        <label className="bordered-label">Company<span className="required">*</span></label>
-                        <div className="company-input-wrapper">
-                            <input
-                                type="text"
-                                value={company}
-                                onChange={handleInputChange}
-                                placeholder="Ex. Apple"
-                                autoComplete="off"
-                                onBlur={handleBlur}  // Handle blur event
-                                onKeyDown={handleKeyDown}  // Handle 'Enter' key press
-                            />
-                            {showSuggestions && companySuggestions.length > 0 && ( // Inside JSX for suggestions dropdown
-                                <ul className="suggestions-list">
-                                    {companySuggestions.slice(0, 5).map((suggestion, index) => (
-                                        <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
-                                            <div className="suggestion-item">
-                                                <img src={suggestion.logo_url} alt={suggestion.name} className="company-logo-modal" />
-                                                <div className="company-details">
-                                                    <span className="company-name-modal">{suggestion.name}</span>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                            {companyLogo && (
-                                <img src={companyLogo} alt={company} className="selected-company-logo" />
-                            )}
-                        </div>
-                        {errors.company && <FormHelperText error>{errors.company}</FormHelperText>}
-                    </div>
-                    <div className="input-wrapper">
-                        <label className="bordered-label">Position<span className="required">*</span></label>
-                        <input
-                            type="text"
-                            value={position}
-                            onChange={(e) => setPosition(e.target.value)}
-                            className="border-input"
-                            placeholder="Ex. Software Engineer"
-                        />
-                        {errors.position && <FormHelperText error>{errors.position}</FormHelperText>}
-                    </div>
-                    <div className="input-wrapper">
-                        <label className="bordered-label">Deadline</label>
-                        <input
-                            type="date"
-                            value={deadline}
-                            onChange={handleDeadlineChange}
-                            className="border-input"
-                            placeholder="dd/mm/yyyy"
-                        />
-                        {errors.deadline && <FormHelperText error>{errors.deadline}</FormHelperText>}
-                    </div>
-                    <div className="input-wrapper">
-                        <label className="bordered-label">Location</label>
-                        <input
-                            type="text"
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            className="border-input"
-                            placeholder="London"
-                        />
-                        {errors.location && <FormHelperText error>{errors.location}</FormHelperText>}
-                    </div>
-                    <div className="input-wrapper">
-                        <label className="bordered-label">URL</label>
-                        <input
-                            type="text"
-                            value={url}
-                            onChange={(e) => setUrl(e.target.value)}
-                            className="border-input"
-                            placeholder="https://jobs.apple.com/"
-                        />
-                        {errors.url && <FormHelperText error>{errors.url}</FormHelperText>}
-                    </div>
-                    {activeColumn ? (
+    return transitions(
+        (styles, item) =>
+            item && (
+                <div className="modal-overlay" onClick={handleClose}>
+                    {/* ✅ Animated Modal Wrapper */}
+                    <animated.div
+                        style={styles}
+                        className={`modal-content ${theme === 'dark' ? 'rs-theme-dark' : ''}`}
+                        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
+                    >
+                        <h2>Add Job</h2>
+
                         <div className="input-wrapper">
-                            <label className="bordered-label">Status</label>
+                            <label className="bordered-label">Company<span className="required">*</span></label>
+                            <div className="company-input-wrapper">
+                                <input
+                                    type="text"
+                                    value={company}
+                                    onChange={handleInputChange}
+                                    placeholder="Ex. Apple"
+                                    autoComplete="off"
+                                    onBlur={handleBlur}  // Handle blur event
+                                    onKeyDown={handleKeyDown}  // Handle 'Enter' key press
+                                />
+                                {showSuggestions && companySuggestions.length > 0 && ( // Inside JSX for suggestions dropdown
+                                    <ul className="suggestions-list">
+                                        {companySuggestions.slice(0, 5).map((suggestion, index) => (
+                                            <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
+                                                <div className="suggestion-item">
+                                                    <img src={suggestion.logo_url} alt={suggestion.name} className="company-logo-modal" />
+                                                    <div className="company-details">
+                                                        <span className="company-name-modal">{suggestion.name}</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                                {companyLogo && (
+                                    <img src={companyLogo} alt={company} className="selected-company-logo" />
+                                )}
+                            </div>
+                            {errors.company && <FormHelperText error>{errors.company}</FormHelperText>}
+                        </div>
+                        <div className="input-wrapper">
+                            <label className="bordered-label">Position<span className="required">*</span></label>
                             <input
                                 type="text"
-                                value={activeColumn.title}
-                                disabled
+                                value={position}
+                                onChange={(e) => setPosition(e.target.value)}
                                 className="border-input"
-                                style={{ color: 'grey', fontWeight: 900 }}
+                                placeholder="Ex. Software Engineer"
                             />
+                            {errors.position && <FormHelperText error>{errors.position}</FormHelperText>}
                         </div>
-                    ) : (
-                        <div className="input-wrapper" style={{ marginBottom: '17px', }}>
-                            <label className="bordered-label" style={{ padding: '0px 10px' }}>Choose a Status</label>
-                            <select
-                                value={selectedColumn}
-                                onChange={(e) => setSelectedColumn(parseInt(e.target.value))}
-                                className="border-input dropdown-input"
-                            >
-                                {columns.map((col) => (
-                                    <option key={col.id} value={col.id}>
-                                        {col.title}
-                                    </option>
-                                ))}
-                            </select>
+                        <div className="input-wrapper">
+                            <label className="bordered-label">Deadline</label>
+                            <input
+                                type="date"
+                                value={deadline}
+                                onChange={handleDeadlineChange}
+                                className="border-input"
+                                placeholder="dd/mm/yyyy"
+                            />
+                            {errors.deadline && <FormHelperText error>{errors.deadline}</FormHelperText>}
                         </div>
-                    )}
-
-                    {/* Color Picker as an Input */}
-                    <div className="input-wrapper" style={{ position: 'relative' }}>
-                        <label style={{ backgroundColor: 'transparent' }} className="bordered-label">Card Color</label>
-                        {/* Color Box that shows the selected color */}
-                        <div
-                            className="color-selector-box"
-                            style={{
-                                backgroundColor: selectedColor,
-                                width: '100%',
-                                height: '40px',
-                                cursor: 'pointer',
-                                borderRadius: '4px',
-                                border: '1px solid #ccc',
-                                marginTop: '20px',
-                            }}
-                            onClick={toggleColorPicker}
-                        ></div>
-                        {/* Conditionally render color picker */}
-                        {isColorPickerOpen && (
-                            <div className="color-picker-dropdown"
-                                style={{
-                                    position: 'absolute',
-                                    top: '100%',
-                                    left: 0,
-                                    zIndex: 1000,
-                                    marginTop: '5px',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
-                                }}
-                            >
-                                <Github color={selectedColor} onChange={handleColorChange} />
+                        <div className="input-wrapper">
+                            <label className="bordered-label">Location</label>
+                            <input
+                                type="text"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                className="border-input"
+                                placeholder="London"
+                            />
+                            {errors.location && <FormHelperText error>{errors.location}</FormHelperText>}
+                        </div>
+                        <div className="input-wrapper">
+                            <label className="bordered-label">URL</label>
+                            <input
+                                type="text"
+                                value={url}
+                                onChange={(e) => setUrl(e.target.value)}
+                                className="border-input"
+                                placeholder="https://jobs.apple.com/"
+                            />
+                            {errors.url && <FormHelperText error>{errors.url}</FormHelperText>}
+                        </div>
+                        {activeColumn ? (
+                            <div className="input-wrapper">
+                                <label className="bordered-label">Status</label>
+                                <input
+                                    type="text"
+                                    value={activeColumn.title}
+                                    disabled
+                                    className="border-input"
+                                    style={{ color: 'grey', fontWeight: 900 }}
+                                />
+                            </div>
+                        ) : (
+                            <div className="input-wrapper" style={{ marginBottom: '17px', }}>
+                                <label className="bordered-label" style={{ padding: '0px 10px' }}>Choose a Status</label>
+                                <select
+                                    value={selectedColumn}
+                                    onChange={(e) => setSelectedColumn(parseInt(e.target.value))}
+                                    className="border-input dropdown-input"
+                                >
+                                    {columns.map((col) => (
+                                        <option key={col.id} value={col.id}>
+                                            {col.title}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                         )}
-                    </div>
 
-                    <div className="modal-buttons">
-                        <button type="button" className="cancel-button" onClick={handleClose}>
-                            Cancel
-                        </button>
-                        <button type="submit" className="add-card-button">
-                            Save
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                        {/* Color Picker as an Input */}
+                        <div className="input-wrapper" style={{ position: 'relative' }}>
+                            <label style={{ backgroundColor: 'transparent' }} className="bordered-label">Card Color</label>
+                            {/* Color Box that shows the selected color */}
+                            <div
+                                className="color-selector-box"
+                                style={{
+                                    backgroundColor: selectedColor,
+                                    width: '100%',
+                                    height: '40px',
+                                    cursor: 'pointer',
+                                    borderRadius: '4px',
+                                    border: '1px solid #ccc',
+                                    marginTop: '20px',
+                                }}
+                                onClick={toggleColorPicker}
+                            ></div>
+                            {/* Conditionally render color picker */}
+                            {isColorPickerOpen && (
+                                <div className="color-picker-dropdown"
+                                    style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        left: 0,
+                                        zIndex: 1000,
+                                        marginTop: '5px',
+                                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)'
+                                    }}
+                                >
+                                    <Github color={selectedColor} onChange={handleColorChange} />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="modal-buttons">
+                            <button type="button" className="cancel-button" onClick={handleClose}>
+                                Cancel
+                            </button>
+                            <button onClick={handleSubmit} className="add-card-button">
+                                Save
+                            </button>
+                        </div>
+
+                    </animated.div>
+                </div>
+            )
     );
 };
 
