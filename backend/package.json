@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@react-spring/web": "^9.7.5",
+    "aws-sdk": "^2.1401.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -21,8 +23,7 @@
     "nodemailer": "^6.9.15",
     "pg": "^8.11.3",
     "sqlite3": "^5.1.7",
-    "xmlbuilder": "^15.1.1",
-    "aws-sdk": "^2.1401.0"
+    "xmlbuilder": "^15.1.1"
   },
   "type": "module"
 }
