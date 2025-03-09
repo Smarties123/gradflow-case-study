@@ -190,7 +190,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 </MenuItem>
               ))}
               <Divider sx={{ my: 1 }} />
-              <Box sx={{ mt: 2 }}>
+              <Box>
                 <Button
                   color="primary"
                   variant="contained"
@@ -199,7 +199,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 >
                   Sign Up
                 </Button>
-                <Button
+                <Button sx={{ mt: 1 }}
                   color="primary"
                   variant="outlined"
                   fullWidth
