@@ -380,8 +380,8 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                         )}
 
                         {/* Color Picker as an Input */}
-                        <div className="input-wrapper" style={{ position: 'relative' }}>
-                            <label style={{ backgroundColor: 'transparent' }} className="bordered-label">Card Color</label>
+                        <div className="input-wrapper">
+                            <label style={{ backgroundColor: 'transparent', top: '-20px' }} className="bordered-label">Card Color</label>
                             {/* Color Box that shows the selected color */}
                             <div
                                 className="color-selector-box"
