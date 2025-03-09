@@ -10,7 +10,9 @@ import ViewQuiltRoundedIcon from "@mui/icons-material/ViewQuiltRounded";
 import EdgesensorHighRoundedIcon from "@mui/icons-material/EdgesensorHighRounded";
 import BackupTableIcon from '@mui/icons-material/BackupTable';
 import GridViewIcon from '@mui/icons-material/GridView';
+import DescriptionIcon from '@mui/icons-material/Description';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+import ExtensionIcon from '@mui/icons-material/Extension';
 import 'animate.css'; // Import animate.css
 
 const items = [
@@ -27,10 +29,10 @@ const items = [
       'Take control of your job hunt with our dynamic drag-and-drop feature! Effortlessly organize your applications and tailor your roadmap',
   },
   {
-    icon: <BackupTableIcon />,
-    title: 'Table',
+    icon: <DescriptionIcon />,
+    title: 'Files',
     description:
-      'Discover your data like never before! Transforming your insights into an organized and interactive experience, making it easy to analyze and strategize your job search',
+      'Effortlessly upload and manage your CVs and cover letters for every job application, all in one place!',
   },
   {
     icon: <GridViewIcon />,
@@ -38,11 +40,12 @@ const items = [
     description:
       'Explore your personalized Dashboard—where insights meet opportunities! Stay on top of your progress and get a clear overview of your job applications, all in one space',
   },
+
   {
-    icon: <TipsAndUpdatesIcon />,
-    title: 'Files',
+    icon: <ExtensionIcon />,
+    title: 'Google Extension',
     description:
-      'Coming Soon: Effortlessly upload and manage your CVs and cover letters for every job application, all in one place!',
+      'Coming Soon: Boost your job search efficiency with the GradFlow Google Extension! Seamlessly track applications, organize your workflow, and gain insights directly from your browser while you browse job listings.',
   },
   {
     icon: <TipsAndUpdatesIcon />,

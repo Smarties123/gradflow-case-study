@@ -28,7 +28,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 export const handleButtonClick = () => {
-    window.open('https://forms.gle/VP1gkvxKpuhg1cJU9', '_blank');
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLSf9mml8GbC5HsctSGR4f9UF54Hy89K4Oy5LVzRuW5m3F2fnMw/viewform?embedded=true', '_blank');
 };
 
 const FeedbackButton: React.FC = () => {
