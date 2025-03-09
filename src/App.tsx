@@ -17,6 +17,7 @@ import { UserProvider, useUser } from './components/User/UserContext';
 import { BoardProvider } from './pages/board/BoardContext';
 import TermsAndConditions from './components/LandingPage/TermsAndConditions'; 
 import PrivacyPolicyGDPR from './components/LandingPage/PrivacyPolicyGDPR';
+import AboutUs from './components/LandingPage/AboutUs';
 import ComingSoon from './components/ComingSoon/ComingSoon';
 import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar'; 
 import Files from './pages/files/Files'; 
@@ -46,6 +47,8 @@ const App = () => {
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         {/* Terms and Conditions Page */}
+        <Route path="/AboutUs" element={<AboutUs />} />
+
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR />} />
         {/* Routes that require UserContext */}
