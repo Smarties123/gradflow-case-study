@@ -30,7 +30,7 @@ const items = [
   {
     title: 'Files',
     description: 'Stay tuned for our upcoming features that will streamline your job search and make your applications stand out',
-    image: 'url("/LandingPageMedia/Terminal - Files.png")',
+    image: 'url("https://i.imgur.com/0Lwrm2n.png")',
     logo: <FileOpenIcon fontSize="medium" />,
   },
 ];

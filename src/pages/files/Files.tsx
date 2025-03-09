@@ -310,6 +310,8 @@ const Files = () => {
   // --------------------------------
   return (
     <div className="files-page">
+    <div className="scroll-container"> {/* Add Scroll Container */}
+
       <Row gutter={20} className="upload-section">
         {/* CV Column */}
         <Col xs={12}>
@@ -398,6 +400,7 @@ const Files = () => {
         onLocalUpdate={handleLocalFileUpdate}
         readOnly={false}
       />
+     </div> 
     </div>
   );
 };
