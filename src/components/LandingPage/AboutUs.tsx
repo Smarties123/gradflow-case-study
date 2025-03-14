@@ -21,9 +21,10 @@ import AppAppBar from "./AppAppBar";
 import { motion } from "framer-motion";
 
 // Icons
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import InstagramIcon from "@mui/icons-material/Instagram";
 import MailIcon from "@mui/icons-material/Mail";
+import { SocialIcon } from 'react-social-icons';
+
+
 
 // For TikTok, MUI doesn't provide a built-in icon. We'll use a custom:
 import { SvgIcon } from "@mui/material";
@@ -72,7 +73,7 @@ const teamData = [
     image:
       "https://media.licdn.com/dms/image/v2/D4E03AQFkHs6pnfutSw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1689361219394?e=1747267200&v=beta&t=HibhvijOGwFBKO3Nl0RYrpVM73Gp86zEd1riX5OkLY4",
     description:
-      "Angie oversees events and LinkedIn engagement, strengthening GradFlow’s professional presence and community outreach.",
+      "Angie manages events and LinkedIn engagement, strengthening GradFlow’s professional presence and community outreach.",
     linkedInLink: "https://www.linkedin.com/in/angelica-patel/"
   },
   {
@@ -126,14 +127,13 @@ export default function AboutUs() {
       <CssBaseline />
       <AppAppBar mode={mode} toggleColorMode={toggleColorMode} />
 
-      {/* Blue Gradient Background */}
       <Box
         sx={theme => ({
           width: "100%",
-          backgroundImage:
-            theme.palette.mode === "light"
-              ? "linear-gradient(180deg, #CEE5FD, #FFF)"
-              : `linear-gradient(#02294F, ${alpha("#090E10", 0.0)})`,
+          // backgroundImage:
+          //   theme.palette.mode === "light"
+          //     ? "linear-gradient(180deg, #CEE5FD, #FFF)"
+          //     : `linear-gradient(#02294F, ${alpha("#090E10", 0.0)})`,
           backgroundSize: "cover",
           backgroundRepeat: "no-repeat",
           pt: { xs: 14, sm: 16 },
@@ -151,7 +151,11 @@ export default function AboutUs() {
               backdropFilter: "blur(10px)",
               p: 4,
               borderRadius: 3,
-              mb: 6
+              mb: 6,
+              boxShadow:
+                theme.palette.mode === "light"
+                  ? "0px 4px 10px rgba(0, 0, 0, 0.1)"  // Soft shadow in light mode
+                  : "0px 6px 15px rgba(255, 255, 255, 0.05)" // Slight glow in dark mode
             }}
           >
             <Typography variant="h4" component="h1" gutterBottom>
@@ -162,7 +166,7 @@ export default function AboutUs() {
             </Typography>
 
             <Typography variant="body1" sx={{ mb: 3 }}>
-              The job hunt felt chaotic, from tracking deadlines to staying motivated through setbacks. After submitting over 500 applications, we knew there had to be a better way. That’s why we built <strong>GradFlow</strong> a platform by students, for students, to streamline applications, stay organized and help others avoid the mistakes we once made.
+              The job hunt felt chaotic, from tracking deadlines to staying motivated through setbacks. After submitting over 500 applications, we knew there had to be a better way. That’s why we've built <strong>GradFlow</strong>, a platform by students, for students, to streamline applications, stay organized and help others avoid the mistakes we once made.
             </Typography>
 
             <Typography variant="body1">
@@ -170,41 +174,42 @@ export default function AboutUs() {
             </Typography>
 
             {/* Contact Us (Inside the same box) */}
-            <Typography variant="h6" sx={{ mb: 1 }}>
+            <Typography variant="h5" sx={{ mt: 2 }}>
               Contact Us
             </Typography>
             <Typography variant="body2" sx={{ mb: 2 }}>
               Have questions or want to learn more? Reach out via our social channels!
             </Typography>
             <Box sx={{ display: "flex", gap: 1, alignItems: "center", mb: 4 }}>
+
               {/* Instagram */}
-              <IconButton
-                onClick={() => window.open("https://www.instagram.com/gradflowinc/", "_blank")}
-                aria-label="Instagram"
-              >
-                <InstagramIcon />
-              </IconButton>
+              <SocialIcon style={{
+                maxWidth: "35px",
+                maxHeight: "35px",
+                cursor: "pointer"
+              }} network="instagram" onClick={() => window.open("https://www.instagram.com/gradflowinc/", "_blank")} />
+
               {/* LinkedIn */}
-              <IconButton
-                onClick={() => window.open("https://www.linkedin.com/company/gradflow-inc/?viewAsMember=true", "_blank")}
-                aria-label="LinkedIn"
-              >
-                <LinkedInIcon />
-              </IconButton>
+              <SocialIcon style={{
+                maxWidth: "35px",
+                maxHeight: "35px",
+                cursor: "pointer"
+              }} network="linkedin" onClick={() => window.open("https://www.linkedin.com/company/gradflow-inc/?viewAsMember=true", "_blank")} />
+
               {/* TikTok */}
-              <IconButton
-                onClick={() => window.open("https://www.tiktok.com/@gradflow", "_blank")}
-                aria-label="TikTok"
-              >
-                <TikTokIcon />
-              </IconButton>
-              {/* Email */}
+              <SocialIcon style={{
+                maxWidth: "35px",
+                maxHeight: "35px",
+                cursor: "pointer"
+              }} network="tiktok" onClick={() => window.open("https://www.tiktok.com/@gradflow", "_blank")} />
+
+              {/* Email
               <IconButton
                 onClick={() => (window.location.href = "mailto:gradflowinc@gmail.com")}
                 aria-label="Email"
               >
                 <MailIcon />
-              </IconButton>
+              </IconButton> */}
             </Box>
 
             {/* Team Cards */}
@@ -261,22 +266,12 @@ export default function AboutUs() {
                           <Typography variant="subtitle2" color="text.secondary">
                             {member.role}
                           </Typography>
-                            <Button
-                              variant="contained"
-                              size="small"
-                              sx={{
-                                minWidth: "40px",
-                                backgroundColor: buttonColor, // Default unique color
-                                color: buttonColor,
-                                transition: "background-color 0.3s ease-in-out",
-                                "&:hover": {
-                                  backgroundColor: "#FF6600" // Change to orange on hover
-                                }
-                              }}
-                              onClick={() => window.open(member.linkedInLink, "_blank")}
-                            >
-                              <LinkedInIcon fontSize="small" />
-                            </Button>
+                          <SocialIcon style={{
+                            maxWidth: "35px",
+                            maxHeight: "35px",
+                            cursor: "pointer"
+                          }}
+                            network="linkedin" onClick={() => window.open(member.linkedInLink, "_blank")} />
                         </Box>
 
                         <Box marginTop={1}>
@@ -292,7 +287,7 @@ export default function AboutUs() {
             </Grid>
           </Box>
         </Container>
-      </Box>
-    </ThemeProvider>
+      </Box >
+    </ThemeProvider >
   );
 }
