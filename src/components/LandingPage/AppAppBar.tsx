@@ -18,7 +18,7 @@ import LandingPageBrand from '../LandingPageBrand/LandingPageBrand';
 import './Styles/AppAppBar.css';
 
 const logoStyle = {
-  width: { xs: 'auto', md: '140px' }, // Auto width for small screens, 140px for medium and larger
+  width: { xs: 'auto', md: '140px' },
   height: 'auto',
   cursor: 'pointer'
 };
@@ -35,9 +35,16 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
     setOpen(newOpen);
   };
 
+  // Map link text to actual section IDs in LandingPage
+  const linkMap: Record<string, string> = {
+    Panel: 'terminal',
+    Insights: 'insights',
+    FAQ: 'faq'
+  };
+
   const scrollToSection = (sectionId: string) => {
     const sectionElement = document.getElementById(sectionId);
-    const offset = 128;
+    const offset = 128; // spacing from top
     if (sectionElement) {
       const targetScroll = sectionElement.offsetTop - offset;
       sectionElement.scrollIntoView({ behavior: 'smooth' });
@@ -57,9 +64,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
         bgcolor: 'transparent',
         backgroundImage: 'none',
         mt: 2,
-        overflow: 'hidden', // Prevent overflow issues
-
-
+        overflow: 'hidden'
       }}
     >
       <Container maxWidth="lg">
@@ -71,7 +76,9 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
             justifyContent: 'space-between',
             paddingY: { xs: 1, md: 1.5 },
             bgcolor:
-              theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0, 0, 0, 0.4)',
+              theme.palette.mode === 'light'
+                ? 'rgba(255, 255, 255, 0.4)'
+                : 'rgba(0, 0, 0, 0.4)',
             backdropFilter: 'blur(24px)',
             borderRadius: 50,
             boxShadow:
@@ -92,21 +99,23 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
             <LandingPageBrand style={logoStyle} />
           </Box>
 
-          {/* Centered Navigation */}
+          {/* Centered Navigation (Desktop) */}
           <Box
             sx={{
               display: { xs: 'none', md: 'flex' },
               flexGrow: 2,
               alignItems: 'center',
               justifyContent: 'flex-start',
-              gap: 3,
-
+              gap: 3
             }}
           >
             {['Panel', 'Insights', 'FAQ'].map(section => (
               <MenuItem
                 key={section}
-                onClick={() => scrollToSection(section.toLowerCase())}
+                onClick={() => {
+                  const targetId = linkMap[section];
+                  if (targetId) scrollToSection(targetId);
+                }}
                 sx={{
                   transition: 'color 0.3s',
                   '&:hover': {
@@ -118,9 +127,25 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 <Typography variant="body2">{section}</Typography>
               </MenuItem>
             ))}
+
+            {/* About Us link */}
+            <MenuItem
+              onClick={() => {
+                window.location.href = '/AboutUs';
+              }}
+              sx={{
+                transition: 'color 0.3s',
+                '&:hover': {
+                  color: 'primary.main',
+                  fontWeight: '800'
+                }
+              }}
+            >
+              <Typography variant="body2">About Us</Typography>
+            </MenuItem>
           </Box>
 
-          {/* Sign-in/Sign-up Buttons */}
+          {/* Sign-in/Sign-up Buttons (Desktop) */}
           <Box
             sx={{
               display: { xs: 'none', md: 'flex' },
@@ -134,7 +159,6 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
             <Button
               color="primary"
               variant="outlined"
-              // fullWidth
               href="/SignUp"
               className="animated-button"
             >
@@ -143,13 +167,11 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
             <Button
               color="primary"
               variant="contained"
-              // fullWidth
               href="/SignIn"
               className="animated-button"
             >
               Sign In
             </Button>
-
           </Box>
 
           {/* Mobile Menu */}
@@ -173,10 +195,14 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
               </Box>
               <Divider />
-              {['Terminal', 'Insights', 'FAQ'].map((section) => (
+              {/* Same links, but for Mobile */}
+              {['Panel', 'Insights', 'FAQ'].map(section => (
                 <MenuItem
                   key={section}
-                  onClick={() => scrollToSection(section.toLowerCase())}
+                  onClick={() => {
+                    const targetId = linkMap[section];
+                    if (targetId) scrollToSection(targetId);
+                  }}
                   sx={{
                     py: 1,
                     fontSize: '1rem',
@@ -189,6 +215,25 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   {section}
                 </MenuItem>
               ))}
+
+              {/* About Us link (Mobile) */}
+              <MenuItem
+                onClick={() => {
+                  setOpen(false);
+                  window.location.href = '/AboutUs';
+                }}
+                sx={{
+                  py: 1,
+                  fontSize: '1rem',
+                  '&:hover': {
+                    color: 'primary.main',
+                    backgroundColor: 'action.hover'
+                  }
+                }}
+              >
+                About Us
+              </MenuItem>
+
               <Divider sx={{ my: 1 }} />
               <Box>
                 <Button
@@ -199,7 +244,8 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                 >
                   Sign Up
                 </Button>
-                <Button sx={{ mt: 1 }}
+                <Button
+                  sx={{ mt: 1 }}
                   color="primary"
                   variant="outlined"
                   fullWidth
