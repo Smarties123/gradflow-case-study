@@ -17,6 +17,7 @@ import Highlights from './Highlights';
 import Footer from './Footer';
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 import Pricing from './Pricing';
+import FAQ from './FAQ';
 
 
 export default function LandingPage() {
@@ -79,7 +80,7 @@ export default function LandingPage() {
           <Divider />
 
           {/* <Box id="faq" sx={{ bgcolor: 'background.default' }}> */}
-          {/* <FAQ /> */}
+          <FAQ />
           {/* </Box> */}
           {/* <Divider />
         
