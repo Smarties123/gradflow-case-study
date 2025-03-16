@@ -78,7 +78,7 @@ const teamData = [
   },
   {
     name: "Arjun Krishnan",
-    role: "Infrastructre",
+    role: "Infrastructure",
     image:
       "https://media.licdn.com/dms/image/v2/D4E03AQGFJncehU-XQg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1715457610712?e=1747267200&v=beta&t=dC89QQcZjCZNmgJygyFNXuut4pHg3qesYzPVyp9emBE",
     description:
