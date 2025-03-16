@@ -12,6 +12,8 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import LandingPageBrand from '../LandingPageBrand/LandingPageBrand';
 
+import { SocialIcon } from 'react-social-icons';
+
 const logoStyle = {
   width: '140px',
   height: 'auto'
@@ -21,7 +23,7 @@ function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" mt={1}>
       {'Copyright © '}
-        HAD TECHNOLOGIES LTD&nbsp;
+      HAD TECHNOLOGIES LTD&nbsp;
       2025
     </Typography>
   );
@@ -190,26 +192,27 @@ export default function Footer() {
             color: 'text.secondary'
           }}
         >
-          <IconButton
-            color="inherit"
-            href="https://www.linkedin.com/company/gradflow-inc/?viewAsMember=true"
-            aria-label="LinkedIn"
-            sx={{ alignSelf: 'center' }}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <LinkedInIcon />
-          </IconButton>
-          <IconButton
-            color="inherit"
-            href="https://www.instagram.com/gradflowinc/"
-            aria-label="Instagram"
-            sx={{ alignSelf: 'center' }}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <InstagramIcon />
-          </IconButton>
+          {/* LinkedIn */}
+          <SocialIcon style={{
+            maxWidth: "35px",
+            maxHeight: "35px",
+            cursor: "pointer"
+          }} network="linkedin" onClick={() => window.open("https://www.linkedin.com/company/gradflow-inc/?viewAsMember=true", "_blank")} />
+
+          {/* Instagram */}
+          <SocialIcon style={{
+            maxWidth: "35px",
+            maxHeight: "35px",
+            cursor: "pointer"
+          }} network="instagram" onClick={() => window.open("https://www.instagram.com/gradflowinc/", "_blank")} />
+
+          {/* TikTok */}
+          <SocialIcon style={{
+            maxWidth: "35px",
+            maxHeight: "35px",
+            cursor: "pointer"
+          }} network="tiktok" onClick={() => window.open("https://www.tiktok.com/@gradflow", "_blank")} />
+
         </Stack>
       </Box>
     </Container>
