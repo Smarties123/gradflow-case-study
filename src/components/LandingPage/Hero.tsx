@@ -38,7 +38,7 @@ export default function Hero() {
     e.target.style.setProperty("--y", "50");
   };
 
-  const videoUrl = "https://d3htrhw57y4gd1.cloudfront.net/video.mp4";
+  const videoUrl = "https://d3htrhw57y4gd1.cloudfront.net/trailer-1-video.mp4";
 
 
   return (
