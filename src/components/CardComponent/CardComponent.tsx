@@ -154,7 +154,7 @@ const CardComponent = ({
               />
             ) : null}
             <h3
-              className={`company-name ${isLongCompanyName ? 'scroll' : ''}`}
+              className={`company-name`}
             >
               {card.company}
             </h3>
