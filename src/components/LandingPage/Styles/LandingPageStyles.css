@@ -68,7 +68,7 @@ a:hover {
   height: 7px;
   background: #ff6200;
   transform-origin: 0%;
-  z-index: 1000;
+  z-index: 9999;
 }
 
 
