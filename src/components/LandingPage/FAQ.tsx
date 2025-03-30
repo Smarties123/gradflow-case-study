@@ -54,7 +54,7 @@ export default function FAQ() {
           <AccordionDetails>
             <Typography variant="body2" gutterBottom sx={{ maxWidth: { sm: '100%', md: '80%' } }}>
               You can reach our customer support team by emailing
-              <Link> gradflow@email.com </Link>
+              <Link> gradflowinc@gmail.com </Link>
               or use our feedback button.
             </Typography>
           </AccordionDetails>
