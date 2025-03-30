@@ -11,11 +11,13 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
+import { redirect } from 'react-router-dom';
 
 const tiers = [
   {
     title: 'Free Plan',
     price: '0', // Assuming free; adjust accordingly
+    timePeriod: 'per month',
     description: [
       'Track up to 20 active applications',
       'Access to basic dashboards',
@@ -26,9 +28,10 @@ const tiers = [
     buttonVariant: 'outlined',
   },
   {
-    title: 'Premium Plan',
+    title: 'Premium Plan ',
     subheader: 'Best Value',
-    price: '0',
+    price: '49.99',
+    timePeriod: 'per year',
     description: [
       'Unlimited application tracking for complete flexibility',
       'Comprehensive dashboard analytics and insights',
@@ -39,7 +42,33 @@ const tiers = [
     buttonText: 'Upgrade to Premium',
     buttonVariant: 'contained',
   },
+  {
+    title: 'Premium Plan',
+    price: '4.99', // Assuming free; adjust accordingly
+    timePeriod: 'per month',
+    description: [
+      'Unlimited application tracking for complete flexibility',
+      'Comprehensive dashboard analytics and insights',
+      'Unlimited CVs & Cover Letters',
+      'Enhanced email notifications with customization options',
+      'Assign up to 5 applications to a CV/CL'
+    ],
+    buttonText: 'Upgrade to Premium',
+    buttonVariant: 'outlined',
+  },
 ];
+
+const handleCheckout = async (plan: string) => {
+  console.log('Plan selected:', plan);
+
+  // if plan is premium the nsave it in localstorage
+  if (plan) {
+    localStorage.setItem("pendingPlan", plan);
+    console.log("Setted Premium in local storage")
+  }
+  window.location.href = "SignIn";
+};
+
 export default function Pricing() {
   return (
     <Container
@@ -84,11 +113,11 @@ export default function Pricing() {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 4,
-                border: tier.title === 'Premium Plan' ? '1px solid' : undefined,
+                border: tier.title === 'Premium Plan ' ? '1px solid' : undefined,
                 borderColor:
-                  tier.title === 'Premium Plan' ? 'primary.main' : undefined,
+                  tier.title === 'Premium Plan ' ? 'primary.main' : undefined,
                 background:
-                  tier.title === 'Premium Plan'
+                  tier.title === 'Premium Plan '
                     ? 'linear-gradient(#033363, #021F3B)'
                     : undefined,
               }}
@@ -100,13 +129,13 @@ export default function Pricing() {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    color: tier.title === 'Premium Plan' ? 'grey.100' : '',
+                    color: tier.title === 'Premium Plan ' ? 'grey.100' : '',
                   }}
                 >
                   <Typography component="h3" variant="h6">
                     {tier.title}
                   </Typography>
-                  {tier.title === 'Premium Plan' && (
+                  {tier.title === 'Premium Plan ' && (
                     <Chip
                       icon={<AutoAwesomeIcon />}
                       label={tier.subheader}
@@ -131,14 +160,14 @@ export default function Pricing() {
                   sx={{
                     display: 'flex',
                     alignItems: 'baseline',
-                    color: tier.title === 'Premium Plan' ? 'grey.50' : undefined,
+                    color: tier.title === 'Premium Plan ' ? 'grey.50' : undefined,
                   }}
                 >
                   <Typography component="h3" variant="h2">
                     £{tier.price}
                   </Typography>
                   <Typography component="h3" variant="h6">
-                    &nbsp; per month
+                    &nbsp;{tier.timePeriod}
                   </Typography>
                 </Box>
                 <Divider
@@ -184,12 +213,17 @@ export default function Pricing() {
                 <Button
                   fullWidth
                   variant={tier.buttonVariant as 'outlined' | 'contained'}
-                  component="a"
-                  href="/material-ui/getting-started/templates/checkout/"
-                  target="_blank"
-                >
+                  onClick={() => {
+                    let plan = '';
+                    if (tier.title === 'Free Plan') plan = 'free';
+                    else if (tier.title === 'Premium Plan (Monthly)') plan = 'monthly';
+                    else if (tier.title === 'Premium Plan ') plan = 'yearly';
+                    handleCheckout(plan);
+                  }}>
+
                   {tier.buttonText}
                 </Button>
+
               </CardActions>
             </Card>
           </Grid>

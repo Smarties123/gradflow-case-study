@@ -1,0 +1,23 @@
+.fireworks-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 230px;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1300;
+  pointer-events: none;
+  overflow: hidden;
+}
+.fireworks-gif {
+  position: relative;
+  max-width: 35%;
+  height: auto;
+  margin: 0 30vw;
+  object-fit: contain;
+  z-index: 2;
+  border-radius: 8px;
+}
