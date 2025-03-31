@@ -31,7 +31,7 @@ export default function LandingPage() {
 
   // --- Confetti Effect Hook ---
   useEffect(() => {
-    const duration = 5 * 1000; // 5 seconds
+    const duration = 7 * 1000;
     const animationEnd = Date.now() + duration;
     // Confetti above main content and banner, below AppBar
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 105 };
@@ -103,7 +103,7 @@ export default function LandingPage() {
           >
             <motion.img
               className="fireworks-gif"
-              src="/LandingPageMedia/North East, Yorkshire & the Humber - UK SUA Regional Finalist Email Banner.png"
+              src="https://d3htrhw57y4gd1.cloudfront.net/banner.png"
               alt="Celebration Banner"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

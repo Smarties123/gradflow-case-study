@@ -249,7 +249,7 @@ export default function Hero() {
             borderRadius: "8px",
             boxShadow: "0px 4px 10px rgba(0,0,0,0.3)",
             overflow: "hidden"
-       //     border: "1px white solid"
+            //     border: "1px white solid"
           }}
         >
           <video
