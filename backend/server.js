@@ -15,9 +15,6 @@ import filesRoutes from './routes/filesRoutes.js';
 import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
-
-
-
 // Schedule the task to run every wednesday at 9:00 AM 
 //for more info: https://www.npmjs.com/package/node-cron
 cron.schedule('0 9 * * 3', async () => {
@@ -25,6 +22,8 @@ cron.schedule('0 9 * * 3', async () => {
   await sendEmailsToAllUsers();
   console.log('Finished sending emails.');
 });
+
+import stripe from 'stripe';
 
 const app = express();
 
@@ -99,3 +98,78 @@ app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
+
+const STRIPE_SECRET_KEY =
+  'sk_test_51R5CfJDcnB3juQw0XDcapLqGVVfw2yncjmtMlAfrmyOCsXWRFlOlkjlxNEgXy9QTa2hF4Kn86fba1UetFHtm2DAX00mx2xTCYJ';
+
+const stripeCon = stripe(STRIPE_SECRET_KEY);
+
+// app.post('/create-payment-intent', async (req, res) => {
+//   try {
+//     const paymentIntent = await stripeCon.paymentIntents.create({
+//       amount: 200,
+//       currency: 'gbp',
+//       automatic_payment_methods: {
+//         enabled: true,
+//       },
+//     });
+
+//     res.json({ clientSecret: paymentIntent.client_secret });
+//   } catch (error) {
+//     console.error('Error creating payment intent:', error);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+app.post('/create-checkout-session', async (req, res) => {
+  const { email, plan, success_url, cancel_url } = req.body;
+  
+    var priceId = 0;
+
+    // Validate plan
+    if (!['monthly', 'yearly'].includes(plan.toLowerCase())) {
+        return res.status(400).json({ error: 'Invalid plan. Must be "monthly" or "yearly".' });
+    }
+  
+    if (plan === "monthly") {
+      priceId = process.env.STRIPE_MONTHLY_PRICE_ID;
+    } else if (plan === "yearly") {
+      priceId = process.env.STRIPE_YEARLY_PRICE_ID;
+    }
+
+    try {
+        // Step 1: Create or retrieve a Stripe Customer
+        let customer;
+        const existingCustomers = await stripeCon.customers.list({ email, limit: 1 });
+        if (existingCustomers.data.length > 0) {
+            customer = existingCustomers.data[0];
+        } else {
+            customer = await stripeCon.customers.create({
+                email,
+                description: `Customer for ${plan} subscription`,
+            });
+        }
+
+        // Step 2: Create the Checkout Session for a subscription
+         const session = await stripeCon.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price: priceId,
+                    quantity: 1,
+                },
+            ],
+            customer: customer.id,
+            mode: 'subscription',
+            success_url,
+            cancel_url,
+        });
+
+        res.json({ sessionId: session.id });
+
+        
+    } catch (error) {
+        console.error('Error creating checkout session:', error);
+        res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+});
