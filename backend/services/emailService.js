@@ -149,9 +149,20 @@ export const sendApplicationStatusEmail = async (email, userId) => {
 
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; background-color: #f5f5f5;">
-          <p style="margin: 0; color: #000;">Keep track of your applications on GradFlow.</p>
-          <a href="https://gradflow.org" style="display: inline-block; padding: 10px 20px; background-color:#7C41E3; color: #fff; text-decoration: none; border-radius: 4px;">Update Your Boards</a>
+          <p style="margin: 0 0 20px 0; color: #000;">Keep track of your applications on GradFlow.</p>
+          
+          <a href="https://gradflow.org" 
+            style="display: block; margin-bottom: 10px; padding: 10px 20px; background-color:#7C41E3; color: #fff; text-decoration: none; border-radius: 4px;">
+            Update Your Boards
+          </a>
+
+          <a href="https://gradflow.org/main?tab=notifications" 
+            style="display: block; padding: 10px 20px; background-color:#7C41E3; color: #fff; text-decoration: none; border-radius: 4px;">
+            Click here to unsubscribe from weekly alerts
+          </a>
         </div>
+
+
       </div>
     `;
 
