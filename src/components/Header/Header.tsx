@@ -30,6 +30,7 @@ import Search from './Search'; // Import Search component
 import FeedbackPopup from '../Feedback/FeedbackPopup';
 import AwesomeButton from '../../components/AwesomeButton/AwesomeButton';
 
+
 const Header = props => {
   const { user, setUser } = useUser(); // Access user and setUser to clear user info on sign out
   const navigate = useNavigate(); // Use navigate for redirection after sign out
@@ -68,6 +69,8 @@ const Header = props => {
 
   const { columns, setColumns, addCardToColumn } = context;
   const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const tab = params.get('tab');
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -237,7 +240,11 @@ const Header = props => {
         showSettings && (
           <SettingsView
             show={showSettings}
-            onClose={() => setShowSettings(false)}
+            onClose={() => {
+              setShowSettings(false);
+              navigate('/main', { replace: true });
+            }}
+            initialTab={tab}
             card={{}}
             updateCard={() => { }}
           />
