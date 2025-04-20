@@ -53,72 +53,73 @@ export const sendEmailsToAllUsers = async () => {
 
 export const sendApplicationStatusEmail = async (email, userId) => {
   try {
-    // Fetch the user's statuses
     const statuses = await getUserStatuses(userId);
-
-    // Get counts of applications in each status
     const applicationCounts = await getApplicationCountsByStatuses(userId);
-
-    // Fetch the user's applications with deadlines and colors
     const applicationsWithDeadlines = await getApplicationsWithDeadlines(userId);
 
-    // Fetch the username of the user
-    const userResult = await pool.query(`SELECT "Username" FROM "Users" WHERE "UserId" = $1`, [userId]);
+    const userResult = await pool.query(
+      `SELECT "Username" FROM "Users" WHERE "UserId" = $1`,
+      [userId]
+    );
     const username = userResult.rows[0]?.Username || "there";
 
-    // Map counts to statuses
     const countsMap = {};
     applicationCounts.forEach((row) => {
       countsMap[row.StatusId] = parseInt(row.count);
     });
 
-    // Get current date
-    const currentDate = new Date().toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
     });
 
-    // Build table headers and data
-    const tableHeaders = statuses
-    .map(
-      (status) =>
-        `<th style="padding: 10px; text-align: center; font-weight: bold;">${status.StatusName}</th>`
-    )
-    .join('');
-  
-  const tableData = statuses
-    .map((status) => {
-      const count = countsMap[status.StatusId] || 0;
-      return `<td style="padding: 10px; text-align: center; border-bottom: 1px solid #e0e0e0;">${count}</td>`;
-    })
-    .join('');
-
-    // Build application cards
-    const applicationCards = applicationsWithDeadlines
-    .map((app) => {
-      return `
-        <a href="https://gradflow.org" style="text-decoration: none; color: inherit;">
-          <div style="position: relative; margin-bottom: 16px; padding: 10px; border: 1px solid ${app.color}; border-radius: 8px; transition: transform 0.2s; cursor: pointer;">
-            ${
-              app.CompanyLogo
-                ? `<img src="${app.CompanyLogo}" alt="${app.CompanyName} Logo" style="position: absolute; top: 10px; right: 10px; height: 40px;">`
-                : ''
-            }
-            <strong>${app.JobName}</strong><br/>
-            <span>${app.CompanyName}</span><br/>
-            <span style="color: gray;">Deadline: ${formatDate(app.Deadline)}</span>
+    const statusBlocks = statuses
+      .map((status) => {
+        const count = countsMap[status.StatusId] || 0;
+        return `
+          <div style="
+            display: inline-block;
+            width: 48%;
+            margin: 1%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            text-align: center;
+            font-size: 14px;
+            color: #000;
+            box-sizing: border-box;
+          ">
+            <strong style="display: block; margin-bottom: 6px;">${status.StatusName}</strong>
+            <span style="font-size: 18px; font-weight: bold;">${count}</span>
           </div>
-        </a>
-      `;
-    })
-    .join('');
+        `;
+      })
+      .join("");
 
+    const applicationCards = applicationsWithDeadlines
+      .map((app) => {
+        return `
+          <a href="https://gradflow.org" style="text-decoration: none; color: inherit;">
+            <div style="position: relative; margin-bottom: 16px; padding: 10px; border: 1px solid ${app.color}; border-radius: 8px;">
+              ${
+                app.CompanyLogo
+                  ? `<img src="${app.CompanyLogo}" alt="${app.CompanyName} Logo" style="position: absolute; top: 10px; right: 10px; height: 40px;">`
+                  : ""
+              }
+              <strong>${app.JobName}</strong><br/>
+              <span>${app.CompanyName}</span><br/>
+              <span style="color: gray;">Deadline: ${formatDate(app.Deadline)}</span>
+            </div>
+          </a>
+        `;
+      })
+      .join("");
 
-    // Build the email content with improved structure
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #000;">
-        <!-- Header with GradFlow Logo and Weekly Summary -->
+        <!-- Header -->
         <table width="100%" style="padding: 20px; background-color: #f5f5f5;">
           <tr>
             <td align="left">
@@ -137,26 +138,14 @@ export const sendApplicationStatusEmail = async (email, userId) => {
           <p style="margin: 0; color: #000;">Here's a snapshot of your job search activities for the week.</p>
         </div>
 
-        <!-- Past Week Stats -->
-          <div style="border: 1px solid #7C41E3; border-radius: 12px; padding: 10px 15px; margin-bottom: 20px; background-color: #f9f9f9;">
-            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-              <thead>
-                <tr>
-                  ${tableHeaders}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  ${tableData}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Upcoming Deadlines -->
-          <h3 style="color: #000;">Upcoming Deadlines:</h3>
-          <div>${applicationCards}</div>
+        <!-- Status Overview -->
+        <div style="border: 1px solid #7C41E3; border-radius: 12px; padding: 15px; margin: 20px 0; background-color: #f9f9f9; text-align: center;">
+          ${statusBlocks}
         </div>
+
+        <!-- Upcoming Deadlines -->
+        <h3 style="color: #000;">Upcoming Deadlines:</h3>
+        <div>${applicationCards}</div>
 
         <!-- Footer -->
         <div style="text-align: center; padding: 20px; background-color: #f5f5f5;">
@@ -166,22 +155,22 @@ export const sendApplicationStatusEmail = async (email, userId) => {
       </div>
     `;
 
-    // Email options
     const mailOptions = {
       from: process.env.SMTP_EMAIL,
       to: email,
-      subject: 'Your Job Application Statuses - Weekly Update',
+      subject: "Your Job Application Statuses - Weekly Update",
       html: emailHtml,
     };
 
-    // Send the email
     await transporter.sendMail(mailOptions);
-    console.log('Application status email sent successfully.');
+    console.log("Application status email sent successfully.");
   } catch (error) {
-    console.error('Error sending application status email:', error);
-    throw new Error('Email sending failed');
+    console.error("Error sending application status email:", error);
+    throw new Error("Email sending failed");
   }
 };
+
+
 
 // Function to fetch statuses for a user
 async function getUserStatuses(userId) {
