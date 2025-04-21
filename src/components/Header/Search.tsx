@@ -11,55 +11,56 @@ const Search = () => {
   const { user } = useUser(); // Get the user with token
   const [searchResults, setSearchResults] = useState([]); // Store the search results
 
-
   if (!user || !user.token) {
     console.error('User or token is missing');
     return null; // Gracefully handle if user or token is missing
   }
 
   const handleSearch = async (query: string) => {
-    setSearchQuery(query.toLowerCase());
-  
+    setSearchQuery(query); // Preserve the user's input as-is (including capital letters)
+    const lowerQuery = query.toLowerCase(); // Use this only for internal comparisons
+
     if (!query) {
       // Reset the board if the search is cleared
       try {
         const statusResponse = await fetch(`${process.env.REACT_APP_API_URL}/status`, {
           headers: {
-            'Authorization': `Bearer ${user.token}`, // Attach the token
+            'Authorization': `Bearer ${user.token}`,
           },
         });
-  
+
         const statuses = await statusResponse.json();
-  
+
         const jobResponse = await fetch(`${process.env.REACT_APP_API_URL}/applications`, {
           headers: {
-            'Authorization': `Bearer ${user.token}`, // Attach the token
+            'Authorization': `Bearer ${user.token}`,
           },
         });
-  
+
         const jobs = await jobResponse.json();
-  
-        // Rebuild the full board with all columns and jobs
+
         const fullColumns = statuses.map((status: any) => ({
           id: status.StatusId,
           title: status.StatusName,
-          cards: jobs.filter((job: any) => job.StatusId === status.StatusId).map((job: any) => ({
-            id: String(job.ApplicationId), // Convert ApplicationId to string
-            company: job.CompanyName,
-            position: job.JobName,
-            deadline: job.Deadline,
-            location: job.Location || '', // Handle null Location
-            url: job.CompanyURL,
-            notes: job.Notes || '',
-            salary: job.Salary || 0,
-            StatusId: job.StatusId,
-            date_applied: job.DateApplied,
-            card_color: job.Color || '#ffffff',
-            companyLogo: job.CompanyLogo,
-            Favourite: job.Favourite || false,
-          })),
+          cards: jobs
+            .filter((job: any) => job.StatusId === status.StatusId)
+            .map((job: any) => ({
+              id: String(job.ApplicationId),
+              company: job.CompanyName,
+              position: job.JobName,
+              deadline: job.Deadline,
+              location: job.Location || '',
+              url: job.CompanyURL,
+              notes: job.Notes || '',
+              salary: job.Salary || 0,
+              StatusId: job.StatusId,
+              date_applied: job.DateApplied,
+              card_color: job.Color || '#ffffff',
+              companyLogo: job.CompanyLogo,
+              Favourite: job.Favourite || false,
+            })),
         }));
-  
+
         setColumns(fullColumns);
         return;
       } catch (error) {
@@ -67,9 +68,8 @@ const Search = () => {
         return;
       }
     }
-  
+
     try {
-      // Fetch filtered applications from the backend
       const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/search?query=${query}`, {
         method: 'GET',
         headers: {
@@ -77,73 +77,68 @@ const Search = () => {
           'Authorization': `Bearer ${user.token}`,
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`Failed to fetch search results: ${response.status}`);
       }
-  
+
       const searchResults = await response.json();
-  
-      // Filter columns based on the search results
+      setSearchResults(searchResults); // Optional: store if you want to show dropdown or autocomplete
+
       const filteredColumns = columns.map(column => ({
         ...column,
         cards: column.cards.filter(card => {
-          // Handle potential null values for JobName, CompanyName, and Location
-          const jobName = card.position ? card.position.toLowerCase() : '';
-          const companyName = card.company ? card.company.toLowerCase() : '';
-          const location = card.location ? card.location.toLowerCase() : '';
-  
-          // Compare ApplicationId as a string
+          const jobName = card.position?.toLowerCase() || '';
+          const companyName = card.company?.toLowerCase() || '';
+          const location = card.location?.toLowerCase() || '';
           const matchesApplicationId = searchResults.some(result => String(result.ApplicationId) === String(card.id));
-  
+
           return (
             matchesApplicationId ||
-            jobName.includes(query) ||
-            companyName.includes(query) ||
-            location.includes(query)
+            jobName.includes(lowerQuery) ||
+            companyName.includes(lowerQuery) ||
+            location.includes(lowerQuery)
           );
         }),
       }));
-  
-      // Check if there's no match at all, and reset the columns if so
+
       const noResults = filteredColumns.every(column => column.cards.length === 0);
-  
+
       if (noResults) {
         console.log('No results found');
       } else {
-        setColumns(filteredColumns); // Update the board with the filtered columns
+        setColumns(filteredColumns);
       }
-  
+
     } catch (error) {
       console.error('Failed to search applications', error);
     }
   };
-      
+
   return (
     <div>
-    <InputGroup inside size="lg" className="search-input">
-      <InputGroup.Button>
-        <FaSearch />
-      </InputGroup.Button>
-      <Input
-        placeholder="Search Applications..."
-        value={searchQuery}
-        onChange={(value) => handleSearch(value)} // Trigger search on input change
-      />
-    </InputGroup>
-    
-    {/* Render the search results in a dropdown
-    {searchResults.length > 0 && (
-      <ul className="search-dropdown">
-        {searchResults.map((result) => (
-          <li key={result.ApplicationId} onClick={() => filterBoard(result)}>
-            {result.JobName} - {result.CompanyName}
-          </li>
-        ))}
-      </ul>
-    )} */}
-  </div>
+      <InputGroup inside size="lg" className="search-input">
+        <InputGroup.Button>
+          <FaSearch />
+        </InputGroup.Button>
+        <Input
+          placeholder="Search Applications..."
+          value={searchQuery}
+          onChange={(value) => handleSearch(value)} // Keeps user input as-is
+        />
+      </InputGroup>
 
+      {/* Optionally show search results in dropdown
+      {searchResults.length > 0 && (
+        <ul className="search-dropdown">
+          {searchResults.map((result) => (
+            <li key={result.ApplicationId}>
+              {result.JobName} - {result.CompanyName}
+            </li>
+          ))}
+        </ul>
+      )} */}
+    </div>
   );
 };
 
