@@ -9,4 +9,9 @@
     clip: rect(0, 0, 0, 0);
     border: 0;
   }
-  
+
+html, body, #root {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
