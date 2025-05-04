@@ -1,4 +1,4 @@
-const motivationalQuotes = [
+export const motivationalQuotes = [
   { quote: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
   { quote: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
   { quote: "The only way to do great work is to love what you do.", author: "Steve Jobs" },

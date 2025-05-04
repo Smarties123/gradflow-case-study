@@ -2,7 +2,7 @@
 import nodemailer from 'nodemailer';
 import { getAllUsers } from '../controllers/userController.js';
 import pool from '../config/db.js';
-import motivationalQuotes from 'motivationalQuotes.js';
+import { motivationalQuotes } from './motivationalQuotes.js';
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
