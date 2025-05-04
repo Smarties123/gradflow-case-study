@@ -6,81 +6,84 @@ import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
 import { useTheme } from '@mui/system';
-import Marquee from 'react-fast-marquee'; // Using the marquee package
+import Marquee from 'react-fast-marquee';
+
+/**
+ * NOTE: Company logos are commented out for now — uncomment and adapt when ready.
+ */
+
+// const whiteLogos = [
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560628e8573c43893fe0ace_Sydney-white.svg',
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f4d520d0517ae8e8ddf13_Bern-white.svg',
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f46794c159024c1af6d44_Montreal-white.svg',
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/61f12e891fa22f89efd7477a_TerraLight.svg',
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560a09d1f6337b1dfed14ab_colorado-white.svg',
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f5caa77bf7d69fb78792e_Ankara-white.svg'
+// ];
+
+// const darkLogos = [
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560628889c3bdf1129952dc_Sydney-black.svg',
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f4d4d8b829a89976a419c_Bern-black.svg',
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f467502f091ccb929529d_Montreal-black.svg',
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/61f12e911fa22f2203d7514c_TerraDark.svg',
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560a0990f3717787fd49245_colorado-black.svg',
+//   'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f5ca4e548b0deb1041c33_Ankara-black.svg'
+// ];
+
+// const logoStyle = {
+//   width: '64px',
+//   opacity: 0.3
+// };
 
 const userTestimonials = [
   {
-    avatar: <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />,
-    name: 'Remy Sharp',
-    occupation: 'Senior Engineer',
+    avatar: <Avatar alt="Bipasha Ganatra" src="/static/images/avatar/1.jpg" />,
+    name: 'Bipasha Ganatra',
+    occupation: '3rd‑Year Law Student',
     testimonial:
-      "I absolutely love how versatile this product is! Whether I'm tackling work projects or indulging in my favorite hobbies, it seamlessly adapts to my changing needs. Its intuitive design has truly enhanced my daily routine, making tasks more efficient and enjoyable."
+      'As a law student applying to training contracts and vacation schemes, keeping track of deadlines across different firms was overwhelming. GradFlow helped me organise everything visually and prioritise better. The Kanban board made it easy to see where I stood with each application, and the dashboard gave me that extra motivation to stay on top of things.'
   },
   {
-    avatar: <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />,
-    name: 'Travis Howard',
-    occupation: 'Lead Product Designer',
+    avatar: <Avatar alt="Mica Gerard" src="/static/images/avatar/2.jpg" />,
+    name: 'Mica Gerard',
+    occupation: '3rd‑Year French Law Student',
     testimonial:
-      "One of the standout features of this product is the exceptional customer support. In my experience, the team behind this product has been quick to respond and incredibly helpful. It's reassuring to know that they stand firmly behind their product."
+      'I apply to both French and UK law firms, so juggling deadlines and requirements in two legal systems was chaotic. GradFlow made it all manageable. I especially loved how I could track each stage of the application process and benchmark my progress—it gave me structure during a stressful time.'
   },
   {
-    avatar: <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />,
-    name: 'Cindy Baker',
-    occupation: 'CTO',
+    avatar: <Avatar alt="Lorenzo Tassellari" src="/static/images/avatar/3.jpg" />,
+    name: 'Lorenzo Tassellari',
+    occupation: "Master’s Student – Computer Science & Mathematics", 
     testimonial:
-      'The level of simplicity and user-friendliness in this product has significantly simplified my life. I appreciate the creators for delivering a solution that not only meets but exceeds user expectations.'
+      'Tech roles often have multi‑stage interviews, coding assessments, and take‑home tasks. GradFlow helped me break down each process and stay focused. Having everything in one place—from deadlines to documents—was a game‑changer, especially when applying across platforms like LinkedIn and Glassdoor.'
   },
   {
-    avatar: <Avatar alt="Julia Stewart" src="/static/images/avatar/4.jpg" />,
-    name: 'Julia Stewart',
-    occupation: 'Senior Engineer',
+    avatar: <Avatar alt="Aaditya Kiran Gowda" src="/static/images/avatar/4.jpg" />,
+    name: 'Aaditya Kiran Gowda',
+    occupation: "Master’s Student – Computer Science", 
     testimonial:
-      "I appreciate the attention to detail in the design of this product. The small touches make a big difference, and it's evident that the creators focused on delivering a premium experience."
+      'As an international student, I apply to roles in different countries and time zones. GradFlow was the only tool that kept me sane. I used the Kanban board every day to plan follow‑ups, interview prep, and application sprints. It’s like a productivity tool built specifically for job hunting—it really made a difference.'
   },
   {
-    avatar: <Avatar alt="John Smith" src="/static/images/avatar/5.jpg" />,
-    name: 'John Smith',
-    occupation: 'Product Designer',
+    avatar: <Avatar alt="Hemish Talajia" src="/static/images/avatar/5.jpg" />,
+    name: 'Hemish Talajia',
+    occupation: '3rd‑Year Medical Student',
     testimonial:
-      "I've tried other similar products, but this one stands out for its innovative features. It's clear that the makers put a lot of thought into creating a solution that truly addresses user needs."
+      'Balancing clinical rotations with countless application deadlines felt impossible until I discovered GradFlow. The timeline view let me line up electives, research abstracts, and foundation programme forms in one place, so nothing slipped through the cracks.'
   },
   {
-    avatar: <Avatar alt="Daniel Wolf" src="/static/images/avatar/6.jpg" />,
-    name: 'Daniel Wolf',
-    occupation: 'CDO',
+    avatar: <Avatar alt="Hyuk Kwon" src="/static/images/avatar/6.jpg" />,
+    name: 'Hyuk Kwon',
+    occupation: "Master’s Student – Computer Science & Mathematics", 
     testimonial:
-      "The quality of this product exceeded my expectations. It's durable, well-designed, and built to last. Definitely worth the investment!"
+      'Between thesis deadlines and applying for specialised quant roles, I needed a system that wouldn’t drown me in spreadsheets. GradFlow’s integrations with LinkedIn and Greenhouse saved me hours of manual entry and kept my interview prep laser‑focused.'
   }
 ];
 
-const whiteLogos = [
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560628e8573c43893fe0ace_Sydney-white.svg',
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f4d520d0517ae8e8ddf13_Bern-white.svg',
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f46794c159024c1af6d44_Montreal-white.svg',
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/61f12e891fa22f89efd7477a_TerraLight.svg',
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560a09d1f6337b1dfed14ab_colorado-white.svg',
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f5caa77bf7d69fb78792e_Ankara-white.svg'
-];
-
-const darkLogos = [
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560628889c3bdf1129952dc_Sydney-black.svg',
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f4d4d8b829a89976a419c_Bern-black.svg',
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f467502f091ccb929529d_Montreal-black.svg',
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/61f12e911fa22f2203d7514c_TerraDark.svg',
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/6560a0990f3717787fd49245_colorado-black.svg',
-  'https://assets-global.website-files.com/61ed56ae9da9fd7e0ef0a967/655f5ca4e548b0deb1041c33_Ankara-black.svg'
-];
-
-const logoStyle = {
-  width: '64px',
-  opacity: 0.3
-};
-
 export default function Testimonials() {
   const theme = useTheme();
-  const logos = theme.palette.mode === 'light' ? darkLogos : whiteLogos;
+  // const logos = theme.palette.mode === 'light' ? darkLogos : whiteLogos;
 
   return (
     <Container
@@ -93,26 +96,22 @@ export default function Testimonials() {
         flexDirection: 'column',
         alignItems: 'center',
         gap: { xs: 3, sm: 6 },
-        textAlign: "center"
+        textAlign: 'center'
       }}
     >
-      <Box
-        sx={{
-          width: { sm: '100%', md: '60%' },
-          textAlign: { sm: 'left', md: 'center' }
-        }}
-      >
+      <Box sx={{ width: { sm: '100%', md: '60%' }, textAlign: { sm: 'left', md: 'center' } }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           Testimonials
         </Typography>
         <Typography
           variant="body1"
           color="text.secondary"
-          sx={{ mb: 4, maxWidth: 700, mx: "auto" }}
-        >          See what our customers love about our products. Discover how we excel in efficiency,
-          durability, and satisfaction. Join us for quality, innovation, and reliable support.
+          sx={{ mb: 4, maxWidth: 700, mx: 'auto' }}
+        >
+          See what our customers love about GradFlow. Discover how we excel in efficiency, organisation, and satisfaction. Join us for quality, innovation, and reliable support.
         </Typography>
       </Box>
+
       {/* Marquee Section */}
       <Marquee pauseOnHover className="[--duration:20s]">
         {userTestimonials.map((testimonial, index) => (
@@ -144,7 +143,7 @@ export default function Testimonials() {
                   title={testimonial.name}
                   subheader={testimonial.occupation}
                 />
-                <img src={logos[index]} alt={`Logo ${index + 1}`} style={logoStyle} />
+                {/* <img src={logos[index]} alt={`Logo ${index + 1}`} style={logoStyle} /> */}
               </Box>
             </Card>
           </Box>
