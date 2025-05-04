@@ -2,6 +2,7 @@
 import nodemailer from 'nodemailer';
 import { getAllUsers } from '../controllers/userController.js';
 import pool from '../config/db.js';
+import { motivationalQuotes } from './motivationalQuotes.js';
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -51,6 +52,10 @@ export const sendEmailsToAllUsers = async () => {
   }
 };
 
+// Get a random motivationalQuote
+const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+
+
 export const sendApplicationStatusEmail = async (email, userId) => {
   try {
     const statuses = await getUserStatuses(userId);
@@ -79,18 +84,19 @@ export const sendApplicationStatusEmail = async (email, userId) => {
         const count = countsMap[status.StatusId] || 0;
         return `
           <div style="
-            display: inline-block;
-            width: 48%;
-            margin: 1%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #fff;
-            text-align: center;
-            font-size: 14px;
-            color: #000;
-            box-sizing: border-box;
-          ">
+        display: inline-block;
+        width: 48%;
+        margin: 1%;
+        padding: 15px;
+        border-radius: 10px;
+        background: linear-gradient(145deg, #ff9047, #f26203);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+        text-align: center;
+        font-size: 14px;
+        color: #fff;
+        font-weight: bold;
+        box-sizing: border-box;
+      ">
             <strong style="display: block; margin-bottom: 6px;">${status.StatusName}</strong>
             <span style="font-size: 18px; font-weight: bold;">${count}</span>
           </div>
@@ -118,53 +124,77 @@ export const sendApplicationStatusEmail = async (email, userId) => {
       .join("");
 
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #000;">
-        <!-- Header -->
-        <table width="100%" style="padding: 20px; background-color: #f5f5f5;">
-          <tr>
-            <td align="left">
-              <img src="https://i.imgur.com/ctEoTCl.png" alt="GradFlow Logo" style="height: 50px;">
-            </td>
-            <td align="right" style="text-align: right;">
-              <h3 style="margin: 0; color: #000;">Weekly Summary</h3>
-              <p style="margin: 0; color: #000;">${currentDate}</p>
-            </td>
-          </tr>
-        </table>
+  <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px;">
+    
+    <!-- Header -->
+    <table width="100%" style="margin-bottom: 20px;">
+      <tr>
+        <td align="left">
+          <img src="https://i.imgur.com/ctEoTCl.png" alt="GradFlow Logo" style="height: 50px;">
+        </td>
+        <td align="right" style="text-align: right;">
+          <h2 style="margin: 0; color: #333;">Weekly Career Digest</h2>
+          <p style="margin: 0; color: #888;">${currentDate}</p>
+        </td>
+      </tr>
+    </table>
 
-        <!-- Greeting -->
-        <div style="text-align: center; padding: 20px; background-color: #f5f5f5;">
-          <h2 style="color: #FF6200;">Hi ${username},</h2>
-          <p style="margin: 0; color: #000;">Here's a snapshot of your job search activities for the week.</p>
-        </div>
+    <!-- Greeting -->
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h2 style="color: #FF6200;">Hey ${username},</h2>
+      <p>Here's your weekly snapshot and a look at what's coming next.</p>
+    </div>
 
-        <!-- Status Overview -->
-        <div style="border: 1px solid #7C41E3; border-radius: 12px; padding: 15px; margin: 20px 0; background-color: #f9f9f9; text-align: center;">
+    <!-- Section 1: Application Status Overview -->
+    <div style="background: #fff; border-radius: 8px; padding: 10px 20px 20px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;">
+      <h3 style="color: #7C41E3;">📊 Your Application Overview</h3>
+      <!-- Status Overview -->
+        <div style=" padding: 15px; margin: 20px 0; text-align: center;">
           ${statusBlocks}
         </div>
+    </div>
 
-        <!-- Upcoming Deadlines -->
-        <h3 style="color: #000;">Upcoming Deadlines:</h3>
-        <div>${applicationCards}</div>
+  <!-- Section 2: Updates -->
+  <div style="background: #fff; border-radius: 8px; padding: 10px 20px 20px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;">
+    <h3 style="color: #7C41E3;">🔥 Updates</h3>
+    <ul style="padding-left: 20px; color: #444;">
+      <li><strong>Bug Fixes
+      <li><strong>Improvement:</strong> Faster dashboard loading times.</li>
+    </ul>
+  </div>
 
-        <!-- Footer -->
-        <div style="text-align: center; padding: 20px; background-color: #f5f5f5;">
-          <p style="margin: 0 0 20px 0; color: #000;">Keep track of your applications on GradFlow.</p>
-          
-          <a href="https://gradflow.org" 
-            style="display: block; margin-bottom: 10px; padding: 10px 20px; background-color:#7C41E3; color: #fff; text-decoration: none; border-radius: 4px;">
-            Update Your Boards
-          </a>
-
-          <a href="https://gradflow.org/main?tab=notifications" 
-            style="display: block; padding: 10px 20px; background-color:#7C41E3; color: #fff; text-decoration: none; border-radius: 4px;">
-            Click here to unsubscribe from weekly alerts
-          </a>
-        </div>
+ <!-- Section 3: Coming Soon -->
+<div style="background: #fff; border-radius: 8px; padding: 10px 20px 20px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;">
+  <h3 style="color: #7C41E3;">🚀 Coming Soon to GradFlow</h3>
+  <ul style="padding-left: 20px; color: #444;">
+    <li><strong>Chrome Extension:</strong> Save job listings from any website in one click.</li>
+    <li><strong>Excel Import:</strong> Upload your existing applications using an Excel spreadsheet.</li>
+  </ul>
+</div>
 
 
-      </div>
-    `;
+  <!-- Section 4: Motivation of the Week -->
+  <div style="background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px; text-align: center;">
+    <h3 style="color: #7C41E3;">💡 Motivation of the Week</h3>
+    <blockquote style="font-size: 16px; color: #555; margin: 20px auto; max-width: 600px; font-style: italic;">
+         "${randomQuote.quote}"<br/>
+      <span style="display: block; margin-top: 10px; font-weight: bold; color: #333;">– ${randomQuote.author}l</span>
+    </blockquote>
+  </div>
+
+
+    <!-- Footer -->
+<div style="text-align: center; margin-top: 30px;">
+
+  <p style="color: #555;">You're receiving this email because you signed up on <a href="https://gradflow.org" style="color: #7C41E3; text-decoration: none;">GradFlow</a>.</p>
+  <a href="https://gradflow.org" style="display: inline-block; margin: 10px 5px; padding: 10px 20px; background-color:#7C41E3; color: #fff; text-decoration: none; border-radius: 5px;">Update Your Boards</a>
+  <a href="https://gradflow.org/main?tab=notifications" style="display: inline-block; margin: 10px 5px; padding: 10px 20px; background-color:#ccc; color: #000; text-decoration: none; border-radius: 5px;">Unsubscribe</a>
+</div>
+
+
+  </div>
+`;
+
 
     const mailOptions = {
       from: process.env.SMTP_EMAIL,
