@@ -2,6 +2,7 @@
 import nodemailer from 'nodemailer';
 import { getAllUsers } from '../controllers/userController.js';
 import pool from '../config/db.js';
+import motivationalQuotes from 'motivationalQuotes.js';
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -50,6 +51,10 @@ export const sendEmailsToAllUsers = async () => {
     console.error('Error sending emails to users:', error);
   }
 };
+
+// Get a random motivationalQuote
+const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+
 
 export const sendApplicationStatusEmail = async (email, userId) => {
   try {
@@ -150,11 +155,10 @@ export const sendApplicationStatusEmail = async (email, userId) => {
     </div>
 
   <!-- Section 2: Updates -->
-  <!-- WE UPDATE THIS WHEN NEW UPDATES ARE OUT -->
   <div style="background: #fff; border-radius: 8px; padding: 10px 20px 20px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;">
     <h3 style="color: #7C41E3;">🔥 Updates</h3>
     <ul style="padding-left: 20px; color: #444;">
-      <li><strong>Bug Fix:</strong> Fixed issue where users couldn't delete applications.</li>
+      <li><strong>Bug Fixes
       <li><strong>Improvement:</strong> Faster dashboard loading times.</li>
     </ul>
   </div>
@@ -173,8 +177,8 @@ export const sendApplicationStatusEmail = async (email, userId) => {
   <div style="background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px; text-align: center;">
     <h3 style="color: #7C41E3;">💡 Motivation of the Week</h3>
     <blockquote style="font-size: 16px; color: #555; margin: 20px auto; max-width: 600px; font-style: italic;">
-      "Success is not final, failure is not fatal: it is the courage to continue that counts." <br/>
-      <span style="display: block; margin-top: 10px; font-weight: bold; color: #333;">– Winston Churchill</span>
+         "${randomQuote.quote}"<br/>
+      <span style="display: block; margin-top: 10px; font-weight: bold; color: #333;">– ${randomQuote.author}l</span>
     </blockquote>
   </div>
 
