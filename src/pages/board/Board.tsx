@@ -32,12 +32,16 @@ import { useFetchApplications } from './boardComponents/useFetchApplications';
 import { useDragAndDrop } from './boardComponents/useDragAndDrop';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { deleteCard } from '@/utils/deleteCard';
 
 const Board: React.FC = () => {
   const context = useContext(BoardContext);
   const { user } = useUser();
 
   const { columns, setColumns, updateCard, updateStatusLocally } = context!;
+
+  const [isDeleteCardModalOpen, setIsDeleteCardModalOpen] = useState(false);
+
 
   const {
     editingColumnId,
@@ -233,10 +237,13 @@ const Board: React.FC = () => {
               onClose={() => setIsDrawerOpen(false)}
               card={selectedCard}
               updateCard={updateCard}
+              user={user}
               updateStatusLocally={updateStatusLocally}
               columnName={selectedCard.columnName}
               updateStatus={handleUpdateStatus}
               statuses={columns.map(col => ({ StatusId: col.id, StatusName: col.title }))}
+              triggerDeleteModal={() => setIsDeleteCardModalOpen(true)}
+
             />
           )}
 
@@ -249,6 +256,25 @@ const Board: React.FC = () => {
               onYes={() => handleDeleteCardOrColumn()}
               title={`Are you sure you want to delete this column?`}
 
+            />
+          )}
+
+          {/* DELETE POPUP */}
+          {isDeleteCardModalOpen && (
+            <DeleteModal
+              isOpen={isDeleteCardModalOpen}
+              onClose={() => setIsDeleteCardModalOpen(false)}
+              onNo={() => setIsDeleteCardModalOpen(false)}
+              onYes={async () => {
+                try {
+                  await deleteCard(selectedCard?.id, user?.token);
+                  handleDeleteCard(selectedCard?.id);
+                  setIsDeleteModalOpen(false);
+                } catch (err) {
+                  console.error('Failed to delete card:', err);
+                }
+              }}
+              title="Are you sure you want to delete this card?"
             />
           )}
 

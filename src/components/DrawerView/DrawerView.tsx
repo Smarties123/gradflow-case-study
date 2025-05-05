@@ -10,20 +10,23 @@ import DetailsView from './DetailsView';
 import NotesView from './NotesView';
 import DocumentsView from './DocumentsView';
 import FilePopup from '../FilePopup/FilePopup';
-
+import DeleteModal from '../DeleteStatus/DeleteStatus';
 import './DrawerView.less';
+import { deleteCard } from '../../utils/deleteCard';
+import { IoMdTrash } from 'react-icons/io';
 
 const DrawerView = ({
   show,
   onClose,
+  user,
   card = {},
   updateCard,
   columnName,
   updateStatus,
   statuses = [],
-  updateStatusLocally
+  updateStatusLocally,
+  triggerDeleteModal
 }) => {
-  const { user } = useUser();
   const { columns, loading: boardLoading } = useBoardData(user);
   const { uploadAndCreateFile, files, updateFile, deleteFile } = useFileData();
 
@@ -352,6 +355,18 @@ const DrawerView = ({
                 detailsProgress={detailsProgress}
                 documentsProgress={documentsProgress}
                 notesProgress={notesProgress}
+              />
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item>
+              <IoMdTrash
+                className="delete-icon"
+                style={{ cursor: 'pointer', marginLeft: '10px' }}
+                onClick={() => {
+                  onClose();
+                  setTimeout(() => {
+                    triggerDeleteModal(); // call parent handler
+                  }, 300);
+                }}
               />
             </FlexboxGrid.Item>
           </FlexboxGrid>
