@@ -123,8 +123,11 @@ const DrawerView = ({
 
     if (formData.salary < 0) {
       validationErrors.salary = 'Salary cannot be negative.';
-    } else if (formData.salary && !/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(formData.salary)) {
-      validationErrors.salary = 'Salary must be a valid number';
+    } else if (
+      formData.salary &&
+      !/^\d+$/.test(formData.salary)
+    ) {
+      validationErrors.salary = 'Salary must be a whole number';
     }
 
     if (formData.deadline && formData.date_applied && formData.deadline < formData.date_applied) {
