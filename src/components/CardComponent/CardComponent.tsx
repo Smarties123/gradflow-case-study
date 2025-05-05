@@ -19,6 +19,22 @@ const CardComponent = ({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLongCompanyName, setIsLongCompanyName] = useState(false);
 
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const listener = (e) => {
+      if (e.detail.cardId === card.id) {
+        setIsDeleting(true);
+        setTimeout(() => {
+          onDelete(card.id); // Now safely remove it
+        }, 500); // match animation time
+      }
+    };
+
+    document.addEventListener('triggerCardDelete', listener);
+    return () => document.removeEventListener('triggerCardDelete', listener);
+  }, [card.id, onDelete]);
+
   useEffect(() => {
     setIsFavorited(card.Favourite);
     setIsLongCompanyName(card.company.length > 22);
@@ -112,8 +128,7 @@ const CardComponent = ({
         style={style}
         {...attributes}
         {...listeners}
-        className={`card ${isDragging ? 'is-dragging' : ''} ${isFavorited ? 'always-show-icons' : ''
-          }`}
+        className={`card ${isDragging ? 'is-dragging' : ''} ${isFavorited ? 'always-show-icons' : ''} ${isDeleting ? 'pixelate-out' : ''}`}
         onClick={handleCardClick}
         onContextMenu={(e) => {
           e.preventDefault();
@@ -182,14 +197,20 @@ const CardComponent = ({
             onClose={() => setIsDeleteModalOpen(false)}
             onNo={() => setIsDeleteModalOpen(false)}
             onYes={async () => {
-              try {
-                await deleteCard(card.id, user.token);
-                onDelete(card.id);
-                setIsDeleteModalOpen(false);
-              } catch (err) {
-                console.error('Failed to delete card:', err);
-              }
+              setIsDeleteModalOpen(false);      // Close modal
+              setIsDeleting(true);              // Start animation
+
+              setTimeout(async () => {
+                try {
+                  await deleteCard(card.id, user.token); // API call
+                  onDelete(card.id);                     // NOW remove from board state
+                } catch (err) {
+                  console.error('Failed to delete card:', err);
+                }
+              }, 500); // match CSS animation time
             }}
+
+
             title={`Are you sure you want to delete this card?`}
           />,
           document.body

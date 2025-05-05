@@ -265,15 +265,18 @@ const Board: React.FC = () => {
               isOpen={isDeleteCardModalOpen}
               onClose={() => setIsDeleteCardModalOpen(false)}
               onNo={() => setIsDeleteCardModalOpen(false)}
-              onYes={async () => {
-                try {
-                  await deleteCard(selectedCard?.id, user?.token);
-                  handleDeleteCard(selectedCard?.id);
-                  setIsDeleteModalOpen(false);
-                } catch (err) {
-                  console.error('Failed to delete card:', err);
-                }
+              onYes={() => {
+                // Let the card component handle animation via a global signal
+                setIsDeleteCardModalOpen(false);
+                setTimeout(() => {
+                  if (selectedCard?.id) {
+                    document.dispatchEvent(new CustomEvent('triggerCardDelete', {
+                      detail: { cardId: selectedCard.id }
+                    }));
+                  }
+                }, 300); // Let modal close first
               }}
+
               title="Are you sure you want to delete this card?"
             />
           )}

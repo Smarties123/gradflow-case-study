@@ -365,7 +365,7 @@ const DrawerView = ({
                   onClose();
                   setTimeout(() => {
                     triggerDeleteModal(); // call parent handler
-                  }, 300);
+                  }, 500);
                 }}
               />
             </FlexboxGrid.Item>
