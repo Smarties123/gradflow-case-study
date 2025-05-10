@@ -176,7 +176,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
 
           {/* Mobile Menu */}
           <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-            <IconButton color="primary" onClick={toggleDrawer(true)}>
+            <IconButton className="bar-icon-button" onClick={toggleDrawer(true)}>
               <MenuIcon />
             </IconButton>
             <Drawer

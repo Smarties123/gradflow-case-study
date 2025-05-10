@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Row, Col, Panel, DateRangePicker } from 'rsuite';
+import { motion, useInView } from 'framer-motion';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import './styles.less';
@@ -14,6 +15,25 @@ import { useBoardData } from '../../hooks/useBoardData';
 import DonutChartComponent from './DonutChartComponent';
 import { useUser } from '../../components/User/UserContext';
 import RadarChartComponent from './RadarChart';
+
+
+import { useRef } from 'react';
+
+export const AnimateInView: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-100px' });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, ease: 'easeOut', delay }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 const Dashboard: React.FC = () => {
   const { user } = useUser();
@@ -61,18 +81,18 @@ const Dashboard: React.FC = () => {
 
   const funnelData = hasColumns
     ? filteredColumns.map((column, index) => {
-        const h = 24;
-        const s = 100;
-        const l = 30 + index * 7;
-        const hexColor = hslToHex(h, s, l);
+      const h = 24;
+      const s = 100;
+      const l = 30 + index * 7;
+      const hexColor = hslToHex(h, s, l);
 
-        return {
-          name: column.title,
-          value: column.cards.length,
-          percent: maxCards ? Math.round((column.cards.length / maxCards) * 100) : 0,
-          color: hexColor,
-        };
-      })
+      return {
+        name: column.title,
+        value: column.cards.length,
+        percent: maxCards ? Math.round((column.cards.length / maxCards) * 100) : 0,
+        color: hexColor,
+      };
+    })
     : [];
 
   const highlightData = hasColumns ? filteredColumns.map((column, index) => ({
@@ -143,72 +163,93 @@ const Dashboard: React.FC = () => {
     <div className="scroll-container">
       <Row style={{ marginRight: '0px' }}>
         <Col xs={24} style={{ paddingLeft: '0px' }}>
-          <HighlightTiles data={highlightData} />
+          <AnimateInView delay={0}>
+
+            <HighlightTiles data={highlightData} />
+          </AnimateInView>
         </Col>
       </Row>
+
       <Row>
         <Col xs={24}>
-          <DateRangePicker
-            appearance="default"
-            placeholder="Select Date Range"
-            style={{ margin: '10px 10px 10px 0px' }}
-            onChange={(value: [Date, Date]) => setSelectedDateRange(value)}
-          />
+          <AnimateInView delay={0.2}>
+            <DateRangePicker
+              appearance="default"
+              placeholder="Select Date Range"
+              style={{ margin: '10px 10px 10px 0px' }}
+              onChange={(value: [Date, Date]) => setSelectedDateRange(value)}
+            />
+          </AnimateInView>
         </Col>
       </Row>
       <Row gutter={16} style={{ margin: '0px -8px' }}>
         <Col xs={24} md={12}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', height: '100%' }}>
-            <BarChart
-              key={keyForCharts}
-              dropdownType={filteredColumns.map(column => column.title)}
-              title="Jobs Created"
-              dateRange={selectedDateRange}
-              filteredColumns={filteredColumns}
-            />
-          </Panel>
+          <AnimateInView delay={0.3}>
+            <Panel id="border-line" style={{ background: 'none', margin: '10px 0px', height: '100%' }}>
+              <BarChart
+                key={keyForCharts}
+                dropdownType={filteredColumns.map(column => column.title)}
+                title="Jobs Created"
+                dateRange={selectedDateRange}
+                filteredColumns={filteredColumns}
+              />
+            </Panel>
+          </AnimateInView>
         </Col>
         <Col xs={24} md={12}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', minHeight: '475px' }}>
-            <DonutChartComponent
-              style={{ margin: 'auto 0px' }}
-              key={keyForCharts}
-              data={donutData}
-            />
-          </Panel>
+          <AnimateInView delay={0.5}>
+            <Panel id="border-line" style={{ background: 'none', margin: '10px 0px', height: '483px' }}>
+              <DonutChartComponent
+                style={{ margin: 'auto 0px' }}
+                key={keyForCharts}
+                data={donutData}
+              />
+            </Panel>
+          </AnimateInView>
         </Col>
       </Row>
       <Row>
         <Col xs={24}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px' }}>
-            <LineChartComponent
-              key={keyForCharts}
-              columns={filteredColumns}
-              title="Application Activity"
-              dateRange={selectedDateRange}
-            />
-          </Panel>
+          <AnimateInView delay={0.6}>
+            <Panel id="border-line" style={{ background: 'none', margin: '10px 0px' }}>
+              <LineChartComponent
+                key={keyForCharts}
+                columns={filteredColumns}
+                title="Application Activity"
+                dateRange={selectedDateRange}
+              />
+            </Panel>
+          </AnimateInView>
+
         </Col>
       </Row>
       <Row gutter={16}>
         <Col xs={24} md={12}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden' }}>
-            <FunnelChart
-              key={keyForCharts}
-              data={funnelData}
-              title="Recruitment Funnel"
-              style={{ height: '100%', maxHeight }}
-            />
-          </Panel>
+          <AnimateInView delay={0.6}>
+
+            <Panel id="border-line" style={{ background: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden' }}>
+              <FunnelChart
+                key={keyForCharts}
+                data={funnelData}
+                title="Recruitment Funnel"
+                style={{ height: '100%', maxHeight }}
+              />
+            </Panel>
+          </AnimateInView>
+
         </Col>
         <Col xs={24} md={12}>
-          <Panel id="border-line" style={{ background: 'none', boxShadow: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden', maxHeight: maxHeight }}>
-            <RadarChartComponent
-              key={keyForCharts}
-              data={funnelData}
-              style={{ height: '100%' }}
-            />
-          </Panel>
+          <AnimateInView delay={0.7}>
+
+            <Panel id="border-line" style={{ background: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden', maxHeight: maxHeight }}>
+              <RadarChartComponent
+                key={keyForCharts}
+                data={funnelData}
+                style={{ height: '100%' }}
+              />
+            </Panel>
+          </AnimateInView>
+
         </Col>
       </Row>
     </div>

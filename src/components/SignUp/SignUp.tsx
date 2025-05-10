@@ -278,7 +278,7 @@ export default function SignUp() {
                         helperText={passwordError}
                         InputProps={{
                           endAdornment: (
-                            <IconButton
+                            <IconButton className="bar-icon-button"
                               aria-label="toggle password visibility"
                               onClick={() => setShowPassword(!showPassword)} // Toggle visibility
                               edge="end"
