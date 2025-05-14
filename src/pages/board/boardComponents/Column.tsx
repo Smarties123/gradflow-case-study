@@ -1,8 +1,9 @@
 // ColumnComponent.tsx
 
 import React from 'react';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
+import { CSS } from '@dnd-kit/utilities';
 
 import ColumnHeader from './ColumnHeader';
 import AwesomeButton from '../../../components/AwesomeButton/AwesomeButton';
@@ -27,8 +28,7 @@ type ColumnProps = {
   handleDeleteCard: (cardId: number) => void;
   handleDeleteColumnModal: (columnId: number) => void;
   isDraggingCard: boolean;
-  activeId: string | null; // **Add this prop**
-
+  activeId: string | null;
 };
 
 const ColumnComponent: React.FC<ColumnProps> = ({
@@ -41,7 +41,7 @@ const ColumnComponent: React.FC<ColumnProps> = ({
   handleTitleChange,
   handleTitleBlur,
   handleTitleKeyPress,
-  // handleDropdownOptionSelect,
+  handleDropdownOptionSelect,
   handleAddButtonClick,
   handleCardSelect,
   user,
@@ -49,16 +49,41 @@ const ColumnComponent: React.FC<ColumnProps> = ({
   handleDeleteCard,
   handleDeleteColumnModal,
   isDraggingCard,
-  activeId, // **Destructure activeId**
-
+  activeId,
 }) => {
-  // Make the column droppable using useDroppable
-  const { setNodeRef } = useDroppable({
+  // Make the column sortable using useSortable
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: String(column.id),
+    data: {
+      type: 'column',
+      column,
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  // Make the cards area droppable
+  const { setNodeRef: setCardsRef } = useDroppable({
     id: String(column.id),
   });
 
   return (
-    <div className="column-container">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`column-container ${isDragging ? 'dragging' : ''}`}
+    >
       <ColumnHeader
         column={column}
         editingColumnId={editingColumnId}
@@ -70,14 +95,18 @@ const ColumnComponent: React.FC<ColumnProps> = ({
         handleTitleBlur={handleTitleBlur}
         handleTitleKeyPress={handleTitleKeyPress}
         handleDeleteColumnModal={handleDeleteColumnModal}
-        // handleDropdownOptionSelect={handleDropdownOptionSelect}
+        handleDropdownOptionSelect={handleDropdownOptionSelect}
       />
+
+      <div className="column-drag-area" {...attributes} {...listeners}>
+        <div className="column-header-drag-handle" />
+      </div>
+
       <AwesomeButton className="addNew" onClick={() => handleAddButtonClick(column)}>
-        <span>Add New</span>
+        <span>+  Add New</span>
       </AwesomeButton>
 
-      {/* Wrap the droppable area and cards in SortableContext */}
-      <div ref={setNodeRef} className="droppable-area">
+      <div ref={setCardsRef} className="droppable-area">
         <SortableContext
           items={column.cards.map((card) => String(card.id))}
           strategy={verticalListSortingStrategy}

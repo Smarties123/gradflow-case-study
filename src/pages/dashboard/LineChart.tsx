@@ -81,7 +81,7 @@ const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title }) =
         {/* Icon button with a data-tooltip-id */}
         {/* Icon button with a data-tooltip-id */}
         <a data-tooltip-id="line">
-          <IconButton style={{ color: '#FFF' }}>
+          <IconButton className="bar-icon-button" >
             <InfoIcon />
           </IconButton>
         </a>

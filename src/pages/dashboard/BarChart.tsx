@@ -4,6 +4,7 @@ import { useData } from '../../data/useData';
 import IconButton from '@mui/material/IconButton';
 import InfoIcon from '@mui/icons-material/Info';
 import { Tooltip } from 'react-tooltip';
+import './Styles/BarChart.less';
 
 interface BarChartProps {
   title: string;
@@ -28,12 +29,12 @@ const BarChart: React.FC<BarChartProps> = ({ title, dateRange, filteredColumns }
         <div style={{ position: 'absolute', top: '-5px', left: '93%', zIndex: '10001' }}> {/* Ensure positioning context */}
           {/* Icon button with a data-tooltip-id */}
 
-          <IconButton style={{ color: '#FFF' }} data-tooltip-id="bar">
+          <IconButton className="bar-icon-button" data-tooltip-id="bar">
             <InfoIcon />
           </IconButton>
 
           {/* Tooltip with id that matches data-tooltip-id */}
-          <Tooltip id="bar" place="left" >
+          <Tooltip role="tooltip" id="bar" place="left" >
             A breakdown of job applications by status, showing counts for each stage
           </Tooltip>
         </div>
@@ -43,7 +44,6 @@ const BarChart: React.FC<BarChartProps> = ({ title, dateRange, filteredColumns }
       <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
         <select
           id="dropdownSelect"
-          style={{ border: '1px solid #FFF', borderRadius: '3px', color: '#FFF', background: 'transparent' }}
           value={timeFrame}
           aria-label="Select Period"
           onChange={(e) => setTimeFrame(e.target.value)}
@@ -55,7 +55,6 @@ const BarChart: React.FC<BarChartProps> = ({ title, dateRange, filteredColumns }
         </select>
         <select
           id="dropdownSelect"
-          style={{ border: '1px solid #FFF', borderRadius: '3px', color: '#FFF', background: 'transparent' }}
           value={stage}
           onChange={(e) => setStage(e.target.value)}
         >
@@ -69,15 +68,20 @@ const BarChart: React.FC<BarChartProps> = ({ title, dateRange, filteredColumns }
       </div>
 
       {/* Bar Chart */}
-      <ResponsiveContainer width="100%" height={330}>
-        <RechartsBarChart data={data} margin={{ top: 20, right: 5, bottom: 5, left: 5 }}>
-          <XAxis dataKey="date" />
-          <YAxis tickFormatter={formatYAxisTick} domain={[0, 'auto']} allowDecimals={false} />
-          <RechartsTooltip formatter={(value) => new Intl.NumberFormat().format(value)} />
-          <Bar dataKey="value" fill="#FF6200" barSize={30} />
-        </RechartsBarChart>
-      </ResponsiveContainer>
+      <div className="bar-chart-scroll-container">
+        <div className="bar-chart-inner">
+          <ResponsiveContainer width="100%" height={330}>
+            <RechartsBarChart data={data} margin={{ top: 20, right: 5, bottom: 5, left: 5 }}>
+              <XAxis dataKey="date" />
+              <YAxis tickFormatter={formatYAxisTick} domain={[0, 'auto']} allowDecimals={false} />
+              <RechartsTooltip formatter={(value) => new Intl.NumberFormat().format(value)} />
+              <Bar dataKey="value" fill="#FF6200" barSize={30} />
+            </RechartsBarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </div>
+
   );
 };
 

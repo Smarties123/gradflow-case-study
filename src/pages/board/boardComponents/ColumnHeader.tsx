@@ -1,7 +1,7 @@
 // ./boardComponents/ColumnHeader.tsx
 
 import React, { useRef, useEffect } from 'react';
-import { IoMdMore, IoMdTrash } from "react-icons/io";
+import { IoMdMore, IoMdTrash, IoMdCreate } from "react-icons/io";
 import { Column } from '../types';
 
 type ColumnHeaderProps = {
@@ -35,11 +35,25 @@ const ColumnHeader: React.FC<ColumnHeaderProps> = ({
   useEffect(() => {
     if (editingColumnId === column.id && inputRef.current) {
       inputRef.current.focus();
+      inputRef.current.select();
     }
   }, [editingColumnId, column.id]);
 
+  const handleTitleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleIconClick(column.id, column.title);
+    if (showDropdown === column.id) {
+      handleDropdownClick(column.id);
+    }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleDeleteColumnModal(column.id);
+  };
+
   return (
-    <div style={{ maxWidth: '100%' }} className={`column-header ${editingColumnId === column.id ? 'editing' : ''}`}>
+    <div className={`column-header ${editingColumnId === column.id ? 'editing' : ''}`}>
       {editingColumnId !== column.id && (
         <p className="column-counter">{column.cards.length}</p>
       )}
@@ -54,34 +68,38 @@ const ColumnHeader: React.FC<ColumnHeaderProps> = ({
               onChange={handleTitleChange}
               onBlur={handleTitleBlur}
               onKeyPress={handleTitleKeyPress}
-              autoFocus
               maxLength={10}
-              className='input-group'
               style={{ fontSize: 'inherit' }}
             />
           </div>
         ) : (
-          <div className="column-title" onClick={() => handleIconClick(column.id, column.title)}>
+          <div className="column-title" onClick={handleTitleClick}>
             <h2>{column.title}</h2>
           </div>
         )}
       </div>
+
       {editingColumnId !== column.id && (
         <button
           className="icon-button"
-          onClick={() => handleDropdownClick(column.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDropdownClick(column.id);
+          }}
         >
           <IoMdMore />
         </button>
       )}
+
       {showDropdown === column.id && (
         <div className="dropdown">
           <ul>
-            {column.cards.length === 0 && (
-              <li onClick={() => handleDeleteColumnModal(column.id)}>
-                <IoMdTrash /> Delete Status
-              </li>
-            )}
+            <li onClick={handleTitleClick}>
+              <IoMdCreate /> Edit Title
+            </li>
+            <li onClick={handleDeleteClick}>
+              <IoMdTrash /> Delete Status
+            </li>
           </ul>
         </div>
       )}

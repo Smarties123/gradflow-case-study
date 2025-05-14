@@ -204,7 +204,7 @@ export default function AboutUs() {
               }} network="tiktok" onClick={() => window.open("https://www.tiktok.com/@gradflow", "_blank")} />
 
               {/* Email
-              <IconButton
+              <IconButton className="bar-icon-button"
                 onClick={() => (window.location.href = "mailto:gradflowinc@gmail.com")}
                 aria-label="Email"
               >

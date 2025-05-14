@@ -99,7 +99,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode, maxHe
       <h4>{title}</h4>
       <div style={{ position: 'relative', top: '-35px', left: '93%' }}> {/* Ensure positioning context */}
 
-        <IconButton style={{ color: '#FFF' }} data-tooltip-id="funnel">
+        <IconButton className="bar-icon-button" data-tooltip-id="funnel">
           <InfoIcon />
         </IconButton>
         {/* Tooltip with id that matches data-tooltip-id */}

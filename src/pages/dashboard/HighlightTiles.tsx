@@ -1,10 +1,11 @@
 import React from 'react';
 import { Col, Row } from 'rsuite';
-import { useSpring, animated } from 'react-spring';
 import './Styles/HighlightTile.less';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
+import { useSpring, useTrail, animated, useSprings } from 'react-spring';
+
 
 // Highlight Tile Component
 interface HighlightTileProps {
@@ -44,28 +45,58 @@ interface HighlightTilesProps {
   data: { title: string; value: number; color: string; icon: React.ReactNode }[];
 }
 
+
+const AnimatedCol = animated(Col);
+
 const HighlightTiles: React.FC<HighlightTilesProps> = ({ data }) => {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const items = [{ title: "ALL", value: total, color: "#FF8C00", icon: null }, ...data];
+  const maxRotation = 180;
+  const step = maxRotation / items.length;
+
+  const springs = useSprings(
+    items.length,
+    items.map((_, index) => ({
+      from: {
+        opacity: 0,
+        transform: `rotateY(${step * index}deg) translateY(-50px)`
+      },
+      to: {
+        opacity: 1,
+        transform: 'rotateY(0deg) translateY(0px)'
+      },
+      config: { mass: 1, tension: 700, friction: 400 },
+      delay: index * 120,  // Staggered effect
+    }))
+  );
+
   return (
     <Row gutter={16} className="highlight-tiles-row">
-      {data.map((item, index) => (
-        <Col
-          key={index}
-          xs={12}  // Mobile: 2 tiles per row
-          sm={12}  // Small screens: 2 tiles per row
-          md={8}   // Medium screens: 3 tiles per row
-          lg={6}   // Large screens: 4 tiles per row
-          xl={3}   // Extra large screens: 6 tiles per row
-        >
-          <HighlightTile
-            title={item.title}
-            value={item.value}
-            color={item.color}
-            icon={item.icon}
-          />
-        </Col>
-      ))}
+      {springs.map((style, index) => {
+        const item = items[index];
+        return (
+          <AnimatedCol
+            key={index}
+            style={style}
+            xs={12}
+            sm={12}
+            md={8}
+            lg={6}
+            xl={3}
+          >
+            <HighlightTile
+              title={item.title}
+              value={item.value}
+              color={item.color}
+              icon={item.icon}
+            />
+          </AnimatedCol>
+        );
+      })}
     </Row>
   );
 };
+
+
 
 export default HighlightTiles;
