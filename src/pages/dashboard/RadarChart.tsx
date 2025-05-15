@@ -119,7 +119,7 @@ const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data, maxHeig
             <div style={{ position: 'absolute', top: '0px', left: '90%', zIndex: 1001 }}> {/* Ensure positioning context */}
                 {/* Icon button with a data-tooltip-id */}
                 <a data-tooltip-id="radar" style={{ cursor: 'pointer' }}>
-                    <IconButton style={{ color: '#FFF' }}>
+                    <IconButton className="bar-icon-button" >
                         <InfoIcon />
                     </IconButton>
                 </a>

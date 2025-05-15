@@ -9,7 +9,7 @@ export default () => (
     <p className="error-page-subtitle text-muted ">
       We are sorry but the page you are looking for was not found
     </p>
-    <IconButton icon={<ArrowLeftLine />} appearance="primary" href="/">
+    <IconButton className="bar-icon-button" icon={<ArrowLeftLine />} appearance="primary" href="/">
       Take me home
     </IconButton>
   </ErrorPage>

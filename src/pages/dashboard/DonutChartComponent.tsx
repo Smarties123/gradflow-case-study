@@ -78,7 +78,7 @@ const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
       <div style={{ position: 'absolute', top: '37px', left: '85%', zIndex: '10001' }}> {/* Ensure positioning context */}
         {/* Icon button with a data-tooltip-id */}
         <a data-tooltip-id="donut">
-          <IconButton style={{ color: '#FFF' }}>
+          <IconButton className="bar-icon-button" >
             <InfoIcon />
           </IconButton>
         </a>

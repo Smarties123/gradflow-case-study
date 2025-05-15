@@ -363,8 +363,8 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                                 />
                             </div>
                         ) : (
-                            <div className="input-wrapper" style={{ marginBottom: '17px', }}>
-                                <label className="bordered-label" style={{ padding: '0px 10px' }}>Choose a Status</label>
+                            <div className="input-wrapper" style={{ marginBottom: '4vb', }}>
+                                <label className="bordered-label">Choose a Status</label>
                                 <select
                                     value={selectedColumn}
                                     onChange={(e) => setSelectedColumn(parseInt(e.target.value))}
