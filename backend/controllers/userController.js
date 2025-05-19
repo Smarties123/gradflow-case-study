@@ -62,7 +62,7 @@ export const signUp = async (req, res) => {
     // Proceed with user creation
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password") VALUES ($1, $2, $3) RETURNING "UserId"';
-    const values = [username, email, hashedPassword];
+    const values = [username.toLowerCase(), email, hashedPassword];
 
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
@@ -152,7 +152,7 @@ export const googleSignUp = async (req, res) => {
       VALUES ($1, $2, $3, $4)
       RETURNING "UserId"
     `;
-    const values = [uniqueUsername, email, firebaseUid, profilePicture];
+    const values = [uniqueUsername.toLowerCase(), email, firebaseUid, profilePicture];
     const result = await pool.query(insertUserQuery, values);
     const userId = result.rows[0].UserId;
 
