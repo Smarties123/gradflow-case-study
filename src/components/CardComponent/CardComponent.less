@@ -244,3 +244,35 @@
     min-width: 10px;
   }
 }
+
+@keyframes pixelate {
+  0% {
+    filter: none;
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  30% {
+    filter: contrast(400%) saturate(2);
+    transform: scale(1.03);
+    opacity: 0.9;
+  }
+
+  60% {
+    filter: blur(1px) contrast(200%) grayscale(0.5);
+    transform: scale(0.97);
+    opacity: 0.6;
+  }
+
+  100% {
+    filter: blur(3px) contrast(800%) grayscale(1);
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+.pixelate-out {
+  animation: pixelate 0.5s ease-out forwards;
+  pointer-events: none;
+  // outline: 2px solid red;
+}

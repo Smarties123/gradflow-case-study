@@ -35,7 +35,7 @@
 .drawer-links {
     a {
         cursor: pointer;
-        0px 0px 10px text-decoration: none;
+        text-decoration: none;
         color: #787777;
         font-weight: bold;
         transition: color 0.3s ease, background-color 0.3s ease;
@@ -352,10 +352,19 @@
 
 .attach-existing-file {
     margin: 1rem 0;
-  
+
     .attach-file-row {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
     }
-  }
+}
+
+.rs-drawer {
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+.rs-drawer.drawer-closing {
+    transform: translateX(100%);
+    opacity: 0;
+}
