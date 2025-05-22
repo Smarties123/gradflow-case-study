@@ -63,11 +63,11 @@ const Frame = () => {
   }, [tab]);
 
   useEffect(() => {
-    // const isNewUser = localStorage.getItem('isNewUser');
-    // if (isNewUser === 'true') {
-    setShowTutorial(true);
-    // localStorage.removeItem('isNewUser'); // Remove the flag after showing the tutorial
-    // }
+    const isNewUser = localStorage.getItem('isNewUser');
+    if (isNewUser === 'true') {
+      setShowTutorial(true);
+      localStorage.removeItem('isNewUser'); // Remove the flag after showing the tutorial
+    }
   }, []);
 
   useEffect(() => {
