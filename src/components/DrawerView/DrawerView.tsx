@@ -275,7 +275,8 @@ const DrawerView = ({
           ? dayjs(formData.date_applied).format('YYYY-MM-DD')
           : null,
         card_color: formData.card_color,
-        statusId: formData.StatusId || card.StatusId
+        statusId: formData.StatusId || card.StatusId,
+        companyLogo: formData.companyLogo
       };
 
       if (!user?.token) {
