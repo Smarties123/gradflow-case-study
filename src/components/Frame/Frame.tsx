@@ -54,7 +54,7 @@ const Frame = () => {
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const tab = params.get('tab') ; 
+  const tab = params.get('tab');
 
   useEffect(() => {
     if (tab) {
@@ -63,11 +63,11 @@ const Frame = () => {
   }, [tab]);
 
   useEffect(() => {
-    const isNewUser = localStorage.getItem('isNewUser');
-    if (isNewUser === 'true') {
-      setShowTutorial(true);
-      localStorage.removeItem('isNewUser'); // Remove the flag after showing the tutorial
-    }
+    // const isNewUser = localStorage.getItem('isNewUser');
+    // if (isNewUser === 'true') {
+    setShowTutorial(true);
+    // localStorage.removeItem('isNewUser'); // Remove the flag after showing the tutorial
+    // }
   }, []);
 
   useEffect(() => {
@@ -227,11 +227,11 @@ const Frame = () => {
         </Container>
 
         <SettingsView show={showSettings} onClose={() => {
-            setShowSettings(false);
-            navigate('/main', { replace: true });
-          }}
- initialTab={tab}/>
-        {showTutorial && <TutorialPopup />}
+          setShowSettings(false);
+          navigate('/main', { replace: true });
+        }}
+          initialTab={tab} />
+        {showTutorial && <TutorialPopup onClose={() => setShowTutorial(false)} />}
         <FeedbackPopup show={showFeedbackPopup} onClose={() => setShowFeedbackPopup(false)} />
         <OnDemandFeedbackPopup
           show={isFeedbackPopupOpen}
