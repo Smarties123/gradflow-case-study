@@ -33,6 +33,7 @@ const DrawerView = ({
   const [currentView, setCurrentView] = useState<'details' | 'documents' | 'notes'>('details');
   const [errors, setErrors] = useState({});
   const [appFiles, setAppFiles] = useState([]);
+  const [isClosing, setIsClosing] = useState(false);
 
   // Hover & File popup
   const [hoveredFileId, setHoveredFileId] = useState(null);
@@ -345,9 +346,23 @@ const DrawerView = ({
   const documentsProgress = calculateProgressPercentage(documentsFields);
   const notesProgress = calculateProgressPercentage(notesFields);
 
+  const handleDrawerClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 300); // Match this with the CSS transition duration
+  };
+
   return (
     <>
-      <Drawer open={show} onClose={onClose} size={drawerSize} placement={drawerPlacement}>
+      <Drawer
+        open={show && !isClosing}
+        onClose={handleDrawerClose}
+        size={drawerSize}
+        placement={drawerPlacement}
+        className={isClosing ? 'drawer-closing' : ''}
+      >
         <Drawer.Header>
           <Drawer.Title>Edit Card</Drawer.Title>
           <FlexboxGrid justify="space-between" className="drawer-links">
