@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Grid, Row, Col, Input, DatePicker, SelectPicker } from 'rsuite';
 import Github from '@uiw/react-color-github';
 import { FormHelperText } from '@mui/material';
@@ -13,6 +13,61 @@ const DetailsView = ({
   statuses,
   card
 }) => {
+
+  const [companySuggestions, setCompanySuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestionSelected, setSuggestionSelected] = useState(false);
+
+  useEffect(() => {
+    const trimmed = formData.company.trim();
+
+    if (trimmed.length >= 3 && !suggestionSelected) {
+      fetch(`${process.env.REACT_APP_API_URL}/company-search?q=${encodeURIComponent(trimmed)}`)
+        .then(res => res.ok ? res.json() : [])
+        .then(data => {
+          setCompanySuggestions(data.slice(0, 5));
+          setShowSuggestions(true);
+        })
+        .catch(console.error);
+    } else {
+      setShowSuggestions(false);
+      setCompanySuggestions([]);
+    }
+  }, [formData.company, suggestionSelected]);
+
+
+  const onCompanyChange = (value) => {
+    handleChange(value, 'company');
+
+    if (value.trim().length < 3) {
+      setShowSuggestions(false);
+      setCompanySuggestions([]);
+    }
+
+    if (value.trim() === '') {
+      handleChange('', 'companyLogo');
+    }
+
+    setSuggestionSelected(false);
+  };
+
+
+
+  const onCompanyKeyDown = (e) => {
+    if (e.key === 'Enter' && companySuggestions.length) {
+      e.preventDefault();
+      onSuggestionClick(companySuggestions[0]);
+    }
+  };
+
+  const onSuggestionClick = (s) => {
+    handleChange(s.name, 'company');
+    handleChange(s.logo_url, 'companyLogo');
+    setSuggestionSelected(true);
+    setShowSuggestions(false);
+  };
+
+
   return (
     <Form fluid>
       <Grid fluid>
@@ -26,7 +81,12 @@ const DetailsView = ({
                 <Form.Control
                   name="company"
                   value={formData.company}
-                  onChange={(value) => handleChange(value, 'company')}
+                  onChange={onCompanyChange}
+                  onKeyDown={onCompanyKeyDown}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+
+
+
                   className="full-width"
                 />
                 {formData.companyLogo && (
@@ -35,6 +95,25 @@ const DetailsView = ({
                     alt={formData.company}
                     className="drawer-company-logo"
                   />
+                )}
+
+                {showSuggestions && companySuggestions.length > 0 && (
+                  <ul className="suggestions-list">
+                    {companySuggestions.map((s, i) => (
+                      <li key={i} onClick={() => onSuggestionClick(s)}>
+                        {s.logo_url && (
+                          <img
+                            src={s.logo_url}
+                            alt={s.name}
+                            className="company-logo-modal"
+                          />
+                        )}
+                        <div className="company-details">
+                          <span className="company-name-modal">{s.name}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
             </Form.Group>

@@ -62,7 +62,7 @@ export const signUp = async (req, res) => {
     // Proceed with user creation
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password") VALUES ($1, $2, $3) RETURNING "UserId"';
-    const values = [username, email, hashedPassword];
+    const values = [username.toLowerCase(), email, hashedPassword];
 
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
@@ -152,7 +152,7 @@ export const googleSignUp = async (req, res) => {
       VALUES ($1, $2, $3, $4)
       RETURNING "UserId"
     `;
-    const values = [uniqueUsername, email, firebaseUid, profilePicture];
+    const values = [uniqueUsername.toLowerCase(), email, firebaseUid, profilePicture];
     const result = await pool.query(insertUserQuery, values);
     const userId = result.rows[0].UserId;
 
@@ -213,8 +213,10 @@ export const login = async (req, res) => {
   }
 
   try {
-    const query = 'SELECT * FROM "Users" WHERE "Email" = $1';
+    
+    const query = 'SELECT * FROM "Users" WHERE LOWER("Email") = LOWER($1)';
     const { rows } = await pool.query(query, [email]);
+
 
     if (rows.length === 0) {
       return res.status(404).json({ message: 'No account associated with this email.' });
@@ -232,7 +234,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Incorrect password. Please try again.' });
     }
 
-    const token = jwt.sign({ userId: user.UserId, email: user.Email }, SECRET_KEY);
+    const token = jwt.sign({ userId: user.UserId, email: user.Email.toLowerCase() }, SECRET_KEY);
     return res.status(200).json({
       message: 'Login successful!',
       token,
