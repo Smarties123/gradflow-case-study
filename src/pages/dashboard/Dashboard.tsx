@@ -211,7 +211,7 @@ const Dashboard: React.FC = () => {
       <Row>
         <Col xs={24}>
           <AnimateInView delay={0.6}>
-            <Panel id="border-line" style={{ background: 'none', margin: '10px 0px' }}>
+            <Panel style={{ background: 'none', margin: '10px 0px' }}>
               <LineChartComponent
                 key={keyForCharts}
                 columns={filteredColumns}

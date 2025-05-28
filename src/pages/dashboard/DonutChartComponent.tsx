@@ -1,10 +1,7 @@
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 import './Styles/DonutChartComponent.less';
-import IconButton from '@mui/material/IconButton';
-import InfoIcon from '@mui/icons-material/Info';
 import PieChartOutlineIcon from '@mui/icons-material/PieChartOutline';
-import { Tooltip } from 'react-tooltip';
 
 interface DonutChartComponentProps {
   data: { name: string; value: number; color: string }[];

@@ -1,13 +1,8 @@
 import React, { useMemo } from 'react';
-import InfoIcon from '@mui/icons-material/Info';
-import IconButton from '@mui/material/IconButton';
-import { Tooltip } from 'react-tooltip';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BsGraphUp } from "react-icons/bs";
+import './Styles/LineChart.less';
 
-interface LineChartData {
-  name: string;
-  [key: string]: number;  // Dynamically handle any column name
-}
 
 interface LineChartProps {
   columns: { title: string; cards: { date_applied: string }[] }[];  // Ensure correct typing for `columns` and `cards`
@@ -74,22 +69,14 @@ const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title }) =
 
 
   return (
-    <div>
-      <h4 style={{ color: '#FFF', textAlign: 'left' }}>{title}</h4>
-
-      <div style={{ position: 'relative', top: '-35px', left: '95%', zIndex: 1001 }}> {/* Ensure positioning context */}
-        {/* Icon button with a data-tooltip-id */}
-        {/* Icon button with a data-tooltip-id */}
-        <a data-tooltip-id="line">
-          <IconButton className="bar-icon-button" >
-            <InfoIcon />
-          </IconButton>
-        </a>
-        {/* Tooltip with id that matches data-tooltip-id */}
-        <Tooltip id="line" place="bottom" >
-          Trend of application statuses over the past months
-        </Tooltip>
+    <div className="line-chart-container" style={{ position: 'relative' }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', alignSelf: 'flex-start',
+      }}>
+        <BsGraphUp style={{ color: '#F26203', fontSize: '22px' }} />
+        <h4 className="line-chart-title" style={{ fontWeight: 600, fontSize: '19px' }} >{title}</h4>
       </div>
+
       <ResponsiveContainer width="100%" height={400}>
         <LineChart
           data={lineChartData}

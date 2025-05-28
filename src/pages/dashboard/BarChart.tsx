@@ -10,9 +10,6 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { useData } from '../../data/useData';
-import IconButton from '@mui/material/IconButton';
-import InfoIcon from '@mui/icons-material/Info';
-import { Tooltip as ReactTooltip } from 'react-tooltip';
 import './Styles/BarChart.less';
 import BarChartIcon from '@mui/icons-material/BarChart';
 
