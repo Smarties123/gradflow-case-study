@@ -185,7 +185,7 @@ const Dashboard: React.FC = () => {
       <Row gutter={16} style={{ margin: '0px -8px' }}>
         <Col xs={24} md={12}>
           <AnimateInView delay={0.3}>
-            <Panel id="border-line" style={{ background: 'none', margin: '10px 0px', height: '100%' }}>
+            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%' }}>
               <BarChart
                 key={keyForCharts}
                 dropdownType={filteredColumns.map(column => column.title)}
@@ -198,7 +198,7 @@ const Dashboard: React.FC = () => {
         </Col>
         <Col xs={24} md={12}>
           <AnimateInView delay={0.5}>
-            <Panel id="border-line" style={{ background: 'none', margin: '10px 0px', height: '483px' }}>
+            <Panel style={{ background: 'none', margin: '10px 0px', height: '483px' }}>
               <DonutChartComponent
                 style={{ margin: 'auto 0px' }}
                 key={keyForCharts}
@@ -252,7 +252,7 @@ const Dashboard: React.FC = () => {
 
         </Col>
       </Row>
-    </div>
+    </div >
   );
 };
 
