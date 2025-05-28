@@ -227,7 +227,7 @@ const Dashboard: React.FC = () => {
         <Col xs={24} md={12}>
           <AnimateInView delay={0.6}>
 
-            <Panel id="border-line" style={{ background: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden' }}>
+            <Panel style={{ background: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden' }}>
               <FunnelChart
                 key={keyForCharts}
                 data={funnelData}
