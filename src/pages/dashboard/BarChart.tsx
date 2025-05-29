@@ -27,25 +27,13 @@ interface BarChartProps {
   title: string;
   dateRange: [Date, Date] | null;
   filteredColumns: any[];
+  isLight: boolean;
 }
 
-const BarChart: React.FC<BarChartProps> = ({ title, dateRange, filteredColumns }) => {
+const BarChart: React.FC<BarChartProps> = ({ title, dateRange, filteredColumns, isLight }) => {
   const [timeFrame, setTimeFrame] = useState('Select Period');
   const [stage, setStage] = useState('Select Type');
-  const [isLight, setIsLight] = useState(document.body.classList.contains('rs-theme-light'));
 
-  useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          setIsLight(document.body.classList.contains('rs-theme-light'));
-        }
-      });
-    });
-
-    observer.observe(document.body, { attributes: true });
-    return () => observer.disconnect();
-  }, []);
 
   const data = useData({ columns: filteredColumns, timeFrame, stage, dateRange });
 

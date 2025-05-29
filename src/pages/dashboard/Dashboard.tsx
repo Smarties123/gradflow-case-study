@@ -43,6 +43,21 @@ const Dashboard: React.FC = () => {
 
   const hasColumns = columns && columns.length > 0;
 
+  const [isLight, setIsLight] = useState(document.body.classList.contains('rs-theme-light'));
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          setIsLight(document.body.classList.contains('rs-theme-light'));
+        }
+      });
+    });
+
+    observer.observe(document.body, { attributes: true });
+    return () => observer.disconnect();
+  }, []);
+
   const filteredColumns = useMemo(() => {
     if (!hasColumns) return [];
     if (!selectedDateRange) return columns.slice(0, 1000);
@@ -165,14 +180,14 @@ const Dashboard: React.FC = () => {
         <Col xs={24} style={{ paddingLeft: '0px' }}>
           <AnimateInView delay={0}>
 
-            <HighlightTiles data={highlightData} />
+            <HighlightTiles data={highlightData} isLight={isLight} />
           </AnimateInView>
         </Col>
       </Row>
 
       <Row>
         <Col xs={24}>
-          <AnimateInView delay={0.2}>
+          <AnimateInView delay={0.1}>
             <DateRangePicker
               appearance="default"
               placeholder="Select Date Range"
@@ -184,7 +199,7 @@ const Dashboard: React.FC = () => {
       </Row>
       <Row gutter={16} style={{ margin: '0px -8px' }}>
         <Col xs={24} md={12}>
-          <AnimateInView delay={0.3}>
+          <AnimateInView delay={0.1}>
             <Panel style={{ background: 'none', margin: '10px 0px', height: '100%' }}>
               <BarChart
                 key={keyForCharts}
@@ -192,17 +207,19 @@ const Dashboard: React.FC = () => {
                 title="Jobs Created"
                 dateRange={selectedDateRange}
                 filteredColumns={filteredColumns}
+                isLight={isLight}
               />
             </Panel>
           </AnimateInView>
         </Col>
         <Col xs={24} md={12}>
-          <AnimateInView delay={0.5}>
+          <AnimateInView delay={0.1}>
             <Panel style={{ background: 'none', margin: '10px 0px', height: '483px' }}>
               <DonutChartComponent
                 style={{ margin: 'auto 0px' }}
                 key={keyForCharts}
                 data={donutData}
+                isLight={isLight}
               />
             </Panel>
           </AnimateInView>
@@ -210,13 +227,14 @@ const Dashboard: React.FC = () => {
       </Row>
       <Row>
         <Col xs={24}>
-          <AnimateInView delay={0.6}>
+          <AnimateInView delay={0.1}>
             <Panel style={{ background: 'none', margin: '10px 0px' }}>
               <LineChartComponent
                 key={keyForCharts}
                 columns={filteredColumns}
                 title="Application Activity"
                 dateRange={selectedDateRange}
+                isLight={isLight}
               />
             </Panel>
           </AnimateInView>
@@ -225,7 +243,7 @@ const Dashboard: React.FC = () => {
       </Row>
       <Row gutter={16}>
         <Col xs={24} md={12}>
-          <AnimateInView delay={0.6}>
+          <AnimateInView delay={0.1}>
 
             <Panel style={{ background: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden' }}>
               <FunnelChart
@@ -233,19 +251,22 @@ const Dashboard: React.FC = () => {
                 data={funnelData}
                 title="Recruitment Funnel"
                 style={{ height: '100%', maxHeight }}
+                isLight={isLight}
               />
             </Panel>
           </AnimateInView>
 
         </Col>
         <Col xs={24} md={12}>
-          <AnimateInView delay={0.7}>
+          <AnimateInView delay={0.1}>
 
-            <Panel id="border-line" style={{ background: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden', maxHeight: maxHeight }}>
+            <Panel style={{ background: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden', maxHeight: maxHeight }}>
               <RadarChartComponent
                 key={keyForCharts}
                 data={funnelData}
+                title="Performance Radar"
                 style={{ height: '100%' }}
+                isLight={isLight}
               />
             </Panel>
           </AnimateInView>

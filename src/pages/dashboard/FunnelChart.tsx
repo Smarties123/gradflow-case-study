@@ -15,15 +15,11 @@ interface FunnelChartProps {
   data: FunnelChartData[];
   mode: 'light' | 'dark';
   maxHeight?: string;
+  isLight: boolean;
 }
 
-const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode, maxHeight }) => {
+const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode, maxHeight, isLight }) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
-  const [isLight, setIsLight] = useState(mode === 'light');
-
-  useEffect(() => {
-    setIsLight(mode === 'light');
-  }, [mode]);
 
   useEffect(() => {
     if (!chartRef.current) return;
@@ -91,7 +87,7 @@ const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode, maxHe
         dropShadow: {
           enabled: true,
           opacity: 0.3,
-          blur: 3,
+          blur: 1,
           left: 0,
           top: 0
         }

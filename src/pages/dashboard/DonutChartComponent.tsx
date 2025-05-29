@@ -5,15 +5,14 @@ import PieChartOutlineIcon from '@mui/icons-material/PieChartOutline';
 
 interface DonutChartComponentProps {
   data: { name: string; value: number; color: string }[];
+  isLight: boolean;
 }
 
-const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
+const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data, isLight }) => {
   const series = data.map(item => item.value);
   const labels = data.map(item => item.name);
   const colors = data.map(item => item.color);
   const total = series.reduce((sum, val) => sum + val, 0);
-
-  const isLight = document.body.classList.contains('rs-theme-light');
 
 
   const options = {

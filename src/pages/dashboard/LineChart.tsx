@@ -6,24 +6,11 @@ import './Styles/LineChart.less';
 interface LineChartProps {
   columns: { title: string; cards: { date_applied: string }[] }[];
   title: string;
+  isLight: boolean;
 }
 
-const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title }) => {
+const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title, isLight }) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
-  const [isLight, setIsLight] = useState(document.body.classList.contains('rs-theme-light'));
-
-  useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          setIsLight(document.body.classList.contains('rs-theme-light'));
-        }
-      });
-    });
-
-    observer.observe(document.body, { attributes: true });
-    return () => observer.disconnect();
-  }, []);
 
   const { lineChartData, columnTitles } = useMemo(() => {
     const dataMap: { [key: string]: any } = {};
