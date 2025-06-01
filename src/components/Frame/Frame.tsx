@@ -16,12 +16,14 @@ import FeedbackIcon from '@mui/icons-material/Feedback';
 import { CiSettings } from 'react-icons/ci';
 import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
 import { handleButtonClick } from '../FeedbackButton/FeedbackButton';
-
+import { useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import TutorialPopup from '../TutorialPopup/TutorialPopup'; // Adjust the path if necessary
 import FeedbackPopup from '../Feedback/FeedbackPopup';
 import OnDemandFeedbackPopup from '../Feedback/OnDemandFeedback';
 import { useUser } from '@/components/User/UserContext'; // Adjust the import path as needed
 import NewButton from '../NewButton/NewButton';
+import UpdatedButton from '../UpdateButton/UpdatedButton';
 
 const { getHeight, on } = DOMHelper;
 
@@ -40,6 +42,7 @@ const NavItem = ({ title, eventKey, animate, ...rest }) => {
 
 const Frame = () => {
   const { user } = useUser(); // Access user from context
+  const navigate = useNavigate();
 
   const [expand, setExpand] = useState(true);
   const [windowHeight, setWindowHeight] = useState(getHeight(window));
@@ -50,7 +53,15 @@ const Frame = () => {
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
   const [isFeedbackPopupOpen, setFeedbackPopupOpen] = useState(false);
 
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const tab = params.get('tab');
 
+  useEffect(() => {
+    if (tab) {
+      setShowSettings(true);
+    }
+  }, [tab]);
 
   useEffect(() => {
     const isNewUser = localStorage.getItem('isNewUser');
@@ -142,7 +153,12 @@ const Frame = () => {
             >
               <Nav>
                 <NavItem
-                  title="Panel"
+                  title={
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <span>Panel</span>
+                      <UpdatedButton />
+                    </div>
+                  }
                   to="/main"
                   eventKey="panel"
                   icon={<Icon as={HiOutlineViewBoards} />}
@@ -156,7 +172,12 @@ const Frame = () => {
                   animate={animate} // Pass the animate state
                 />
                 <NavItem
-                  title="Dashboard"
+                  title={
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <span>Dashboard</span>
+                      <UpdatedButton />
+                    </div>
+                  }
                   to="/main/dashboard"
                   eventKey="dashboard"
                   icon={<Icon as={MdDashboard} />}
@@ -170,12 +191,7 @@ const Frame = () => {
                   animate={animate} // Pass the animate state
                 /> */}
                 <NavItem
-                  title={
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                      <span>Files</span>
-                      <NewButton />
-                    </div>
-                  }
+                  title="Files"
                   to="/main/files"
                   eventKey="files"
                   icon={<Icon as={TbFiles} />}
@@ -216,8 +232,12 @@ const Frame = () => {
           </Content>
         </Container>
 
-        <SettingsView show={showSettings} onClose={() => setShowSettings(false)} />
-        {showTutorial && <TutorialPopup />}
+        <SettingsView show={showSettings} onClose={() => {
+          setShowSettings(false);
+          navigate('/main', { replace: true });
+        }}
+          initialTab={tab} />
+        {showTutorial && <TutorialPopup onClose={() => setShowTutorial(false)} />}
         <FeedbackPopup show={showFeedbackPopup} onClose={() => setShowFeedbackPopup(false)} />
         <OnDemandFeedbackPopup
           show={isFeedbackPopupOpen}

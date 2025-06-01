@@ -10,8 +10,9 @@
   height: 70px;
   transition: transform 0.3s ease, box-shadow 0.2s ease, margin 0.3s ease;
   cursor: pointer !important;
-    position: relative; /* Make card position relative for absolute positioning of icons */
- 
+  position: relative;
+  /* Make card position relative for absolute positioning of icons */
+
   /* Default to pointer (hand) cursor on hover */
   /* Smooth transitions */
 
@@ -90,16 +91,17 @@
 .company-name {
   font-size: 16px;
   font-weight: bold;
-  // max-width: 80%; /* Constrain the width to avoid overflowing */
+  max-width: 235px;
+  /* Constrain the width to avoid overflowing */
   white-space: nowrap;
   /* Ensure text stays on one line */
   overflow: hidden;
   /* Hide overflowed text */
-  // text-overflow: ellipsis;
+  text-overflow: ellipsis;
   /* Add '...' to truncated text */
-  width: fit-content;
-  position: relative;
-  width: auto;
+  // width: fit-content;
+  // position: relative;
+  // width: auto;
   //   -webkit-transition: 0.5s ease-in;
   //   -moz-transition: 0.5s ease-in;
   //   -o-transition: 0.5s ease-in;
@@ -107,7 +109,8 @@
 }
 
 .card-content:hover .company-name.scroll {
-  animation: scrollText 7s linear infinite; /* Smooth scrolling text animation */
+  animation: scrollText 7s linear infinite;
+  /* Smooth scrolling text animation */
 }
 
 .company-name.scroll {
@@ -121,14 +124,15 @@
   // color: #333;
 
   // font-weight: bold;
-  // max-width: 80%; /* Constrain the width to avoid overflowing */
+  max-width: 235px;
+  /* Constrain the width to avoid overflowing */
   white-space: nowrap;
   /* Ensure text stays on one line */
   overflow: hidden;
   /* Hide overflowed text */
   text-overflow: ellipsis;
   /* Add '...' to truncated text */
-  width: fit-content;
+  // width: fit-content;
 }
 
 .position {
@@ -164,9 +168,11 @@
   margin-right: -2px;
   opacity: 0;
   right: 0px;
-  top: 50%; /* Position vertically centered */
+  top: 50%;
+  /* Position vertically centered */
   // transform: translateY(-50%); /* Center vertically */
-  opacity: 0;  /* Initially hidden */
+  opacity: 0;
+  /* Initially hidden */
   /* Initially hidden */
   // transition: opacity 0.3s ease; /* Smooth transition for appearance */
 }
@@ -223,10 +229,13 @@
 
 @keyframes scrollText {
   0% {
-    text-indent: 0; /* Start at normal position */
+    text-indent: 0;
+    /* Start at normal position */
   }
+
   100% {
-    text-indent: -100%; /* Scroll all the way to the left */
+    text-indent: -100%;
+    /* Scroll all the way to the left */
   }
 }
 
@@ -234,4 +243,36 @@
   .card {
     min-width: 10px;
   }
+}
+
+@keyframes pixelate {
+  0% {
+    filter: none;
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  30% {
+    filter: contrast(400%) saturate(2);
+    transform: scale(1.03);
+    opacity: 0.9;
+  }
+
+  60% {
+    filter: blur(1px) contrast(200%) grayscale(0.5);
+    transform: scale(0.97);
+    opacity: 0.6;
+  }
+
+  100% {
+    filter: blur(3px) contrast(800%) grayscale(1);
+    transform: scale(0.8);
+    opacity: 0;
+  }
+}
+
+.pixelate-out {
+  animation: pixelate 0.5s ease-out forwards;
+  pointer-events: none;
+  // outline: 2px solid red;
 }

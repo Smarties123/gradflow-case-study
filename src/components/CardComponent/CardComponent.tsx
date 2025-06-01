@@ -5,6 +5,7 @@ import DeleteModal from '../../components/DeleteStatus/DeleteStatus';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createPortal } from 'react-dom';
+import { deleteCard } from '../../utils/deleteCard';
 
 const CardComponent = ({
   card,
@@ -17,6 +18,22 @@ const CardComponent = ({
   const [isFavorited, setIsFavorited] = useState(card.Favourite || false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isLongCompanyName, setIsLongCompanyName] = useState(false);
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const listener = (e) => {
+      if (e.detail.cardId === card.id) {
+        setIsDeleting(true);
+        setTimeout(() => {
+          onDelete(card.id); // Now safely remove it
+        }, 500); // match animation time
+      }
+    };
+
+    document.addEventListener('triggerCardDelete', listener);
+    return () => document.removeEventListener('triggerCardDelete', listener);
+  }, [card.id, onDelete]);
 
   useEffect(() => {
     setIsFavorited(card.Favourite);
@@ -62,29 +79,6 @@ const CardComponent = ({
   const handleDeleteClick = (e) => {
     e.stopPropagation(); // Prevent event bubbling
     setIsDeleteModalOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/applications/${card.id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        onDelete(card.id);
-        setIsDeleteModalOpen(false);
-      } else {
-        console.error('Failed to delete the application');
-      }
-    } catch (error) {
-      console.error('Error deleting the application:', error);
-    }
   };
 
   const stopPropagation = (e) => {
@@ -134,8 +128,7 @@ const CardComponent = ({
         style={style}
         {...attributes}
         {...listeners}
-        className={`card ${isDragging ? 'is-dragging' : ''} ${isFavorited ? 'always-show-icons' : ''
-          }`}
+        className={`card ${isDragging ? 'is-dragging' : ''} ${isFavorited ? 'always-show-icons' : ''} ${isDeleting ? 'pixelate-out' : ''}`}
         onClick={handleCardClick}
         onContextMenu={(e) => {
           e.preventDefault();
@@ -154,7 +147,7 @@ const CardComponent = ({
               />
             ) : null}
             <h3
-              className={`company-name ${isLongCompanyName ? 'scroll' : ''}`}
+              className={`company-name`}
             >
               {card.company}
             </h3>
@@ -203,11 +196,26 @@ const CardComponent = ({
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
             onNo={() => setIsDeleteModalOpen(false)}
-            onYes={handleConfirmDelete}
+            onYes={async () => {
+              setIsDeleteModalOpen(false);      // Close modal
+              setIsDeleting(true);              // Start animation
+
+              setTimeout(async () => {
+                try {
+                  await deleteCard(card.id, user.token); // API call
+                  onDelete(card.id);                     // NOW remove from board state
+                } catch (err) {
+                  console.error('Failed to delete card:', err);
+                }
+              }, 500); // match CSS animation time
+            }}
+
+
             title={`Are you sure you want to delete this card?`}
           />,
           document.body
         )}
+
     </>
   );
 };

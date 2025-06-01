@@ -10,26 +10,30 @@ import DetailsView from './DetailsView';
 import NotesView from './NotesView';
 import DocumentsView from './DocumentsView';
 import FilePopup from '../FilePopup/FilePopup';
-
+import DeleteModal from '../DeleteStatus/DeleteStatus';
 import './DrawerView.less';
+import { deleteCard } from '../../utils/deleteCard';
+import { IoMdTrash } from 'react-icons/io';
 
 const DrawerView = ({
   show,
   onClose,
+  user,
   card = {},
   updateCard,
   columnName,
   updateStatus,
   statuses = [],
-  updateStatusLocally
+  updateStatusLocally,
+  triggerDeleteModal
 }) => {
-  const { user } = useUser();
   const { columns, loading: boardLoading } = useBoardData(user);
   const { uploadAndCreateFile, files, updateFile, deleteFile } = useFileData();
 
   const [currentView, setCurrentView] = useState<'details' | 'documents' | 'notes'>('details');
   const [errors, setErrors] = useState({});
   const [appFiles, setAppFiles] = useState([]);
+  const [isClosing, setIsClosing] = useState(false);
 
   // Hover & File popup
   const [hoveredFileId, setHoveredFileId] = useState(null);
@@ -120,8 +124,11 @@ const DrawerView = ({
 
     if (formData.salary < 0) {
       validationErrors.salary = 'Salary cannot be negative.';
-    } else if (formData.salary && !/^\d{1,3}(,\d{3})*(\.\d+)?$/.test(formData.salary)) {
-      validationErrors.salary = 'Salary must be a valid number';
+    } else if (
+      formData.salary &&
+      !/^\d+$/.test(formData.salary)
+    ) {
+      validationErrors.salary = 'Salary must be a whole number';
     }
 
     if (formData.deadline && formData.date_applied && formData.deadline < formData.date_applied) {
@@ -268,7 +275,8 @@ const DrawerView = ({
           ? dayjs(formData.date_applied).format('YYYY-MM-DD')
           : null,
         card_color: formData.card_color,
-        statusId: formData.StatusId || card.StatusId
+        statusId: formData.StatusId || card.StatusId,
+        companyLogo: formData.companyLogo
       };
 
       if (!user?.token) {
@@ -339,9 +347,23 @@ const DrawerView = ({
   const documentsProgress = calculateProgressPercentage(documentsFields);
   const notesProgress = calculateProgressPercentage(notesFields);
 
+  const handleDrawerClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 300); // Match this with the CSS transition duration
+  };
+
   return (
     <>
-      <Drawer open={show} onClose={onClose} size={drawerSize} placement={drawerPlacement}>
+      <Drawer
+        open={show && !isClosing}
+        onClose={handleDrawerClose}
+        size={drawerSize}
+        placement={drawerPlacement}
+        className={isClosing ? 'drawer-closing' : ''}
+      >
         <Drawer.Header>
           <Drawer.Title>Edit Card</Drawer.Title>
           <FlexboxGrid justify="space-between" className="drawer-links">
@@ -352,6 +374,18 @@ const DrawerView = ({
                 detailsProgress={detailsProgress}
                 documentsProgress={documentsProgress}
                 notesProgress={notesProgress}
+              />
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item>
+              <IoMdTrash
+                className="delete-icon"
+                style={{ cursor: 'pointer', marginLeft: '10px' }}
+                onClick={() => {
+                  onClose();
+                  setTimeout(() => {
+                    triggerDeleteModal(); // call parent handler
+                  }, 500);
+                }}
               />
             </FlexboxGrid.Item>
           </FlexboxGrid>

@@ -2,6 +2,7 @@
 import nodemailer from 'nodemailer';
 import { getAllUsers } from '../controllers/userController.js';
 import pool from '../config/db.js';
+import { motivationalQuotes } from './motivationalQuotes.js';
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -51,137 +52,178 @@ export const sendEmailsToAllUsers = async () => {
   }
 };
 
+// Get a random motivationalQuote
+const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+
+
 export const sendApplicationStatusEmail = async (email, userId) => {
   try {
-    // Fetch the user's statuses
     const statuses = await getUserStatuses(userId);
-
-    // Get counts of applications in each status
     const applicationCounts = await getApplicationCountsByStatuses(userId);
-
-    // Fetch the user's applications with deadlines and colors
     const applicationsWithDeadlines = await getApplicationsWithDeadlines(userId);
 
-    // Fetch the username of the user
-    const userResult = await pool.query(`SELECT "Username" FROM "Users" WHERE "UserId" = $1`, [userId]);
+    // Define the date when you want to show the updates section
+  const showUpdates = new Date().toDateString() === new Date("2025-06-18").toDateString(); // Example date
+
+
+    const userResult = await pool.query(
+      `SELECT "Username" FROM "Users" WHERE "UserId" = $1`,
+      [userId]
+    );
     const username = userResult.rows[0]?.Username || "there";
 
-    // Map counts to statuses
     const countsMap = {};
     applicationCounts.forEach((row) => {
       countsMap[row.StatusId] = parseInt(row.count);
     });
 
-    // Get current date
-    const currentDate = new Date().toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
     });
 
-    // Build table headers and data
-    const tableHeaders = statuses
-    .map(
-      (status) =>
-        `<th style="padding: 10px; text-align: center; font-weight: bold;">${status.StatusName}</th>`
-    )
-    .join('');
-  
-  const tableData = statuses
-    .map((status) => {
-      const count = countsMap[status.StatusId] || 0;
-      return `<td style="padding: 10px; text-align: center; border-bottom: 1px solid #e0e0e0;">${count}</td>`;
-    })
-    .join('');
+    const statusBlocks = statuses
+      .map((status) => {
+        const count = countsMap[status.StatusId] || 0;
+        return `
+          <div style="
+        display: inline-block;
+        width: 48%;
+        margin: 1%;
+        padding: 15px;
+        border-radius: 10px;
+        background: linear-gradient(145deg, #ff9047, #f26203);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3);
+        text-align: center;
+        font-size: 14px;
+        color: #fff;
+        font-weight: bold;
+        box-sizing: border-box;
+      ">
+            <strong style="display: block; margin-bottom: 6px;">${status.StatusName}</strong>
+            <span style="font-size: 18px; font-weight: bold;">${count}</span>
+          </div>
+        `;
+      })
+      .join("");
 
-    // Build application cards
     const applicationCards = applicationsWithDeadlines
-    .map((app) => {
-      return `
-        <a href="https://gradflow.org" style="text-decoration: none; color: inherit;">
-          <div style="position: relative; margin-bottom: 16px; padding: 10px; border: 1px solid ${app.color}; border-radius: 8px; transition: transform 0.2s; cursor: pointer;">
-            ${
-              app.CompanyLogo
-                ? `<img src="${app.CompanyLogo}" alt="${app.CompanyName} Logo" style="position: absolute; top: 10px; right: 10px; height: 40px;">`
-                : ''
-            }
-            <strong>${app.JobName}</strong><br/>
-            <span>${app.CompanyName}</span><br/>
-            <span style="color: gray;">Deadline: ${formatDate(app.Deadline)}</span>
-          </div>
-        </a>
-      `;
-    })
-    .join('');
+      .map((app) => {
+        return `
+          <a href="https://gradflow.org" style="text-decoration: none; color: inherit;">
+            <div style="position: relative; margin-bottom: 16px; padding: 10px; border: 1px solid ${app.color}; border-radius: 8px;">
+              ${
+                app.CompanyLogo
+                  ? `<img src="${app.CompanyLogo}" alt="${app.CompanyName} Logo" style="position: absolute; top: 10px; right: 10px; height: 40px;">`
+                  : ""
+              }
+              <strong>${app.JobName}</strong><br/>
+              <span>${app.CompanyName}</span><br/>
+              <span style="color: gray;">Deadline: ${formatDate(app.Deadline)}</span>
+            </div>
+          </a>
+        `;
+      })
+      .join("");
 
-
-    // Build the email content with improved structure
     const emailHtml = `
-      <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #000;">
-        <!-- Header with GradFlow Logo and Weekly Summary -->
-        <table width="100%" style="padding: 20px; background-color: #f5f5f5;">
-          <tr>
-            <td align="left">
-              <img src="https://i.imgur.com/ctEoTCl.png" alt="GradFlow Logo" style="height: 50px;">
-            </td>
-            <td align="right" style="text-align: right;">
-              <h3 style="margin: 0; color: #000;">Weekly Summary</h3>
-              <p style="margin: 0; color: #000;">${currentDate}</p>
-            </td>
-          </tr>
-        </table>
+  <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; padding: 20px;">
+    
+    <!-- Header -->
+    <table width="100%" style="margin-bottom: 20px;">
+      <tr>
+        <td align="left">
+          <img src="https://i.imgur.com/ctEoTCl.png" alt="GradFlow Logo" style="height: 50px;">
+        </td>
+        <td align="right" style="text-align: right;">
+          <h2 style="margin: 0; color: #333;">Weekly Career Digest</h2>
+          <p style="margin: 0; color: #888;">${currentDate}</p>
+        </td>
+      </tr>
+    </table>
 
-        <!-- Greeting -->
-        <div style="text-align: center; padding: 20px; background-color: #f5f5f5;">
-          <h2 style="color: #FF6200;">Hi ${username},</h2>
-          <p style="margin: 0; color: #000;">Here's a snapshot of your job search activities for the week.</p>
+    <!-- Greeting -->
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h2 style="color: #FF6200;">Hey ${username},</h2>
+      <p>Here's your weekly snapshot and a look at what's coming next.</p>
+    </div>
+
+    <!-- Section 1: Application Status Overview -->
+    <div style="background: #fff; border-radius: 8px; padding: 10px 20px 20px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;">
+      <h3 style="color: #7C41E3;">📊 Your Application Overview</h3>
+      <!-- Status Overview -->
+        <div style=" padding: 15px; margin: 20px 0; text-align: center;">
+          ${statusBlocks}
         </div>
+    </div>
 
-        <!-- Past Week Stats -->
-          <div style="border: 1px solid #7C41E3; border-radius: 12px; padding: 10px 15px; margin-bottom: 20px; background-color: #f9f9f9;">
-            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
-              <thead>
-                <tr>
-                  ${tableHeaders}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  ${tableData}
-                </tr>
-              </tbody>
-            </table>
-          </div>
+   ${showUpdates && `
+    <!-- Section 2: Updates -->
+    <div style="background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;">
+      <h3 style="color: #7C41E3;">🔥 Big Updates Just Dropped on GradFlow!</h3>
+      <p style="color: #555;">We’ve been working behind the scenes to make your application tracking experience faster, smoother, and more powerful than ever. Here’s what’s new:</p>
+      <ul style="padding-left: 20px; color: #444; line-height: 1.3;">
+        <li><strong>Reorder Your Columns:</strong> Drag, drop, and organize your board exactly how you want.</li>
+        <li><strong>Rename Columns:</strong> Personalize your workflow by giving columns names that make sense to you.</li>
+        <li><strong>Company Selector in Drawer:</strong> Quickly assign companies when expanding a card — no more back and forth.</li>
+        <li><strong>Redesigned Panel UI:</strong> A fresh new look that feels modern, clean, and super intuitive.</li>
+        <li><strong>Dashboard Makeover:</strong> Your insights dashboard just got a sleek upgrade — clearer, sharper, better.</li>
+        <li><strong>Performance Boost:</strong> Everything loads faster. Smooth. Instant. Snappy.</li>
+        <li>🎬 <strong>Card Deletion Animation:</strong> A satisfying animation when you remove an application — because even cleanup should feel good.</li>
+      </ul>
+    </div>
+  `}
 
-          <!-- Upcoming Deadlines -->
-          <h3 style="color: #000;">Upcoming Deadlines:</h3>
-          <div>${applicationCards}</div>
-        </div>
+ <!-- Section 3: Coming Soon -->
+<div style="background: #fff; border-radius: 8px; padding: 10px 20px 20px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;">
+  <h3 style="color: #7C41E3;">🚀 Coming Soon to GradFlow</h3>
+  <ul style="padding-left: 20px; color: #444;">
+    <li><strong>Chrome Extension:</strong> Save job listings from any website in one click.</li>
+    <li><strong>Excel Import:</strong> Upload your existing applications using an Excel spreadsheet.</li>
+  </ul>
+</div>
 
-        <!-- Footer -->
-        <div style="text-align: center; padding: 20px; background-color: #f5f5f5;">
-          <p style="margin: 0; color: #000;">Keep track of your applications on GradFlow.</p>
-          <a href="https://gradflow.org" style="display: inline-block; padding: 10px 20px; background-color:#7C41E3; color: #fff; text-decoration: none; border-radius: 4px;">Update Your Boards</a>
-        </div>
-      </div>
-    `;
 
-    // Email options
+  <!-- Section 4: Motivation of the Week -->
+  <div style="background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px; text-align: center;">
+    <h3 style="color: #7C41E3;">💡 Motivation of the Week</h3>
+    <blockquote style="font-size: 16px; color: #555; margin: 20px auto; max-width: 600px; font-style: italic;">
+         "${randomQuote.quote}"<br/>
+      <span style="display: block; margin-top: 10px; font-weight: bold; color: #333;">– ${randomQuote.author}l</span>
+    </blockquote>
+  </div>
+
+
+    <!-- Footer -->
+<div style="text-align: center; margin-top: 30px;">
+
+  <p style="color: #555;">You're receiving this email because you signed up on <a href="https://gradflow.org" style="color: #7C41E3; text-decoration: none;">GradFlow</a>.</p>
+  <a href="https://gradflow.org" style="display: inline-block; margin: 10px 5px; padding: 10px 20px; background-color:#7C41E3; color: #fff; text-decoration: none; border-radius: 5px;">Update Your Boards</a>
+  <a href="https://gradflow.org/main?tab=notifications" style="display: inline-block; margin: 10px 5px; padding: 10px 20px; background-color:#ccc; color: #000; text-decoration: none; border-radius: 5px;">Unsubscribe</a>
+</div>
+
+
+  </div>
+`;
+
+
     const mailOptions = {
       from: process.env.SMTP_EMAIL,
       to: email,
-      subject: 'Your Job Application Statuses - Weekly Update',
+      subject: "Your Job Application Statuses - Weekly Update",
       html: emailHtml,
     };
 
-    // Send the email
     await transporter.sendMail(mailOptions);
-    console.log('Application status email sent successfully.');
+    console.log("Application status email sent successfully.");
   } catch (error) {
-    console.error('Error sending application status email:', error);
-    throw new Error('Email sending failed');
+    console.error("Error sending application status email:", error);
+    throw new Error("Email sending failed");
   }
 };
+
+
 
 // Function to fetch statuses for a user
 async function getUserStatuses(userId) {

@@ -7,11 +7,11 @@ import DeleteAccountModal from './DeleteAccountModal';
 import Avatar from 'react-avatar';
 
 
-const SettingsView = ({ show, onClose }) => {
+const SettingsView = ({ show, onClose ,initialTab = 'account'}) => {
     const { user } = useUser();
-    const navigate = useNavigate();  // For navigation
+    const navigate = useNavigate();  // For navigation 
 
-    const [currentView, setCurrentView] = useState('account');
+    const [currentView, setCurrentView] = useState(initialTab);
     const [formData, setFormData] = useState({
         name: '',
         email: ''
@@ -51,6 +51,12 @@ const SettingsView = ({ show, onClose }) => {
             fetchUserData();
         }
     }, [show, user.token]);
+
+    useEffect(() => {
+        if (show && initialTab) {
+            setCurrentView(initialTab);
+        }
+    }, [show, initialTab]);
     
 
 

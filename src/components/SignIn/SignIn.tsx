@@ -275,7 +275,7 @@ export default function SignInSide() {
                     helperText={passwordError}
                     InputProps={{
                       endAdornment: (
-                        <IconButton
+                        <IconButton className="bar-icon-button"
                           aria-label="toggle password visibility"
                           onClick={() => setShowPassword(!showPassword)} // Toggle visibility
                           edge="end"

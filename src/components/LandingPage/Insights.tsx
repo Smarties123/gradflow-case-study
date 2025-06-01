@@ -11,6 +11,7 @@ import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import GridViewIcon from "@mui/icons-material/GridView";
 import "./Styles/Insights.css";
 import "animate.css"; // Import Animate.css
+import * as errors from '@/images/errors';
 
 const items = [
   {
@@ -123,15 +124,56 @@ export default function Insights() {
                 textAlign: "center",
               }}
             >
-              <img
-                src={selectedFeature.image.slice(4, -1).replace(/"/g, "")} // Extract the URL from `url("...")`
-                alt={selectedFeature.title}
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  borderRadius: 8,
-                }}
-              />
+              {selectedFeature.title === "Coming Soon" ? (
+                <Box
+                  className={`${animateClass} coming-soon-box`}
+                  sx={{
+                    height: "350px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    textAlign: "center",
+                  }}
+                >
+                  <img
+                    src={errors[`Error404Img`]}
+                    alt="Coming Soon"
+                    style={{
+                      height: "350px",
+                      width: "auto",
+                      maxWidth: "75%",
+                      objectFit: "contain",
+                      borderRadius: 8,
+                    }}
+                  />
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      mt: 2,
+                      maxWidth: 500,
+                      fontWeight: 500,
+                      color: "white"
+                    }}
+                  >
+                    We're hard at work creating exciting new features for the website. Stay tuned for updates!
+                  </Typography>
+                </Box>
+              ) : (
+                <img
+                  src={selectedFeature.image.slice(4, -1).replace(/"/g, "")}
+                  alt={selectedFeature.title}
+                  style={{
+                    height: "100%",
+                    width: "auto",
+                    maxWidth: "100%",
+                    objectFit: "fit",
+                    borderRadius: 8,
+                  }}
+                  className={animateClass}
+                />
+              )}
+
             </Box>
 
           </Card>

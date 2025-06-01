@@ -1,0 +1,34 @@
+@media (max-width: 768px) {
+    .bar-chart-scroll-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-x;
+    }
+
+    .bar-chart-inner {
+        min-width: 600px;
+    }
+}
+
+.rs-theme-dark {
+    .bar-chart-container {
+        background-color: #1D2633;
+    }
+}
+
+.rs-theme-light {
+    .bar-chart-container {
+        background-color: #fff;
+        box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .bar-chart-title {
+        color: black !important;
+    }
+}
+
+.bar-chart-container {
+    border-radius: 10px;
+    padding: 30px;
+}
