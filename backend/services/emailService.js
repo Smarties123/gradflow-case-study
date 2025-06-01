@@ -62,6 +62,10 @@ export const sendApplicationStatusEmail = async (email, userId) => {
     const applicationCounts = await getApplicationCountsByStatuses(userId);
     const applicationsWithDeadlines = await getApplicationsWithDeadlines(userId);
 
+    // Define the date when you want to show the updates section
+  const showUpdates = new Date().toDateString() === new Date("2025-06-18").toDateString(); // Example date
+
+
     const userResult = await pool.query(
       `SELECT "Username" FROM "Users" WHERE "UserId" = $1`,
       [userId]
@@ -154,14 +158,22 @@ export const sendApplicationStatusEmail = async (email, userId) => {
         </div>
     </div>
 
-  <!-- Section 2: Updates -->
-  <div style="background: #fff; border-radius: 8px; padding: 10px 20px 20px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;">
-    <h3 style="color: #7C41E3;">🔥 Updates</h3>
-    <ul style="padding-left: 20px; color: #444;">
-      <li><strong>Bug Fixes
-      <li><strong>Improvement:</strong> Faster dashboard loading times.</li>
-    </ul>
-  </div>
+   ${showUpdates && `
+    <!-- Section 2: Updates -->
+    <div style="background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;">
+      <h3 style="color: #7C41E3;">🔥 Big Updates Just Dropped on GradFlow!</h3>
+      <p style="color: #555;">We’ve been working behind the scenes to make your application tracking experience faster, smoother, and more powerful than ever. Here’s what’s new:</p>
+      <ul style="padding-left: 20px; color: #444; line-height: 1.3;">
+        <li><strong>Reorder Your Columns:</strong> Drag, drop, and organize your board exactly how you want.</li>
+        <li><strong>Rename Columns:</strong> Personalize your workflow by giving columns names that make sense to you.</li>
+        <li><strong>Company Selector in Drawer:</strong> Quickly assign companies when expanding a card — no more back and forth.</li>
+        <li><strong>Redesigned Panel UI:</strong> A fresh new look that feels modern, clean, and super intuitive.</li>
+        <li><strong>Dashboard Makeover:</strong> Your insights dashboard just got a sleek upgrade — clearer, sharper, better.</li>
+        <li><strong>Performance Boost:</strong> Everything loads faster. Smooth. Instant. Snappy.</li>
+        <li>🎬 <strong>Card Deletion Animation:</strong> A satisfying animation when you remove an application — because even cleanup should feel good.</li>
+      </ul>
+    </div>
+  `}
 
  <!-- Section 3: Coming Soon -->
 <div style="background: #fff; border-radius: 8px; padding: 10px 20px 20px 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 30px;">
