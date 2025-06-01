@@ -18,6 +18,8 @@ import RadarChartComponent from './RadarChart';
 
 
 import { useRef } from 'react';
+import { DateRange } from 'rsuite/esm/DateRangePicker';
+import DateRangeFilterPanel from './DateRangeFilterPanel';
 
 export const AnimateInView: React.FC<{ children: React.ReactNode; delay?: number }> = ({ children, delay = 0 }) => {
   const ref = useRef(null);
@@ -185,18 +187,20 @@ const Dashboard: React.FC = () => {
         </Col>
       </Row>
 
+
       <Row>
         <Col xs={24}>
           <AnimateInView delay={0.1}>
-            <DateRangePicker
-              appearance="default"
-              placeholder="Select Date Range"
-              style={{ margin: '10px 10px 10px 0px' }}
-              onChange={(value: [Date, Date]) => setSelectedDateRange(value)}
-            />
+            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%' }}>
+              <DateRangeFilterPanel onChange={(value: DateRange) => setSelectedDateRange(value)} />
+            </Panel>
           </AnimateInView>
         </Col>
       </Row>
+
+
+
+
       <Row gutter={16} style={{ margin: '0px -8px' }}>
         <Col xs={24} md={12}>
           <AnimateInView delay={0.1}>
@@ -245,7 +249,7 @@ const Dashboard: React.FC = () => {
         <Col xs={24} md={12}>
           <AnimateInView delay={0.1}>
 
-            <Panel style={{ background: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden' }}>
+            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', overflow: 'hidden' }}>
               <FunnelChart
                 key={keyForCharts}
                 data={funnelData}
@@ -260,7 +264,7 @@ const Dashboard: React.FC = () => {
         <Col xs={24} md={12}>
           <AnimateInView delay={0.1}>
 
-            <Panel style={{ background: 'none', margin: '10px 0px', height: '60%', overflow: 'hidden', maxHeight: maxHeight }}>
+            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', overflow: 'hidden', maxHeight: maxHeight }}>
               <RadarChartComponent
                 key={keyForCharts}
                 data={funnelData}
