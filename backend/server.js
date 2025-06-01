@@ -173,3 +173,27 @@ app.post('/create-checkout-session', async (req, res) => {
         res.status(500).json({ error: error.message || 'Internal server error' });
     }
 });
+
+
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error('Webhook signature verification failed.', err.message);
+    return res.sendStatus(400);
+  }
+
+  // Handle checkout session completion
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+
+    // Example: mark user as paid, create subscription record, etc.
+    console.log(' Payment succeeded for:', session.customer_email);
+  }
+
+  res.status(200).json({ received: true });
+});
