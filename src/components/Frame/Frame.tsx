@@ -23,6 +23,7 @@ import FeedbackPopup from '../Feedback/FeedbackPopup';
 import OnDemandFeedbackPopup from '../Feedback/OnDemandFeedback';
 import { useUser } from '@/components/User/UserContext'; // Adjust the import path as needed
 import NewButton from '../NewButton/NewButton';
+import UpdatedButton from '../UpdateButton/UpdatedButton';
 
 const { getHeight, on } = DOMHelper;
 
@@ -152,7 +153,12 @@ const Frame = () => {
             >
               <Nav>
                 <NavItem
-                  title="Panel"
+                  title={
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <span>Panel</span>
+                      <UpdatedButton />
+                    </div>
+                  }
                   to="/main"
                   eventKey="panel"
                   icon={<Icon as={HiOutlineViewBoards} />}
@@ -166,7 +172,12 @@ const Frame = () => {
                   animate={animate} // Pass the animate state
                 />
                 <NavItem
-                  title="Dashboard"
+                  title={
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <span>Dashboard</span>
+                      <UpdatedButton />
+                    </div>
+                  }
                   to="/main/dashboard"
                   eventKey="dashboard"
                   icon={<Icon as={MdDashboard} />}
@@ -180,12 +191,7 @@ const Frame = () => {
                   animate={animate} // Pass the animate state
                 /> */}
                 <NavItem
-                  title={
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                      <span>Files</span>
-                      <NewButton />
-                    </div>
-                  }
+                  title="Files"
                   to="/main/files"
                   eventKey="files"
                   icon={<Icon as={TbFiles} />}

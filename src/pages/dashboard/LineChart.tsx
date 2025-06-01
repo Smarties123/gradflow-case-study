@@ -1,24 +1,20 @@
-import React, { useMemo } from 'react';
-import InfoIcon from '@mui/icons-material/Info';
-import IconButton from '@mui/material/IconButton';
-import { Tooltip } from 'react-tooltip';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
-
-interface LineChartData {
-  name: string;
-  [key: string]: number;  // Dynamically handle any column name
-}
+import React, { useMemo, useRef, useEffect, useState } from 'react';
+import ApexCharts from 'apexcharts';
+import { BsGraphUp } from "react-icons/bs";
+import './Styles/LineChart.less';
 
 interface LineChartProps {
-  columns: { title: string; cards: { date_applied: string }[] }[];  // Ensure correct typing for `columns` and `cards`
+  columns: { title: string; cards: { date_applied: string }[] }[];
   title: string;
+  isLight: boolean;
 }
 
-const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title }) => {
+const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title, isLight }) => {
+  const chartRef = useRef<HTMLDivElement | null>(null);
+
   const { lineChartData, columnTitles } = useMemo(() => {
     const dataMap: { [key: string]: any } = {};
-    let earliestDate: Date | null = null;
-    let latestDate: Date | null = new Date(); // Use current date as the latest
+    let latestDate: Date = new Date();
 
     const columnTitles = columns && Array.isArray(columns)
       ? columns.map(col => col.title)
@@ -26,23 +22,23 @@ const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title }) =
 
     // Calculate the last 6 months from the latest date
     const lastSixMonths = Array.from({ length: 6 }).map((_, i) => {
-      const date = new Date(latestDate!.getFullYear(), latestDate!.getMonth() - i, 1);
+      const date = new Date(latestDate.getFullYear(), latestDate.getMonth() - i, 1);
       return date;
-    }).reverse();  // Reverse to have them in ascending order
+    }).reverse();
 
     const months = lastSixMonths.map((date) =>
-      date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) // "Sep 2024" format
+      date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
     );
 
     // Initialize the dataMap with last 6 months and columns as 0
     months.forEach((month) => {
       dataMap[month] = { name: month };
       columnTitles.forEach((title) => {
-        dataMap[month][title] = 0;  // Initialize each title column with 0
+        dataMap[month][title] = 0;
       });
     });
 
-    // Iterate through columns and cards to count activities by month
+    // Count activities by month
     if (Array.isArray(columns)) {
       columns.forEach((column) => {
         if (column.cards && Array.isArray(column.cards)) {
@@ -52,7 +48,7 @@ const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title }) =
               const cardMonth = cardDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
 
               if (dataMap[cardMonth]) {
-                dataMap[cardMonth][column.title] += 1;  // Increment the count for the corresponding column title
+                dataMap[cardMonth][column.title] += 1;
               }
             }
           });
@@ -61,75 +57,196 @@ const LineChartComponent: React.FC<LineChartProps> = ({ columns = [], title }) =
     }
 
     return {
-      lineChartData: Object.values(dataMap), // Convert the dataMap to an array for Recharts
+      lineChartData: Object.values(dataMap),
       columnTitles
     };
   }, [columns]);
 
-  // Helper function to assign random colors to each line
-  const getRandomColor = (index: number) => {
-    const colors = ['#FFD700', '#FF69B4', '#9370DB', '#FF4500', '#00CED1', '#800080'];
-    return colors[index % colors.length];  // Rotate through the colors
-  };
+  const colors = [
+    '#FF6200', // Primary orange
+    '#FF8533', // Light orange
+    '#FFA366', // Lighter orange
+    '#FFC299', // Very light orange
+    '#FFE0CC', // Lightest orange
+    '#FF4500'  // Dark orange
+  ];
 
+  useEffect(() => {
+    if (!chartRef.current) return;
+
+    const series = columnTitles.map(title => ({
+      name: title,
+      data: lineChartData.map(item => item[title])
+    }));
+
+    // Calculate max value for y-axis
+    const maxValue = Math.max(
+      ...lineChartData.map(item =>
+        Math.max(...columnTitles.map(title => item[title]))
+      )
+    );
+    const suggestedMax = Math.ceil(maxValue + 2);
+
+    const options = {
+      series: series,
+      chart: {
+        height: 400,
+        type: 'line',
+        toolbar: {
+          show: false
+        },
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800,
+          animateGradually: {
+            enabled: true,
+            delay: 150
+          },
+          dynamicAnimation: {
+            enabled: true,
+            speed: 350
+          }
+        },
+        background: 'transparent'
+      },
+      stroke: {
+        width: 3,
+        curve: 'smooth',
+        lineCap: 'round'
+      },
+      markers: {
+        size: 6,
+        strokeWidth: 0,
+        hover: {
+          size: 8
+        }
+      },
+      xaxis: {
+        categories: lineChartData.map(item => item.name),
+        labels: {
+          style: {
+            colors: isLight ? '#000000' : '#ffffff',
+            fontSize: '12px',
+            fontWeight: 500
+          }
+        },
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        }
+      },
+      yaxis: {
+        min: 0,
+        max: suggestedMax,
+        forceNiceScale: true,
+        tickAmount: 5,
+        title: {
+          text: 'Number of Activities',
+          style: {
+            color: isLight ? '#000000' : '#ffffff',
+            fontSize: '12px',
+            fontWeight: 500
+          }
+        },
+        labels: {
+          style: {
+            colors: isLight ? '#000000' : '#ffffff',
+            fontSize: '12px',
+            fontWeight: 500
+          },
+          formatter: function (val: number) {
+            return Math.floor(val);
+          }
+        }
+      },
+      grid: {
+        borderColor: isLight ? '#e0e0e0' : '#333333',
+        strokeDashArray: 4,
+        xaxis: {
+          lines: {
+            show: true
+          }
+        },
+        yaxis: {
+          lines: {
+            show: true
+          }
+        }
+      },
+      tooltip: {
+        theme: isLight ? 'light' : 'dark',
+        y: {
+          formatter: function (val: number) {
+            return val.toLocaleString();
+          }
+        }
+      },
+      legend: {
+        position: 'right',
+        horizontalAlign: 'left',
+        offsetY: 0,
+        labels: {
+          colors: isLight ? '#000000' : '#ffffff'
+        },
+        markers: {
+          width: 12,
+          height: 12,
+          strokeWidth: 0,
+          strokeColor: '#fff',
+          radius: 12,
+          offsetX: 0,
+          offsetY: 0
+        },
+        itemMargin: {
+          horizontal: 10,
+          vertical: 5
+        }
+      },
+      colors: colors,
+      fill: {
+        type: 'gradient',
+        gradient: {
+          shade: 'light',
+          type: 'vertical',
+          shadeIntensity: 0.25,
+          gradientToColors: undefined,
+          inverseColors: true,
+          opacityFrom: 0.8,
+          opacityTo: 0.2,
+          stops: [0, 100]
+        }
+      }
+    };
+
+    const chart = new ApexCharts(chartRef.current, options);
+    chart.render();
+
+    return () => {
+      chart.destroy();
+    };
+  }, [lineChartData, columnTitles, isLight]);
 
   return (
-    <div>
-      <h4 style={{ color: '#FFF', textAlign: 'left' }}>{title}</h4>
-
-      <div style={{ position: 'relative', top: '-35px', left: '95%', zIndex: 1001 }}> {/* Ensure positioning context */}
-        {/* Icon button with a data-tooltip-id */}
-        {/* Icon button with a data-tooltip-id */}
-        <a data-tooltip-id="line">
-          <IconButton className="bar-icon-button" >
-            <InfoIcon />
-          </IconButton>
-        </a>
-        {/* Tooltip with id that matches data-tooltip-id */}
-        <Tooltip id="line" place="bottom" >
-          Trend of application statuses over the past months
-        </Tooltip>
+    <div className="line-chart-container" style={{ position: 'relative' }}>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '20px',
+        alignSelf: 'flex-start',
+      }}>
+        <BsGraphUp style={{ color: '#F26203', fontSize: '22px' }} />
+        <h4 className="line-chart-title" style={{
+          fontWeight: 600,
+          fontSize: '19px',
+          color: isLight ? '#000000' : '#ffffff'
+        }}>{title}</h4>
       </div>
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart
-          data={lineChartData}
-          margin={{
-            top: 50, right: 30, left: 20, bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="name"
-            interval={0}
-            tickFormatter={(tick) => tick}  // Already formatted as "MMM YYYY"
-          />
-          <YAxis>
-            <text x={-35} y={160} dy={-15} fill="#FFF" transform="rotate(-90)" textAnchor="middle">
-              Number of Activities
-            </text>
-          </YAxis>
-          <RechartsTooltip />
-          <Legend
-            layout="vertical"
-            verticalAlign="middle"
-            align="left"
-            wrapperStyle={{
-              color: '#FFF',
-              paddingLeft: '10px',
-            }}
-          />
-          {/* Dynamically create a Line for each column title */}
-          {columnTitles.map((title, index) => (
-            <Line
-              key={index}
-              type="monotone"
-              dataKey={title}
-              stroke={getRandomColor(index)}  // Assign random color or handle it your own way
-              activeDot={{ r: 8 }}
-            />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
+
+      <div ref={chartRef} style={{ padding: '0 10px' }} />
     </div>
   );
 };

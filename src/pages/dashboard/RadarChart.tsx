@@ -1,19 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { Radar } from 'react-chartjs-2';
+import React from 'react';
 import {
     Chart as ChartJS,
     RadialLinearScale,
     PointElement,
     LineElement,
     Filler,
-    Tooltip as ChartTooltip, // Aliasing Tooltip from chart.js
+    Tooltip,
     Legend,
+    ChartOptions
 } from 'chart.js';
+import { Radar } from 'react-chartjs-2';
 import InfoIcon from '@mui/icons-material/Info';
 import IconButton from '@mui/material/IconButton';
-import { Tooltip as ReactTooltip } from 'react-tooltip'; // Aliasing Tooltip from react-tooltip
+import { Tooltip as ReactTooltip } from 'react-tooltip';
+import './Styles/RadarChart.less';
+import { AiOutlineRadarChart } from "react-icons/ai";
 
-ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, ChartTooltip, Legend);
+ChartJS.register(
+    RadialLinearScale,
+    PointElement,
+    LineElement,
+    Filler,
+    Tooltip,
+    Legend
+);
 
 interface RadarChartComponentProps {
     data: {
@@ -21,36 +31,16 @@ interface RadarChartComponentProps {
         value: number;
         color: string;
     }[];
+    isLight: boolean;
+    title: string;
 }
 
-const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data, maxHeight }) => {
-    const [isDarkTheme, setIsDarkTheme] = useState(document.body.classList.contains('rs-theme-dark'));
-
-    // Use effect to listen for theme changes dynamically
-    useEffect(() => {
-        const handleThemeChange = () => {
-            setIsDarkTheme(document.body.classList.contains('rs-theme-dark'));
-        };
-
-        // Add event listener to detect changes in classList
-        const observer = new MutationObserver(handleThemeChange);
-        observer.observe(document.body, {
-            attributes: true, // Observe attributes changes like classList
-            attributeFilter: ['class'], // Focus on class attribute changes
-        });
-
-        // Cleanup the observer when the component unmounts
-        return () => {
-            observer.disconnect();
-        };
-    }, []);
-
+const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data, isLight, title }) => {
     const sortedData = [...data].sort((a, b) => b.value - a.value);
     const labels = sortedData.map(item => item.name);
     const datasetValues = sortedData.map(item => item.value);
     const maxValue = Math.max(...datasetValues);
-
-    const orange = 'rgb(255, 98, 0)';
+    const suggestedMax = Math.ceil(maxValue + 2);
 
     const chartData = {
         labels: labels,
@@ -58,77 +48,95 @@ const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data, maxHeig
             {
                 label: 'Job Applications',
                 data: datasetValues,
-                fill: true,
-                borderColor: isDarkTheme ? orange : 'rgb(255, 99, 132)',
-                pointBackgroundColor: isDarkTheme ? orange : 'rgb(255, 99, 132)',
-                pointBorderColor: '#fff',
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: 'rgb(255, 99, 132)',
-            },
-        ],
+                backgroundColor: 'rgba(255, 98, 0, 0.2)',
+                borderColor: '#FF6200',
+                borderWidth: 2,
+                pointBackgroundColor: '#FF6200',
+                pointBorderColor: '#FF6200',
+                pointHoverBackgroundColor: '#FF6200',
+                pointHoverBorderColor: '#FF6200',
+                pointRadius: 3,
+                pointHoverRadius: 4
+            }
+        ]
     };
 
-    const options = {
+    const options: ChartOptions<'radar'> = {
         responsive: true,
-        maintainAspectRatio: true,
-        elements: {
-            line: {
-                borderWidth: 3,
-            },
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                type: 'radialLinear',
+                beginAtZero: true,
+                angleLines: {
+                    display: true,
+                    color: isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+                    lineWidth: 1
+                },
+                grid: {
+                    color: isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+                    circular: true
+                },
+                pointLabels: {
+                    color: isLight ? '#000000' : '#ffffff',
+                    font: {
+                        size: 12,
+                        weight: 'normal'
+                    }
+                },
+                ticks: {
+                    color: isLight ? '#000000' : '#ffffff',
+                    backdropColor: 'transparent',
+                    font: {
+                        size: 12,
+                        weight: 'normal'
+                    },
+                    stepSize: Math.ceil(suggestedMax / 5),
+                    suggestedMax: suggestedMax,
+                    suggestedMin: 0
+                }
+            }
         },
         plugins: {
             legend: {
-                labels: {
-                    color: isDarkTheme ? 'white' : 'black', // Customize the legend text color
-                },
+                display: false
             },
-        },
-        scales: {
-            r: {
-                angleLines: {
-                    display: true,
-                },
-                grid: {
-                    color: isDarkTheme ? 'rgb(232, 232, 232)' : '#ececec',
-                },
-                pointLabels: {
-                    color: isDarkTheme ? 'white' : 'black',
-                },
-                suggestedMin: 0,
-                suggestedMax: maxValue + 5,
-                ticks: {
-                    stepSize: 2,
-                    showLabelBackdrop: true,
-                    color: isDarkTheme ? 'white' : 'black',
-                    backdropColor: isDarkTheme ? 'black' : 'white'
-                },
-            },
-        },
+            tooltip: {
+                backgroundColor: isLight ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.9)',
+                titleColor: isLight ? '#000000' : '#ffffff',
+                bodyColor: isLight ? '#000000' : '#ffffff',
+                borderColor: isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+                borderWidth: 1,
+                padding: 10,
+                displayColors: false,
+                callbacks: {
+                    label: function (context: any) {
+                        return `${context.parsed.r.toLocaleString()} applications`;
+                    }
+                }
+            }
+        }
     };
 
     return (
-        <div className="radar-chart" style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            margin: 'auto',
-            height: '450px',
-            width: '100%',
-            position: 'relative',
-        }}>
-            <div style={{ position: 'absolute', top: '0px', left: '90%', zIndex: 1001 }}> {/* Ensure positioning context */}
-                {/* Icon button with a data-tooltip-id */}
-                <a data-tooltip-id="radar" style={{ cursor: 'pointer' }}>
-                    <IconButton className="bar-icon-button" >
-                        <InfoIcon />
-                    </IconButton>
-                </a>
-                {/* Tooltip with id that matches data-tooltip-id */}
-                <ReactTooltip id="radar" place="top" effect="solid">
-                    Radar view of job applications across various statuses
-                </ReactTooltip>
+        <div className="radar-chart-container">
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                alignSelf: 'flex-start',
+            }}>
+                <AiOutlineRadarChart style={{ color: '#F26203', fontSize: '22px' }} />
+                <h4 className="radar-chart-title" style={{
+                    fontWeight: 600,
+                    fontSize: '19px',
+                    color: isLight ? '#000000' : '#ffffff'
+                }}>{title}</h4>
             </div>
-            <Radar data={chartData} options={options} />
+
+            <div style={{ height: '430px', width: '100%', position: 'relative' }}>
+                <Radar data={chartData} options={options} />
+            </div>
         </div>
     );
 };

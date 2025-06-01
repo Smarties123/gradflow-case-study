@@ -1,9 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ApexCharts from 'apexcharts';
 import './Styles/FunnelChart.less';
-import InfoIcon from '@mui/icons-material/Info';
-import IconButton from '@mui/material/IconButton';
-import { Tooltip } from 'react-tooltip';
+import { LiaBullseyeSolid } from "react-icons/lia";
 
 interface FunnelChartData {
   name: string;
@@ -14,101 +12,180 @@ interface FunnelChartData {
 
 interface FunnelChartProps {
   title: string;
-  mode: 'light' | 'dark'; // Mode prop to handle light or dark mode
+  data: FunnelChartData[];
+  mode: 'light' | 'dark';
+  maxHeight?: string;
+  isLight: boolean;
 }
 
-
-const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode, maxHeight }) => {
+const FunnelChart: React.FC<FunnelChartProps> = ({ data = [], title, mode, maxHeight, isLight }) => {
   const chartRef = useRef<HTMLDivElement | null>(null);
 
-
   useEffect(() => {
-    // Filter and sort data (dummy data is already sorted)
+    if (!chartRef.current) return;
+
+    // Filter and sort data
     const filteredData = data.filter(entry => entry.value > 0);
     const sortedData = filteredData.sort((a, b) => b.value - a.value);
 
+    // Calculate total for percentages
+    const total = sortedData.reduce((sum, item) => sum + item.value, 0);
 
-    // Prepare series and categories for ApexCharts
+    // Prepare series and categories
     const seriesData = sortedData.map(entry => entry.value);
     const categories = sortedData.map(entry => entry.name);
+    const percentages = sortedData.map(entry => ((entry.value / total) * 100).toFixed(1));
 
     const options = {
-      series: [
-        {
-          name: "",
-          data: seriesData,
-        },
-      ],
+      series: [{
+        name: "",
+        data: seriesData,
+      }],
       chart: {
         type: 'bar',
         height: 350,
-        toolbar: { show: false }
-
+        toolbar: {
+          show: false
+        },
+        animations: {
+          enabled: true,
+          easing: 'easeinout',
+          speed: 800,
+          animateGradually: {
+            enabled: true,
+            delay: 150
+          },
+          dynamicAnimation: {
+            enabled: true,
+            speed: 350
+          }
+        }
       },
       plotOptions: {
         bar: {
           horizontal: true,
           isFunnel: true,
           barHeight: '80%',
-          borderRadius: 0,
-          // distributed: true,
-
-        },
+          borderRadius: 4,
+          distributed: true,
+          dataLabels: {
+            position: 'center'
+          }
+        }
       },
       dataLabels: {
         enabled: true,
-        formatter: function (val, opt) {
-          return opt.w.globals.labels[opt.dataPointIndex] + ':  ' + val;
+        formatter: function (val: number, opt: any) {
+          const index = opt.dataPointIndex;
+          return `${categories[index]}: ${val.toLocaleString()} (${percentages[index]}%)`;
+        },
+        style: {
+          fontSize: '12px',
+          fontWeight: 500,
+          colors: [isLight ? '#000000' : '#ffffff']
         },
         dropShadow: {
           enabled: true,
-        },
+          opacity: 0.3,
+          blur: 1,
+          left: 0,
+          top: 0
+        }
       },
-
       xaxis: {
         categories: categories,
-
+        labels: {
+          style: {
+            colors: isLight ? '#000000' : '#ffffff',
+            fontSize: '12px',
+            fontWeight: 500
+          }
+        },
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        }
       },
-      legend: {
-        show: false,
+      yaxis: {
+        labels: {
+          style: {
+            colors: isLight ? '#000000' : '#ffffff',
+            fontSize: '12px',
+            fontWeight: 500
+          }
+        }
+      },
+      grid: {
+        borderColor: isLight ? '#e0e0e0' : '#333333',
+        strokeDashArray: 4,
+        xaxis: {
+          lines: {
+            show: false
+          }
+        }
       },
       tooltip: {
-        style: {
-          fontSize: '14px',
-          color: '#000000', // Dynamic text color based on mode
-        },
-        // shared: true,
-        // intersect: false,
-
+        theme: isLight ? 'light' : 'dark',
+        y: {
+          formatter: function (val: number) {
+            return val.toLocaleString();
+          }
+        }
       },
-      colors: ['#ff6200']
+      colors: ['#FF6200', '#FF8533', '#FFA366', '#FFC299', '#FFE0CC'],
+      fill: {
+        opacity: 0.9,
+        type: 'gradient',
+        gradient: {
+          shade: 'light',
+          type: 'horizontal',
+          shadeIntensity: 0.25,
+          gradientToColors: undefined,
+          inverseColors: true,
+          opacityFrom: 1,
+          opacityTo: 0.85,
+          stops: [0, 100]
+        }
+      }
     };
 
-    // Render the chart
-    if (chartRef.current) {
-      const chart = new ApexCharts(chartRef.current, options);
-      chart.render();
+    const chart = new ApexCharts(chartRef.current, options);
+    chart.render();
 
-      // Clean up chart instance on component unmount
-      return () => chart.destroy();
-    }
-  }, [title, mode]);
+    return () => {
+      chart.destroy();
+    };
+  }, [data, isLight]);
 
   return (
-    <div>
-      <h4>{title}</h4>
-      <div style={{ position: 'relative', top: '-35px', left: '93%' }}> {/* Ensure positioning context */}
-
-        <IconButton className="bar-icon-button" data-tooltip-id="funnel">
-          <InfoIcon />
-        </IconButton>
-        {/* Tooltip with id that matches data-tooltip-id */}
-        <Tooltip id="funnel" >
-          The progression of applications through different recruitment stages
-        </Tooltip>
+    <div className="funnel-chart-container">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        marginBottom: '20px',
+        alignSelf: 'flex-start',
+      }}>
+        <LiaBullseyeSolid style={{ color: '#F26203', fontSize: '22px' }} />
+        <h4 className="funnel-chart-title" style={{
+          fontWeight: 600,
+          fontSize: '19px',
+          color: isLight ? '#000000' : '#ffffff'
+        }}>{title}</h4>
       </div>
-      <div ref={chartRef} style={{ height: '100%', maxHeight, position: 'relative', top: '-30px' }} // Ensures it fills the panel
-      ></div>
+
+      <div
+        ref={chartRef}
+        style={{
+          height: '100%',
+          maxHeight,
+          position: 'relative',
+          top: '-30px',
+          padding: '0 10px'
+        }}
+      />
     </div>
   );
 };

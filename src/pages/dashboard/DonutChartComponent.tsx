@@ -1,96 +1,118 @@
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 import './Styles/DonutChartComponent.less';
-import IconButton from '@mui/material/IconButton';
-import InfoIcon from '@mui/icons-material/Info';
-import { Tooltip } from 'react-tooltip';
-
+import PieChartOutlineIcon from '@mui/icons-material/PieChartOutline';
 
 interface DonutChartComponentProps {
   data: { name: string; value: number; color: string }[];
+  isLight: boolean;
 }
 
-const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data }) => {
-  const series = data.map(item => item.value); // Values for the chart
-  const labels = data.map(item => item.name); // Labels for each section
-  const colors = data.map(item => item.color); // Colors for each section
+const DonutChartComponent: React.FC<DonutChartComponentProps> = ({ data, isLight }) => {
+  const series = data.map(item => item.value);
+  const labels = data.map(item => item.name);
+  const colors = data.map(item => item.color);
+  const total = series.reduce((sum, val) => sum + val, 0);
+
 
   const options = {
     chart: {
-      width: '100%',
-      height: '100%',
-      type: 'donut'
+      type: 'donut',
+      toolbar: { show: false },
     },
-    labels: labels,
-    colors: colors,
-    fill: {
-      opacity: 1
-    },
-    stroke: {
-      width: 1,
-      colors: undefined
+    labels,
+    colors,
+    stroke: { show: false },
+    dataLabels: {
+      enabled: true,
+      formatter: (val: number) => `${val.toFixed(0)}%`,
+      style: {
+        fontSize: '14px',
+        fontWeight: 'bold',
+      },
     },
     legend: {
       position: 'bottom',
+      fontSize: '12px',
       labels: {
-        colors: '#333',
-        font: {
-          size: 12
-        }
+        color: isLight ? '#979FA9' : '#ffffff',
       },
-      formatter: (label: string, { seriesIndex }: { seriesIndex: number }) => {
-        const value = data[seriesIndex].value; // Get the value for the current series
-
-        // Show the label with "(0)" only if the value is 0
-        return value === 0 ? `${label} (0%)` : label;
-      }
+      markers: {
+        width: 12,
+        height: 12,
+        radius: 12,
+        offsetX: -2,
+      },
+      formatter: function (label: string, opts: any) {
+        const val = series[opts.seriesIndex];
+        return `${label}: ${val}`;
+      },
     },
     tooltip: {
       y: {
-        formatter: val => `${val}`
-      }
+        formatter: val => `${val} (${((val / total) * 100).toFixed(1)}%)`,
+      },
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '75%',
+          labels: {
+            show: true,
+            value: {
+              fontSize: '18px',
+              fontWeight: 600,
+              color: isLight ? '#000000' : '#ffffff',
+            },
+            total: {
+              show: true,
+              label: 'Total',
+              fontSize: '16px',
+              color: isLight ? '#979FA9' : '#ffffff',
+              fontWeight: 600,
+              formatter: () => `${total}`,
+            },
+          },
+        },
+      },
     },
     responsive: [
       {
         breakpoint: 480,
         options: {
-          chart: {
-            width: 300
-          },
-          legend: {
-            position: 'bottom',
-            labels: {
-              colors: '#333'
-            },
-            formatter: (label: string, { seriesIndex }: { seriesIndex: number }) => {
-              const value = data[seriesIndex].value;
-
-              return value === 0 ? `${label} (0%)` : label;
-            }
-          }
-        }
-      }
-    ]
+          chart: { width: 300 },
+          legend: { position: 'bottom' },
+        },
+      },
+    ],
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div style={{ position: 'absolute', top: '37px', left: '85%', zIndex: '10001' }}> {/* Ensure positioning context */}
-        {/* Icon button with a data-tooltip-id */}
+    <div className="donut-chart-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* Title with icon */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', alignSelf: 'flex-start',
+      }}>
+        <PieChartOutlineIcon style={{ color: '#F26203', fontSize: '22px' }} />
+        <h4 className="donut-chart-title" style={{ fontWeight: 600, fontSize: '19px' }} >Application Status Distribution</h4>
+      </div>
+
+      {/* Tooltip Icon */}
+      {/* <div style={{ position: 'absolute', top: '37px', left: '85%', zIndex: 10001 }}>
         <a data-tooltip-id="donut">
-          <IconButton className="bar-icon-button" >
+          <IconButton className="bar-icon-button">
             <InfoIcon />
           </IconButton>
         </a>
-        {/* Tooltip with id that matches data-tooltip-id */}
-        <Tooltip id="donut" place="left" >
+        <Tooltip id="donut" place="left">
           Percentage of applications across different job statuses.
         </Tooltip>
-      </div>
-      <div id="chart">
-        <ReactApexChart options={options} series={series} type="donut" width={450} />
-      </div>
+      </div> */}
 
+      {/* Donut Chart */}
+      <div id="chart">
+        <ReactApexChart options={options} series={series} type="donut" width={420} />
+      </div>
     </div>
   );
 };

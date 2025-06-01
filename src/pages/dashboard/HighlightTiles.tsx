@@ -13,9 +13,10 @@ interface HighlightTileProps {
   value: number;
   color: string;
   icon: React.ReactNode;
+  isLight: boolean;
 }
 
-const HighlightTile: React.FC<HighlightTileProps> = ({ title, value, color, icon }) => {
+const HighlightTile: React.FC<HighlightTileProps> = ({ title, value, color, icon, isLight }) => {
   const props = useSpring({
     from: { number: 0 },
     to: { number: value },
@@ -43,12 +44,13 @@ const HighlightTile: React.FC<HighlightTileProps> = ({ title, value, color, icon
 
 interface HighlightTilesProps {
   data: { title: string; value: number; color: string; icon: React.ReactNode }[];
+  isLight: boolean;
 }
 
 
 const AnimatedCol = animated(Col);
 
-const HighlightTiles: React.FC<HighlightTilesProps> = ({ data }) => {
+const HighlightTiles: React.FC<HighlightTilesProps> = ({ data, isLight }) => {
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const items = [{ title: "ALL", value: total, color: "#FF8C00", icon: null }, ...data];
   const maxRotation = 180;
@@ -89,6 +91,7 @@ const HighlightTiles: React.FC<HighlightTilesProps> = ({ data }) => {
               value={item.value}
               color={item.color}
               icon={item.icon}
+              isLight={isLight}
             />
           </AnimatedCol>
         );
