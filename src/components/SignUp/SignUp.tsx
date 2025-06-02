@@ -113,6 +113,7 @@ export default function SignUp() {
     const username = data.get('Name') as string;
     const email = data.get('email') as string;
     const password = data.get('password') as string;
+    const createdAt = new Date().toISOString().replace('T', ' ').replace('Z', '');
 
     // Client-side validation
     let valid = true;
@@ -157,11 +158,13 @@ export default function SignUp() {
 
     setLoading(true);
 
+    console.log(username, email, password, createdAt)
+
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, email, password, createdAt }),
       });
 
       if (response.ok) {
@@ -264,6 +267,21 @@ export default function SignUp() {
                         error={!!emailError}
                         helperText={emailError}
                       />
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          mt: 1,
+                          px: 1,
+                          py: 0.5,
+                          backgroundColor: 'rgba(0,0,0,0.04)',
+                          borderRadius: '6px',
+                          color: 'text.secondary',
+                          fontStyle: 'italic'
+                        }}
+                      >
+                        📧 Email addresses are case sensitive
+                      </Typography>
+
                     </Grid>
                     <Grid item xs={12}>
                       <TextField

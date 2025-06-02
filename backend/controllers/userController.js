@@ -42,7 +42,7 @@ export const checkUserExists = async (req, res) => {
 // Sign up
 // In your signUp function, check for email existence
 export const signUp = async (req, res) => {
-  const { username, email, password, promotionalEmails } = req.body;
+  const { username, email, password, promotionalEmails, createdAt } = req.body;
   if (!username || !email || !password) {
     return res.status(400).json({ message: 'Username, email, and password are required.' });
   }
@@ -61,8 +61,8 @@ export const signUp = async (req, res) => {
 
     // Proceed with user creation
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password") VALUES ($1, $2, $3) RETURNING "UserId"';
-    const values = [username.toLowerCase(), email, hashedPassword];
+    const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password", "CreatedAt"  ) VALUES ($1, $2, $3, $4) RETURNING "UserId"';
+    const values = [username.toLowerCase(), email, hashedPassword, createdAt];
 
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
