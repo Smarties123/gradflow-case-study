@@ -113,6 +113,7 @@ export default function SignUp() {
     const username = data.get('Name') as string;
     const email = data.get('email') as string;
     const password = data.get('password') as string;
+    const createdAt = new Date().toISOString().replace('T', ' ').replace('Z', '');
 
     // Client-side validation
     let valid = true;
@@ -157,11 +158,13 @@ export default function SignUp() {
 
     setLoading(true);
 
+    console.log(username, email, password, createdAt)
+
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, email, password, createdAt }),
       });
 
       if (response.ok) {
