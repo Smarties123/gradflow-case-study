@@ -251,6 +251,20 @@ export default function SignInSide() {
                     error={!!emailError}
                     helperText={emailError}
                   />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      mt: 1,
+                      px: 1,
+                      py: 0.5,
+                      backgroundColor: 'rgba(0,0,0,0.04)',
+                      borderRadius: '6px',
+                      color: 'text.secondary',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    📧 Email addresses are case sensitive
+                  </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
