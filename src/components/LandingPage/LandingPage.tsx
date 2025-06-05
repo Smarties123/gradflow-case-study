@@ -23,6 +23,12 @@ import Pricing from './Pricing';
 import FAQ from './FAQ';
 import './Styles/fireworks-banner.css'; // Keep banner CSS import
 
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: "easeOut" }
+};
+
 export default function LandingPage() {
   const [mode, setMode] = React.useState<PaletteMode>('dark');
   const [showBanner, setShowBanner] = useState(false); // Banner starts hidden
@@ -86,7 +92,13 @@ export default function LandingPage() {
 
   return (
     <>
-      <motion.div className="progress-bar" style={{ scaleX }} />
+      <motion.div
+        className="progress-bar"
+        style={{ scaleX }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      />
 
       {/* Sliding Banner - Animates in and out over the content */}
       <AnimatePresence>
@@ -119,25 +131,82 @@ export default function LandingPage() {
       <ThemeProvider theme={LPtheme}>
         <CssBaseline />
         {/* Main content zIndex is 100 */}
-        <Box sx={{ position: 'relative', zIndex: 100 }}>
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 100,
+            overflow: 'hidden',
+            '& > *': {
+              position: 'relative',
+              zIndex: 1
+            }
+          }}
+        >
           {/* AppBar zIndex is 110 (above banner and confetti) */}
           <AppAppBar mode={mode} toggleColorMode={toggleColorMode} sx={{ zIndex: 110 }} />
-          <Hero />
-          <Box sx={{ bgcolor: 'background.default' }}>
-            <LogoCollection />
-            <Divider />
-            <Box id="highlights"><Highlights /></Box>
-            <Divider />
-            <Box id="terminal"><Panel /></Box>
-            <Divider />
-            <Box id="insights"><Insights /></Box>
-            <Divider />
-            <Box id="testimonials"><Testimonials /></Box>
-            <Divider />
-            <FAQ />
-{/*             <Pricing /> */}
-            <Divider />
-            <Footer />
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <Hero />
+          </motion.div>
+
+          <Box
+            sx={{
+              bgcolor: 'background.default',
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '100%',
+                background: mode === 'dark'
+                  ? 'linear-gradient(180deg, rgba(9,14,16,0) 0%, rgba(9,14,16,1) 100%)'
+                  : 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%)',
+                pointerEvents: 'none',
+                zIndex: 0
+              }
+            }}
+          >
+            <motion.div {...fadeInUp}>
+              <LogoCollection />
+            </motion.div>
+
+            <motion.div {...fadeInUp}>
+              <Box id="highlights"><Highlights /></Box>
+            </motion.div>
+
+            <motion.div {...fadeInUp}>
+              <Box id="terminal"><Panel /></Box>
+            </motion.div>
+            <Divider sx={{ my: 4 }} />
+
+            <motion.div {...fadeInUp}>
+              <Box id="insights"><Insights /></Box>
+            </motion.div>
+            <Divider sx={{ my: 4 }} />
+
+            <motion.div {...fadeInUp}>
+              <Box id="testimonials"><Testimonials /></Box>
+            </motion.div>
+            <Divider sx={{ my: 4 }} />
+
+            <motion.div {...fadeInUp}>
+              <FAQ />
+            </motion.div>
+
+            <motion.div {...fadeInUp}>
+              <Pricing />
+            </motion.div>
+            <Divider sx={{ my: 4 }} />
+
+            <motion.div {...fadeInUp}>
+              <Footer />
+            </motion.div>
           </Box>
           {/* FeedbackButton zIndex is 110 (above banner and confetti) */}
           <FeedbackButton sx={{ zIndex: 110 }} />

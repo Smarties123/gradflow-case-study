@@ -57,17 +57,16 @@ const items = [
 
 export default function Highlights() {
   const [animateIndex, setAnimateIndex] = React.useState(0);
-  const theme = useTheme(); // Get the current theme (light or dark)
+  const theme = useTheme();
 
-  // Trigger animation once the component has mounted
   React.useEffect(() => {
     const timer = setInterval(() => {
       if (animateIndex < items.length) {
         setAnimateIndex((prevIndex) => prevIndex + 1);
       }
-    }, 300); // Adjust delay for sequential animation
+    }, 200);
 
-    return () => clearInterval(timer); // Cleanup the timer on unmount
+    return () => clearInterval(timer);
   }, [animateIndex]);
 
   return (
@@ -76,8 +75,27 @@ export default function Highlights() {
       sx={{
         pt: { xs: 4, sm: 12 },
         pb: { xs: 8, sm: 16 },
-        color: theme.palette.mode === 'dark' ? 'white' : '#0a0e0f', // Adjust text color based on the theme
-        bgcolor: theme.palette.mode === 'dark' ? '#0a0e0f' : 'white', // Adjust background color based on the theme
+        color: theme.palette.mode === 'dark' ? 'white' : '#0a0e0f',
+        bgcolor: theme.palette.mode === 'dark' ? '#0a0e0f' : 'white',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '1px',
+          background: 'linear-gradient(90deg, transparent, rgba(255,98,0,0.2), transparent)',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: '1px',
+          background: 'linear-gradient(90deg, transparent, rgba(255,98,0,0.2), transparent)',
+        }
       }}
     >
       <Container
@@ -89,7 +107,7 @@ export default function Highlights() {
           gap: { xs: 3, sm: 6 },
         }}
       >
-        <Grid container spacing={3.5}>
+        <Grid container spacing={4}>
           {items.map((item, index) => (
             <Grid
               item
@@ -97,37 +115,75 @@ export default function Highlights() {
               sm={6}
               md={4}
               key={index}
-              className={`animate__animated animate__fadeInUp`} // Use animate.css class
+              className={`animate__animated animate__fadeInUp`}
               sx={{
                 opacity: animateIndex > index ? 1 : 0,
-                transform: animateIndex > index ? 'translateY(0)' : 'translateY(20px)', // Apply translation for animation
-                transition: 'opacity 0.6s ease, transform 0.6s ease',
-                animationDelay: `${index * 0.3}s`, // Stagger animations based on the index
+                transform: animateIndex > index ? 'translateY(0)' : 'translateY(20px)',
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                animationDelay: `${index * 0.2}s`,
               }}
             >
               <Stack
                 direction="column"
                 color="inherit"
                 component={Card}
-                spacing={1}
+                spacing={2}
                 useFlexGap
                 sx={{
-                  p: 3,
+                  p: 4,
                   height: '100%',
-                  boxShadow: theme.palette.mode === 'dark' ? 'none' : '0px 3px 9px rgba(0, 0, 0, 0.2)', // Light mode: Stronger shadow
-
-                  border: 'none',
-                  // borderColor: theme.palette.mode === 'dark' ? 'grey.800' : 'grey.300', // Border color based on the theme
-                  background: 'transparent',
-                  // backgroundColor: theme.palette.mode === 'dark' ? 'grey.900' : 'white', // Background color based on the theme
+                  position: 'relative',
+                  overflow: 'hidden',
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'translateY(-8px)',
+                    boxShadow: theme.palette.mode === 'dark'
+                      ? '0 8px 24px rgba(255, 255, 255, 0.1)'
+                      : '0 8px 24px rgba(0, 0, 0, 0.12)',
+                    '& .icon-wrapper': {
+                      transform: 'scale(1.1)',
+                      color: theme.palette.mode === 'dark' ? 'white' : theme.palette.primary.main,
+                    },
+                  },
+                  background: theme.palette.mode === 'dark'
+                    ? 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)'
+                    : 'linear-gradient(145deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.01) 100%)',
+                  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)'}`,
+                  borderRadius: 2,
+                  backdropFilter: theme.palette.mode === 'dark' ? 'blur(10px)' : 'none',
                 }}
               >
-                <Box sx={{ opacity: '80%' }}>{item.icon}</Box>
+                <Box
+                  className="icon-wrapper"
+                  sx={{
+                    opacity: 0.9,
+                    transition: 'all 0.3s ease-in-out',
+                    color: theme.palette.mode === 'dark' ? 'white' : theme.palette.primary.main,
+                    '& svg': {
+                      fontSize: '2.5rem',
+                    }
+                  }}
+                >
+                  {item.icon}
+                </Box>
                 <div>
-                  <Typography variant="h6" style={{ fontWeight: 600 }} gutterBottom>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 600,
+                      mb: 1,
+                      color: theme.palette.mode === 'dark' ? 'white' : theme.palette.primary.main,
+                    }}
+                  >
                     {item.title}
                   </Typography>
-                  <Typography variant="body1" sx={{ color: theme.palette.mode === 'dark' ? 'grey.400' : 'grey.800' }}>
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'grey.700',
+                      lineHeight: 1.6,
+                    }}
+                  >
                     {item.description}
                   </Typography>
                 </div>
