@@ -2,53 +2,77 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe('pk_test_51R5CfJDcnB3juQw0LrWR9sOPzMLLSVHFt6h3gWJb6V8JqO9xxT8Zb4jtCtnQVbpWJyATkjwCnX5jQ6AXPyt4xW1Z00zj19uhQm'); // Replace with your public key
+const stripePromise = loadStripe(
+    'pk_test_51R5CfJDcnB3juQw0LrWR9sOPzMLLSVHFt6h3gWJb6V8JqO9xxT8Zb4jtCtnQVbpWJyATkjwCnX5jQ6AXPyt4xW1Z00zj19uhQm'
+); // TODO: move to env or config file
 
-interface StripeCheckoutProps { }
-
-const StripeCheckout: React.FC<StripeCheckoutProps> = () => {
+const StripeCheckout: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
     const [params] = useSearchParams();
     const email = params.get('email');
     const plan = params.get('plan');
+
     const navigate = useNavigate();
 
     useEffect(() => {
-        const initiateCheckout = async () => {
+        // Bail early if required params are missing
+        if (!email || !plan) {
+            setError('Missing email or plan');
+            setLoading(false);
+            return;
+        }
+
+        const checkout = async () => {
             try {
                 const stripe = await stripePromise;
                 if (!stripe) throw new Error('Stripe failed to load');
 
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/create-checkout-session`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email,
-                        plan,
-                        success_url: `${window.location.origin}/main`,
-                        cancel_url: `${window.location.origin}`
-                    }),
-                });
+                const response = await fetch(
+                    `${process.env.REACT_APP_API_URL}/create-checkout-session`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email,
+                            plan,
+                            success_url: `${window.location.origin}/main`,
+                            cancel_url: `${window.location.origin}`,
+                        }),
+                    }
+                );
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to create checkout session');
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Server error');
+
+                // ─── Handle the custom codes from backend ──────────────────────────
+                if (data.code === 30) {
+                    // Customer already subscribed → send them where you want
+                    navigate('/main?existing=true');
+                    return;
                 }
 
-                const { sessionId } = await response.json();
+                if (data.code === 200 && data.sessionId) {
+                    const { error: stripeError } = await stripe.redirectToCheckout({
+                        sessionId: data.sessionId,
+                    });
+                    if (stripeError) throw new Error(stripeError.message);
+                    return; // Normal flow continues in Stripe-hosted page
+                }
 
-                const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
-                if (stripeError) throw new Error(stripeError.message);
+                // Unknown response shape
+                throw new Error('Unexpected server response');
             } catch (err: any) {
                 console.error('Checkout error:', err);
                 setError(err.message || 'Checkout failed');
+            } finally {
                 setLoading(false);
             }
         };
 
-        initiateCheckout();
-    }, [email, plan]);
+        checkout();
+    }, [email, plan, navigate]);
 
     return (
         <div style={{ padding: 20 }}>

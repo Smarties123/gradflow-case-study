@@ -57,7 +57,7 @@ export default function LandingPage() {
             <Box id="testimonials"><Testimonials /></Box>
             <Divider />
             <FAQ />
-            {/* <Pricing /> */}
+            <Pricing />
             <Divider />
             <Footer />
           </Box>

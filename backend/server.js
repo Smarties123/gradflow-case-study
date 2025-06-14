@@ -104,74 +104,59 @@ const STRIPE_SECRET_KEY =
 
 const stripeCon = stripe(STRIPE_SECRET_KEY);
 
-// app.post('/create-payment-intent', async (req, res) => {
-//   try {
-//     const paymentIntent = await stripeCon.paymentIntents.create({
-//       amount: 200,
-//       currency: 'gbp',
-//       automatic_payment_methods: {
-//         enabled: true,
-//       },
-//     });
-
-//     res.json({ clientSecret: paymentIntent.client_secret });
-//   } catch (error) {
-//     console.error('Error creating payment intent:', error);
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
 app.post('/create-checkout-session', async (req, res) => {
   const { email, plan, success_url, cancel_url } = req.body;
-  
-    var priceId = 0;
 
-    // Validate plan
-    if (!['monthly', 'yearly'].includes(plan.toLowerCase())) {
-        return res.status(400).json({ error: 'Invalid plan. Must be "monthly" or "yearly".' });
+  // 1. Validate plan
+  const normalizedPlan = plan?.toLowerCase();
+  if (!['monthly', 'yearly'].includes(normalizedPlan)) {
+    return res.status(400).json({ error: 'Invalid plan. Use "monthly" or "yearly".' });
+  }
+
+  const priceId = normalizedPlan === 'monthly'
+    ? process.env.STRIPE_MONTHLY_PRICE_ID
+    : process.env.STRIPE_YEARLY_PRICE_ID;
+
+  try {
+    // 2. Check if customer already exists
+    const { data: existingCustomers } = await stripeCon.customers.list({
+      email,
+      limit: 1,
+    });
+
+    if (existingCustomers.length > 0) {
+      // Stop here - email already has a Stripe customer
+      return res.status(200).json({
+        code: 30,
+        message: 'Customer already exists with an active subscription.',
+      });
     }
-  
-    if (plan === "monthly") {
-      priceId = process.env.STRIPE_MONTHLY_PRICE_ID;
-    } else if (plan === "yearly") {
-      priceId = process.env.STRIPE_YEARLY_PRICE_ID;
-    }
 
-    try {
-        // Step 1: Create or retrieve a Stripe Customer
-        let customer;
-        const existingCustomers = await stripeCon.customers.list({ email, limit: 1 });
-        if (existingCustomers.data.length > 0) {
-            customer = existingCustomers.data[0];
-        } else {
-            customer = await stripeCon.customers.create({
-                email,
-                description: `Customer for ${plan} subscription`,
-            });
-        }
+    // 3. Create new customer
+    const customer = await stripeCon.customers.create({
+      email,
+      description: `Customer for ${normalizedPlan} subscription`,
+    });
 
-        // Step 2: Create the Checkout Session for a subscription
-         const session = await stripeCon.checkout.sessions.create({
-            payment_method_types: ['card'],
-            line_items: [
-                {
-                    price: priceId,
-                    quantity: 1,
-                },
-            ],
-            customer: customer.id,
-            mode: 'subscription',
-            success_url,
-            cancel_url,
-        });
+    // 4. Create checkout session
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'subscription',
+      customer: customer.id,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url,
+      cancel_url,
+    });
 
-        res.json({ sessionId: session.id });
+    return res.status(200).json({
+      code: 200,
+      sessionId: session.id,
+    });
 
-        
-    } catch (error) {
-        console.error('Error creating checkout session:', error);
-        res.status(500).json({ error: error.message || 'Internal server error' });
-    }
+  } catch (err) {
+    console.error('Stripe error:', err);
+    return res.status(500).json({ error: err.message || 'Internal server error' });
+  }
 });
 
 
