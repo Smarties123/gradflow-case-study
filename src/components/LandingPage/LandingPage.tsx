@@ -105,17 +105,14 @@ export default function LandingPage() {
             <motion.div {...fadeInUp}>
               <Box id="terminal"><Panel /></Box>
             </motion.div>
-            <Divider sx={{ my: 4 }} />
 
             <motion.div {...fadeInUp}>
               <Box id="insights"><Insights /></Box>
             </motion.div>
-            <Divider sx={{ my: 4 }} />
 
             <motion.div {...fadeInUp}>
               <Box id="testimonials"><Testimonials /></Box>
             </motion.div>
-            <Divider sx={{ my: 4 }} />
 
             <motion.div {...fadeInUp}>
               <FAQ />
@@ -124,7 +121,6 @@ export default function LandingPage() {
             <motion.div {...fadeInUp}>
               <Pricing />
             </motion.div>
-            <Divider sx={{ my: 4 }} />
 
             <motion.div {...fadeInUp}>
               <Footer />
