@@ -74,8 +74,8 @@ export default function Pricing() {
     <Container
       id="pricing"
       sx={{
-        pt: { xs: 4, sm: 12 },
-        pb: { xs: 8, sm: 16 },
+        pt: { xs: 4, sm: 10 },
+        pb: { xs: 4, sm: 10 },
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
@@ -89,7 +89,12 @@ export default function Pricing() {
           textAlign: { sm: 'left', md: 'center' },
         }}
       >
-        <Typography component="h2" variant="h4" color="text.primary">
+        <Typography component="h2" variant="h4" color="text.primary" sx={{
+          background: 'linear-gradient(90deg, #FF6200, #FF8A00)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          mb: 2
+        }}>
           Pricing
         </Typography>
         <Typography variant="body1" color="text.secondary">

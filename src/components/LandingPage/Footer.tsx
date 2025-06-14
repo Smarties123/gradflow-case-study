@@ -94,7 +94,8 @@ export default function Footer() {
             gap: 1
           }}
         >
-          <Typography variant="body2" fontWeight={600}>
+          <Typography component="text"
+            variant="subtitle2" fontWeight={600}>
             Product
           </Typography>
           <Link color="text.secondary" href="#terminal">
@@ -117,7 +118,8 @@ export default function Footer() {
             gap: 1
           }}
         >
-          <Typography variant="body2" fontWeight={600}>
+          <Typography component="text" color="text.primary"
+            variant="subtitle2" fontWeight={600}>
             Company
           </Typography>
           <Link color="text.secondary" href="/AboutUs">
@@ -137,7 +139,7 @@ export default function Footer() {
             gap: 1
           }}
         >
-          <Typography variant="body2" fontWeight={600}>
+          <Typography variant="body2" color="text.primary" fontWeight={600}>
             Legal
           </Typography>
           <Link color="text.secondary" href="/terms-and-conditions">

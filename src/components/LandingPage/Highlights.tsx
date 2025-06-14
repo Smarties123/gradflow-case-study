@@ -73,8 +73,8 @@ export default function Highlights() {
     <Box
       id="highlights"
       sx={{
-        pt: { xs: 4, sm: 12 },
-        pb: { xs: 8, sm: 16 },
+        pt: { xs: 4, sm: 10 },
+        pb: { xs: 4, sm: 10 },
         color: theme.palette.mode === 'dark' ? 'white' : '#0a0e0f',
         bgcolor: theme.palette.mode === 'dark' ? '#0a0e0f' : 'white',
         position: 'relative',

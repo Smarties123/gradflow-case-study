@@ -22,10 +22,29 @@ import Timeline from './components/LandingPage/TimelinePage';
 import ComingSoon from './components/ComingSoon/ComingSoon';
 import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar';
 import Files from './pages/files/Files';
+<<<<<<< Updated upstream
 import StripeCheckout from './components/StripeCheckout';
+=======
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+>>>>>>> Stashed changes
 
 // Import logEvent to track user navigation
 import { logEvent, analytics } from '../firebaseConfig';
+
+export const notifyError = (message: string) => {
+  toast.error(message, {
+    position: "bottom-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "colored",
+    transition: Bounce,
+  });
+};
 
 const App = () => {
   const { user } = useUser();
@@ -39,6 +58,7 @@ const App = () => {
 
   return (
     <IntlProvider locale="en" messages={locales.en}>
+      <ToastContainer />
       <Routes>
         {/* Landing and Auth Pages - No UserContext */}
         <Route path="/" element={<LandingPage />} />

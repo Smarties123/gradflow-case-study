@@ -60,8 +60,8 @@ export default function FAQ() {
     <Container
       id="faq"
       sx={{
-        pt: { xs: 4, sm: 12 },
-        pb: { xs: 8, sm: 16 },
+        pt: { xs: 4, sm: 10 },
+        pb: { xs: 4, sm: 10 },
         color: theme.palette.mode === 'dark' ? 'white' : '#0a0e0f',
         bgcolor: theme.palette.mode === 'dark' ? '#0a0e0f' : 'white',
         position: 'relative',
@@ -95,7 +95,12 @@ export default function FAQ() {
         color="text.primary"
         sx={{
           width: { sm: '100%', md: '60%' },
-          textAlign: { sm: 'left', md: 'center' }
+          textAlign: { sm: 'left', md: 'center' },
+
+          background: 'linear-gradient(90deg, #FF6200, #FF8A00)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          mb: 2
         }}
       >
         Frequently asked questions

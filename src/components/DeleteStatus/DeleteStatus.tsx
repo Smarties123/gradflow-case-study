@@ -1,62 +1,97 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import '../Modal/Modal.less';
-import { useTransition, animated } from 'react-spring';
+import React, { useState } from 'react';
+import './DeleteStatus.less';
 
-const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
-  const transitions = useTransition(isOpen, {
-    from: { opacity: 0, transform: 'translateY(-40px)' },
-    enter: { opacity: 1, transform: 'translateY(0px)' },
-    leave: { opacity: 0, transform: 'translateY(-40px)' },
-    config: { tension: 300, friction: 20 },
-  });
+interface DeleteStatusProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onNo: () => void;
+  onYes: () => void;
+  title: string;
+  showDropdown?: boolean;
+}
 
-  const handleDelete = () => {
-    onYes();
-    onClose();
+const DeleteStatus: React.FC<DeleteStatusProps> = ({
+  isOpen,
+  onClose,
+  onNo,
+  onYes,
+  title,
+  showDropdown = false,
+}) => {
+  const [deleteReason, setDeleteReason] = useState('');
+
+  const deleteReasons = [
+    'Not interested in the role',
+    'Company not a good fit',
+    'Salary expectations not met',
+    'Location not suitable',
+    'Found another opportunity',
+    'Other'
+  ];
+
+  const handleSubmit = async () => {
+    if (showDropdown && !deleteReason) {
+      alert('Please select a reason for deletion');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/delete`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          deleteReason,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit delete reason');
+      }
+
+      onYes();
+    } catch (error) {
+      console.error('Error submitting delete reason:', error);
+      onYes(); // Still proceed with deletion even if submission fails
+    }
   };
 
-  const handleCancel = (e) => {
-    e.stopPropagation();
-    onNo();
-    onClose();
-  };
+  if (!isOpen) return null;
 
-  return transitions(
-    (styles, item) =>
-      item && (
-        <div className="modal-overlay" onClick={onClose}>
-          <animated.div
-            style={styles}
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2>{title || 'Are You Sure?'}</h2>
-            <div className="modal-buttons">
-              <button type="button" className="cancel-button" onClick={handleCancel}>
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="delete-button"
-                style={{ backgroundColor: '#FF6200' }}
-                onClick={handleDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </animated.div>
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <h2>{title}</h2>
+        {showDropdown && (
+          <div className="delete-reason-dropdown">
+            <label>Please select a reason for deletion:</label>
+            <select
+              value={deleteReason}
+              onChange={(e) => setDeleteReason(e.target.value)}
+              required
+            >
+              <option value="">Select a reason</option>
+              {deleteReasons.map((reason) => (
+                <option key={reason} value={reason}>
+                  {reason}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div className="modal-buttons">
+          <button className="cancel-button" onClick={onNo}>
+            No
+          </button>
+          <button className="delete-button" onClick={handleSubmit}>
+            Yes
+          </button>
         </div>
-      )
+      </div>
+    </div>
   );
 };
 
-DeleteModal.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  onYes: PropTypes.func.isRequired,
-  onNo: PropTypes.func.isRequired,
-  title: PropTypes.string,
-};
-
-export default DeleteModal;
+export default DeleteStatus;

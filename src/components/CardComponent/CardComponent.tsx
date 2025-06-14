@@ -196,6 +196,7 @@ const CardComponent = ({
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
             onNo={() => setIsDeleteModalOpen(false)}
+            showDropdown={true}
             onYes={async () => {
               setIsDeleteModalOpen(false);      // Close modal
               setIsDeleting(true);              // Start animation
