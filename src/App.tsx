@@ -22,12 +22,9 @@ import Timeline from './components/LandingPage/TimelinePage';
 import ComingSoon from './components/ComingSoon/ComingSoon';
 import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar';
 import Files from './pages/files/Files';
-<<<<<<< Updated upstream
 import StripeCheckout from './components/StripeCheckout';
-=======
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
->>>>>>> Stashed changes
 
 // Import logEvent to track user navigation
 import { logEvent, analytics } from '../firebaseConfig';

@@ -5,6 +5,7 @@ import Grid from '@mui/material/Grid';
 import CountUp from 'react-countup';
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
+import { useTheme } from '@mui/material/styles';
 
 // Dummy API fetch function
 const fetchData = async () => {
@@ -25,6 +26,9 @@ const roundUpToNextTen = (value) => Math.ceil(value / 10) * 10;
 const StatCard = ({ title, value, isLoaded, delay }) => {
   const ref = React.useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  const theme = useTheme();
+
 
   return (
     <motion.div
@@ -74,9 +78,7 @@ const StatCard = ({ title, value, isLoaded, delay }) => {
               variant="h3"
               sx={{
                 fontWeight: 700,
-                background: 'linear-gradient(45deg, #FF6200, #FF8533)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'white',
+                WebkitTextFillColor: theme.palette.mode === 'dark' ? 'white' : '#FF6200',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 1,
@@ -95,16 +97,21 @@ const StatCard = ({ title, value, isLoaded, delay }) => {
                 }
               }}
             >
-              {isLoaded && (
-                <CountUp
-                  start={0}
-                  end={value}
-                  duration={2.5}
-                  separator=","
-                  enableScrollSpy
-                  scrollSpyOnce
-                />
+              {isInView && isLoaded ? (
+                <span>
+                  <CountUp
+                    start={0}
+                    end={value}
+                    duration={2.5}
+                    separator=","
+                    enableScrollSpy
+                    scrollSpyOnce
+                  />
+                </span>
+              ) : (
+                <span>0</span> // fallback during load or off-screen
               )}
+
               <span style={{
                 color: '#FF6200',
                 fontSize: '0.8em',
