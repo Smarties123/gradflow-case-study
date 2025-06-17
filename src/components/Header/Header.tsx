@@ -158,71 +158,59 @@ const Header = props => {
 
   return (
     <Stack className="header" spacing={8} justifyContent="space-between">
-      <Stack direction="row" spacing={4} alignItems="flex-start">
-        <Search /> {/* Include the Search component here */}
+      {location.pathname === '/main' && (
 
-        <div className='flex flex-col items-center justify-center w-screen h-screen gap-6'>
+        <Stack direction="row" spacing={4} alignItems="flex-start">
 
-          <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
-            <AwesomeButton
-              className="header-add-new"
-              onClick={handleOpenAddModal} >
 
-              <FaPlus style={{ color: 'white', paddingTop: '3px' }} />
-              <span className="visually-hidden">Add New</span>
-            </AwesomeButton>
+          <Search /> {/* Include the Search component here */}
 
-            {/* <Button
-              className="header-button"
-              style={{
-                backgroundColor: '#8338ec',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                width: '120px',
-                lineHeight: '24px'
-              }}
-              onClick={handleOpenAddModal}
-            >
-              <FaPlus
-                className="header-icon"
-                style={{ fontSize: 18, color: 'white', margin: '1px 1px 1px 1px' }}
-              />
-              <span className="visually-hidden">Add New</span>
-            </Button> */}
-            {/* <Button
-                className="header-button"
-                style={{
-                  backgroundColor: '#ff6200',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  width: '120px',
-                  lineHeight: '24px'
-                }}
-                onClick={handleOpenModal}
-              >
-                <FaRegShareSquare
-                  className="header-icon"
-                  style={{ fontSize: 18, margin: '1px 1px 1px 1px' }}
-                />
-                <span className="visually-hidden">Share</span>
-              </Button> */}
-          </ButtonToolbar>
-        </div>
-        {/* )} */}
-        <Modal
-          isOpen={isAddModalOpen}
-          onClose={handleCloseAddModal}
-          columns={columns}
-          addCardToColumn={addCardToColumn}
-          showDropdown={true}
-        />
-        <ShareModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} />
-        <FeedbackPopup show={showFeedbackPopup} onClose={handleCloseFeedbackPopup} />
+          <div className='flex flex-col items-center justify-center w-screen h-screen gap-6'>
 
-      </Stack>
+            <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
+              <AwesomeButton
+                className="header-add-new"
+                onClick={handleOpenAddModal} >
 
+                <FaPlus style={{ color: 'white', paddingTop: '3px' }} />
+                <span className="visually-hidden">Add New</span>
+              </AwesomeButton>
+
+            </ButtonToolbar>
+          </div>
+          {/* )} */}
+          <Modal
+            isOpen={isAddModalOpen}
+            onClose={handleCloseAddModal}
+            columns={columns}
+            addCardToColumn={addCardToColumn}
+            showDropdown={true}
+          />
+          <ShareModal isModalOpen={isModalOpen} handleCloseModal={handleCloseModal} />
+          <FeedbackPopup show={showFeedbackPopup} onClose={handleCloseFeedbackPopup} />
+
+
+
+
+        </Stack>
+      )}
+
+      {location.pathname === '/main/table' && (
+        <h4 className="font-semibold text-gray-700 items-center justify-center w-screen h-screen gap-6" style={{ paddingTop: '5px', marginLeft: '-10px' }}>
+          View All Job Applications
+        </h4>
+      )}
+
+      {location.pathname === '/main/files' && (
+        <h4 className="font-semibold text-gray-700 items-center justify-center w-screen h-screen gap-6" style={{ paddingTop: '5px' }}   >
+          Upload/Manage your CVs and Cover Letters
+        </h4>
+      )}
+      {location.pathname === '/main/dashboard' && (
+        <h4 className="font-semibold text-gray-700 items-center justify-center w-screen h-screen gap-6" style={{ paddingTop: '5px' }}   >
+          Your Dashboard - Track your Progress and Stats
+        </h4>
+      )}
       <div
         className="user-profile"
         style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
