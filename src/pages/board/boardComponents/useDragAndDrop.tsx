@@ -50,6 +50,26 @@ export const useDragAndDrop = (handleDeleteCard, setActiveId) => {
         } else {
             // Delegate the rest of the logic to onDragEnd in BoardContext
             await onDragEnd(event);
+
+            // If a column was dragged, save the new order to the backend
+            if (event.active.data?.current?.type === 'column') {
+                if (!user) return;
+                const columnOrder = columns.map(col => col.id);
+                try {
+                    await fetch(`${process.env.REACT_APP_API_URL}/api/users/columnorder`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${user.token}`,
+                            'Content-Type': 'application/json',
+                        },
+
+                        body: JSON.stringify({ columnOrder }),
+                    });
+
+                } catch (error) {
+                    console.error('Failed to save column order:', error);
+                }
+            }
         }
     };
 
