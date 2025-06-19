@@ -8,12 +8,12 @@
     "lib": "lib/"
   },
   "scripts": {
-    "dev": "webpack serve --mode development --port 3100 --host 0.0.0.0 --progress ",
-    "clear": "rimraf assets",
-    "build:webpack": "cross-env NODE_ENV=production webpack --mode production --progress && copyfiles -u 1 public/* ./assets/",
-    "generate-sitemap": "node ./generate-sitemap.js",
-    "build": "npm run clear && npm run generate-sitemap && npm run build:webpack",
-    "publish:gh-pages": "node gh-pages.js"
+  "dev": "webpack serve --mode development --port 3100 --host 0.0.0.0 --progress ",
+  "clear": "rimraf assets",
+  "build:webpack": "cross-env NODE_ENV=production webpack --mode production --progress",
+  "generate-sitemap": "node ./generate-sitemap.js",
+  "build": "npm run clear && npm run generate-sitemap && npm run build:webpack",
+  "publish:gh-pages": "node gh-pages.js"
   },
   "keywords": [
     "react",
