@@ -5,9 +5,23 @@
 */
 
 /*!
+ * @kurkle/color v0.3.2
+ * https://github.com/kurkle/color#readme
+ * (c) 2023 Jukka Kurkela
+ * Released under the MIT License
+ */
+
+/*!
  * ApexCharts v3.54.0
  * (c) 2018-2024 ApexCharts
  * Released under the MIT License.
+ */
+
+/*!
+ * Chart.js v4.4.5
+ * https://www.chartjs.org
+ * (c) 2024 Chart.js Contributors
+ * Released under the MIT License
  */
 
 /*!
@@ -51,8 +65,6 @@
  * Copyright (c) Jon Schlinkert (https://github.com/jonschlinkert).
  * Released under the MIT License.
  */
-
-/*! decimal.js-light v2.5.1 https://github.com/MikeMcl/decimal.js-light/LICENCE */
 
 /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
 
