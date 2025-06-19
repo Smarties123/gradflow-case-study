@@ -498,3 +498,24 @@ export const disableFeedbackTrigger = async (req, res) => {
   }
 };
 
+// Save/update column order
+export const saveColumnOrder = async (req, res) => {
+  const userId = req.user;
+  const { columnOrder } = req.body; 
+
+  if (!Array.isArray(columnOrder)) {
+    return res.status(400).json({ message: 'columnOrder must be an array' });
+  }
+
+  try {
+    await pool.query(
+      'UPDATE "Users" SET "columnOrder" = $1 WHERE "UserId" = $2',
+      [columnOrder, userId]
+    );
+    res.status(200).json({ message: 'Column order saved successfully' });
+  } catch (error) {
+    console.error('Error saving column order:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
