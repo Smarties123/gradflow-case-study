@@ -1,7 +1,6 @@
-// src/components/Modal/DeleteModal.jsx
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import './DeleteModal.less';
+import './DeleteCardModal.less';            // you can rename & tweak this .less
 import { useTransition, animated } from 'react-spring';
 
 const STANDARD_REASONS = [
@@ -12,11 +11,11 @@ const STANDARD_REASONS = [
   'Other',
 ];
 
-const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
+const DeleteCardModal = ({ isOpen, onClose, onYes, title }) => {
   const [selected, setSelected] = useState('');
   const [otherText, setOtherText] = useState('');
 
-  // Reset whenever opened
+  // reset when opened
   useEffect(() => {
     if (isOpen) {
       setSelected('');
@@ -37,29 +36,23 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
     onClose();
   };
 
-  const handleCancel = (e) => {
-    e.stopPropagation();
-    onNo();
-    onClose();
-  };
-
   const disableDelete =
     !selected || (selected === 'Other' && otherText.trim().length === 0);
 
   return transitions(
     (styles, item) =>
       item && (
-        <div className="modal-overlay" onClick={onClose}>
+        <div className="ds-overlay" onClick={onClose}>
           <animated.div
             style={styles}
-            className="modal-content"
+            className="ds-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2>{title || 'Are You Sure?'}</h2>
+            <h2 className="ds-title">{title}</h2>
 
-            <div className="delete-reasons">
+            <div className="ds-reasons">
               {STANDARD_REASONS.map((r) => (
-                <label key={r} className="delete-reason">
+                <label key={r} className="ds-reason">
                   <input
                     type="radio"
                     name="deleteReason"
@@ -73,7 +66,7 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
 
               {selected === 'Other' && (
                 <textarea
-                  className="delete-other-input"
+                  className="ds-other-input"
                   placeholder="Type your reason..."
                   value={otherText}
                   onChange={(e) => setOtherText(e.target.value)}
@@ -82,13 +75,12 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
               )}
             </div>
 
-            <div className="modal-buttons">
-              <button className="cancel-button" onClick={handleCancel}>
+            <div className="ds-buttons">
+              <button className="ds-btn ds-cancel" onClick={onClose}>
                 Cancel
               </button>
               <button
-                className="delete-button"
-                style={{ backgroundColor: '#FF6200' }}
+                className="ds-btn ds-delete"
                 onClick={handleDelete}
                 disabled={disableDelete}
               >
@@ -101,12 +93,11 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
   );
 };
 
-DeleteModal.propTypes = {
+DeleteCardModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  onYes: PropTypes.func.isRequired,      // now receives the reason string
-  onNo: PropTypes.func.isRequired,
-  title: PropTypes.string,
+  onYes: PropTypes.func.isRequired,   // receives `reason: string`
+  title: PropTypes.string.isRequired,
 };
 
-export default DeleteModal;
+export default DeleteCardModal;
