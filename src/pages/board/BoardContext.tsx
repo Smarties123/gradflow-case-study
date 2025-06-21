@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { Column, Card } from './types';
 import { useUser } from '@/components/User/UserContext';
 import { DragEndEvent } from '@dnd-kit/core';
+import { saveColumnOrderToBackend } from '../../utils/saveColumnOrder';
 
 interface BoardContextType {
     columns: Column[];
@@ -11,6 +12,8 @@ interface BoardContextType {
     onDragEnd: (event: DragEndEvent) => void;
     updateStatusLocally: (cardId: string, newStatusId: number) => void;
     filterBoard: (searchResults: any[]) => void;
+    columnOrder: number[];
+    setColumnOrder: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 // Create the context
@@ -18,6 +21,60 @@ export const BoardContext = createContext<BoardContextType | undefined>(undefine
 
 export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ children, user }) => {
     const [columns, setColumns] = useState<Column[]>([]);
+    const [columnOrder, setColumnOrder] = useState<number[]>([]);
+    const hasAppliedColumnOrder = React.useRef(false);
+
+    // Fetch the saved column order from the backend when the user logs in or the Board mounts
+    useEffect(() => {
+        const fetchColumnOrder = async () => {
+            if (!user) return;
+            try {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/columnorder`, {
+                    headers: {
+                        'Authorization': `Bearer ${user.token}`,
+                    },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Array.isArray(data.ColumnOrder)) {
+                        setColumnOrder(data.ColumnOrder);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch column order:', error);
+            }
+        };
+        fetchColumnOrder();
+    }, [user]);
+
+    // Apply the saved column order to columns whenever columns or columnOrder changes
+    useEffect(() => {
+        const applyColumnOrder = () => {
+            if (!user || columns.length === 0 || !Array.isArray(columnOrder) || columnOrder.length === 0) return;
+
+            const orderedColumns = columnOrder
+                .map(id => columns.find(col => col.id === id))
+                .filter(Boolean) as Column[];
+
+            // Add any columns not in the order array (e.g., new columns)
+            columns.forEach(col => {
+                if (!columnOrder.includes(col.id)) {
+                    orderedColumns.push(col);
+                }
+            });
+
+            setColumns(orderedColumns);
+            hasAppliedColumnOrder.current = true;
+        };
+
+        applyColumnOrder();
+    }, [user, columns, columnOrder]);
+
+    // Save to backend when columnOrder changes after initial load
+    // useEffect(() => {
+    //     if (!user || !hasAppliedColumnOrder.current || columns.length === 0) return;
+    //     saveColumnOrderToBackend(columnOrder, user.token);
+    // }, [columnOrder, user]);
 
     const addCardToColumn = (columnId: number, card: Card) => {
         setColumns(prevColumns =>
@@ -219,6 +276,8 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
                 onDragEnd,
                 updateStatusLocally,
                 filterBoard,
+                setColumnOrder,
+                columnOrder
             }}>
             {children}
         </BoardContext.Provider>
