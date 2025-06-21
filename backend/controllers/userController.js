@@ -379,19 +379,20 @@ export const getUserDetails = async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    const query = 'SELECT "Username", "Email", "PromotionalEmail", "ApplicationEmail", "FeedbackTrigger" FROM "Users" WHERE "UserId" = $1';
+    const query = 'SELECT "Username", "Email", "PromotionalEmail", "ApplicationEmail", "FeedbackTrigger", "ColumnOrder" FROM "Users" WHERE "UserId" = $1';
     const { rows } = await pool.query(query, [userId]);
 
       if (rows.length === 0) {
           return res.status(404).json({ message: 'User not found' });
       }
-
+    
       res.status(200).json({
         Username: rows[0].Username,
         Email: rows[0].Email,
         PromotionalEmail: rows[0].PromotionalEmail,  
         ApplicationEmail: rows[0].ApplicationEmail,
-        FeedbackTrigger: rows[0].FeedbackTrigger  // Include FeedbackTrigger in the response
+        FeedbackTrigger: rows[0].FeedbackTrigger,  // Include FeedbackTrigger in the response
+        ColumnOrder: rows[0].ColumnOrder
     });
   } catch (error) {
       console.error(error);
@@ -498,3 +499,47 @@ export const disableFeedbackTrigger = async (req, res) => {
   }
 };
 
+// Save/update column order
+export const saveColumnOrder = async (req, res) => {
+  const userId = req.user.userId;
+  const { columnOrder } = req.body; 
+  console.log(columnOrder);
+  if (!Array.isArray(columnOrder)) {
+    return res.status(400).json({ message: 'columnOrder must be an array' });
+  }
+
+  try {
+    await pool.query(
+      'UPDATE "Users" SET "ColumnOrder" = $1 WHERE "UserId" = $2',
+      [columnOrder, userId]
+    );
+
+    res.status(200).json({ message: 'Column order saved successfully' });
+  } catch (error) {
+    console.error('Error saving column order:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Gets the column Order
+export const getColumnOrder = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const query = 'SELECT "ColumnOrder" FROM "Users" WHERE "UserId" = $1';
+    const { rows } = await pool.query(query, [userId]);
+
+      if (rows.length === 0) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+    
+    console.log(rows);
+
+      res.status(200).json({
+        ColumnOrder: rows[0].ColumnOrder
+    });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+  }
+};

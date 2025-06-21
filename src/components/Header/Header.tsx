@@ -35,6 +35,28 @@ const Header = props => {
   const { user, setUser } = useUser(); // Access user and setUser to clear user info on sign out
   const navigate = useNavigate(); // Use navigate for redirection after sign out
   const [formData, setFormData] = useState({ email: '', name: '' });
+  const context = useContext(BoardContext);
+  const { setColumnOrder, columns, setColumns, addCardToColumn } = context!;
+
+  if (!context) {
+    console.error(
+      'BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.'
+    );
+  }
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const tab = params.get('tab');
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [email, setEmail] = useState('');
+  const [invitedList, setInvitedList] = useState([]);
+  const [showSettings, setShowSettings] = useState(false);
+
+  const { theme, onChangeTheme } = props;
+  const trigger = useRef<WhisperInstance>(null);
+  const [showFeedbackPopup, setShowFeedbackPopup] = useState(false); // Add state for feedback popup
 
 
 
@@ -49,6 +71,7 @@ const Header = props => {
         });
         const data = await response.json();
         setFormData({ email: data.Email, name: data.Username }); // Make sure to use correct case for `Email` and `Username`
+        setColumnOrder(data.ColumnOrder)
       } catch (error) {
         console.error('Failed to fetch user data', error);
       }
@@ -59,28 +82,6 @@ const Header = props => {
 
 
 
-
-  const context = useContext(BoardContext);
-  if (!context) {
-    console.error(
-      'BoardContext is undefined. Ensure BoardProvider is correctly wrapping the component.'
-    );
-  }
-
-  const { columns, setColumns, addCardToColumn } = context;
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const tab = params.get('tab');
-
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [email, setEmail] = useState('');
-  const [invitedList, setInvitedList] = useState([]);
-  const [showSettings, setShowSettings] = useState(false);
-
-  const { theme, onChangeTheme } = props;
-  const trigger = useRef<WhisperInstance>(null);
-  const [showFeedbackPopup, setShowFeedbackPopup] = useState(false); // Add state for feedback popup
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
