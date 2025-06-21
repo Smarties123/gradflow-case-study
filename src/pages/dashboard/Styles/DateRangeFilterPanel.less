@@ -1,27 +1,70 @@
-.rs-theme-dark {
-    .date-range-filter-panel {
-        background-color: #1D2633;
-        box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    .date-range-filter-panel-text {
-        color: #ffffff !important;
-    }
-}
-
-.rs-theme-light {
-    .date-range-filter-panel {
-        background-color: #fff;
-        box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .date-range-filter-panel-text {
-        color: #000000 !important;
-    }
-}
-
 .date-range-filter-panel {
-    border-radius: 10px;
-    padding: 30px;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-radius: 10px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+  
 }
+
+.date-range-filter-panel-text {
+  display: flex;
+  align-items: center;
+}
+
+.calendar-icon {
+  font-size: 24px;
+  color: #F26203;
+  margin-right: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #757575;
+}
+
+.picker-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+// margin-left: auto;
+}
+
+
+.clear-button {
+  padding: 4px;
+}
+
+/* Light theme */
+.rs-theme-light {
+  .date-range-filter-panel {
+    background-color: #ffffff;
+    box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.1);
+  }
+  .subtitle {
+    color: #000000;
+  }
+}
+
+/* Dark theme */
+.rs-theme-dark {
+  .date-range-filter-panel {
+    background-color: #1D2633;
+    box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.2);
+  }
+  .title,
+  .subtitle {
+    color: #ffffff;
+  }
+}
+
+

@@ -1,97 +1,128 @@
-import React, { useState } from 'react';
-import './DeleteStatus.less';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import '../Modal/Modal.less';
+import { useTransition, animated } from 'react-spring';
 
-interface DeleteStatusProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onNo: () => void;
-  onYes: () => void;
-  title: string;
-  showDropdown?: boolean;
-}
+// This will be shown if showCardReasons
+const CARD_REASONS = [
+  'Rejected by company',
+  'Position filled',
+  'Found another role',
+  'No response from company',
+  'Other',
+];
 
-const DeleteStatus: React.FC<DeleteStatusProps> = ({
-  isOpen,
-  onClose,
-  onNo,
-  onYes,
-  title,
-  showDropdown = false,
-}) => {
-  const [deleteReason, setDeleteReason] = useState('');
+// This will be shown if showAccountReasons
+const ACCOUNT_REASONS = [
+  'Rejected by company',
+  'Position filled',
+  'Found another role',
+  'No response from company',
+  'Other',
+];
 
-  const deleteReasons = [
-    'Not interested in the role',
-    'Company not a good fit',
-    'Salary expectations not met',
-    'Location not suitable',
-    'Found another opportunity',
-    'Other'
-  ];
+const DeleteModal = ({ isOpen, onClose, onYes, onNo, title, showCardReasons, showAccountReasons }) => {
+  const [selected, setSelected] = useState('');
+  const [otherText, setOtherText] = useState('');
 
-  const handleSubmit = async () => {
-    if (showDropdown && !deleteReason) {
-      alert('Please select a reason for deletion');
-      return;
+  // Reset whenever opened
+  useEffect(() => {
+    if (isOpen) {
+      setSelected('');
+      setOtherText('');
+    }
+  }, [isOpen]);
+
+  const transitions = useTransition(isOpen, {
+    from: { opacity: 0, transform: 'translateY(-40px)' },
+    enter: { opacity: 1, transform: 'translateY(0px)' },
+    leave: { opacity: 0, transform: 'translateY(-40px)' },
+    config: { tension: 300, friction: 20 },
+  });
+
+  const handleDelete = () => {
+    let reason = '';
+
+    if (selected === 'Other' && otherText.trim().length > 0) {
+      reason = otherText.trim();
+    } else if (selected) {
+      reason = selected;
+    } else {
+      reason = 'No reason provided'; // Or use an empty string: ''
     }
 
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/delete`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          deleteReason,
-          timestamp: new Date().toISOString(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit delete reason');
-      }
-
-      onYes();
-    } catch (error) {
-      console.error('Error submitting delete reason:', error);
-      onYes(); // Still proceed with deletion even if submission fails
-    }
+    onYes(reason);
+    onClose();
   };
 
-  if (!isOpen) return null;
 
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>{title}</h2>
-        {showDropdown && (
-          <div className="delete-reason-dropdown">
-            <label>Please select a reason for deletion:</label>
-            <select
-              value={deleteReason}
-              onChange={(e) => setDeleteReason(e.target.value)}
-              required
-            >
-              <option value="">Select a reason</option>
-              {deleteReasons.map((reason) => (
-                <option key={reason} value={reason}>
-                  {reason}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-        <div className="modal-buttons">
-          <button className="cancel-button" onClick={onNo}>
-            No
-          </button>
-          <button className="delete-button" onClick={handleSubmit}>
-            Yes
-          </button>
+  const handleCancel = (e) => {
+    e.stopPropagation();
+    onClose();
+  };
+
+
+  // Choose the appropriate list of reasons to show
+  const reasonOptions = showCardReasons ? CARD_REASONS : showAccountReasons ? ACCOUNT_REASONS : [];
+
+  return transitions(
+    (styles, item) =>
+      item && (
+        <div className="modal-overlay" onClick={onClose}>
+          <animated.div
+            style={styles}
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2>{title || 'Are You Sure?'}</h2>
+
+            {/* Reason behind Delete a Card or Account */}
+            {reasonOptions.length > 0 && (
+              <div className="input-wrapper" style={{ marginTop: '1vb', marginBottom: '2vb' }}>
+                <select
+                  value={selected}
+                  onChange={(e) => setSelected(e.target.value)}
+                  className="border-input dropdown-input"
+                >
+                  <option value="" hidden>
+                    Select a Reason
+                  </option>
+                  {reasonOptions.map((reason) => (
+                    <option key={reason} value={reason}>
+                      {reason}
+                    </option>
+                  ))}
+                </select>
+
+              </div>
+            )}
+
+            <div className="modal-buttons">
+              <button className="cancel-button" onClick={handleCancel}>
+                Cancel
+              </button>
+              <button
+                className="delete-button"
+                style={{ backgroundColor: '#FF6200' }}
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </animated.div>
         </div>
-      </div>
-    </div>
+      )
   );
 };
 
-export default DeleteStatus;
+DeleteModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onYes: PropTypes.func.isRequired,      // now receives the reason string
+  onNo: PropTypes.func.isRequired,
+  title: PropTypes.string,
+  showCardReasons: PropTypes.bool,
+  showAccountReasons: PropTypes.bool,
+};
+
+export default DeleteModal;

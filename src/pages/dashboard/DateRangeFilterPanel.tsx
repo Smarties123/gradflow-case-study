@@ -1,36 +1,57 @@
-
-
 import React from 'react';
-import { Row, Col, Panel, DateRangePicker } from 'rsuite';
+import { DateRangePicker, Button } from 'rsuite';
+import { AiOutlineCalendar } from 'react-icons/ai';
+import { MdClear } from 'react-icons/md';
 import './Styles/DateRangeFilterPanel.less';
 
-type DateRange = [Date, Date] | null;
+export type DateRange = [Date, Date] | null;
 
 interface DateRangeFilterPanelProps {
-    onChange: (value: DateRange) => void;
+  value: DateRange;
+  onChange: (value: DateRange) => void;
 }
 
-const DateRangeFilterPanel: React.FC<DateRangeFilterPanelProps> = ({ onChange }) => {
-    return (
-        <div className='date-range-filter-panel'>
+const DateRangeFilterPanel: React.FC<DateRangeFilterPanelProps> = ({ value, onChange }) => {
+  const formatted = value
+    ? `${value[0].toLocaleDateString()} — ${value[1].toLocaleDateString()}`
+    : '';
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                {/* Left side: vertical text */}
-                <div className='date-range-filter-panel-text' style={{ display: 'flex', flexDirection: 'column' }}>
-                    <p style={{ marginBottom: '4px' }}><strong>Filter By Date Range</strong></p>
-                    <a>Select a custom date range to analyse your data</a>
-                </div>
-
-                {/* Right side: Date picker */}
-                <DateRangePicker
-                    appearance="default"
-                    placeholder="Select Date Range"
-                    style={{ margin: '0px' }}
-                    onChange={onChange}
-                />
-            </div>
+  return (
+    <div className="date-range-filter-panel">
+      <div className="date-range-filter-panel-text">
+        <AiOutlineCalendar className="calendar-icon" />
+        <div>
+          <p className="title">Filter By Date Range</p>
+          <small className="subtitle">
+            {formatted || 'Select a custom date range to analyze your data'}
+          </small>
         </div>
-    );
+      </div>
+      <div className="picker-actions">
+        <DateRangePicker
+          appearance="default"
+          placeholder="YYYY-MM-DD — YYYY-MM-DD"
+          format="yyyy-MM-dd"
+          oneTap
+          style={{ minWidth: 220 }}
+          value={value || undefined}
+          onChange={onChange}
+          placement="bottomStart"
+
+        />
+        {value && (
+          <Button
+            appearance="subtle"
+            onClick={() => onChange(null)}
+            className="clear-button"
+            size="sm"
+          >
+            <MdClear />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default DateRangeFilterPanel;

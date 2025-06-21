@@ -6,6 +6,11 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createPortal } from 'react-dom';
 import { deleteCard } from '../../utils/deleteCard';
+import DeleteCardModal from '../DeleteStatus/DeleteCardModal';
+
+
+const SHEET_LOG_URL =
+  `${process.env.REACT_APP_API_URL}/api/log-delete-card-reason`;
 
 const CardComponent = ({
   card,
@@ -195,30 +200,45 @@ const CardComponent = ({
           <DeleteModal
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
-            onNo={() => setIsDeleteModalOpen(false)}
-            showDropdown={true}
-            onYes={async () => {
-              setIsDeleteModalOpen(false);      // Close modal
-              setIsDeleting(true);              // Start animation
+            title="Are you sure you want to delete this card?"
+            onYes={async (reason) => {
+              setIsDeleteModalOpen(false);
+              setIsDeleting(true);
 
+              // 1) Log to Google Sheet
+              try {
+                await fetch(SHEET_LOG_URL, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    userId: user.id,
+                    company: card.company,
+                    position: card.position,
+                    reason,
+                  }),
+                });
+              } catch (err) {
+                console.error('Failed to log delete reason:', err);
+              }
+
+              // 2) Animate & call backend delete
               setTimeout(async () => {
                 try {
-                  await deleteCard(card.id, user.token); // API call
-                  onDelete(card.id);                     // NOW remove from board state
+                  await deleteCard(card.id, user.token);
+                  onDelete(card.id);
                 } catch (err) {
                   console.error('Failed to delete card:', err);
                 }
-              }, 500); // match CSS animation time
+              }, 200);
             }}
-
-
-            title={`Are you sure you want to delete this card?`}
+            onNo={() => setIsDeleteModalOpen(false)}
+            showCardReasons={true}
           />,
           document.body
         )}
-
     </>
   );
 };
 
 export default CardComponent;
+

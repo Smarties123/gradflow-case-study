@@ -17,39 +17,52 @@ const DetailsView = ({
   const [companySuggestions, setCompanySuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestionSelected, setSuggestionSelected] = useState(false);
+  const [hasTyped, setHasTyped] = useState(false);
+
 
   useEffect(() => {
     const trimmed = formData.company.trim();
 
-    if (trimmed.length >= 3 && !suggestionSelected) {
-      fetch(`${process.env.REACT_APP_API_URL}/company-search?q=${encodeURIComponent(trimmed)}`)
-        .then(res => res.ok ? res.json() : [])
-        .then(data => {
-          setCompanySuggestions(data.slice(0, 5));
-          setShowSuggestions(true);
-        })
-        .catch(console.error);
+    if (hasTyped && trimmed.length > 3 && !suggestionSelected) {
+      const timeout = setTimeout(() => {
+        fetch(`${process.env.REACT_APP_API_URL}/company-search?q=${encodeURIComponent(trimmed)}`)
+          .then((res) => res.ok ? res.json() : [])
+          .then((data) => {
+            setCompanySuggestions(data.slice(0, 5));
+            setShowSuggestions(data.length > 0);
+          })
+          .catch((err) => {
+            console.error(err);
+            setCompanySuggestions([]);
+            setShowSuggestions(false);
+          });
+      }, 300);
+
+      return () => clearTimeout(timeout);
     } else {
       setShowSuggestions(false);
       setCompanySuggestions([]);
     }
-  }, [formData.company, suggestionSelected]);
+  }, [formData.company, suggestionSelected, hasTyped]);
+
+
 
 
   const onCompanyChange = (value) => {
     handleChange(value, 'company');
 
-    if (value.trim().length < 3) {
-      setShowSuggestions(false);
-      setCompanySuggestions([]);
+    if (!hasTyped && value.length > 0) {
+      setHasTyped(true);
     }
 
     if (value.trim() === '') {
       handleChange('', 'companyLogo');
+      setHasTyped(false);
     }
 
     setSuggestionSelected(false);
   };
+
 
 
 
@@ -97,7 +110,7 @@ const DetailsView = ({
                   />
                 )}
 
-                {showSuggestions && companySuggestions.length > 0 && (
+                {showSuggestions && formData.company.trim().length > 3 && companySuggestions.length > 0 && (
                   <ul className="suggestions-list">
                     {companySuggestions.map((s, i) => (
                       <li key={i} onClick={() => onSuggestionClick(s)}>
@@ -115,6 +128,7 @@ const DetailsView = ({
                     ))}
                   </ul>
                 )}
+
               </div>
             </Form.Group>
           </Col>

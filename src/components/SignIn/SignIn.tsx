@@ -154,7 +154,8 @@ export default function SignInSide() {
         setUser({
           email: result.user.email,
           token: result.token,
-          username: result.user.username
+          username: result.user.username,
+          id: result.user.id
         });
 
         // if (result.user.feedbackTrigger) {

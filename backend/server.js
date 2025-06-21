@@ -14,6 +14,12 @@ import filesRoutes from './routes/filesRoutes.js';
 import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
+import logDeleteRoute from './services/logDeleteService.js';  // Import the log delete service
+
+
+
+
+
 // Schedule the task to run every wednesday at 9:00 AM 
 //for more info: https://www.npmjs.com/package/node-cron
 cron.schedule('0 9 * * 3', async () => {
@@ -25,6 +31,15 @@ cron.schedule('0 9 * * 3', async () => {
 import stripe from 'stripe';
 
 const app = express();
+
+
+// 1) CORS — allow only your front end (override in .env per environment)
+app.use(cors({
+  origin: process.env.CLIENT_ORIGIN,
+}));
+// 2) JSON parser — must come BEFORE any routes that read req.body
+app.use(express.json());
+app.use(logDeleteRoute);
 
 // console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
 // // Test email route
@@ -52,7 +67,6 @@ const app = express();
 // });
 
 
-
 app.get('/test-db', async (req, res) => {
   try {
     const result = await pool.query('SELECT NOW()');
@@ -75,7 +89,7 @@ app.get('/test-cors', (req, res) => {
 });
 
 
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 
 // app.use('/', sitemapRoutes);
@@ -98,86 +112,5 @@ app.listen(port, () => {
 });
 
 
-const STRIPE_SECRET_KEY =
-  'sk_test_51R5CfJDcnB3juQw0XDcapLqGVVfw2yncjmtMlAfrmyOCsXWRFlOlkjlxNEgXy9QTa2hF4Kn86fba1UetFHtm2DAX00mx2xTCYJ';
-
-const stripeCon = stripe(STRIPE_SECRET_KEY);
-
-app.post('/create-checkout-session', async (req, res) => {
-  const { email, plan, success_url, cancel_url } = req.body;
-
-  // 1. Validate plan
-  const normalizedPlan = plan?.toLowerCase();
-  if (!['monthly', 'yearly'].includes(normalizedPlan)) {
-    return res.status(400).json({ error: 'Invalid plan. Use "monthly" or "yearly".' });
-  }
-
-  const priceId = normalizedPlan === 'monthly'
-    ? process.env.STRIPE_MONTHLY_PRICE_ID
-    : process.env.STRIPE_YEARLY_PRICE_ID;
-
-  try {
-    // 2. Check if customer already exists
-    const { data: existingCustomers } = await stripeCon.customers.list({
-      email,
-      limit: 1,
-    });
-
-    if (existingCustomers.length > 0) {
-      // Stop here - email already has a Stripe customer
-      return res.status(200).json({
-        code: 30,
-        message: 'Customer already exists with an active subscription.',
-      });
-    }
-
-    // 3. Create new customer
-    const customer = await stripeCon.customers.create({
-      email,
-      description: `Customer for ${normalizedPlan} subscription`,
-    });
-
-    // 4. Create checkout session
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      mode: 'subscription',
-      customer: customer.id,
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url,
-      cancel_url,
-    });
-
-    return res.status(200).json({
-      code: 200,
-      sessionId: session.id,
-    });
-
-  } catch (err) {
-    console.error('Stripe error:', err);
-    return res.status(500).json({ error: err.message || 'Internal server error' });
-  }
-});
 
 
-app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  const sig = req.headers['stripe-signature'];
-
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-  } catch (err) {
-    console.error('Webhook signature verification failed.', err.message);
-    return res.sendStatus(400);
-  }
-
-  // Handle checkout session completion
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-
-    // Example: mark user as paid, create subscription record, etc.
-    console.log(' Payment succeeded for:', session.customer_email);
-  }
-
-  res.status(200).json({ received: true });
-});
