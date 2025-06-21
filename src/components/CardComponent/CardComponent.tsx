@@ -197,7 +197,7 @@ const CardComponent = ({
 
       {isDeleteModalOpen &&
         createPortal(
-          <DeleteCardModal
+          <DeleteModal
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
             title="Are you sure you want to delete this card?"
@@ -211,7 +211,7 @@ const CardComponent = ({
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    userId: user.userId,
+                    userId: user.id,
                     company: card.company,
                     position: card.position,
                     reason,
@@ -229,8 +229,10 @@ const CardComponent = ({
                 } catch (err) {
                   console.error('Failed to delete card:', err);
                 }
-              }, 500);
+              }, 200);
             }}
+            onNo={() => setIsDeleteModalOpen(false)}
+            showCardReasons={true}
           />,
           document.body
         )}

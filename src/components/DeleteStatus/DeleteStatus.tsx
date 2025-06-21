@@ -1,10 +1,10 @@
-// src/components/Modal/DeleteModal.jsx
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import './DeleteModal.less';
+import '../Modal/Modal.less';
 import { useTransition, animated } from 'react-spring';
 
-const STANDARD_REASONS = [
+// This will be shown if showCardReasons
+const CARD_REASONS = [
   'Rejected by company',
   'Position filled',
   'Found another role',
@@ -12,7 +12,16 @@ const STANDARD_REASONS = [
   'Other',
 ];
 
-const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
+// This will be shown if showAccountReasons
+const ACCOUNT_REASONS = [
+  'Rejected by company',
+  'Position filled',
+  'Found another role',
+  'No response from company',
+  'Other',
+];
+
+const DeleteModal = ({ isOpen, onClose, onYes, onNo, title, showCardReasons, showAccountReasons }) => {
   const [selected, setSelected] = useState('');
   const [otherText, setOtherText] = useState('');
 
@@ -32,19 +41,29 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
   });
 
   const handleDelete = () => {
-    const reason = selected === 'Other' ? otherText.trim() : selected;
+    let reason = '';
+
+    if (selected === 'Other' && otherText.trim().length > 0) {
+      reason = otherText.trim();
+    } else if (selected) {
+      reason = selected;
+    } else {
+      reason = 'No reason provided'; // Or use an empty string: ''
+    }
+
     onYes(reason);
     onClose();
   };
 
+
   const handleCancel = (e) => {
     e.stopPropagation();
-    onNo();
     onClose();
   };
 
-  const disableDelete =
-    !selected || (selected === 'Other' && otherText.trim().length === 0);
+
+  // Choose the appropriate list of reasons to show
+  const reasonOptions = showCardReasons ? CARD_REASONS : showAccountReasons ? ACCOUNT_REASONS : [];
 
   return transitions(
     (styles, item) =>
@@ -57,30 +76,26 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
           >
             <h2>{title || 'Are You Sure?'}</h2>
 
-            <div className="delete-reasons">
-              {STANDARD_REASONS.map((r) => (
-                <label key={r} className="delete-reason">
-                  <input
-                    type="radio"
-                    name="deleteReason"
-                    value={r}
-                    checked={selected === r}
-                    onChange={() => setSelected(r)}
-                  />
-                  {r}
-                </label>
-              ))}
+            {/* Reason behind Delete a Card or Account */}
+            {reasonOptions.length > 0 && (
+              <div className="input-wrapper" style={{ marginTop: '1vb', marginBottom: '2vb' }}>
+                <select
+                  value={selected}
+                  onChange={(e) => setSelected(e.target.value)}
+                  className="border-input dropdown-input"
+                >
+                  <option value="" hidden>
+                    Select a Reason
+                  </option>
+                  {reasonOptions.map((reason) => (
+                    <option key={reason} value={reason}>
+                      {reason}
+                    </option>
+                  ))}
+                </select>
 
-              {selected === 'Other' && (
-                <textarea
-                  className="delete-other-input"
-                  placeholder="Type your reason..."
-                  value={otherText}
-                  onChange={(e) => setOtherText(e.target.value)}
-                  rows={3}
-                />
-              )}
-            </div>
+              </div>
+            )}
 
             <div className="modal-buttons">
               <button className="cancel-button" onClick={handleCancel}>
@@ -90,7 +105,6 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title }) => {
                 className="delete-button"
                 style={{ backgroundColor: '#FF6200' }}
                 onClick={handleDelete}
-                disabled={disableDelete}
               >
                 Delete
               </button>
@@ -107,6 +121,8 @@ DeleteModal.propTypes = {
   onYes: PropTypes.func.isRequired,      // now receives the reason string
   onNo: PropTypes.func.isRequired,
   title: PropTypes.string,
+  showCardReasons: PropTypes.bool,
+  showAccountReasons: PropTypes.bool,
 };
 
 export default DeleteModal;
