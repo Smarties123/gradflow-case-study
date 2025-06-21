@@ -15,6 +15,9 @@ import filesRoutes from './routes/filesRoutes.js';
 import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
+import logDeleteRoute from './services/logDeleteService.js';  // Import the log delete service
+
+
 
 
 
@@ -27,6 +30,15 @@ cron.schedule('0 9 * * 3', async () => {
 });
 
 const app = express();
+
+
+// 1) CORS — allow only your front end (override in .env per environment)
+app.use(cors({
+  origin: process.env.CLIENT_ORIGIN,
+}));
+// 2) JSON parser — must come BEFORE any routes that read req.body
+app.use(express.json());
+app.use(logDeleteRoute);
 
 // console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
 // // Test email route
@@ -54,7 +66,6 @@ const app = express();
 // });
 
 
-
 app.get('/test-db', async (req, res) => {
   try {
     const result = await pool.query('SELECT NOW()');
@@ -77,7 +88,7 @@ app.get('/test-cors', (req, res) => {
 });
 
 
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 
 // app.use('/', sitemapRoutes);
@@ -98,4 +109,7 @@ const port = process.env.PORT || 3001;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
+
+
 
