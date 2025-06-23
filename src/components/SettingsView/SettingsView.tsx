@@ -20,7 +20,7 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
   const { user } = useUser();
   const navigate = useNavigate();
 
-  const [currentView, setCurrentView] = useState(initialTab);
+  const [currentView, setCurrentView] = useState('account');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -61,12 +61,12 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
     })();
   }, [show, user.token]);
 
-  // Sync tab if parent changes initialTab
-  useEffect(() => {
-    if (show && initialTab) {
-      setCurrentView(initialTab);
-    }
-  }, [show, initialTab]);
+  // // Sync tab if parent changes initialTab
+  // useEffect(() => {
+  //     setCurrentView(initialTab);
+    
+  // }, []);
+
 
   // Generic form‐field updater
   const handleChange = (value, name) => {

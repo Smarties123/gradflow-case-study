@@ -49,26 +49,30 @@ export const BoardProvider: React.FC<{ children: ReactNode; user: any }> = ({ ch
 
     // Apply the saved column order to columns whenever columns or columnOrder changes
     useEffect(() => {
-        const applyColumnOrder = () => {
-            if (!user || columns.length === 0 || !Array.isArray(columnOrder) || columnOrder.length === 0) return;
+        if (!user || columns.length === 0 || columnOrder.length === 0) return;
 
-            const orderedColumns = columnOrder
-                .map(id => columns.find(col => col.id === id))
-                .filter(Boolean) as Column[];
+        const orderedColumns = columnOrder
+            .map(id => columns.find(col => col.id === id))
+            .filter(Boolean) as Column[];
 
-            // Add any columns not in the order array (e.g., new columns)
-            columns.forEach(col => {
-                if (!columnOrder.includes(col.id)) {
-                    orderedColumns.push(col);
-                }
-            });
+        // Add any new columns not in the order
+        columns.forEach(col => {
+            if (!columnOrder.includes(col.id)) {
+                orderedColumns.push(col);
+            }
+        });
 
+        // Only update if the order is actually different
+        const isDifferent =
+            columns.length !== orderedColumns.length ||
+            columns.some((col, index) => col.id !== orderedColumns[index]?.id);
+
+        if (isDifferent) {
             setColumns(orderedColumns);
-            hasAppliedColumnOrder.current = true;
-        };
+        }
 
-        applyColumnOrder();
-    }, [user, columns, columnOrder]);
+        hasAppliedColumnOrder.current = true;
+    }, [user, columnOrder]);
 
     // Save to backend when columnOrder changes after initial load
     // useEffect(() => {
