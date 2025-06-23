@@ -13,7 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import './SettingsView.less';
 import { useUser } from '@/components/User/UserContext';
-import DeleteAccountModal from './DeleteAccountModal';
+import DeleteModal from '../DeleteStatus/DeleteStatus';
 import Avatar from 'react-avatar';
 
 const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
@@ -158,180 +158,194 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
     }
   };
 
+  const handleShowDeleteModal = () => {
+    setDeleteModalOpen(true);
+    // onClose()
+  }
+
   return (
     <>
-      <Drawer open={show} onClose={onClose} size="sm">
-        <Drawer.Header>
-          <Drawer.Title>Settings</Drawer.Title>
-          <FlexboxGrid justify="space-between" className="drawer-links">
-            <FlexboxGrid.Item>
-              <div>
-                <a
-                  onClick={() => setCurrentView('account')}
-                  className={currentView === 'account' ? 'active' : ''}
-                >
-                  Account
-                </a>
-                <Divider vertical />
-                <a
-                  onClick={() => setCurrentView('membership')}
-                  className={currentView === 'membership' ? 'active' : ''}
-                >
-                  Membership
-                </a>
-                <Divider vertical />
-                <a
-                  onClick={() => setCurrentView('notifications')}
-                  className={currentView === 'notifications' ? 'active' : ''}
-                >
-                  Notifications
-                </a>
-              </div>
-            </FlexboxGrid.Item>
-          </FlexboxGrid>
-        </Drawer.Header>
+      {!deleteModalOpen && (
 
-        <Drawer.Body>
-          {currentView === 'account' && (
-            <Form fluid>
-              <h5 className="subject-title">Account Information</h5>
-              <FlexboxGrid justify="center" align="middle" className="account-info">
-                <FlexboxGrid.Item>
-                  <Avatar
-                    email={formData.email}
-                    name={formData.name}
-                    size="100"
-                    round
+        <Drawer open={show} onClose={onClose} size="sm">
+          <Drawer.Header>
+            <Drawer.Title>Settings</Drawer.Title>
+            <FlexboxGrid justify="space-between" className="drawer-links">
+              <FlexboxGrid.Item>
+                <div>
+                  <a
+                    onClick={() => setCurrentView('account')}
+                    className={currentView === 'account' ? 'active' : ''}
+                  >
+                    Account
+                  </a>
+                  <Divider vertical />
+                  <a
+                    onClick={() => setCurrentView('membership')}
+                    className={currentView === 'membership' ? 'active' : ''}
+                  >
+                    Membership
+                  </a>
+                  <Divider vertical />
+                  <a
+                    onClick={() => setCurrentView('notifications')}
+                    className={currentView === 'notifications' ? 'active' : ''}
+                  >
+                    Notifications
+                  </a>
+                </div>
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </Drawer.Header>
+
+          <Drawer.Body>
+            {currentView === 'account' && (
+              <Form fluid>
+                <h5 className="subject-title">Account Information</h5>
+                <FlexboxGrid justify="center" align="middle" className="account-info">
+                  <FlexboxGrid.Item>
+                    <Avatar
+                      email={formData.email}
+                      name={formData.name}
+                      size="100"
+                      round
+                    />
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+
+                <Form.Group controlId="name" className="form-group">
+                  <Form.ControlLabel>Name</Form.ControlLabel>
+                  <Form.Control
+                    name="name"
+                    value={formData.name}
+                    onChange={value => handleChange(value, 'name')}
+                    className="full-width"
                   />
-                </FlexboxGrid.Item>
-              </FlexboxGrid>
+                </Form.Group>
 
-              <Form.Group controlId="name" className="form-group">
-                <Form.ControlLabel>Name</Form.ControlLabel>
-                <Form.Control
-                  name="name"
-                  value={formData.name}
-                  onChange={value => handleChange(value, 'name')}
-                  className="full-width"
-                />
-              </Form.Group>
+                <Form.Group controlId="email" className="form-group">
+                  <Form.ControlLabel>Email</Form.ControlLabel>
+                  <Form.Control
+                    name="email"
+                    value={formData.email}
+                    onChange={value => handleChange(value, 'email')}
+                    className="full-width"
+                  />
+                </Form.Group>
 
-              <Form.Group controlId="email" className="form-group">
-                <Form.ControlLabel>Email</Form.ControlLabel>
-                <Form.Control
-                  name="email"
-                  value={formData.email}
-                  onChange={value => handleChange(value, 'email')}
-                  className="full-width"
-                />
-              </Form.Group>
+                <Button onClick={handleSubmit} appearance="primary" block>
+                  Save Name & Email
+                </Button>
 
-              <Button onClick={handleSubmit} appearance="primary" block>
-                Save Name & Email
-              </Button>
-
-              <Divider />
-
-              <h5 className="subject-title">Change Password</h5>
-              <Button onClick={handleChangePassword} appearance="primary" block>
-                Change Password
-              </Button>
-
-              <Divider />
-
-              <h5 className="subject-title delete-title">Delete Account</h5>
-              <Button
-                appearance="primary"
-                block
-                style={{ backgroundColor: '#FF6200' }}
-                onClick={() => setDeleteModalOpen(true)}
-              >
-                Delete Account
-              </Button>
-            </Form>
-          )}
-
-          {currentView === 'membership' && (
-            <div className="membership-tab">
-              <h5 className="subject-title">Current Plan</h5>
-              <Grid fluid>
-                <Row>
-                  <Col xs={24}>
-                    <div className="membership-plan">
-                      <div className="plan-header">
-                        <h5>Basic Plan</h5>
-                        <p>$0 per month</p>
-                      </div>
-                      <p className="plan-description">
-                        You have a GradFlow Basic subscription. Upgrade your plan by clicking the
-                        button below.
-                      </p>
-                      <Button appearance="primary" block>
-                        Upgrade
-                      </Button>
-                    </div>
-                  </Col>
-                </Row>
                 <Divider />
-                <Row>
-                  <Col xs={24}>
-                    <div className="usage-section">
-                      <h5 className="subject-title">Usage</h5>
-                      <p>
-                        <strong>Jobs:</strong> 0 of 20
-                      </p>
-                      <p>
-                        <strong>Data:</strong> 0
-                      </p>
-                      <p>
-                        <strong>Documents:</strong> 0
-                      </p>
-                    </div>
-                  </Col>
-                </Row>
-              </Grid>
-            </div>
-          )}
 
-          {currentView === 'notifications' && (
-            <Form fluid className="notifications-tab">
-              <h5 className="subject-title">Email Subscriptions</h5>
-              <Grid fluid>
-                <Row>
-                  <Col xs={24}>
-                    <Form.Group controlId="applicationUpdates" className="form-group">
-                      <Form.ControlLabel>Application Updates</Form.ControlLabel>
-                      <Checkbox
-                        checked={!!formData.applicationUpdates}
-                        onChange={(val, checked) =>
-                          handleChange(checked, 'applicationUpdates')
-                        }
-                      />
-                    </Form.Group>
-                    <Form.Group controlId="promotionalContent" className="form-group">
-                      <Form.ControlLabel>Promotional Content</Form.ControlLabel>
-                      <Checkbox
-                        checked={!!formData.promotionalEmails}
-                        onChange={(val, checked) =>
-                          handleChange(checked, 'promotionalEmails')
-                        }
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-              </Grid>
-              <Button appearance="primary" block onClick={handleSubmit}>
-                Save Changes
-              </Button>
-            </Form>
-          )}
-        </Drawer.Body>
-      </Drawer>
+                <h5 className="subject-title">Change Password</h5>
+                <Button onClick={handleChangePassword} appearance="primary" block>
+                  Change Password
+                </Button>
 
-      <DeleteAccountModal
+                <Divider />
+
+                <h5 className="subject-title delete-title">Delete Account</h5>
+                <Button
+                  appearance="primary"
+                  block
+                  style={{ backgroundColor: '#FF6200' }}
+                  onClick={handleShowDeleteModal}
+                >
+                  Delete Account
+                </Button>
+              </Form>
+            )}
+
+            {currentView === 'membership' && (
+              <div className="membership-tab">
+                <h5 className="subject-title">Current Plan</h5>
+                <Grid fluid>
+                  <Row>
+                    <Col xs={24}>
+                      <div className="membership-plan">
+                        <div className="plan-header">
+                          <h5>Basic Plan</h5>
+                          <p>$0 per month</p>
+                        </div>
+                        <p className="plan-description">
+                          You have a GradFlow Basic subscription. Upgrade your plan by clicking the
+                          button below.
+                        </p>
+                        <Button appearance="primary" block>
+                          Upgrade
+                        </Button>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Divider />
+                  <Row>
+                    <Col xs={24}>
+                      <div className="usage-section">
+                        <h5 className="subject-title">Usage</h5>
+                        <p>
+                          <strong>Jobs:</strong> 0 of 20
+                        </p>
+                        <p>
+                          <strong>Data:</strong> 0
+                        </p>
+                        <p>
+                          <strong>Documents:</strong> 0
+                        </p>
+                      </div>
+                    </Col>
+                  </Row>
+                </Grid>
+              </div>
+            )}
+
+            {currentView === 'notifications' && (
+              <Form fluid className="notifications-tab">
+                <h5 className="subject-title">Email Subscriptions</h5>
+                <Grid fluid>
+                  <Row>
+                    <Col xs={24}>
+                      <Form.Group controlId="applicationUpdates" className="form-group">
+                        <Form.ControlLabel>Application Updates</Form.ControlLabel>
+                        <Checkbox
+                          checked={!!formData.applicationUpdates}
+                          onChange={(val, checked) =>
+                            handleChange(checked, 'applicationUpdates')
+                          }
+                        />
+                      </Form.Group>
+                      <Form.Group controlId="promotionalContent" className="form-group">
+                        <Form.ControlLabel>Promotional Content</Form.ControlLabel>
+                        <Checkbox
+                          checked={!!formData.promotionalEmails}
+                          onChange={(val, checked) =>
+                            handleChange(checked, 'promotionalEmails')
+                          }
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </Grid>
+                <Button appearance="primary" block onClick={handleSubmit}>
+                  Save Changes
+                </Button>
+              </Form>
+            )}
+          </Drawer.Body>
+        </Drawer>
+
+      )}
+
+      <DeleteModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
-        onDelete={handleDeleteAccount}
+        onYes={handleDeleteAccount}
+        onNo={() => setDeleteModalOpen(false)}
+        showAccountReasons={true}
+        title="Delete Account"
+
+
       />
     </>
   );

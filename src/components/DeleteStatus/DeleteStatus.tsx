@@ -14,11 +14,11 @@ const CARD_REASONS = [
 
 // This will be shown if showAccountReasons
 const ACCOUNT_REASONS = [
-  'Rejected by company',
-  'Position filled',
-  'Found another role',
-  'No response from company',
-  'Other',
+  'Found a job',
+  'Too Expensive',
+  'Not using it enough',
+  'Prefer another tool',
+  'Other'
 ];
 
 const DeleteModal = ({ isOpen, onClose, onYes, onNo, title, showCardReasons, showAccountReasons }) => {
@@ -77,6 +77,11 @@ const DeleteModal = ({ isOpen, onClose, onYes, onNo, title, showCardReasons, sho
             <h2>{title || 'Are You Sure?'}</h2>
 
             {/* Reason behind Delete a Card or Account */}
+            {showAccountReasons && (
+              <div className='' style={{ 'textAlign': 'center', 'margin': '8px 0px' }}>
+                <p>This action cannot be undone. Please tell us why you’re leaving:
+                </p></div>
+            )}
             {reasonOptions.length > 0 && (
               <div className="input-wrapper" style={{ marginTop: '1vb', marginBottom: '2vb' }}>
                 <select
