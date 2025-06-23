@@ -14,11 +14,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 export default function FAQ() {
   const theme = useTheme();
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [expanded, setExpanded] = React.useState<string | false>(false);
-
-  const handleChange = (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-    setExpanded(isExpanded ? panel : false);
-  };
+  const [expandedIds, setExpandedIds] = React.useState<string[]>([]);
 
   const faqItems = [
     {
@@ -49,12 +45,19 @@ export default function FAQ() {
   );
 
   React.useEffect(() => {
-    if (searchQuery && filteredItems.length > 0) {
-      setExpanded(filteredItems[0].id);
+    if (searchQuery) {
+      const matchedIds = faqItems
+        .filter(item =>
+          item.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.answer.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .map(item => item.id);
+
+      setExpandedIds(matchedIds);
     } else {
-      setExpanded(false);
+      setExpandedIds([]); // collapse all
     }
-  }, [searchQuery, filteredItems]);
+  }, [searchQuery]);
 
   return (
     <Container
@@ -96,7 +99,6 @@ export default function FAQ() {
         sx={{
           width: { sm: '100%', md: '60%' },
           textAlign: { sm: 'left', md: 'center' },
-
           background: 'linear-gradient(90deg, #FF6200, #FF8A00)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
@@ -105,6 +107,7 @@ export default function FAQ() {
       >
         Frequently asked questions
       </Typography>
+
       <TextField
         fullWidth
         variant="outlined"
@@ -120,12 +123,19 @@ export default function FAQ() {
           ),
         }}
       />
+
       <Box sx={{ width: '100%' }}>
         {filteredItems.map((item) => (
           <Accordion
             key={item.id}
-            expanded={expanded === item.id}
-            onChange={handleChange(item.id)}
+            expanded={expandedIds.includes(item.id)}
+            onChange={() => {
+              setExpandedIds(prev =>
+                prev.includes(item.id)
+                  ? prev.filter(id => id !== item.id)
+                  : [...prev, item.id]
+              );
+            }}
           >
             <AccordionSummary
               expandIcon={<ExpandMoreIcon />}
