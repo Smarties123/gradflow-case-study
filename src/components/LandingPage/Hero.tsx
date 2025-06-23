@@ -38,20 +38,7 @@ export default function Hero() {
     " "
   );
 
-  const moveBg = (e) => {
-    const rect = e.target.getBoundingClientRect();
-    e.target.style.setProperty("--x", ((e.clientX - rect.x) / rect.width) * 100);
-    e.target.style.setProperty("--y", ((e.clientY - rect.y) / rect.height) * 100);
-  };
-
-  const resetBg = (e) => {
-    // Reset the background position to the centre
-    e.target.style.setProperty("--x", "50");
-    e.target.style.setProperty("--y", "50");
-  };
-
   const videoUrl = "https://d3htrhw57y4gd1.cloudfront.net/trailer-1-video.mp4";
-
 
   return (
     <Box
@@ -224,11 +211,11 @@ export default function Hero() {
                 WebkitMask: "linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0)",
                 WebkitMaskComposite: "destination-out",
                 maskComposite: "exclude",
-                opacity: 0,
+                // opacity: 0,
                 transition: "opacity 0.3s ease",
               },
               "&:hover::after": {
-                opacity: 1,
+                // opacity: 1,
               }
             }}
           >
