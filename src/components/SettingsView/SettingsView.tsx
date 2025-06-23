@@ -214,7 +214,7 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
                 </FlexboxGrid>
 
                 <Form.Group controlId="name" className="form-group">
-                  <Form.ControlLabel>Name</Form.ControlLabel>
+                  <h6>Name</h6>
                   <Form.Control
                     name="name"
                     value={formData.name}
@@ -224,7 +224,7 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
                 </Form.Group>
 
                 <Form.Group controlId="email" className="form-group">
-                  <Form.ControlLabel>Email</Form.ControlLabel>
+                  <h6>Email</h6>
                   <Form.Control
                     name="email"
                     value={formData.email}
@@ -302,36 +302,49 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
 
             {currentView === 'notifications' && (
               <Form fluid className="notifications-tab">
-                <h5 className="subject-title">Email Subscriptions</h5>
+                <h5 className="subject-title">Email Preferences</h5>
+
                 <Grid fluid>
                   <Row>
                     <Col xs={24}>
                       <Form.Group controlId="applicationUpdates" className="form-group">
-                        <Form.ControlLabel>Application Updates</Form.ControlLabel>
                         <Checkbox
                           checked={!!formData.applicationUpdates}
                           onChange={(val, checked) =>
                             handleChange(checked, 'applicationUpdates')
                           }
-                        />
+                        >
+                          <h6>Application Updates</h6>
+                          <div className="form-note">
+                            Receive updates about job applications, reminders, and deadlines.
+                          </div>
+                        </Checkbox>
                       </Form.Group>
+
                       <Form.Group controlId="promotionalContent" className="form-group">
-                        <Form.ControlLabel>Promotional Content</Form.ControlLabel>
                         <Checkbox
                           checked={!!formData.promotionalEmails}
                           onChange={(val, checked) =>
                             handleChange(checked, 'promotionalEmails')
                           }
-                        />
+                        >
+                          <h6>Promotional Content</h6>
+                          <div className="form-note">
+                            Get news about new features, tips, and promotions.
+                          </div>
+                        </Checkbox>
                       </Form.Group>
                     </Col>
                   </Row>
                 </Grid>
-                <Button appearance="primary" block onClick={handleSubmit}>
-                  Save Changes
+
+                <Button appearance="primary" block style={{ marginTop: '1.5rem' }}>
+                  Save Preferences
                 </Button>
               </Form>
             )}
+
+
           </Drawer.Body>
         </Drawer>
 
