@@ -14,7 +14,7 @@ import Paper from '@mui/material/Paper';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material'; // For responsive layout
 import SchoolIcon from '@mui/icons-material/School'; // University icon
-import FeedbackButton from '../FeedbackButton/FeedbackButton'; // Feedback button
+import Logo from '../Logo';
 import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -230,6 +230,17 @@ export default function SignUp() {
               alignItems: 'center'
             }}
           >
+            <Box
+              sx={{ mb: 2, cursor: 'pointer' }}
+              onClick={() => { window.location.href = '/'; }}
+            >
+              <Logo
+                style={{
+                  width: '8vw',
+                  height: '10vh'
+                }}
+              />
+            </Box>
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
               <LockOutlinedIcon />
             </Avatar>
