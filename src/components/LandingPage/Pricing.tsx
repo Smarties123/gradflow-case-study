@@ -206,7 +206,7 @@ export default function Pricing() {
                       variant="subtitle2"
                       sx={{
                         color:
-                          tier.title === 'Premium Plan' ? 'grey.200' : undefined,
+                          tier.timePeriod === 'per year' && 'white',
                       }}
                     >
                       {line}
