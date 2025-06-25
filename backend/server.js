@@ -76,6 +76,31 @@ app.get('/test-cors', (req, res) => {
 });
 
 
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error('Webhook signature verification failed.', err.message);
+    return res.sendStatus(400);
+  }
+
+  // Handle checkout session completion
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    console.log(session);
+
+    // Example: mark user as paid, create subscription record, etc.
+    console.log(' Payment succeeded for:', session.customer_details.email);
+  }
+
+  res.status(200).json({ received: true });
+});
+
+
 app.use(cors());
 app.use(express.json());
 
@@ -93,6 +118,8 @@ app.use('/files', filesRoutes);
 
 
 const port = process.env.PORT || 3001;
+
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
@@ -118,14 +145,19 @@ app.post('/create-checkout-session', async (req, res) => {
     : process.env.STRIPE_YEARLY_PRICE_ID;
 
   try {
+
     // 2. Check if customer already exists
     const { data: existingCustomers } = await stripeCon.customers.list({
       email,
       limit: 1,
     });
 
+    console.log(existingCustomers);
+
     if (existingCustomers.length > 0) {
       // Stop here - email already has a Stripe customer
+      console.log("you are an existing customer");
+      
       return res.status(200).json({
         code: 30,
         message: 'Customer already exists with an active subscription.',
@@ -139,7 +171,7 @@ app.post('/create-checkout-session', async (req, res) => {
     });
 
     // 4. Create checkout session
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripeCon.checkout.sessions.create({
       payment_method_types: ['card'],
       mode: 'subscription',
       customer: customer.id,
@@ -160,25 +192,3 @@ app.post('/create-checkout-session', async (req, res) => {
 });
 
 
-app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  const sig = req.headers['stripe-signature'];
-
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-  } catch (err) {
-    console.error('Webhook signature verification failed.', err.message);
-    return res.sendStatus(400);
-  }
-
-  // Handle checkout session completion
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-
-    // Example: mark user as paid, create subscription record, etc.
-    console.log(' Payment succeeded for:', session.customer_email);
-  }
-
-  res.status(200).json({ received: true });
-});
