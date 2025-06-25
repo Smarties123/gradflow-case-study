@@ -23,6 +23,9 @@ import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar';
 import Files from './pages/files/Files'; 
 
 import FeedbackButton from './components/FeedbackButton/FeedbackButton';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 // Import logEvent to track user navigation
 import { logEvent, analytics } from '../firebaseConfig';
@@ -39,6 +42,8 @@ const App = () => {
 
   return (
     <IntlProvider locale="en" messages={locales.en}>
+      {/* react-toastify container, bottom-right */}
+      <ToastContainer position="bottom-right" />
       <Routes>
         {/* Landing and Auth Pages - No UserContext */}
         <Route path="/" element={<LandingPage />} />
@@ -52,6 +57,10 @@ const App = () => {
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR />} />
         {/* Routes that require UserContext */}
+        
+
+
+
         <Route
           path="/main"
           element={
