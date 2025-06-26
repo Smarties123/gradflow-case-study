@@ -41,7 +41,15 @@ app.use(express.json());
 app.use(logDeleteRoute);
 
 // console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
-// // Test email route
+// Test email route
+// TO RUN IT: 
+/*
+Uncomment the function below 
+run node server.js 
+in the terminal run 
+curl http://localhost:3001/test-email/youremail@example.com
+
+*/
 // app.get('/test-email/:email', async (req, res) => {
 //   const email = req.params.email;
 
