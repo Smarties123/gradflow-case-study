@@ -27,6 +27,12 @@ import stripe from 'stripe';
 
 const app = express();
 
+
+const STRIPE_SECRET_KEY =
+  'sk_test_51R5CfJDcnB3juQw0XDcapLqGVVfw2yncjmtMlAfrmyOCsXWRFlOlkjlxNEgXy9QTa2hF4Kn86fba1UetFHtm2DAX00mx2xTCYJ';
+
+const stripeCon = stripe(STRIPE_SECRET_KEY);
+
 // console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
 // // Test email route
 // app.get('/test-email/:email', async (req, res) => {
@@ -76,7 +82,59 @@ app.get('/test-cors', (req, res) => {
 });
 
 
-app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+export async function markUserAsMemberByEmail(email, stripeCustomerId) {
+  if (!email) throw new Error('Email is required');
+
+  try {
+    const result = await pool.query(
+      `UPDATE "Users" 
+       SET "IsMember" = $1, "StripeCustomerId" = $2 
+       WHERE "Email" = $3 
+       RETURNING *`,
+      [true, stripeCustomerId, email]
+    );
+
+    if (result.rowCount === 0) {
+      console.warn('No user found with email:', email);
+      return null;
+    }
+
+    console.log(`User ${email} marked as member:`);
+    return result.rows[0];
+  } catch (err) {
+    console.error('Error updating user membership:', err);
+    throw err;
+  }
+}
+
+
+export async function markUserAsNotMemberByStripeCustomerId(stripeCustomerId) {
+  if (!stripeCustomerId) throw new Error('customerID is required');
+
+  try {
+    const result = await pool.query(
+      `UPDATE "Users" 
+       SET "IsMember" = $1, "StripeCustomerId" = NULL
+       WHERE "StripeCustomerId" = $2
+       RETURNING *`,
+      [false, stripeCustomerId]
+    );
+
+    if (result.rowCount === 0) {
+      console.warn('No user found with customerId:', stripeCustomerId);
+      return null;
+    }
+
+    console.log(`User ${result.rows[0].Email} marked as not a member:`);
+    return result.rows[0];
+  } catch (err) {
+    console.error(`Error updating user membership: for user ${stripeCustomerId}`, err);
+    throw err;
+  }
+}
+
+
+app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
   const sig = req.headers['stripe-signature'];
 
@@ -88,14 +146,36 @@ app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
     return res.sendStatus(400);
   }
 
-  // Handle checkout session completion
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    console.log(session);
+    const email = session.customer_details?.email;
+    const customerId = session.customer;
 
-    // Example: mark user as paid, create subscription record, etc.
-    console.log(' Payment succeeded for:', session.customer_details.email);
+    try {
+      await markUserAsMemberByEmail(email, customerId);
+    } catch (err) {
+      console.error('Error marking user as member:', err);
+      return res.sendStatus(500);
+    }
   }
+
+
+  if (
+  event.type === 'customer.subscription.deleted' ||
+  event.type === 'customer.subscription.canceled' ||
+  event.type === 'invoice.payment_failed'
+) {
+  const subscription = event.data.object;
+  
+  try {
+    const customer = await stripeCon.customers.retrieve(subscription.customer);
+
+    await markUserAsNotMemberByStripeCustomerId(customer.id);
+  } catch (err) {
+    console.error('Failed to mark user as not a member:', err);
+    return res.sendStatus(500);
+  }
+}
 
   res.status(200).json({ received: true });
 });
@@ -126,10 +206,6 @@ app.listen(port, () => {
 });
 
 
-const STRIPE_SECRET_KEY =
-  'sk_test_51R5CfJDcnB3juQw0XDcapLqGVVfw2yncjmtMlAfrmyOCsXWRFlOlkjlxNEgXy9QTa2hF4Kn86fba1UetFHtm2DAX00mx2xTCYJ';
-
-const stripeCon = stripe(STRIPE_SECRET_KEY);
 
 app.post('/create-checkout-session', async (req, res) => {
   const { email, plan, success_url, cancel_url } = req.body;
