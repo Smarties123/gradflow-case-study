@@ -4,7 +4,7 @@ import { IntlProvider } from 'react-intl';
 import locales from './locales';
 import Frame from './components/Frame';
 import Error404Page from './components/ErrorPage/Error404';
-import Error401 from './components/ErrorPage/Error401'; 
+import Error401 from './components/ErrorPage/Error401';
 import Page from './pages/board';
 import LandingPage from './components/LandingPage/LandingPage';
 import SignIn from './components/SignIn/SignIn';
@@ -15,17 +15,33 @@ import ForgotPassword from './components/ForgotPassword/ForgotPassword';
 import ResetPassword from './components/ForgotPassword/ResetPassword';
 import { UserProvider, useUser } from './components/User/UserContext';
 import { BoardProvider } from './pages/board/BoardContext';
-import TermsAndConditions from './components/LandingPage/TermsAndConditions'; 
+import TermsAndConditions from './components/LandingPage/TermsAndConditions';
 import PrivacyPolicyGDPR from './components/LandingPage/PrivacyPolicyGDPR';
 import AboutUs from './components/LandingPage/AboutUs';
+import Timeline from './components/LandingPage/TimelinePage';
 import ComingSoon from './components/ComingSoon/ComingSoon';
-import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar'; 
-import Files from './pages/files/Files'; 
-
-import FeedbackButton from './components/FeedbackButton/FeedbackButton';
+import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar';
+import Files from './pages/files/Files';
+import StripeCheckout from './components/StripeCheckout';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Import logEvent to track user navigation
 import { logEvent, analytics } from '../firebaseConfig';
+
+export const notifyError = (message: string) => {
+  toast.error(message, {
+    position: "bottom-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "colored",
+    transition: Bounce,
+  });
+};
 
 const App = () => {
   const { user } = useUser();
@@ -39,6 +55,7 @@ const App = () => {
 
   return (
     <IntlProvider locale="en" messages={locales.en}>
+      <ToastContainer />
       <Routes>
         {/* Landing and Auth Pages - No UserContext */}
         <Route path="/" element={<LandingPage />} />
@@ -51,6 +68,7 @@ const App = () => {
 
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR />} />
+        {/* <Route path="/timeline" element={<Timeline />} /> */}
         {/* Routes that require UserContext */}
         <Route
           path="/main"
@@ -70,15 +88,19 @@ const App = () => {
           <Route path="/main/table" element={<TableComponent />} />
           <Route path="/main/dashboard" element={<Dashboard />} />
           <Route path="/main/calendar" element={<ComingSoonCalendar />} />
-          <Route path="/main/files" element={<Files />} /> 
+          <Route path="/main/files" element={<Files />} />
         </Route>
 
         {/* 401 Unauthorized Page */}
-        <Route path="/401" element={<Error401 />} /> 
+        <Route path="/401" element={<Error401 />} />
 
         {/* Catch-all for 404 Errors */}
         <Route path="*" element={<Error404Page />} />
         <Route path="/comingsoon" element={<ComingSoon />} />
+
+        {/* Stripe Payment */}
+        <Route path="/checkout" element={<StripeCheckout />} />
+
       </Routes>
     </IntlProvider>
   );

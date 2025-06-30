@@ -27,7 +27,13 @@ export default function Footer() {
         alignItems: 'center',
         gap: { xs: 4, sm: 8 },
         py: { xs: 8, sm: 10 },
-        textAlign: { sm: 'center', md: 'left' }
+        textAlign: { sm: 'center', md: 'left' },
+        // Force reset any inherited styles
+        color: 'inherit !important',
+        backgroundColor: 'transparent !important',
+        // Create a new stacking context
+        position: 'relative',
+        zIndex: 1,
       }}
     >
       {/* Main footer content */}
@@ -52,7 +58,7 @@ export default function Footer() {
             <Box sx={{ ml: '-15px', mb: '10px' }}>
               <LandingPageBrand />
             </Box>
-            <Typography variant="body2" fontWeight={600} gutterBottom>
+            <Typography variant="body2" fontWeight={600} gutterBottom sx={{ color: 'text.primary' }}>
               Newsletter
             </Typography>
             <Typography variant="body2" color="text.secondary" mb={2}>
@@ -94,7 +100,11 @@ export default function Footer() {
             gap: 1
           }}
         >
-          <Typography variant="body2" fontWeight={600}>
+          <Typography
+            variant="subtitle2"
+            fontWeight={600}
+            sx={{ color: 'text.primary' }} // Explicitly set color
+          >
             Product
           </Typography>
           <Link color="text.secondary" href="#terminal">
@@ -117,7 +127,12 @@ export default function Footer() {
             gap: 1
           }}
         >
-          <Typography variant="body2" fontWeight={600}>
+          <Typography
+            component="text"
+            variant="subtitle2"
+            fontWeight={600}
+            sx={{ color: 'text.primary' }} // Explicitly set color
+          >
             Company
           </Typography>
           <Link color="text.secondary" href="/AboutUs">
@@ -137,7 +152,11 @@ export default function Footer() {
             gap: 1
           }}
         >
-          <Typography variant="body2" fontWeight={600}>
+          <Typography
+            variant="subtitle2"
+            fontWeight={600}
+            sx={{ color: 'text.primary' }} // Explicitly set color
+          >
             Legal
           </Typography>
           <Link color="text.secondary" href="/terms-and-conditions">
@@ -174,10 +193,16 @@ export default function Footer() {
           </Link>
 
           <Box component="div" className="footer-powered-by" sx={{ mt: 1 }}>
-            <Typography variant="body2" className="powered-by-text">
+            <Typography variant="body2" className="powered-by-text" sx={{ color: 'text.secondary' }}>
               Powered by
             </Typography>
-            <img src="https://d3htrhw57y4gd1.cloudfront.net/logo.svg" alt="GradFlow Logo" className="footer-logo" onClick={() => window.open('https://hadtechnologies.org/', '_blank')} />
+            <img
+              src="https://d3htrhw57y4gd1.cloudfront.net/logo.svg"
+              alt="GradFlow Logo"
+              className="footer-logo"
+              onClick={() => window.open('https://hadtechnologies.org/', '_blank')}
+              style={{ cursor: 'pointer' }}
+            />
           </Box>
           <Copyright />
         </Box>
