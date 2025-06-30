@@ -119,12 +119,23 @@ export default function Pricing() {
                 flexDirection: 'column',
                 gap: 4,
                 border: tier.title === 'Premium Plan ' ? '1px solid' : undefined,
-                borderColor:
-                  tier.title === 'Premium Plan ' ? 'primary.main' : undefined,
-                background:
-                  tier.title === 'Premium Plan '
-                    ? 'linear-gradient(#033363, #021F3B)'
-                    : undefined,
+                borderColor: tier.title === 'Premium Plan ' ? 'primary.main' : undefined,
+                background: tier.title === 'Premium Plan '
+                  ? 'linear-gradient(#033363, #021F3B)'
+                  : undefined,
+                // Isolate the background effect
+                isolation: 'isolate',
+                // Ensure text colors are contained within this card
+                '& *': {
+                  color: tier.title === 'Premium Plan ' ? 'white' : 'inherit',
+                },
+                // Override for specific elements that should keep their original colors
+                '& .MuiTypography-root': {
+                  color: tier.title === 'Premium Plan ' ? 'white' : 'text.primary',
+                },
+                '& .MuiLink-root': {
+                  color: tier.title === 'Premium Plan ' ? 'grey.300' : 'text.secondary',
+                }
               }}
             >
               <CardContent>

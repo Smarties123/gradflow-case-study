@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { motion, useScroll, useSpring, useInView } from 'framer-motion';
 
 import AppAppBar from './AppAppBar';
 import Hero from './Hero';
@@ -22,9 +22,60 @@ import Pricing from './Pricing';
 import FAQ from './FAQ';
 
 const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 60 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.8, ease: "easeOut" }
+};
+
+const fadeInLeft = {
+  initial: { opacity: 0, x: -60 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.8, ease: "easeOut" }
+};
+
+const fadeInRight = {
+  initial: { opacity: 0, x: 60 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.8, ease: "easeOut" }
+};
+
+const scaleIn = {
+  initial: { opacity: 0, scale: 0.8 },
+  animate: { opacity: 1, scale: 1 },
+  transition: { duration: 0.6, ease: "easeOut" }
+};
+
+const fadeInUpStagger = {
+  initial: { opacity: 0, y: 40 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.6, ease: "easeOut" }
+};
+
+const slideInFromBottom = {
+  initial: { opacity: 0, y: 80 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.8, ease: "easeOut" }
+};
+
+// Reusable animated section component
+const AnimatedSection = ({ children, animation, delay = 0 }: {
+  children: React.ReactNode;
+  animation: any;
+  delay?: number;
+}) => {
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={animation.initial}
+      animate={isInView ? animation.animate : animation.initial}
+      transition={{ ...animation.transition, delay }}
+    >
+      {children}
+    </motion.div>
+  );
 };
 
 export default function LandingPage() {
@@ -37,17 +88,16 @@ export default function LandingPage() {
   };
 
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
   return (
     <>
-      <motion.div
+      {/* <motion.div
         className="progress-bar"
         style={{ scaleX }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-      />
+      /> */}
 
       {/* Main Content - Always rendered, no fade-in animation */}
       <ThemeProvider theme={LPtheme}>
@@ -57,7 +107,6 @@ export default function LandingPage() {
           sx={{
             position: 'relative',
             zIndex: 100,
-            overflow: 'hidden',
             '& > *': {
               position: 'relative',
               zIndex: 1
@@ -65,7 +114,7 @@ export default function LandingPage() {
           }}
         >
           {/* AppBar zIndex is 110 (above banner and confetti) */}
-          <AppAppBar mode={mode} toggleColorMode={toggleColorMode} sx={{ zIndex: 110 }} />
+          <AppAppBar mode={mode} toggleColorMode={toggleColorMode} />
 
           <motion.div
             initial={{ opacity: 0 }}
@@ -94,42 +143,42 @@ export default function LandingPage() {
               }
             }}
           >
-            <motion.div {...fadeInUp}>
+            <AnimatedSection animation={fadeInUp}>
               <LogoCollection />
-            </motion.div>
+            </AnimatedSection>
 
-            <motion.div {...fadeInUp}>
+            <AnimatedSection animation={fadeInLeft} delay={0.2}>
               <Box id="highlights"><Highlights /></Box>
-            </motion.div>
+            </AnimatedSection>
 
-            <motion.div {...fadeInUp}>
+            <AnimatedSection animation={scaleIn} delay={0.1}>
               <Box id="terminal"><Panel /></Box>
-            </motion.div>
+            </AnimatedSection>
 
-            <motion.div {...fadeInUp}>
+            <AnimatedSection animation={fadeInRight} delay={0.2}>
               <Box id="insights"><Insights /></Box>
-            </motion.div>
+            </AnimatedSection>
 
-            <motion.div {...fadeInUp}>
+            <AnimatedSection animation={slideInFromBottom} delay={0.3}>
               <Box id="testimonials"><Testimonials /></Box>
-            </motion.div>
+            </AnimatedSection>
 
-            <motion.div {...fadeInUp}>
+            <AnimatedSection animation={fadeInLeft} delay={0.1}>
               <FAQ />
-            </motion.div>
+            </AnimatedSection>
 
-            <motion.div {...fadeInUp}>
+            <AnimatedSection animation={scaleIn} delay={0.2}>
               <Pricing />
-            </motion.div>
+            </AnimatedSection>
 
-            <motion.div {...fadeInUp}>
+            <div>
               <Footer />
-            </motion.div>
+            </div>
           </Box>
           {/* FeedbackButton zIndex is 110 (above banner and confetti) */}
-          <FeedbackButton sx={{ zIndex: 110 }} />
+          <FeedbackButton />
         </Box>
-      </ThemeProvider>
+      </ThemeProvider >
     </>
   );
 }
