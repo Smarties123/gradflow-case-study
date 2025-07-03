@@ -11,7 +11,6 @@ import pool from './config/db.js';  // Database import
 import userRoutes from './routes/userRoutes.js';  
 import applicationRoutes from './routes/applicationRoutes.js';
 import filesRoutes from './routes/filesRoutes.js';
-
 import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
@@ -29,6 +28,8 @@ cron.schedule('0 9 * * 3', async () => {
   console.log('Finished sending emails.');
 });
 
+import stripe from 'stripe';
+
 const app = express();
 
 
@@ -41,7 +42,15 @@ app.use(express.json());
 app.use(logDeleteRoute);
 
 // console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
-// // Test email route
+// Test email route
+// TO RUN IT: 
+/*
+Uncomment the function below 
+run node server.js 
+in the terminal run 
+curl http://localhost:3001/test-email/youremail@example.com
+
+*/
 // app.get('/test-email/:email', async (req, res) => {
 //   const email = req.params.email;
 
@@ -100,7 +109,7 @@ app.use(logoDevProxy);
 // User-related routes
 app.use('/api/users', userRoutes);  // '/forgot-password' will be accessible as '/api/users/forgot-password'
 app.use(applicationRoutes);
-app.use(statusRoutes);
+app.use('/status', statusRoutes);
 app.use('/files', filesRoutes);
 
 

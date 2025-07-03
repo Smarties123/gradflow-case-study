@@ -23,6 +23,7 @@
     "nodemailer": "^6.9.15",
     "pg": "^8.11.3",
     "sqlite3": "^5.1.7",
+    "stripe": "^17.4.0-beta.2",
     "xmlbuilder": "^15.1.1"
   },
   "type": "module"

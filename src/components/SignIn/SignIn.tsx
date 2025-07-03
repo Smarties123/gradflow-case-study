@@ -170,7 +170,16 @@ export default function SignInSide() {
 
 
         logEvent(analytics, 'login', { method: 'Email' }); // Log the login event
-        window.location.href = '/main';
+
+        const plan = localStorage.getItem("pendingPlan");
+        if (plan) {
+          console.log("Pending Plan being passthrough", localStorage.getItem("pendingPlan"));
+          window.location.href = `/checkout?plan=${plan}&email=${email}`;
+          localStorage.removeItem("pendingPlan")
+        } else {
+          window.location.href = '/main';
+
+        }
       } else {
         const errorMessage = await response.text();
         if (errorMessage.includes('Google account')) {
