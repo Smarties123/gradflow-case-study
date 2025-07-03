@@ -6,19 +6,19 @@ import { authenticateToken } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 // Fetch all statuses for the authenticated user
-router.get('/status', authenticateToken, getStatuses);
+router.get('/', authenticateToken, getStatuses);
 
 // Update a status (column) name
-router.put('/status/:id', authenticateToken, updateStatusName);
+router.put('//:id', authenticateToken, updateStatusName);
 
 // Create a new status (column)
-router.post('/status', authenticateToken, createStatus);
+router.post('/', authenticateToken, createStatus);
 
 // Delete a status (column)
-router.delete('/status/:id', authenticateToken, deleteStatus);
+router.delete('/:id', authenticateToken, deleteStatus);
 
 // Route to move a status (change its order)
-router.put('/status/:id/move', authenticateToken, moveStatus);
+router.put('/:id/move', authenticateToken, moveStatus);
 
 // router.post('/delete', deleteCard);
 
