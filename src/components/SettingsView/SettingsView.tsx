@@ -1,3 +1,4 @@
+// src/components/SettingsView/SettingsView.tsx
 import React, { useState, useEffect } from 'react';
 import {
   Drawer,
@@ -8,19 +9,37 @@ import {
   Checkbox,
   Col,
   Row,
-  Grid
+  Grid,
+  Panel
 } from 'rsuite';
 import { useNavigate } from 'react-router-dom';
 import './SettingsView.less';
 import { useUser } from '@/components/User/UserContext';
 import DeleteModal from '../DeleteStatus/DeleteStatus';
 import Avatar from 'react-avatar';
+import { toast } from 'react-toastify';
 
-const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
+// Custom hooks for counts
+import { useBoardData } from '@/hooks/useBoardData';
+import { useFileData } from '@/hooks/useFileData';
+
+interface SettingsViewProps {
+  show: boolean;
+  onClose: () => void;
+  initialTab?: 'account' | 'membership' | 'notifications';
+}
+
+const MAX_APPLICATIONS = 20;
+
+const SettingsView: React.FC<SettingsViewProps> = ({
+  show,
+  onClose,
+  initialTab = 'account'
+}) => {
   const { user } = useUser();
   const navigate = useNavigate();
 
-  const [currentView, setCurrentView] = useState(initialTab);
+  const [currentView, setCurrentView] = useState<string>(initialTab);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -31,7 +50,7 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
   });
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
-  // Fetch the user’s profile when the drawer opens
+  // Fetch profile on open
   useEffect(() => {
     if (!show) return;
     (async () => {
@@ -57,23 +76,35 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
         });
       } catch (err) {
         console.error('Failed to fetch user data', err);
+        toast.error('Could not load your settings.');
       }
     })();
   }, [show, user.token]);
 
-  // Sync tab if parent changes initialTab
-  useEffect(() => {
-    if (show && initialTab) {
-      setCurrentView(initialTab);
-    }
-  }, [show, initialTab]);
+  // Hooks for application & file counts
+  const { columns } = useBoardData(user);
+  const { files, loading: filesLoading } = useFileData();
 
-  // Generic form‐field updater
-  const handleChange = (value, name) => {
+  const totalApps = columns.reduce((sum, col) => sum + col.cards.length, 0);
+  const cvCount = files.filter(f => f.fileType.toLowerCase() === 'cv').length;
+  const clCount = files.filter(f =>
+    f.fileType.toLowerCase().includes('letter')
+  ).length;
+
+  const percentApps = Math.min((totalApps / MAX_APPLICATIONS) * 100, 100);
+  const percentCVs = filesLoading
+    ? 0
+    : Math.min((cvCount / MAX_APPLICATIONS) * 100, 100);
+  const percentCLs = filesLoading
+    ? 0
+    : Math.min((clCount / MAX_APPLICATIONS) * 100, 100);
+
+
+  // Form field updater
+  const handleChange = (value: any, name: string) =>
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
 
-  // Save name/email & notification prefs
+  // Save settings
   const handleSubmit = async () => {
     try {
       const res = await fetch(
@@ -84,37 +115,33 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${user.token}`
           },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            promotionalEmails: formData.promotionalEmails,
-            applicationUpdates: formData.applicationUpdates,
-            weeklyUpdates: formData.weeklyUpdates,
-            dailyUpdates: formData.dailyUpdates
-          })
+          body: JSON.stringify(formData)
         }
       );
       if (res.ok) {
-        console.log('User data updated successfully');
+        toast.success('Settings saved successfully');
         onClose();
       } else {
-        console.error('Failed to update user details');
+        const errText = await res.text();
+        console.error(errText);
+        toast.error('Failed to save settings');
       }
     } catch (err) {
-      console.error('Error updating user details', err);
+      console.error(err);
+      toast.error('An error occurred while saving');
     }
   };
 
-  // Navigate to password‐reset flow
+  // Change password nav
   const handleChangePassword = () => {
+    toast.info('Redirecting to change password');
     navigate('/ForgotPassword');
   };
 
-  // The new delete flow: log reason → delete account → navigate away
+  // Delete account flow
   const handleDeleteAccount = async (reason: string) => {
     try {
-      // 1) Log the reason
-      const logRes = await fetch(
+      await fetch(
         `${process.env.REACT_APP_API_URL}/api/log-delete-account-reason`,
         {
           method: 'POST',
@@ -130,11 +157,6 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
           })
         }
       );
-      if (!logRes.ok) {
-        console.error('Failed to log deletion reason', await logRes.text());
-      }
-
-      // 2) Delete the account
       const delRes = await fetch(
         `${process.env.REACT_APP_API_URL}/api/users/profile`,
         {
@@ -145,54 +167,46 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
           }
         }
       );
-      if (!delRes.ok) {
-        console.error('Failed to delete account', await delRes.text());
-      } else {
-        console.log('Account deleted successfully');
+      if (delRes.ok) {
+        toast.success('Your account has been deleted');
         navigate('/');
+      } else {
+        toast.error('Could not delete account');
       }
     } catch (err) {
-      console.error('Error in delete flow', err);
+      console.error(err);
+      toast.error('An error occurred while deleting');
     } finally {
       setDeleteModalOpen(false);
     }
   };
 
-  const handleShowDeleteModal = () => {
-    setDeleteModalOpen(true);
-    // onClose()
-  }
+
+  const handleUpgrade = (plan: 'basic' | 'premium') => {
+    // TODO: plug in your real upgrade flow
+    toast.info(`Upgrade to ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan`);
+  };
 
   return (
     <>
       {!deleteModalOpen && (
-
         <Drawer open={show} onClose={onClose} size="sm">
           <Drawer.Header>
             <Drawer.Title>Settings</Drawer.Title>
             <FlexboxGrid justify="space-between" className="drawer-links">
               <FlexboxGrid.Item>
                 <div>
-                  <a
-                    onClick={() => setCurrentView('account')}
-                    className={currentView === 'account' ? 'active' : ''}
-                  >
-                    Account
-                  </a>
-                  <Divider vertical />
-                  <a
-                    onClick={() => setCurrentView('membership')}
-                    className={currentView === 'membership' ? 'active' : ''}
-                  >
-                    Membership
-                  </a>
-                  <Divider vertical />
-                  <a
-                    onClick={() => setCurrentView('notifications')}
-                    className={currentView === 'notifications' ? 'active' : ''}
-                  >
-                    Notifications
-                  </a>
+                  {['account', 'membership', 'notifications'].map(tab => (
+                    <React.Fragment key={tab}>
+                      <a
+                        onClick={() => setCurrentView(tab)}
+                        className={currentView === tab ? 'active' : ''}
+                      >
+                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                      </a>
+                      {tab !== 'notifications' && <Divider vertical />}
+                    </React.Fragment>
+                  ))}
                 </div>
               </FlexboxGrid.Item>
             </FlexboxGrid>
@@ -214,7 +228,7 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
                 </FlexboxGrid>
 
                 <Form.Group controlId="name" className="form-group">
-                  <Form.ControlLabel>Name</Form.ControlLabel>
+                  <h6>Name</h6>
                   <Form.Control
                     name="name"
                     value={formData.name}
@@ -224,7 +238,7 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
                 </Form.Group>
 
                 <Form.Group controlId="email" className="form-group">
-                  <Form.ControlLabel>Email</Form.ControlLabel>
+                  <h6>Email</h6>
                   <Form.Control
                     name="email"
                     value={formData.email}
@@ -236,14 +250,12 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
                 <Button onClick={handleSubmit} appearance="primary" block>
                   Save Name & Email
                 </Button>
-
                 <Divider />
 
                 <h5 className="subject-title">Change Password</h5>
-                <Button onClick={handleChangePassword} appearance="primary" block>
+                <Button onClick={handleChangePassword} appearance="default" block>
                   Change Password
                 </Button>
-
                 <Divider />
 
                 <h5 className="subject-title delete-title">Delete Account</h5>
@@ -251,90 +263,158 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
                   appearance="primary"
                   block
                   style={{ backgroundColor: '#FF6200' }}
-                  onClick={handleShowDeleteModal}
+                  onClick={() => setDeleteModalOpen(true)}
                 >
                   Delete Account
                 </Button>
               </Form>
             )}
 
-            {currentView === 'membership' && (
+                        {currentView === 'membership' && (
               <div className="membership-tab">
-                <h5 className="subject-title">Current Plan</h5>
-                <Grid fluid>
-                  <Row>
-                    <Col xs={24}>
-                      <div className="membership-plan">
-                        <div className="plan-header">
-                          <h5>Basic Plan</h5>
-                          <p>$0 per month</p>
-                        </div>
-                        <p className="plan-description">
-                          You have a GradFlow Basic subscription. Upgrade your plan by clicking the
-                          button below.
-                        </p>
-                        <Button appearance="primary" block>
-                          Upgrade
-                        </Button>
-                      </div>
-                    </Col>
-                  </Row>
-                  <Divider />
-                  <Row>
-                    <Col xs={24}>
-                      <div className="usage-section">
-                        <h5 className="subject-title">Usage</h5>
-                        <p>
-                          <strong>Jobs:</strong> 0 of 20
-                        </p>
-                        <p>
-                          <strong>Data:</strong> 0
-                        </p>
-                        <p>
-                          <strong>Documents:</strong> 0
+                {/* Plans */}
+                <h5 className="subject-title">Plans</h5>
+                <FlexboxGrid justify="space-around" className="plan-grid">
+                  <FlexboxGrid.Item componentClass={Col} colspan={12} md={12}>
+                    <Panel className="plan-card basic" bordered>
+                      <div className="plan-header">
+                        <h5>Basic Plan</h5>
+                        <p className="plan-price">
+                          $0<span className="plan-frequency">/ month</span>
                         </p>
                       </div>
-                    </Col>
-                  </Row>
-                </Grid>
+                      <ul className="plan-features">
+                        <li>Up to {MAX_APPLICATIONS} applications / month</li>
+                        <li>Unlimited CVs</li>
+                        <li>Unlimited Cover Letters</li>
+                        <li>Community support</li>
+                      </ul>
+                      <Button appearance="default" block disabled>
+                        Current Plan
+                      </Button>
+                    </Panel>
+                  </FlexboxGrid.Item>
+                  <FlexboxGrid.Item componentClass={Col} colspan={12} md={12}>
+                    <Panel className="plan-card premium" bordered>
+                      <div className="plan-header">
+                        <h5>Premium Plan</h5>
+                        <p className="plan-price">
+                          $19<span className="plan-frequency">/ month</span>
+                        </p>
+                      </div>
+                      <ul className="plan-features">
+                        <li>Unlimited applications</li>
+                        <li>Unlimited CVs</li>
+                        <li>Unlimited Cover Letters</li>
+                        <li>Priority email support</li>
+                        <li>1-on-1 onboarding call</li>
+                      </ul>
+                      <Button
+                        appearance="primary"
+                        block
+                        onClick={() => handleUpgrade('premium')}
+                      >
+                        Upgrade
+                      </Button>
+                    </Panel>
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+
+                {/* Usage */}
+                <h5 className="subject-title">Usage</h5>
+                <div className="usage-bars">
+                  <div className="usage-item">
+                    <div className="usage-label">
+                      <span>Applications</span>
+                      <span>
+                        {totalApps} / {MAX_APPLICATIONS}
+                      </span>
+                    </div>
+                    <div className="liquid-bar">
+                      <div
+                        className="liquid-fill fill-apps"
+                        style={{ width: `${percentApps}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="usage-item">
+                    <div className="usage-label">
+                      <span>CVs</span>
+                      <span>{filesLoading ? '…' : cvCount}</span>
+                    </div>
+                    <div className="liquid-bar">
+                      <div
+                        className="liquid-fill fill-cvs"
+                        style={{ width: `${percentCVs}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="usage-item">
+                    <div className="usage-label">
+                      <span>Cover Letters</span>
+                      <span>{filesLoading ? '…' : clCount}</span>
+                    </div>
+                    <div className="liquid-bar">
+                      <div
+                        className="liquid-fill fill-cl"
+                        style={{ width: `${percentCLs}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
+
             {currentView === 'notifications' && (
               <Form fluid className="notifications-tab">
-                <h5 className="subject-title">Email Subscriptions</h5>
+                <h5 className="subject-title">Email Preferences</h5>
                 <Grid fluid>
                   <Row>
                     <Col xs={24}>
                       <Form.Group controlId="applicationUpdates" className="form-group">
-                        <Form.ControlLabel>Application Updates</Form.ControlLabel>
                         <Checkbox
                           checked={!!formData.applicationUpdates}
                           onChange={(val, checked) =>
                             handleChange(checked, 'applicationUpdates')
                           }
-                        />
+                        >
+                          <h6>Application Updates</h6>
+                          <div className="form-note">
+                            Receive updates about job applications, reminders, and deadlines.
+                          </div>
+                        </Checkbox>
                       </Form.Group>
-                      <Form.Group controlId="promotionalContent" className="form-group">
-                        <Form.ControlLabel>Promotional Content</Form.ControlLabel>
+                      <Form.Group controlId="promotionalEmails" className="form-group">
                         <Checkbox
                           checked={!!formData.promotionalEmails}
                           onChange={(val, checked) =>
                             handleChange(checked, 'promotionalEmails')
                           }
-                        />
+                        >
+                          <h6>Promotional Content</h6>
+                          <div className="form-note">
+                            Get news about new features, tips, and promotions.
+                          </div>
+                        </Checkbox>
                       </Form.Group>
                     </Col>
                   </Row>
                 </Grid>
-                <Button appearance="primary" block onClick={handleSubmit}>
-                  Save Changes
+                <Button
+                  appearance="primary"
+                  block
+                  style={{ marginTop: 16 }}
+                  onClick={handleSubmit}
+                >
+                  Save Preferences
                 </Button>
               </Form>
             )}
           </Drawer.Body>
         </Drawer>
-
       )}
 
       <DeleteModal
@@ -344,8 +424,6 @@ const SettingsView = ({ show, onClose, initialTab = 'account' }) => {
         onNo={() => setDeleteModalOpen(false)}
         showAccountReasons={true}
         title="Delete Account"
-
-
       />
     </>
   );
