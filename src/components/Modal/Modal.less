@@ -143,14 +143,29 @@ input {
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 14px;
-    // color: black;
+    color: #000;                  /* ensure dark text in light mode */
     background-color: transparent;
-    // position: inherit;
     z-index: 20;
     margin-top: 10px;
     transition: border 0.3s ease;
     appearance: none;
 }
+
+.dropdown-input option {
+    background-color: #fff;       /* native option drop-down background */
+    color: #000;                  /* native option text */
+}
+
+.rs-theme-dark .dropdown-input {
+    color: #fff;                  /* select text in dark mode */
+    border-color: #555;           /* darker border to match inputs */
+}
+
+.rs-theme-dark .dropdown-input option {
+    background-color: #333;       /* mirror your dark modal bg */
+    color: #fff;                  /* keep option text visible */
+}
+
 
 
 
