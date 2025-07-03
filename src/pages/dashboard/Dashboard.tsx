@@ -188,7 +188,7 @@ const Dashboard: React.FC = () => {
       </Row>
 
 
-    {/* <Row>
+      {/* <Row>
       <Col xs={24}>
         <AnimateInView delay={0.1}>
           <Panel style={{ background: 'none', margin: '10px 0px', height: '100%' }}>
@@ -268,7 +268,7 @@ const Dashboard: React.FC = () => {
         <Col xs={24} md={12}>
           <AnimateInView delay={0.1}>
 
-            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', overflow: 'hidden', maxHeight: maxHeight }}>
+            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', overflow: 'hidden', maxHeight: 535 }}>
               <RadarChartComponent
                 key={keyForCharts}
                 data={funnelData}

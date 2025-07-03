@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
     Chart as ChartJS,
     RadialLinearScale,
@@ -36,6 +36,8 @@ interface RadarChartComponentProps {
 }
 
 const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data, isLight, title }) => {
+    const chartRef = useRef<HTMLDivElement | null>(null);
+
     const sortedData = [...data].sort((a, b) => b.value - a.value);
     const labels = sortedData.map(item => item.name);
     const datasetValues = sortedData.map(item => item.value);
@@ -124,7 +126,8 @@ const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data, isLight
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
-                alignSelf: 'flex-start',
+                alignSelf: 'flex-start', marginBottom: '20px',
+
             }}>
                 <AiOutlineRadarChart style={{ color: '#F26203', fontSize: '22px' }} />
                 <h4 className="radar-chart-title" style={{
@@ -134,8 +137,13 @@ const RadarChartComponent: React.FC<RadarChartComponentProps> = ({ data, isLight
                 }}>{title}</h4>
             </div>
 
-            <div style={{ height: '430px', width: '100%', position: 'relative' }}>
-                <Radar data={chartData} options={options} />
+            <div
+                ref={chartRef} style={{
+                    height: '100%',
+                    width: '100%', position: 'relative', padding: '0 10px'
+
+                }}>
+                <Radar data={chartData} options={options} height={365} />
             </div>
         </div>
     );
