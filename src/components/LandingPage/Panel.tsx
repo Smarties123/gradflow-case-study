@@ -12,25 +12,29 @@ const items = [
     title: "Panel",
     description:
       "Visualize your job application journey like never before! Helping you stay on track and motivated as you chase your dream job.",
-    image: 'url("https://i.imgur.com/UcFmgd2.png")',
+    imageLight: "/Images/Panel (Light).png",
+    imageDark: "/Images/Panel (Dark).png",
     logo: <ViewQuiltRoundedIcon fontSize="medium" />,
   },
   {
     title: "Drag and Drop",
     description: 'Take control of your job hunt with our dynamic drag-and-drop feature! Effortlessly organize your applications and tailor your roadmap',
-    image: 'url("https://i.imgur.com/p8EcR2u.png")',
+    imageLight: "/Images/DnD (Light).png",
+    imageDark: "/Images/DnD (Dark).png",
     logo: <EdgesensorHighRoundedIcon fontSize="medium" />,
   },
   {
     title: 'Table',
     description: 'Discover your data like never before! Our Table feature transforms your insights into an organized and interactive experience, making it easy to analyze and strategize your job search.',
-    image: 'url("https://i.imgur.com/RA7sJxz.png")',
+    imageLight: "/Images/Table (Light).png",
+    imageDark: "/Images/Table (Dark).png",
     logo: <BackupTableIcon fontSize="medium" />,
   },
   {
     title: 'Files',
     description: 'Stay tuned for our upcoming features that will streamline your job search and make your applications stand out',
-    image: 'url("https://i.imgur.com/0Lwrm2n.png")',
+    imageLight: "/Images/Frame 1 (Light).png",
+    imageDark: "/Images/Frame 1 (Dark).png",
     logo: <FileOpenIcon fontSize="medium" />,
   },
 ];
@@ -44,18 +48,24 @@ export default function BuiltForYou() {
   const [previousImage, setPreviousImage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Preload images
+    // Preload images for both light and dark mode
     items.forEach(item => {
-      const img = new Image();
-      img.src = item.image.slice(4, -1).replace(/"/g, "");
+      const imgLight = new window.Image();
+      imgLight.src = item.imageLight;
+      const imgDark = new window.Image();
+      imgDark.src = item.imageDark;
     });
   }, []);
+
+  const getImageForIndex = (index) => {
+    return theme.palette.mode === 'dark' ? items[index].imageDark : items[index].imageLight;
+  };
 
   const handleImageChange = (index) => {
     if (index !== selectedIndex && !isTransitioning) {
       setIsTransitioning(true);
       setImageLoaded(false);
-      setPreviousImage(items[selectedIndex]?.image.slice(4, -1).replace(/"/g, ""));
+      setPreviousImage(getImageForIndex(selectedIndex));
 
       // Wait for fade out animation before changing image
       setTimeout(() => {
@@ -231,7 +241,7 @@ export default function BuiltForYou() {
             )}
             <img
               className={`animate__animated ${isTransitioning ? "animate__fadeOut" : "animate__fadeIn"}`}
-              src={items[selectedIndex]?.image.slice(4, -1).replace(/"/g, "")}
+              src={getImageForIndex(selectedIndex)}
               alt={items[selectedIndex]?.title}
               onLoad={() => {
                 setIsLoading(false);

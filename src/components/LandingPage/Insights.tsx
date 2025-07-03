@@ -20,14 +20,16 @@ const items = [
     title: "Dashboard",
     description:
       "Dive into your personalized Dashboard, where insights and opportunities come together! Track your progress and gain a clear view of your job applications, all in one dynamic hub.",
-    image: 'url(https://i.imgur.com/bSTMQlX.png)',
+    imageLight: "/Images/Dashboard/Combined Dashbaord (Light).png",
+    imageDark: "/Images/Dashboard/Combined Dashbaord (Dark).png",
     imagePosition: "center 20px",
   },
   {
     title: "Quick Add",
     description:
       "Instantly capture and organize your job applications with just a click, making your journey to landing that dream job faster and easier than ever!",
-    image: 'url(https://i.imgur.com/YQzwGsk.png)',
+    imageLight: "/Images/Quick Add (Light).png",
+    imageDark: "/Images/Quick Add (Dark).png",
     icon: <LibraryAddIcon />,
   },
   {
@@ -35,7 +37,8 @@ const items = [
     title: "Coming Soon",
     description:
       "Exciting things are on the horizon! Stay tuned for our upcoming features that will elevate your job application experience to new heights!",
-    image: "/LandingPageMedia/Terminal - Coming Soon.png",
+    imageLight: "/Images/Frame 1 (Light).png",
+    imageDark: "/Images/Frame 1 (Dark).png",
     imagePosition: "center",
   },
 ];
@@ -47,11 +50,15 @@ export default function Insights() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [previousImage, setPreviousImage] = useState<string | null>(null);
 
+  const getImageForIndex = (index) => {
+    return theme.palette.mode === 'dark' ? items[index].imageDark : items[index].imageLight;
+  };
+
   const handleItemClick = (index) => {
     if (index === selectedItemIndex || isTransitioning) return;
 
     setIsTransitioning(true);
-    setPreviousImage(items[selectedItemIndex]?.image.slice(4, -1).replace(/"/g, ""));
+    setPreviousImage(getImageForIndex(selectedItemIndex));
 
     // Wait for fade out animation before changing image
     setTimeout(() => {
@@ -222,7 +229,7 @@ export default function Insights() {
                         mt: 2,
                         maxWidth: 500,
                         fontWeight: 500,
-                        color: "white"
+                        color: theme.palette.mode === "light" ? "grey.800" : "white"
                       }}
                     >
                       We're hard at work creating exciting new features for the website. Stay tuned for updates!
@@ -230,7 +237,7 @@ export default function Insights() {
                   </Box>
                 ) : (
                   <img
-                    src={selectedFeature.image.slice(4, -1).replace(/"/g, "")}
+                    src={getImageForIndex(selectedItemIndex)}
                     alt={selectedFeature.title}
                     style={{
                       height: "100%",
@@ -252,7 +259,7 @@ export default function Insights() {
           </Grid>
         </Grid>
       </Container>
-    </Box>
+    </Box >
   );
 }
 
