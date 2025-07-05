@@ -12,9 +12,9 @@ const fetchData = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        registeredUsers: 31,
-        applicationsMade: 1278,
-        offersMade: 17,
+        registeredUsers: 100,
+        applicationsMade: 3000,
+        offersMade: 40,
       });
     }, 1000);
   });
