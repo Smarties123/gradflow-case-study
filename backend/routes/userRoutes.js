@@ -1,6 +1,6 @@
 // userRoutes.js
 import express from 'express';
-import { signUp, googleSignUp, login, googleLogin, forgotPassword, resetPassword, getUserDetails, updateUserDetails, deleteUserAccount, checkUserExists, disableFeedbackTrigger} from '../controllers/userController.js';
+import { signUp, googleSignUp, login, googleLogin, forgotPassword, resetPassword, getUserDetails, updateUserDetails, deleteUserAccount, checkUserExists, disableFeedbackTrigger, saveColumnOrder} from '../controllers/userController.js';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -17,7 +17,7 @@ router.put('/profile', authenticateToken, updateUserDetails);
 router.delete('/profile', authenticateToken, deleteUserAccount);  // Add the DELETE route for deleting the user account
 router.post('/disable-feedback', authenticateToken, disableFeedbackTrigger);
 router.post('/check-exists', checkUserExists);  // New route to check if email or username already exists
-
+router.post('/columnorder', authenticateToken, saveColumnOrder);
 
 
 export default router;

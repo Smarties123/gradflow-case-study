@@ -74,8 +74,8 @@ export default function Pricing() {
     <Container
       id="pricing"
       sx={{
-        pt: { xs: 4, sm: 12 },
-        pb: { xs: 8, sm: 16 },
+        pt: { xs: 4, sm: 10 },
+        pb: { xs: 4, sm: 10 },
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
@@ -89,7 +89,12 @@ export default function Pricing() {
           textAlign: { sm: 'left', md: 'center' },
         }}
       >
-        <Typography component="h2" variant="h4" color="text.primary">
+        <Typography component="h2" variant="h4" color="text.primary" sx={{
+          background: 'linear-gradient(90deg, #FF6200, #FF8A00)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          mb: 2
+        }}>
           Pricing
         </Typography>
         <Typography variant="body1" color="text.secondary">
@@ -114,12 +119,23 @@ export default function Pricing() {
                 flexDirection: 'column',
                 gap: 4,
                 border: tier.title === 'Premium Plan ' ? '1px solid' : undefined,
-                borderColor:
-                  tier.title === 'Premium Plan ' ? 'primary.main' : undefined,
-                background:
-                  tier.title === 'Premium Plan '
-                    ? 'linear-gradient(#033363, #021F3B)'
-                    : undefined,
+                borderColor: tier.title === 'Premium Plan ' ? 'primary.main' : undefined,
+                background: tier.title === 'Premium Plan '
+                  ? 'linear-gradient(#033363, #021F3B)'
+                  : undefined,
+                // Isolate the background effect
+                isolation: 'isolate',
+                // Ensure text colors are contained within this card
+                '& *': {
+                  color: tier.title === 'Premium Plan ' ? 'white' : 'inherit',
+                },
+                // Override for specific elements that should keep their original colors
+                '& .MuiTypography-root': {
+                  color: tier.title === 'Premium Plan ' ? 'white' : 'text.primary',
+                },
+                '& .MuiLink-root': {
+                  color: tier.title === 'Premium Plan ' ? 'grey.300' : 'text.secondary',
+                }
               }}
             >
               <CardContent>
@@ -201,7 +217,7 @@ export default function Pricing() {
                       variant="subtitle2"
                       sx={{
                         color:
-                          tier.title === 'Premium Plan' ? 'grey.200' : undefined,
+                          tier.timePeriod === 'per year' && 'white',
                       }}
                     >
                       {line}

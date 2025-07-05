@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../Logo';
 import { Stack } from 'rsuite';
-import BetaBadge from '../BetaBadge/BetaBadge';
+// import BetaBadge from '../BetaBadge/BetaBadge';
 
 const LandingPageBrand = ({ ...props }) => {
     return (
@@ -11,7 +11,7 @@ const LandingPageBrand = ({ ...props }) => {
             <Link to="/" style={{ textDecoration: 'none', position: 'relative', display: 'inline-block' }}>
                 <span style={{ color: '#FF6200', fontWeight: 'bold', fontSize: '20px', position: 'relative' }}>
                     GradFlow
-                    <BetaBadge /> 
+                    {/* <BetaBadge />  */}
                 </span>
             </Link>
         </Stack>

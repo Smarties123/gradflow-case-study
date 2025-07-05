@@ -42,7 +42,7 @@ export const checkUserExists = async (req, res) => {
 // Sign up
 // In your signUp function, check for email existence
 export const signUp = async (req, res) => {
-  const { username, email, password, promotionalEmails } = req.body;
+  const { username, email, password, promotionalEmails, createdAt } = req.body;
   if (!username || !email || !password) {
     return res.status(400).json({ message: 'Username, email, and password are required.' });
   }
@@ -61,8 +61,8 @@ export const signUp = async (req, res) => {
 
     // Proceed with user creation
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
-    const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password") VALUES ($1, $2, $3) RETURNING "UserId"';
-    const values = [username, email, hashedPassword];
+    const userQuery = 'INSERT INTO "Users" ("Username", "Email", "Password", "CreatedAt"  ) VALUES ($1, $2, $3, $4) RETURNING "UserId"';
+    const values = [username.toLowerCase(), email, hashedPassword, createdAt];
 
     const result = await pool.query(userQuery, values);
     const userId = result.rows[0].UserId;
@@ -152,7 +152,7 @@ export const googleSignUp = async (req, res) => {
       VALUES ($1, $2, $3, $4)
       RETURNING "UserId"
     `;
-    const values = [uniqueUsername, email, firebaseUid, profilePicture];
+    const values = [uniqueUsername.toLowerCase(), email, firebaseUid, profilePicture];
     const result = await pool.query(insertUserQuery, values);
     const userId = result.rows[0].UserId;
 
@@ -213,8 +213,10 @@ export const login = async (req, res) => {
   }
 
   try {
-    const query = 'SELECT * FROM "Users" WHERE "Email" = $1';
+    
+    const query = 'SELECT * FROM "Users" WHERE LOWER("Email") = LOWER($1)';
     const { rows } = await pool.query(query, [email]);
+
 
     if (rows.length === 0) {
       return res.status(404).json({ message: 'No account associated with this email.' });
@@ -232,7 +234,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Incorrect password. Please try again.' });
     }
 
-    const token = jwt.sign({ userId: user.UserId, email: user.Email }, SECRET_KEY);
+    const token = jwt.sign({ userId: user.UserId, email: user.Email.toLowerCase() }, SECRET_KEY);
     return res.status(200).json({
       message: 'Login successful!',
       token,
@@ -377,19 +379,20 @@ export const getUserDetails = async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    const query = 'SELECT "Username", "Email", "PromotionalEmail", "ApplicationEmail", "FeedbackTrigger" FROM "Users" WHERE "UserId" = $1';
+    const query = 'SELECT "Username", "Email", "PromotionalEmail", "ApplicationEmail", "FeedbackTrigger", "ColumnOrder" FROM "Users" WHERE "UserId" = $1';
     const { rows } = await pool.query(query, [userId]);
 
       if (rows.length === 0) {
           return res.status(404).json({ message: 'User not found' });
       }
-
+    
       res.status(200).json({
         Username: rows[0].Username,
         Email: rows[0].Email,
         PromotionalEmail: rows[0].PromotionalEmail,  
         ApplicationEmail: rows[0].ApplicationEmail,
-        FeedbackTrigger: rows[0].FeedbackTrigger  // Include FeedbackTrigger in the response
+        FeedbackTrigger: rows[0].FeedbackTrigger,  // Include FeedbackTrigger in the response
+        ColumnOrder: rows[0].ColumnOrder
     });
   } catch (error) {
       console.error(error);
@@ -496,3 +499,47 @@ export const disableFeedbackTrigger = async (req, res) => {
   }
 };
 
+// Save/update column order
+export const saveColumnOrder = async (req, res) => {
+  const userId = req.user.userId;
+  const { columnOrder } = req.body; 
+  console.log(columnOrder);
+  if (!Array.isArray(columnOrder)) {
+    return res.status(400).json({ message: 'columnOrder must be an array' });
+  }
+
+  try {
+    await pool.query(
+      'UPDATE "Users" SET "ColumnOrder" = $1 WHERE "UserId" = $2',
+      [columnOrder, userId]
+    );
+
+    res.status(200).json({ message: 'Column order saved successfully' });
+  } catch (error) {
+    console.error('Error saving column order:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Gets the column Order
+export const getColumnOrder = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const query = 'SELECT "ColumnOrder" FROM "Users" WHERE "UserId" = $1';
+    const { rows } = await pool.query(query, [userId]);
+
+      if (rows.length === 0) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+    
+    console.log(rows);
+
+      res.status(200).json({
+        ColumnOrder: rows[0].ColumnOrder
+    });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+  }
+};

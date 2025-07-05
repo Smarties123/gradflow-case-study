@@ -62,7 +62,7 @@ const teamData = [
     name: "Dillan Kerai",
     role: "Development",
     image:
-      "https://media.licdn.com/dms/image/v2/D4E03AQE2njr9l18NtA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1727860699258?e=1747267200&v=beta&t=MxoYULHqIm74wYW4vaQ6cRY2QdW0CnVIrlNLBGDQqKg",
+      "https://i.imgur.com/bFRsIMa.jpeg",
     description:
       "Dillan leads full-stack development, ensuring smooth deployments, high performance and seamless user experience.",
     linkedInLink: "https://www.linkedin.com/in/dillan-kerai3/"
@@ -71,7 +71,7 @@ const teamData = [
     name: "Angie Patel",
     role: "Events & LinkedIn",
     image:
-      "https://media.licdn.com/dms/image/v2/D4E03AQFkHs6pnfutSw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1689361219394?e=1747267200&v=beta&t=HibhvijOGwFBKO3Nl0RYrpVM73Gp86zEd1riX5OkLY4",
+      "https://i.imgur.com/q62Mx69.jpeg",
     description:
       "Angie manages events and LinkedIn engagement, strengthening GradFlow’s professional presence and community outreach.",
     linkedInLink: "https://www.linkedin.com/in/angelica-patel/"
@@ -80,7 +80,7 @@ const teamData = [
     name: "Arjun Krishnan",
     role: "Infrastructure",
     image:
-      "https://media.licdn.com/dms/image/v2/D4E03AQGFJncehU-XQg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1715457610712?e=1747267200&v=beta&t=dC89QQcZjCZNmgJygyFNXuut4pHg3qesYzPVyp9emBE",
+      "https://i.imgur.com/vT8OJTd.jpeg",
     description:
       "Arjun designs and maintains GradFlow’s infrastructure, ensuring backend stability, scalability and seamless system performance.",
     linkedInLink: "https://www.linkedin.com/in/arjunkrishnan003/"
@@ -89,29 +89,29 @@ const teamData = [
     name: "Mayur Shankar",
     role: "University Outreach",
     image:
-      "https://media.licdn.com/dms/image/v2/D4E03AQH8XsqxagYZoQ/profile-displayphoto-shrink_400_400/B4EZWQ6CjFG0Ag-/0/1741892889183?e=1747267200&v=beta&t=dQgrgRoK21O3EWZsyXFznIwQkpco4-JceFlrui2rx-I",
+      "https://i.imgur.com/jwmCyMD.jpeg",
     description:
       "Mayur leads university outreach, building relationships with institutions to expand GradFlow’s reach and impact in higher education.",
     linkedInLink: "https://www.linkedin.com/in/mayur-shankar/"
   },
-  {
-    name: "Mia Mistry",
-    role: "Digital Marketing",
-    image:
-      "https://media.licdn.com/dms/image/v2/D4E03AQFWMvDLcU7NWg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1731082490510?e=1747267200&v=beta&t=wPsGgp7nqhg9zuNLzp_vfAnMvhoAqq53HLmlyhM9O0U",
-    description:
-      "Mia drives digital marketing, focusing on Instagram, TikTok and other media channels to enhance GradFlow’s brand and student engagement.",
-    linkedInLink: "https://www.linkedin.com/in/mia-mistry-b39774209/"
-  },
-  {
-    name: "Sadhana Sreeram",
-    role: "Legal",
-    image:
-      "https://media.licdn.com/dms/image/v2/D5603AQHCLJrAQg_gNA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1724254251346?e=1747267200&v=beta&t=Tm2ES0srHACHjtdYYpNRGmp3KPVVy0EM_mp0Um34CZg",
-    description:
-      "Sadhana brings legal expertise to GradFlow, ensuring compliance and contributing to its seamless operations.",
-    linkedInLink: "https://www.linkedin.com/in/sadhana-sreeram/"
-  }
+  // {
+  //   name: "Mia Mistry",
+  //   role: "Digital Marketing",
+  //   image:
+  //     "https://media.licdn.com/dms/image/v2/D4E03AQFWMvDLcU7NWg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1731082490510?e=1747267200&v=beta&t=wPsGgp7nqhg9zuNLzp_vfAnMvhoAqq53HLmlyhM9O0U",
+  //   description:
+  //     "Mia drives digital marketing, focusing on Instagram, TikTok and other media channels to enhance GradFlow’s brand and student engagement.",
+  //   linkedInLink: "https://www.linkedin.com/in/mia-mistry-b39774209/"
+  // },
+  // {
+  //   name: "Sadhana Sreeram",
+  //   role: "Legal",
+  //   image:
+  //     "https://media.licdn.com/dms/image/v2/D5603AQHCLJrAQg_gNA/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1724254251346?e=1747267200&v=beta&t=Tm2ES0srHACHjtdYYpNRGmp3KPVVy0EM_mp0Um34CZg",
+  //   description:
+  //     "Sadhana brings legal expertise to GradFlow, ensuring compliance and contributing to its seamless operations.",
+  //   linkedInLink: "https://www.linkedin.com/in/sadhana-sreeram/"
+  // }
 ];
 
 export default function AboutUs() {
@@ -204,7 +204,7 @@ export default function AboutUs() {
               }} network="tiktok" onClick={() => window.open("https://www.tiktok.com/@gradflow", "_blank")} />
 
               {/* Email
-              <IconButton
+              <IconButton className="bar-icon-button"
                 onClick={() => (window.location.href = "mailto:gradflowinc@gmail.com")}
                 aria-label="Email"
               >

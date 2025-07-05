@@ -5,13 +5,15 @@ import './Board.less';
 import React, { useContext, useRef, useState } from 'react';
 import {
   DndContext,
-  closestCorners,
+  closestCenter,
   MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
   DragOverlay,
   pointerWithin,
+  defaultDropAnimationSideEffects,
+  MeasuringStrategy,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -32,12 +34,16 @@ import { useFetchApplications } from './boardComponents/useFetchApplications';
 import { useDragAndDrop } from './boardComponents/useDragAndDrop';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { deleteCard } from '@/utils/deleteCard';
 
 const Board: React.FC = () => {
   const context = useContext(BoardContext);
   const { user } = useUser();
 
   const { columns, setColumns, updateCard, updateStatusLocally } = context!;
+
+  const [isDeleteCardModalOpen, setIsDeleteCardModalOpen] = useState(false);
+
 
   const {
     editingColumnId,
@@ -73,12 +79,12 @@ const Board: React.FC = () => {
 
   const { isDraggingCard, onDragStart, handleDragEnd } = useDragAndDrop(handleDeleteCard, setActiveId);
 
-  // Updated sensors using MouseSensor and TouchSensor with activationConstraint
+  // Updated sensors with better constraints
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
-        delay: 100, // 300ms delay before drag starts
-        tolerance: 5, // Allow slight movement before activation is canceled
+        delay: 0,
+        tolerance: 5,
       },
     }),
     useSensor(TouchSensor, {
@@ -163,24 +169,39 @@ const Board: React.FC = () => {
   //   handleDragEnd(event);
   // };
 
+  const dropAnimation = {
+    sideEffects: defaultDropAnimationSideEffects({
+      styles: {
+        active: {
+          opacity: '0.5',
+        },
+      },
+    }),
+  };
+
   return (
     <div>
       <DndContext
         sensors={sensors}
-        collisionDetection={pointerWithin}
+        collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        // autoScroll={false}
+        measuring={{
+          droppable: {
+            strategy: MeasuringStrategy.Always,
+          },
+        }}
         autoScroll={{
           enabled: true,
-          threshold: { x: 0.1, y: 0.1 }, // Activate auto-scroll when cursor is within 10% of the edge
-          speed: 5, // Reduce speed of auto-scroll
-          acceleration: 2, // Adjust acceleration as needed
-          interval: 10, // Adjust the interval between scroll updates
+          threshold: { x: 0.2, y: 0.2 },
+          speed: {
+            x: 10,
+            y: 10
+          },
+          acceleration: 15,
+          interval: 5,
         }}
-
       >
-
         <div className="board">
           <SortableContext
             items={columns.map(column => String(column.id))}
@@ -190,27 +211,28 @@ const Board: React.FC = () => {
               <p>No columns available</p>
             ) : (
               columns.map(column => (
-                <ColumnComponent
-                  key={column.id}
-                  column={column}
-                  editingColumnId={editingColumnId}
-                  newTitle={newTitle}
-                  showDropdown={showDropdown}
-                  handleIconClick={handleIconClick}
-                  handleDropdownClick={handleDropdownClick}
-                  handleTitleChange={handleTitleChange}
-                  handleTitleBlur={handleTitleBlur}
-                  handleTitleKeyPress={handleTitleKeyPress}
-                  // handleDropdownOptionSelect={handleDropdownOptionSelect}
-                  handleAddButtonClick={handleAddButtonClick}
-                  handleCardSelect={handleCardSelect}
-                  user={user}
-                  handleFavoriteToggle={handleFavoriteToggle}
-                  handleDeleteCard={handleDeleteCard}
-                  handleDeleteColumnModal={handleDeleteColumnModal}
-                  isDraggingCard={isDraggingCard}
-                  activeId={activeId} // **Add this line**
-                />
+                <div key={column.id} className="column-wrapper">
+                  <ColumnComponent
+                    key={column.id}
+                    column={column}
+                    editingColumnId={editingColumnId}
+                    newTitle={newTitle}
+                    showDropdown={showDropdown}
+                    handleIconClick={handleIconClick}
+                    handleDropdownClick={handleDropdownClick}
+                    handleTitleChange={handleTitleChange}
+                    handleTitleBlur={handleTitleBlur}
+                    handleTitleKeyPress={handleTitleKeyPress}
+                    handleAddButtonClick={handleAddButtonClick}
+                    handleCardSelect={handleCardSelect}
+                    user={user}
+                    handleFavoriteToggle={handleFavoriteToggle}
+                    handleDeleteCard={handleDeleteCard}
+                    handleDeleteColumnModal={handleDeleteColumnModal}
+                    isDraggingCard={isDraggingCard}
+                    activeId={activeId}
+                  />
+                </div>
               ))
             )}
           </SortableContext>
@@ -233,10 +255,13 @@ const Board: React.FC = () => {
               onClose={() => setIsDrawerOpen(false)}
               card={selectedCard}
               updateCard={updateCard}
+              user={user}
               updateStatusLocally={updateStatusLocally}
               columnName={selectedCard.columnName}
               updateStatus={handleUpdateStatus}
               statuses={columns.map(col => ({ StatusId: col.id, StatusName: col.title }))}
+              triggerDeleteModal={() => setIsDeleteCardModalOpen(true)}
+
             />
           )}
 
@@ -249,6 +274,28 @@ const Board: React.FC = () => {
               onYes={() => handleDeleteCardOrColumn()}
               title={`Are you sure you want to delete this column?`}
 
+            />
+          )}
+
+          {/* DELETE POPUP */}
+          {isDeleteCardModalOpen && (
+            <DeleteModal
+              isOpen={isDeleteCardModalOpen}
+              onClose={() => setIsDeleteCardModalOpen(false)}
+              onNo={() => setIsDeleteCardModalOpen(false)}
+              onYes={() => {
+                // Let the card component handle animation via a global signal
+                setIsDeleteCardModalOpen(false);
+                setTimeout(() => {
+                  if (selectedCard?.id) {
+                    document.dispatchEvent(new CustomEvent('triggerCardDelete', {
+                      detail: { cardId: selectedCard.id }
+                    }));
+                  }
+                }, 300); // Let modal close first
+              }}
+
+              title="Are you sure you want to delete this card?"
             />
           )}
 
@@ -267,14 +314,19 @@ const Board: React.FC = () => {
         {/* Add the DragOverlay */}
         <DragOverlay>
           {activeId ? (
-            <CardComponent
-              card={getCardById(activeId)}
-              onSelect={handleCardSelect}
-              user={user}
-              handleFavoriteToggle={handleFavoriteToggle}
-              onDelete={handleDeleteCard}
-              dragOverlay={true}
-            />
+            (() => {
+              const card = getCardById(activeId);
+              return card ? (
+                <CardComponent
+                  card={card}
+                  onSelect={handleCardSelect}
+                  user={user}
+                  handleFavoriteToggle={handleFavoriteToggle}
+                  onDelete={handleDeleteCard}
+                  dragOverlay={true}
+                />
+              ) : null;
+            })()
           ) : null}
         </DragOverlay>
       </DndContext>

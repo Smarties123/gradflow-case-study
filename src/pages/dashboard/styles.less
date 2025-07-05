@@ -57,18 +57,28 @@
 
 #border-line {
   border: 1px white solid;
-  border-radius: 10px;
+  border-radius: 24px;
   margin: 10px 10px;
   padding: 10px;
   display: flex;
   flex-direction: column;
 }
 
-.rs-theme-light {
+#dropdownSelect {
+  padding: 8px;
+  border-radius: 8px;
+  background-color: transparent !important;
+  color: #757575 !important;
+  border: 1px solid #ddd;
+  font-size: 14px;
 
+}
+
+.rs-theme-light {
 
   #border-line {
     border: 1px darkgrey solid;
+    box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.2);
   }
 
   h4 {
@@ -79,6 +89,20 @@
     fill: black !important;
   }
 
+  [data-testid="InfoIcon"] {
+    fill: dimgray;
+  }
+}
+
+.bar-icon-button {
+
+  [data-testid="InfoIcon"] {
+    fill: white;
+  }
+
+  &:hover {
+    color: #ff6200 !important;
+  }
 }
 
 .rs-theme-dark {
@@ -89,13 +113,31 @@
   #dropdownSelect {
     background-color: transparent !important;
     color: white !important;
+    border: 1px solid #757575;
   }
-}
 
-#dropdownSelect {
-  padding: 5px;
+
 }
 
 .recharts-tooltip-label {
   color: black;
+}
+
+.border-line {
+  min-height: 483px;
+}
+
+@media (max-width: 768px) {
+  .border-line {
+    justify-content: center !important;
+    min-height: fit-content !important;
+  }
+}
+
+[role="tooltip"] {
+  background-color: #ff6200 !important;
+  color: white;
+  padding: 8px;
+  border-radius: 16px !important;
+  font-size: 13px !important;
 }

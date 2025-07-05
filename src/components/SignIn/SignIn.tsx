@@ -15,21 +15,18 @@ import Paper from '@mui/material/Paper';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
-import FeedbackButton from '../FeedbackButton/FeedbackButton';
 import { useUser } from '../../components/User/UserContext'; // User context
-import { auth, provider } from '../../../firebaseConfig'; // Import your Firebase config
-import { signInWithPopup } from 'firebase/auth';
-import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
+import CircularProgress from '@mui/material/CircularProgress';
 
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import IconButton from '@mui/material/IconButton';
 
-import GoogleSignInButton from './OtherSignIn'; // Import GoogleSignInButton
+import GoogleSignInButton from './OtherSignIn';
 import Dialog from '@mui/material/Dialog';
-import ComingSoonSignIn from './ComingSoonSignIn'; // Adjust path as needed
-import { analytics, logEvent } from '../../../firebaseConfig'; // Adjust the path as needed
-
+import ComingSoonSignIn from './ComingSoonSignIn';
+import { analytics, logEvent } from '../../../firebaseConfig';
+import Logo from '../Logo';
 // import OnDemandFeedbackPopup from '../Feedback/OnDemandFeedback';
 
 
@@ -154,7 +151,8 @@ export default function SignInSide() {
         setUser({
           email: result.user.email,
           token: result.token,
-          username: result.user.username
+          username: result.user.username,
+          id: result.user.id
         });
 
         // if (result.user.feedbackTrigger) {
@@ -172,7 +170,16 @@ export default function SignInSide() {
 
 
         logEvent(analytics, 'login', { method: 'Email' }); // Log the login event
-        window.location.href = '/main';
+
+        const plan = localStorage.getItem("pendingPlan");
+        if (plan) {
+          console.log("Pending Plan being passthrough", localStorage.getItem("pendingPlan"));
+          window.location.href = `/checkout?plan=${plan}&email=${email}`;
+          localStorage.removeItem("pendingPlan")
+        } else {
+          window.location.href = '/main';
+
+        }
       } else {
         const errorMessage = await response.text();
         if (errorMessage.includes('Google account')) {
@@ -195,7 +202,6 @@ export default function SignInSide() {
       <Grid container component="main" sx={{ minHeight: '100vh', height: '100vh' }}>
         <CssBaseline />
         <Grid
-          item
           xs={false}
           sm={4}
           md={7}
@@ -204,9 +210,12 @@ export default function SignInSide() {
           square
           sx={{
             background: 'linear-gradient(to bottom, #FF6200, #000000)',
-            display: isSmallScreen ? 'none' : 'block'
+            display: isSmallScreen ? 'none' : 'block',
+            position: 'relative'
           }}
-        />
+        >
+        </Grid>
+
         <Grid
           item
           xs={12}
@@ -230,6 +239,17 @@ export default function SignInSide() {
               alignItems: 'center'
             }}
           >
+            <Box
+              sx={{ mb: 2, cursor: 'pointer' }}
+              onClick={() => { window.location.href = '/'; }}
+            >
+              <Logo
+                style={{
+                  width: '8vw',
+                  height: '10vh'
+                }}
+              />
+            </Box>
             <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
               <LockOutlinedIcon />
             </Avatar>
@@ -251,6 +271,20 @@ export default function SignInSide() {
                     error={!!emailError}
                     helperText={emailError}
                   />
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      mt: 1,
+                      px: 1,
+                      py: 0.5,
+                      backgroundColor: 'rgba(0,0,0,0.04)',
+                      borderRadius: '6px',
+                      color: 'text.secondary',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    📧 Email addresses are case sensitive
+                  </Typography>
                 </Grid>
                 <Grid item xs={12}>
                   <TextField
@@ -266,7 +300,7 @@ export default function SignInSide() {
                     helperText={passwordError}
                     InputProps={{
                       endAdornment: (
-                        <IconButton
+                        <IconButton className="bar-icon-button"
                           aria-label="toggle password visibility"
                           onClick={() => setShowPassword(!showPassword)} // Toggle visibility
                           edge="end"
@@ -362,6 +396,6 @@ export default function SignInSide() {
         onClose={() => setFeedbackPopupOpen(false)}
       /> */}
 
-    </ThemeProvider>
+    </ThemeProvider >
   );
 }

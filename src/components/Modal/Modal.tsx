@@ -363,19 +363,27 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                                 />
                             </div>
                         ) : (
-                            <div className="input-wrapper" style={{ marginBottom: '17px', }}>
-                                <label className="bordered-label" style={{ padding: '0px 10px' }}>Choose a Status</label>
-                                <select
+                            <div className="input-wrapper" style={{ marginBottom: '4vb', }}>
+                                <label className="bordered-label">Choose a Status</label>
+                                    <select
                                     value={selectedColumn}
-                                    onChange={(e) => setSelectedColumn(parseInt(e.target.value))}
+                                    onChange={e => setSelectedColumn(parseInt(e.target.value))}
                                     className="border-input dropdown-input"
-                                >
-                                    {columns.map((col) => (
-                                        <option key={col.id} value={col.id}>
-                                            {col.title}
+                                    >
+                                    {columns.map(col => (
+                                        <option
+                                        key={col.id}
+                                        value={col.id}
+                                        style={{
+                                            backgroundColor: theme === 'dark' ? '#333' : '#fff',
+                                            color:            theme === 'dark' ? '#fff' : '#000',
+                                        }}
+                                        >
+                                        {col.title}
                                         </option>
                                     ))}
-                                </select>
+                                    </select>
+
                             </div>
                         )}
 

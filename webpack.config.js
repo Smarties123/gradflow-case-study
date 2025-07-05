@@ -76,7 +76,7 @@ module.exports = {
     new HtmlwebpackPlugin({
       title: 'GradFlow',
       filename: 'index.html',
-      template: path.resolve(__dirname, 'public', 'index.html'),  // Updated path to index.html
+      template: path.resolve(__dirname, 'public', 'index.html'),
       inject: true,
       hash: true,
       path: './',
@@ -85,14 +85,19 @@ module.exports = {
       filename: '[name].css',
       chunkFilename: '[id].css',
     }),
-    // Inject environment variables into the app
     new webpack.DefinePlugin(envKeys),
 
+    // now copy everything in public/ (except index.html) into build/
     new CopyWebpackPlugin({
       patterns: [
-        { from: path.resolve(__dirname, 'public/robots.txt'), to: path.resolve(__dirname, 'build') },
-      ],
+        {
+          from: path.resolve(__dirname, 'public'),
+          to: '', // relative to output.path (build/)
+          globOptions: {
+            ignore: ['**/index.html']
+          }
+        }
+      ]
     }),
-  
   ],
 };

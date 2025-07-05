@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 import { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { motion, useScroll, useSpring, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti'; // Import canvas-confetti
+import { motion, useScroll, useSpring, useInView } from 'framer-motion';
 
 import AppAppBar from './AppAppBar';
 import Hero from './Hero';
@@ -21,128 +20,165 @@ import Footer from './Footer';
 import FeedbackButton from '../../components/FeedbackButton/FeedbackButton'; // Adjust path if needed
 import Pricing from './Pricing';
 import FAQ from './FAQ';
-import './Styles/fireworks-banner.css'; // Keep banner CSS import
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.8, ease: "easeOut" }
+};
+
+const fadeInLeft = {
+  initial: { opacity: 0, x: -60 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.8, ease: "easeOut" }
+};
+
+const fadeInRight = {
+  initial: { opacity: 0, x: 60 },
+  animate: { opacity: 1, x: 0 },
+  transition: { duration: 0.8, ease: "easeOut" }
+};
+
+const scaleIn = {
+  initial: { opacity: 0, scale: 0.8 },
+  animate: { opacity: 1, scale: 1 },
+  transition: { duration: 0.6, ease: "easeOut" }
+};
+
+const fadeInUpStagger = {
+  initial: { opacity: 0, y: 40 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: "easeOut" }
+};
+
+const slideInFromBottom = {
+  initial: { opacity: 0, y: 80 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.8, ease: "easeOut" }
+};
+
+// Reusable animated section component
+const AnimatedSection = ({ children, animation, delay = 0 }: {
+  children: React.ReactNode;
+  animation: any;
+  delay?: number;
+}) => {
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={animation.initial}
+      animate={isInView ? animation.animate : animation.initial}
+      transition={{ ...animation.transition, delay }}
+    >
+      {children}
+    </motion.div>
+  );
+};
 
 export default function LandingPage() {
   const [mode, setMode] = React.useState<PaletteMode>('dark');
-  const [showBanner, setShowBanner] = useState(false); // Banner starts hidden
 
   const LPtheme = createTheme(getLPTheme(mode));
-
-  // --- Confetti Effect Hook ---
-  useEffect(() => {
-    const duration = 7 * 1000;
-    const animationEnd = Date.now() + duration;
-    // Confetti above main content and banner, below AppBar
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 105 };
-
-    function randomInRange(min, max) {
-      return Math.random() * (max - min) + min;
-    }
-    console.log("Starting confetti interval");
-    const interval = setInterval(function () {
-      const timeLeft = animationEnd - Date.now();
-      if (timeLeft <= 0) {
-        console.log("Clearing confetti interval (time left)");
-        return clearInterval(interval);
-      }
-      const particleCount = 50 * (timeLeft / duration);
-      confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-      confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-    }, 250);
-    return () => {
-      console.log("Clearing confetti interval (component unmount)");
-      clearInterval(interval);
-    };
-  }, []);
-
-  // --- Banner Animation Hook ---
-  useEffect(() => {
-    console.log("Starting banner timers.");
-    const bannerTimer = setTimeout(() => {
-      console.log("Showing banner.");
-      setShowBanner(true);
-    }, 700);
-    const bannerExitTimer = setTimeout(() => {
-      console.log("Hiding banner.");
-      setShowBanner(false);
-    }, 4000);
-    return () => {
-      console.log("Cleaning up banner timers.");
-      clearTimeout(bannerTimer);
-      clearTimeout(bannerExitTimer);
-    };
-  }, []);
-
 
   const toggleColorMode = () => {
     setMode(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
-
-  console.log("Rendering LandingPage");
 
   return (
     <>
-      <motion.div className="progress-bar" style={{ scaleX }} />
-
-      {/* Sliding Banner - Animates in and out over the content */}
-      <AnimatePresence>
-        {showBanner && (
-          <motion.div
-            key="banner"
-            className="fireworks-banner"
-            initial={{ y: '-100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '-100%' }}
-            transition={{ duration: 0.8, ease: 'easeInOut' }}
-            // *** INCREASED Z-INDEX HERE ***
-            style={{ zIndex: 101, position: 'fixed', width: '100%' }}
-          >
-            <motion.img
-              className="fireworks-gif"
-              src="https://d3htrhw57y4gd1.cloudfront.net/banner.png"
-              alt="Celebration Banner"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
+      {/* <motion.div
+        className="progress-bar"
+        style={{ scaleX }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      /> */}
 
       {/* Main Content - Always rendered, no fade-in animation */}
       <ThemeProvider theme={LPtheme}>
         <CssBaseline />
         {/* Main content zIndex is 100 */}
-        <Box sx={{ position: 'relative', zIndex: 100 }}>
+        <Box
+          sx={{
+            position: 'relative',
+            zIndex: 100,
+            '& > *': {
+              position: 'relative',
+              zIndex: 1
+            }
+          }}
+        >
           {/* AppBar zIndex is 110 (above banner and confetti) */}
-          <AppAppBar mode={mode} toggleColorMode={toggleColorMode} sx={{ zIndex: 110 }} />
-          <Hero />
-          <Box sx={{ bgcolor: 'background.default' }}>
-            <LogoCollection />
-            <Divider />
-            <Box id="highlights"><Highlights /></Box>
-            <Divider />
-            <Box id="terminal"><Panel /></Box>
-            <Divider />
-            <Box id="insights"><Insights /></Box>
-            <Divider />
-            <Box id="testimonials"><Testimonials /></Box>
-            <Divider />
-            <FAQ />
-{/*             <Pricing /> */}
-            <Divider />
-            <Footer />
+          <AppAppBar mode={mode} toggleColorMode={toggleColorMode} />
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
+          >
+            <Hero />
+          </motion.div>
+
+          <Box
+            sx={{
+              bgcolor: 'background.default',
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '100%',
+                background: mode === 'dark'
+                  ? 'linear-gradient(180deg, rgba(9,14,16,0) 0%, rgba(9,14,16,1) 100%)'
+                  : 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%)',
+                pointerEvents: 'none',
+                zIndex: 0
+              }
+            }}
+          >
+            <AnimatedSection animation={fadeInUp}>
+              <LogoCollection />
+            </AnimatedSection>
+
+            <AnimatedSection animation={fadeInLeft} delay={0.2}>
+              <Box id="highlights"><Highlights /></Box>
+            </AnimatedSection>
+
+            <AnimatedSection animation={scaleIn} delay={0.1}>
+              <Box id="terminal"><Panel /></Box>
+            </AnimatedSection>
+
+            <AnimatedSection animation={fadeInRight} delay={0.2}>
+              <Box id="insights"><Insights /></Box>
+            </AnimatedSection>
+
+            <AnimatedSection animation={slideInFromBottom} delay={0.3}>
+              <Box id="testimonials"><Testimonials /></Box>
+            </AnimatedSection>
+
+            <AnimatedSection animation={fadeInLeft} delay={0.1}>
+              <FAQ />
+            </AnimatedSection>
+
+            <AnimatedSection animation={scaleIn} delay={0.2}>
+              <Pricing />
+            </AnimatedSection>
+
+            <div>
+              <Footer />
+            </div>
           </Box>
           {/* FeedbackButton zIndex is 110 (above banner and confetti) */}
-          <FeedbackButton sx={{ zIndex: 110 }} />
+          <FeedbackButton />
         </Box>
-      </ThemeProvider>
+      </ThemeProvider >
     </>
   );
 }

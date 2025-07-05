@@ -4,6 +4,7 @@ import { useState, useContext } from 'react';
 import { BoardContext } from '../BoardContext';
 import { Column, Card } from '../types';
 import { useUser } from '../../../components/User/UserContext';
+import { notifyError } from '@/App';
 
 export const useBoardHandlers = (columns, setColumns) => {
   const { user } = useUser();
@@ -20,7 +21,6 @@ export const useBoardHandlers = (columns, setColumns) => {
 
   // Deleting Column
   const [columnToDelete, setColumnToDelete] = useState<number | null>(null);
-
 
   // Handler functions
   const handleIconClick = (columnId: number, title: string) => {
@@ -87,6 +87,7 @@ export const useBoardHandlers = (columns, setColumns) => {
     if (option === 2) {
       const column = columns.find(col => col.id === columnId);
       if (!column || column.cards.length > 0) {
+        notifyError('Cannot delete a column with cards.');
         alert('Cannot delete a column with cards.');
         return;
       }
@@ -123,9 +124,9 @@ export const useBoardHandlers = (columns, setColumns) => {
     if (columnToDelete !== null && columnToDelete !== -1) {
       handleDropdownOptionSelect(2, columnToDelete);
     }
-  //   if (cardId !== -1) {
-  //     handleDeleteCard(cardId);
-  //   }
+    //   if (cardId !== -1) {
+    //     handleDeleteCard(cardId);
+    //   }
   };
 
   const handleDeleteCard = (cardId: number | string) => {
