@@ -70,9 +70,9 @@ export default function Footer() {
             <Typography variant="body2" fontWeight={600} gutterBottom>
               Newsletter
             </Typography>
-            <Link variant="body2" color="text.secondary" mb={2}>
+            <Typography variant="body2" color="text.secondary" mb={2}>
               Subscribe to our newsletter for weekly updates and promotions.
-            </Link>
+            </Typography>
             <Stack
               direction={{ xs: "column", sm: "row" }} // Stack vertically on small screens
               spacing={{ xs: 2, sm: 3, md: 2 }} // Adjust spacing based on screen size
