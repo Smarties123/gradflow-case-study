@@ -194,7 +194,7 @@ export default function Footer() {
             <Typography variant="body2" className="powered-by-text">
               Powered by
             </Typography>
-            <img src="https://d3htrhw57y4gd1.cloudfront.net/logo.svg" alt="GradFlow Logo" className="footer-logo" onClick={() => window.open('https://hadtechnologies.org/', '_blank')} />
+            <img src="/Images/HadTechnologiesLogo.svg" alt="GradFlow Logo" className="footer-logo" onClick={() => window.open('https://hadtechnologies.org/', '_blank')} />
           </Box>
           <Copyright />
         </div>
