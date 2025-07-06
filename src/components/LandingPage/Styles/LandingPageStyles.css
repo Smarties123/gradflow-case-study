@@ -60,16 +60,7 @@ a:hover {
   /* color: #0056b3 !important; */
 }
 
-.progress-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 7px;
-  background: #ff6200;
-  transform-origin: 0%;
-  z-index: 9999;
-}
+
 
 
 #animated-image {
