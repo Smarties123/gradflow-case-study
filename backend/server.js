@@ -21,6 +21,7 @@ import stripe from 'stripe';
 
 
 
+
 // Schedule the task to run every wednesday at 9:00 AM 
 //for more info: https://www.npmjs.com/package/node-cron
 cron.schedule('0 9 * * 3', async () => {
@@ -30,6 +31,7 @@ cron.schedule('0 9 * * 3', async () => {
 });
 
 const app = express();
+const prerender = require('prerender-node');
 
 
 const STRIPE_SECRET_KEY =
@@ -43,6 +45,18 @@ app.use(cors({
 // 2) JSON parser — must come BEFORE any routes that read req.body
 app.use(express.json());
 app.use(logDeleteRoute);
+
+// Prerender for bots
+app.use(
+  prerender.set('prerenderToken', 'DZKmg94a8wsxWDvk24PZ')
+);
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'build')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
 
 // console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
 // Test email route
