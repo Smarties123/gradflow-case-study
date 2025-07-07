@@ -86,7 +86,7 @@ export default function LandingPage() {
     'section-4',
     'section-5',
     'section-6',
-    'section-7',
+    // 'section-7',
   ];
 
   const [activeSection, setActiveSection] = useState(0);
@@ -198,12 +198,12 @@ export default function LandingPage() {
             </Box>
           </AnimatedSection>
 
-          <AnimatedSection animation={scaleIn} delay={0.2}>
+{/*           <AnimatedSection animation={scaleIn} delay={0.2}>
             <Box id="section-7">
               <Pricing />
             </Box>
           </AnimatedSection>
-
+ */}
           <Box>
             <Footer />
           </Box>
