@@ -16,6 +16,8 @@ import logoDevProxy from './services/logoDevProxy.js';
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
 import logDeleteRoute from './services/logDeleteService.js';  // Import the log delete service
 import stripe from 'stripe';
+import prerender from 'prerender-node';
+
 
 
 
@@ -31,7 +33,6 @@ cron.schedule('0 9 * * 3', async () => {
 });
 
 const app = express();
-const prerender = require('prerender-node');
 
 
 const STRIPE_SECRET_KEY =
