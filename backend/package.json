@@ -22,7 +22,6 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.15",
     "pg": "^8.11.3",
-    "prerender-node": "^3.8.0",
     "sqlite3": "^5.1.7",
     "stripe": "^17.4.0-beta.2",
     "xmlbuilder": "^15.1.1"
