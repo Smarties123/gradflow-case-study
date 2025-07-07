@@ -19,7 +19,7 @@ const TableComponent: React.FC = () => {
   const { columns, loading } = useBoardData(user);
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState('All Applications');
+  const [selectedStatus, setSelectedStatus] = useState('Total Applications');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
   const [tableHeight, setTableHeight] = useState(window.innerHeight * 0.8);

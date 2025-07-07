@@ -1,19 +1,30 @@
-import React, { useEffect } from 'react';
+import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
+import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import InstagramIcon from '@mui/icons-material/Instagram';
 import LandingPageBrand from '../LandingPageBrand/LandingPageBrand';
+
 import { SocialIcon } from 'react-social-icons';
+
+const logoStyle = {
+  width: '140px',
+  height: 'auto'
+};
 
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" mt={1}>
       {'Copyright © '}
-      HAD TECHNOLOGIES LTD 2025
+      HAD TECHNOLOGIES LTD&nbsp;
+      2025
     </Typography>
   );
 }
@@ -27,10 +38,15 @@ export default function Footer() {
         alignItems: 'center',
         gap: { xs: 4, sm: 8 },
         py: { xs: 8, sm: 10 },
-        textAlign: { sm: 'center', md: 'left' }
+        textAlign: { sm: 'center', md: 'left' },
+        // Force reset any inherited styles
+        color: 'inherit !important',
+        backgroundColor: 'transparent !important',
+        // Create a new stacking context
+        position: 'relative',
+        zIndex: 1,
       }}
     >
-      {/* Main footer content */}
       <Box
         sx={{
           display: 'flex',
@@ -39,7 +55,6 @@ export default function Footer() {
           justifyContent: 'space-between'
         }}
       >
-        {/* Newsletter section */}
         <Box
           sx={{
             display: 'flex',
@@ -59,34 +74,32 @@ export default function Footer() {
               Subscribe to our newsletter for weekly updates and promotions.
             </Typography>
             <Stack
-              direction={{ xs: 'column', sm: 'row' }}
-              spacing={{ xs: 2, sm: 3, md: 2 }}
+              direction={{ xs: "column", sm: "row" }} // Stack vertically on small screens
+              spacing={{ xs: 2, sm: 3, md: 2 }} // Adjust spacing based on screen size
               useFlexGap
             >
               <TextField
-                id="outlined-email"
+                id="outlined-basic"
                 hiddenLabel
                 size="small"
                 variant="outlined"
                 fullWidth
                 placeholder="Your email address"
                 inputProps={{
-                  autoComplete: 'off',
-                  'aria-label': 'Enter your email address',
+                  autoComplete: "off",
+                  "aria-label": "Enter your email address",
                 }}
               />
               <Button
                 variant="contained"
                 color="primary"
-                sx={{ flexShrink: 0, width: { xs: '100%', sm: 'auto' } }}
+                sx={{ flexShrink: 0, width: { xs: "100%", sm: "auto" } }} // Full width on mobile
               >
                 Subscribe
               </Button>
             </Stack>
           </Box>
         </Box>
-
-        {/* Links sections */}
         <Box
           sx={{
             display: { xs: 'none', sm: 'flex' },
@@ -94,7 +107,8 @@ export default function Footer() {
             gap: 1
           }}
         >
-          <Typography variant="body2" fontWeight={600}>
+          <Typography component="text"
+            variant="subtitle2" fontWeight={600}>
             Product
           </Typography>
           <Link color="text.secondary" href="#terminal">
@@ -109,6 +123,12 @@ export default function Footer() {
           <Link color="text.secondary" href="#faq">
             FAQs
           </Link>
+          {/* <Link color="text.secondary" href="#">
+            Pricing
+          </Link> */}
+          {/* <Link color="text.secondary" href="#">
+            FAQs
+          </Link> */}
         </Box>
         <Box
           sx={{
@@ -117,7 +137,8 @@ export default function Footer() {
             gap: 1
           }}
         >
-          <Typography variant="body2" fontWeight={600}>
+          <Typography component="text" color="text.primary"
+            variant="subtitle2" fontWeight={600}>
             Company
           </Typography>
           <Link color="text.secondary" href="/AboutUs">
@@ -137,7 +158,7 @@ export default function Footer() {
             gap: 1
           }}
         >
-          <Typography variant="body2" fontWeight={600}>
+          <Typography variant="body2" color="text.primary" fontWeight={600}>
             Legal
           </Typography>
           <Link color="text.secondary" href="/terms-and-conditions">
@@ -148,26 +169,22 @@ export default function Footer() {
           </Link>
         </Box>
       </Box>
-
-      {/* Bottom section with privacy, terms, copyright, social icons, and Trustpilot */}
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
           pt: { xs: 4, sm: 8 },
           width: '100%',
           borderTop: '1px solid',
           borderColor: 'divider'
         }}
       >
-        {/* Left side links */}
-        <Box>
+        <div>
           <Link href="/privacy-policy-GDPR" target="_blank" rel="noopener noreferrer">
             Privacy Policy
           </Link>
           <Typography display="inline" sx={{ mx: 0.5, opacity: 0.5 }}>
-            •
+            &nbsp;•&nbsp;
           </Typography>
           <Link color="text.secondary" target="_blank" href="/terms-and-conditions">
             Terms of Service
@@ -177,29 +194,41 @@ export default function Footer() {
             <Typography variant="body2" className="powered-by-text">
               Powered by
             </Typography>
-            <img src="https://d3htrhw57y4gd1.cloudfront.net/logo.svg" alt="GradFlow Logo" className="footer-logo" onClick={() => window.open('https://hadtechnologies.org/', '_blank')} />
+            <img src="/Images/HadTechnologiesLogo.svg" alt="GradFlow Logo" className="footer-logo" onClick={() => window.open('https://hadtechnologies.org/', '_blank')} />
           </Box>
           <Copyright />
-        </Box>
+        </div>
+        <Stack
+          direction="row"
+          justifyContent="left"
+          spacing={1}
+          useFlexGap
+          sx={{
+            color: 'text.secondary'
+          }}
+        >
+          {/* LinkedIn */}
+          <SocialIcon style={{
+            maxWidth: "35px",
+            maxHeight: "35px",
+            cursor: "pointer"
+          }} network="linkedin" onClick={() => window.open("https://www.linkedin.com/company/gradflow-inc/?viewAsMember=true", "_blank")} />
 
-        {/* Right side: social icons + Trustpilot */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <SocialIcon
-            style={{ maxWidth: '35px', maxHeight: '35px', cursor: 'pointer' }}
-            network="linkedin"
-            onClick={() => window.open('https://www.linkedin.com/company/gradflow-inc/?viewAsMember=true', '_blank')}
-          />
-          <SocialIcon
-            style={{ maxWidth: '35px', maxHeight: '35px', cursor: 'pointer' }}
-            network="instagram"
-            onClick={() => window.open('https://www.instagram.com/gradflowinc/', '_blank')}
-          />
-          <SocialIcon
-            style={{ maxWidth: '35px', maxHeight: '35px', cursor: 'pointer' }}
-            network="tiktok"
-            onClick={() => window.open('https://www.tiktok.com/@gradflow', '_blank')}
-          />
-        </Box>
+          {/* Instagram */}
+          <SocialIcon style={{
+            maxWidth: "35px",
+            maxHeight: "35px",
+            cursor: "pointer"
+          }} network="instagram" onClick={() => window.open("https://www.instagram.com/gradflowinc/", "_blank")} />
+
+          {/* TikTok */}
+          <SocialIcon style={{
+            maxWidth: "35px",
+            maxHeight: "35px",
+            cursor: "pointer"
+          }} network="tiktok" onClick={() => window.open("https://www.tiktok.com/@gradflow", "_blank")} />
+
+        </Stack>
       </Box>
     </Container>
   );

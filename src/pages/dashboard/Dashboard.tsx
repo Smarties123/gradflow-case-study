@@ -188,15 +188,19 @@ const Dashboard: React.FC = () => {
       </Row>
 
 
-      <Row>
-        <Col xs={24}>
-          <AnimateInView delay={0.1}>
-            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%' }}>
-              <DateRangeFilterPanel onChange={(value: DateRange) => setSelectedDateRange(value)} />
-            </Panel>
-          </AnimateInView>
-        </Col>
-      </Row>
+      {/* <Row>
+      <Col xs={24}>
+        <AnimateInView delay={0.1}>
+          <Panel style={{ background: 'none', margin: '10px 0px', height: '100%' }}>
+            <DateRangeFilterPanel
+              value={selectedDateRange}
+              onChange={(value: DateRange) => setSelectedDateRange(value)}
+            />
+          </Panel>
+        </AnimateInView>
+      </Col>
+    </Row> */}
+
 
 
 
@@ -264,7 +268,7 @@ const Dashboard: React.FC = () => {
         <Col xs={24} md={12}>
           <AnimateInView delay={0.1}>
 
-            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', overflow: 'hidden', maxHeight: maxHeight }}>
+            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', overflow: 'hidden', maxHeight: 535 }}>
               <RadarChartComponent
                 key={keyForCharts}
                 data={funnelData}

@@ -1,5 +1,6 @@
+// src/App.tsx
 import React, { useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'; // Add useLocation for tracking routes
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { IntlProvider } from 'react-intl';
 import locales from './locales';
 import Frame from './components/Frame';
@@ -23,9 +24,25 @@ import ComingSoon from './components/ComingSoon/ComingSoon';
 import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar';
 import Files from './pages/files/Files';
 import StripeCheckout from './components/StripeCheckout';
+import { ToastContainer, toast, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Import logEvent to track user navigation
 import { logEvent, analytics } from '../firebaseConfig';
+
+export const notifyError = (message: string) => {
+  toast.error(message, {
+    position: "bottom-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "colored",
+    transition: Bounce,
+  });
+};
 
 const App = () => {
   const { user } = useUser();
@@ -39,20 +56,22 @@ const App = () => {
 
   return (
     <IntlProvider locale="en" messages={locales.en}>
+      {/* toast container in bottom-right */}
+      <ToastContainer position="bottom-right" />
+
       <Routes>
-        {/* Landing and Auth Pages - No UserContext */}
+        {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        {/* Terms and Conditions Page */}
         <Route path="/AboutUs" element={<AboutUs />} />
-
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR />} />
-        {/* <Route path="/timeline" element={<Timeline />} /> */}
-        {/* Routes that require UserContext */}
+        <Route path="/comingsoon" element={<ComingSoon />} />
+
+        {/* Protected routes */}
         <Route
           path="/main"
           element={
@@ -63,27 +82,23 @@ const App = () => {
                 </BoardProvider>
               </UserProvider>
             ) : (
-              <Navigate to="/401" /> // Redirect to 401 if not authenticated
+              <Navigate to="/401" />
             )
           }
         >
           <Route index element={<Page />} />
-          <Route path="/main/table" element={<TableComponent />} />
-          <Route path="/main/dashboard" element={<Dashboard />} />
-          <Route path="/main/calendar" element={<ComingSoonCalendar />} />
-          <Route path="/main/files" element={<Files />} />
+          <Route path="table" element={<TableComponent />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="calendar" element={<ComingSoonCalendar />} />
+          <Route path="files" element={<Files />} />
         </Route>
 
-        {/* 401 Unauthorized Page */}
+        {/* 401 & 404 */}
         <Route path="/401" element={<Error401 />} />
-
-        {/* Catch-all for 404 Errors */}
         <Route path="*" element={<Error404Page />} />
-        <Route path="/comingsoon" element={<ComingSoon />} />
 
-        {/* Stripe Payment */}
+        {/* Stripe checkout */}
         <Route path="/checkout" element={<StripeCheckout />} />
-
       </Routes>
     </IntlProvider>
   );

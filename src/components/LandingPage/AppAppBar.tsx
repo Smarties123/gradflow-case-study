@@ -25,7 +25,7 @@ const logoStyle = {
 
 interface AppAppBarProps {
   mode: PaletteMode;
-  toggleColorMode: () => void;
+  toggleColorMode?: () => void;
 }
 
 function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
@@ -155,7 +155,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
               gap: 1
             }}
           >
-            <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
+            {/* <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} /> */}
             <Button
               color="primary"
               variant="outlined"
@@ -192,7 +192,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
               }}
             >
               <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
+                {/* <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} /> */}
               </Box>
               <Divider />
               {/* Same links, but for Mobile */}
