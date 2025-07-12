@@ -3,7 +3,7 @@ import pool from '../config/db.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { sendResetPasswordEmail } from '../services/emailService.js';
+import { sendResetPasswordEmail, sendVerificationTokenEmail } from '../services/emailService.js';
 // userController.js
 
 
@@ -94,14 +94,11 @@ export const signUp = async (req, res) => {
       `, [statusNameId, index + 1, userId]);
     }
 
-
-
-    const token = jwt.sign({ userId, email }, SECRET_KEY, { expiresIn: '1h' });
+    await verifyUser(userId, email);
 
     res.status(201).json({ userId, token, user: { email, username }, message: 'User created successfully' });
   } catch (error) {
     console.error('Error during signup:', error);
-
 
         // Improved error response
     let errorMessage = 'Server error.';
@@ -112,6 +109,40 @@ export const signUp = async (req, res) => {
     return res.status(500).json({ message: 'Server error.' });
   }
 };
+
+
+export const resendVerification = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required.' });
+  }
+
+  try {
+    const userResult = await pool.query(`
+      SELECT "UserId", "IsVerified" FROM "Users" WHERE "Email" = $1
+    `, [email]);
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    const user = userResult.rows[0];
+    if (user.IsVerified) {
+      return res.status(400).json({ message: 'User is already verified.' });
+    }
+
+    await sendVerificationEmail(user.UserId, email);
+
+    return res.status(200).json({ message: 'Verification email resent.' });
+
+  } catch (err) {
+    console.error('Error resending verification email:', err);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+
 
 export const googleSignUp = async (req, res) => {
   const { username, email, firebaseUid, profilePicture } = req.body;
@@ -329,6 +360,8 @@ export const forgotPassword = async (req, res) => {
 };
 
 
+
+
 // Reset password
 export const resetPassword = async (req, res) => {
   const { email, token, password } = req.body;
@@ -542,4 +575,24 @@ export const getColumnOrder = async (req, res) => {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
   }
+};
+
+
+
+export const verifyUser = async (userId, email) => {
+  const verificationToken = crypto.randomBytes(64).toString('hex');
+  const hashedToken = await bcrypt.hash(verificationToken, 10);
+  const expirationTime = new Date(Date.now() + TOKEN_EXPIRATION_MINUTES * 60 * 1000);
+
+  // Update user with token & expiry
+  await pool.query(`
+    UPDATE "Users"
+    SET "VerificationToken" = $1, "TokenExpiry" = $2
+    WHERE "UserId" = $3
+  `, [hashedToken, expirationTime, userId]);
+
+  const frontendUrl = process.env.FRONTEND_URL;
+  const verifyUrl = `${frontendUrl}/verify?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+
+  await sendVerificationTokenEmail(email, verifyUrl);
 };
