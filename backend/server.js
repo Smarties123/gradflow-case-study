@@ -97,7 +97,7 @@ app.get('/test-cors', (req, res) => {
 });
 
 
-// app.use(cors());
+app.use(cors());
 app.use(express.json());
 
 // app.use('/', sitemapRoutes);

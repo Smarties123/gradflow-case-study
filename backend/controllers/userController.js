@@ -96,7 +96,7 @@ export const signUp = async (req, res) => {
 
     await verifyUser(userId, email);
 
-    res.status(201).json({ userId, token, user: { email, username }, message: 'User created successfully' });
+    res.status(201).json( {message : 'User created successfully'} );
   } catch (error) {
     console.error('Error during signup:', error);
 
@@ -259,6 +259,11 @@ export const login = async (req, res) => {
     if (user.FirebaseUid) {
       return res.status(400).json({ message: 'This email is associated with a Google account. Please sign in with Google.' });
     }
+
+    if (!user.IsVerified) {
+      return res.status(401).json({ message: 'User Not Verified' });
+    }
+
 
     const match = await bcrypt.compare(password, user.Password);
     if (!match) {
@@ -587,7 +592,7 @@ export const verifyUser = async (userId, email) => {
   // Update user with token & expiry
   await pool.query(`
     UPDATE "Users"
-    SET "VerificationToken" = $1, "TokenExpiry" = $2
+    SET "VERIFICATION_TOKEN" = $1, "VERIFICATION_TKN_TIME" = $2
     WHERE "UserId" = $3
   `, [hashedToken, expirationTime, userId]);
 
