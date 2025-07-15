@@ -94,7 +94,7 @@ export const signUp = async (req, res) => {
       `, [statusNameId, index + 1, userId]);
     }
 
-    await verifyUser(userId, email);
+    await generateVerificationToken(userId, email);
 
     res.status(201).json( {message : 'User created successfully'} );
   } catch (error) {
@@ -132,7 +132,7 @@ export const resendVerification = async (req, res) => {
       return res.status(400).json({ message: 'User is already verified.' });
     }
 
-    await sendVerificationEmail(user.UserId, email);
+    await generateVerificationToken(user.UserId, email);
 
     return res.status(200).json({ message: 'Verification email resent.' });
 
@@ -584,7 +584,7 @@ export const getColumnOrder = async (req, res) => {
 
 
 
-export const verifyUser = async (userId, email) => {
+export const generateVerificationToken = async (userId, email) => {
   const verificationToken = crypto.randomBytes(64).toString('hex');
   const hashedToken = await bcrypt.hash(verificationToken, 10);
   const expirationTime = new Date(Date.now() + TOKEN_EXPIRATION_MINUTES * 60 * 1000);
@@ -597,7 +597,50 @@ export const verifyUser = async (userId, email) => {
   `, [hashedToken, expirationTime, userId]);
 
   const frontendUrl = process.env.FRONTEND_URL;
-  const verifyUrl = `${frontendUrl}/verify?token=${verificationToken}&email=${encodeURIComponent(email)}`;
 
-  await sendVerificationTokenEmail(email, verifyUrl);
+  await sendVerificationTokenEmail(email, verificationToken ,frontendUrl);
+};
+
+
+
+
+// verify user
+export const verifyUser = async (req, res) => {
+  const { email, token } = req.body;
+  const query = 'SELECT "VERIFICATION_TOKEN", "VERIFICATION_TKN_TIME" FROM "Users" WHERE "Email" = $1';
+  const values = [email];
+
+  try {
+    const { rows } = await pool.query(query, values);
+
+    if (rows.length === 1) {
+      const { VERIFICATION_TOKEN,  VERIFICATION_TKN_TIME } = rows[0];
+
+      // Validate token and check if it has expired
+      const isMatch = await bcrypt.compare(token, VERIFICATION_TOKEN);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid token.' });
+      }
+
+      // (Optional) Check if the token has expired
+      if (new Date() > new Date(VERIFICATION_TKN_TIME)) {
+        return res.status(400).json({ message: 'Token has expired.' });
+      }
+
+      // Update the user's verification status
+      const updateQuery = `
+        UPDATE "Users"
+        SET "IsVerified" = $1, "VERIFICATION_TOKEN" = NULL, "VERIFICATION_TKN_TIME" = NULL
+        WHERE "Email" = $2
+      `;
+      await pool.query(updateQuery, [true, email]);
+
+      res.status(200).json({ message: 'Password has been reset successfully.' });
+    } else {
+      res.status(404).json({ message: 'User not found.' });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred while processing your request.' });
+  }
 };

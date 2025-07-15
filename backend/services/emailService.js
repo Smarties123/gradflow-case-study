@@ -30,6 +30,12 @@ export const sendResetPasswordEmail = async (email, token, frontendUrl) => {
 
 //TODO: change the links for now
 export const sendVerificationTokenEmail = async (email, token, frontendUrl) => {
+  
+  const verificationUrl = `${frontendUrl}/verify?token=${token}&email=${encodeURIComponent(email)}`;
+
+
+
+
   const mailOptions = {
     from: process.env.SMTP_EMAIL,
     to: email,
@@ -37,7 +43,7 @@ export const sendVerificationTokenEmail = async (email, token, frontendUrl) => {
     html: `
       <p>Below is your user verification code</p>
       <p>You need to click on the link below to activate your gradflow account</p>
-      <a href="${frontendUrl}/reset-password/${token}">${frontendUrl}/reset-password/${token}</a>
+      <a href="${verificationUrl}">Click Here to Verify</a>
       <p> Have a great day! </p>
     `,
   };

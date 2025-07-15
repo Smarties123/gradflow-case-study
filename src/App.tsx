@@ -29,6 +29,8 @@ import 'react-toastify/dist/ReactToastify.css';
 
 // Import logEvent to track user navigation
 import { logEvent, analytics } from '../firebaseConfig';
+import ResendVerification from './pages/resend-verification/resend-verification';
+import VerifyUser from './pages/verify-user/verify-user';
 
 export const notifyError = (message: string) => {
   toast.error(message, {
@@ -70,6 +72,9 @@ const App = () => {
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR />} />
         <Route path="/comingsoon" element={<ComingSoon />} />
+        <Route path="/resend-verification" element={<ResendVerification />} />
+        <Route path="/verify" element={<VerifyUser />} />
+
 
         {/* Protected routes */}
         <Route
