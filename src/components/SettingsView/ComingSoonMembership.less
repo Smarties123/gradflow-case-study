@@ -1,39 +1,31 @@
-/* ComingSoonMembership.less
-   —–––––––––––––––––––––––––––––––––––––
-   Styles for the “Coming Soon” plan card
-   and inner placeholder content.
-*/
-
-/* Card wrapper — keep look & feel of other plan cards */
 .plan-card.coming-soon-card {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 280px;        /* match previous card height */
+  min-height: 60vh;        
 }
 
 /* Placeholder layout */
 .coming-soon-page {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: normal !important;
   align-items: center;
-
-  height: 100%;
-  padding: 20px;
+  height: auto !important;
+  padding: 20px !important;
   text-align: center;
-  max-width: 100%;           /* prevent horizontal overflow */
-
-  background-color: #333;    /* dark backdrop to distinguish from white cards */
+  max-width: 100%;  
+  background-color: transparent !important; /* Ensure no background color overrides */
 
   /* Message copy */
   .coming-soon-message {
-    color: #fff;             /* readable on dark bg */
-    font-size: 1.5rem;
-    margin-top: 20px;
-    padding: 0 20px;         /* keep text off the edges */
+    color: #fff;           
+    font-size: 1.3rem !important;
+    margin-top: 10px;
+    padding: 20px;         
     word-wrap: break-word;
   }
+
 
   .item {
     img {

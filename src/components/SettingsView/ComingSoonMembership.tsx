@@ -1,7 +1,6 @@
-// src/components/SettingsView/comingsoon.tsx
 import React from 'react';
-import * as errors from '@/images/errors';          // ✅ keep your central error/illustration import
-import './ComingSoonMembership.less';               // 👉 create or reuse styling as you did for sign-up
+import * as errors from '@/images/errors';
+import './ComingSoonMembership.less'; 
 
 /**
  * A simple, reusable placeholder shown while membership plans
@@ -10,7 +9,6 @@ import './ComingSoonMembership.less';               // 👉 create or reuse styl
 const ComingSoonMembership: React.FC = () => (
   <div className="coming-soon-page">
     <div className="item">
-      {/* You already have Error404Img in your image bundle – reuse it */}
       <img src={errors['Error404Img']} alt="Membership coming soon" />
       <div className="text">
         <h3 className="coming-soon-message">
