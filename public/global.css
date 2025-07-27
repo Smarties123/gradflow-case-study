@@ -28,8 +28,8 @@ html, body, #root {
 }
 
 .Toastify__toast-container--bottom-right {
-  bottom: 1em !important;
-  right: 1em !important;
+  bottom: 0em !important;
+  right: 0em !important;
   top: auto !important;
   left: auto !important;
 }
