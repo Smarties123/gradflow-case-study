@@ -94,15 +94,15 @@ const teamData = [
       "Mayur leads university outreach, building relationships with institutions to expand GradFlow’s reach and impact in higher education.",
     linkedInLink: "https://www.linkedin.com/in/mayur-shankar/"
   },
-  // {
-  //   name: "Mia Mistry",
-  //   role: "Digital Marketing",
-  //   image:
-  //     "https://media.licdn.com/dms/image/v2/D4E03AQFWMvDLcU7NWg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1731082490510?e=1747267200&v=beta&t=wPsGgp7nqhg9zuNLzp_vfAnMvhoAqq53HLmlyhM9O0U",
-  //   description:
-  //     "Mia drives digital marketing, focusing on Instagram, TikTok and other media channels to enhance GradFlow’s brand and student engagement.",
-  //   linkedInLink: "https://www.linkedin.com/in/mia-mistry-b39774209/"
-  // },
+  {
+    name: "Mia Mistry",
+    role: "Digital Marketing",
+    image:
+      "https://media.licdn.com/dms/image/v2/D4E03AQFWMvDLcU7NWg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1731082490510?e=1747267200&v=beta&t=wPsGgp7nqhg9zuNLzp_vfAnMvhoAqq53HLmlyhM9O0U",
+    description:
+      "Mia drives digital marketing, focusing on Instagram, TikTok and other media channels to enhance GradFlow’s brand and student engagement.",
+    linkedInLink: "https://www.linkedin.com/in/mia-mistry-b39774209/"
+  },
   // {
   //   name: "Sadhana Sreeram",
   //   role: "Legal",
