@@ -74,6 +74,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({
     })();
   }, [show, user.token]);
 
+  useEffect(() => {
+    if (show) setCurrentView('account');
+  }, [show]);
+
   // counts hooks
   const { columns } = useBoardData(user);
   const { files, loading: filesLoading } = useFileData();

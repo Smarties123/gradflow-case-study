@@ -1,7 +1,7 @@
 // src/components/SettingsView/MembershipTab.tsx
 import React from 'react';
 import { FlexboxGrid, Col, Panel } from 'rsuite';
-import ComingSoonMembership from './comingsoon';   // ⬅️ the new placeholder component
+import ComingSoonMembership from './ComingSoonMembership';   // ⬅️ the new placeholder component
 
 interface Props {
   totalApps: number;
@@ -54,7 +54,7 @@ const MembershipTab: React.FC<Props> = ({
     </div>
 
     {/* ─────────────  PLANS  ───────────── */}
-    <h5 className="subject-title">Plans</h5>
+    <h5 style={{ paddingTop: '20px' }} className="subject-title">Plans</h5>
 
     <FlexboxGrid justify="space-around" className="plan-grid">
       {/* Coming-Soon card – stretches full width of the grid */}
