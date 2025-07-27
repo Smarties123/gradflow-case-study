@@ -174,8 +174,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   return (
     <>
       {!deleteModalOpen && (
-        <Drawer open={show} onClose={onClose} size="sm">
-          <Drawer.Header>
+        <Drawer open={show} onClose={onClose} size={window.innerWidth < 768 ? 'full' : 'sm'} >
+          <Drawer.Header style={{ display: window.innerWidth < 768 ? 'block' : 'flex' }}>
             <Drawer.Title>Settings</Drawer.Title>
             <FlexboxGrid justify="space-between" className="drawer-links">
               {['account', 'membership', 'notifications'].map(tab => (
