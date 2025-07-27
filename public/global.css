@@ -16,3 +16,20 @@ html, body, #root {
   scroll-behavior: smooth;
   overflow-y: auto;
 }
+
+/* Fix for react-toastify container being overridden */
+.Toastify__toast-container {
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.Toastify__toast {
+  pointer-events: auto;
+}
+
+.Toastify__toast-container--bottom-right {
+  bottom: 1em !important;
+  right: 1em !important;
+  top: auto !important;
+  left: auto !important;
+}
