@@ -38,7 +38,7 @@ export default function Hero() {
     " "
   );
 
-  const videoUrl = "https://d3htrhw57y4gd1.cloudfront.net/trailer-1-video.mp4";
+  const videoUrl = "/Videos/trailer-1-video.mp4";
 
   return (
     <Box

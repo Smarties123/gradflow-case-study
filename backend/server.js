@@ -15,6 +15,9 @@ import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
 import logDeleteRoute from './services/logDeleteService.js';  // Import the log delete service
+import stripe from 'stripe';
+
+
 
 
 
@@ -28,18 +31,75 @@ cron.schedule('0 9 * * 3', async () => {
   console.log('Finished sending emails.');
 });
 
-import stripe from 'stripe';
-
 const app = express();
 
 
+const STRIPE_SECRET_KEY =
+  'sk_test_51R5CfJDcnB3juQw0XDcapLqGVVfw2yncjmtMlAfrmyOCsXWRFlOlkjlxNEgXy9QTa2hF4Kn86fba1UetFHtm2DAX00mx2xTCYJ';
+
+const stripeCon = stripe(STRIPE_SECRET_KEY);
 // 1) CORS — allow only your front end (override in .env per environment)
 app.use(cors({
   origin: process.env.CLIENT_ORIGIN,
 }));
+
+
+app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error('Webhook signature verification failed.', err.message);
+    return res.sendStatus(400);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const email = session.customer_details?.email;
+    const customerId = session.customer;
+
+    try {
+      await markUserAsMemberByEmail(email, customerId);
+    } catch (err) {
+      console.error('Error marking user as member:', err);
+      return res.sendStatus(500);
+    }
+  }
+
+
+  if (
+  event.type === 'customer.subscription.deleted' ||
+  event.type === 'customer.subscription.canceled' ||
+  event.type === 'invoice.payment_failed'
+) {
+  const subscription = event.data.object;
+  
+  try {
+    const customer = await stripeCon.customers.retrieve(subscription.customer);
+
+    await markUserAsNotMemberByStripeCustomerId(customer.id);
+  } catch (err) {
+    console.error('Failed to mark user as not a member:', err);
+    return res.sendStatus(500);
+  }
+}
+
+  res.status(200).json({ received: true });
+});
+
+
+
+
+
+
 // 2) JSON parser — must come BEFORE any routes that read req.body
 app.use(express.json());
 app.use(logDeleteRoute);
+app.use(cors());
+
 
 // console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
 // Test email route
@@ -97,8 +157,59 @@ app.get('/test-cors', (req, res) => {
 });
 
 
-app.use(cors());
-app.use(express.json());
+export async function markUserAsMemberByEmail(email, stripeCustomerId) {
+  if (!email) throw new Error('Email is required');
+
+  try {
+    const result = await pool.query(
+      `UPDATE "Users" 
+       SET "IsMember" = $1, "StripeCustomerId" = $2 
+       WHERE "Email" = $3 
+       RETURNING *`,
+      [true, stripeCustomerId, email]
+    );
+
+    if (result.rowCount === 0) {
+      console.warn('No user found with email:', email);
+      return null;
+    }
+
+    console.log(`User ${email} marked as member:`);
+    return result.rows[0];
+  } catch (err) {
+    console.error('Error updating user membership:', err);
+    throw err;
+  }
+}
+
+
+export async function markUserAsNotMemberByStripeCustomerId(stripeCustomerId) {
+  if (!stripeCustomerId) throw new Error('customerID is required');
+
+  try {
+    const result = await pool.query(
+      `UPDATE "Users" 
+       SET "IsMember" = $1, "StripeCustomerId" = NULL
+       WHERE "StripeCustomerId" = $2
+       RETURNING *`,
+      [false, stripeCustomerId]
+    );
+
+    if (result.rowCount === 0) {
+      console.warn('No user found with customerId:', stripeCustomerId);
+      return null;
+    }
+
+    console.log(`User ${result.rows[0].Email} marked as not a member:`);
+    return result.rows[0];
+  } catch (err) {
+    console.error(`Error updating user membership: for user ${stripeCustomerId}`, err);
+    throw err;
+  }
+}
+
+
+
 
 // app.use('/', sitemapRoutes);
 
@@ -115,10 +226,72 @@ app.use('/files', filesRoutes);
 
 const port = process.env.PORT || 3001;
 
+
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
 
 
 
+app.post('/create-checkout-session', async (req, res) => {
+  const { email, plan, success_url, cancel_url } = req.body;
+
+  // 1. Validate plan
+  const normalizedPlan = plan?.toLowerCase();
+  if (!['monthly', 'yearly'].includes(normalizedPlan)) {
+    return res.status(400).json({ error: 'Invalid plan. Use "monthly" or "yearly".' });
+  }
+
+  try {
+
+    const priceId =
+      normalizedPlan === 'monthly'
+        ? process.env.STRIPE_MONTHLY_PRICE_ID
+        : process.env.STRIPE_YEARLY_PRICE_ID;
+
+    // 2. Check if customer already exists
+    const { data: existingCustomers } = await stripeCon.customers.list({
+      email,
+      limit: 1,
+    });
+
+    console.log(existingCustomers);
+
+    if (existingCustomers.length > 0) {
+      // Stop here - email already has a Stripe customer
+      console.log("you are an existing customer");
+      
+      return res.status(200).json({
+        code: 30,
+        message: 'Customer already exists with an active subscription.',
+      });
+    }
+
+    // 3. Create new customer
+    const customer = await stripeCon.customers.create({
+      email,
+      description: `Customer for ${normalizedPlan} subscription`,
+    });
+
+    // 4. Create checkout session
+    const session = await stripeCon.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'subscription',
+      customer: customer.id,
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url,
+      cancel_url,
+    });
+
+    return res.status(200).json({
+      code: 200,
+      sessionId: session.id,
+    });
+
+  } catch (err) {
+    console.error('Stripe error:', err);
+    return res.status(500).json({ error: err.message || 'Internal server error' });
+  }
+});
 

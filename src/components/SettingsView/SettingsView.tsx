@@ -14,6 +14,7 @@ import { useFileData } from '@/hooks/useFileData';
 import AccountTab, { SettingsFormData } from './AccountTab';
 import MembershipTab from './MembershipTab';
 import NotificationsTab from './NotificationsTab';
+import { notifySuccess, notifyError } from '@/App';
 
 interface SettingsViewProps {
   show: boolean;
@@ -69,10 +70,14 @@ const SettingsView: React.FC<SettingsViewProps> = ({
         });
       } catch (err) {
         console.error(err);
-        toast.error('Could not load your settings.');
+        notifyError('Could not load your settings.');
       }
     })();
   }, [show, user.token]);
+
+  useEffect(() => {
+    if (show) setCurrentView('account');
+  }, [show]);
 
   // counts hooks
   const { columns } = useBoardData(user);
@@ -110,11 +115,11 @@ const SettingsView: React.FC<SettingsViewProps> = ({
         }
       );
       if (!res.ok) throw new Error(await res.text());
-      toast.success('Settings saved successfully');
+      notifySuccess('Settings saved successfully');
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error('Failed to save settings');
+      notifyError('Failed to save settings');
     }
   };
 
@@ -152,11 +157,11 @@ const SettingsView: React.FC<SettingsViewProps> = ({
         }
       );
       if (!delRes.ok) throw new Error('Delete failed');
-      toast.success('Your account has been deleted');
+      notifySuccess('Your account has been deleted');
       navigate('/');
     } catch (err) {
       console.error(err);
-      toast.error('Could not delete account');
+      notifyError('Could not delete account');
     } finally {
       setDeleteModalOpen(false);
     }
@@ -169,8 +174,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   return (
     <>
       {!deleteModalOpen && (
-        <Drawer open={show} onClose={onClose} size="sm">
-          <Drawer.Header>
+        <Drawer open={show} onClose={onClose} size={window.innerWidth < 768 ? 'full' : 'sm'} >
+          <Drawer.Header style={{ display: window.innerWidth < 768 ? 'block' : 'flex' }}>
             <Drawer.Title>Settings</Drawer.Title>
             <FlexboxGrid justify="space-between" className="drawer-links">
               {['account', 'membership', 'notifications'].map(tab => (

@@ -56,7 +56,7 @@ const AccountTab: React.FC<AccountTabProps> = ({
     </Form.Group>
 
     <Button onClick={onSubmit} appearance="primary" block>
-      Save Name & Emai  l
+      Save Name & Email
     </Button>
     <Divider />
 
@@ -66,7 +66,7 @@ const AccountTab: React.FC<AccountTabProps> = ({
     </Button>
     <Divider />
 
-    <h5 className="subject-title delete-title">Delete Account</h5>
+    <h5 className="subject-title">Delete Account</h5>
     <Button
       appearance="primary"
       block

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { PaletteMode } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { motion, useScroll, useSpring, useInView } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 
 import AppAppBar from './AppAppBar';
 import Hero from './Hero';
@@ -17,7 +17,7 @@ import Testimonials from './Testimonials';
 import { Divider } from '@mui/material';
 import Highlights from './Highlights';
 import Footer from './Footer';
-import FeedbackButton from '../../components/FeedbackButton/FeedbackButton'; // Adjust path if needed
+import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
 import Pricing from './Pricing';
 import FAQ from './FAQ';
 
@@ -45,19 +45,12 @@ const scaleIn = {
   transition: { duration: 0.6, ease: "easeOut" }
 };
 
-const fadeInUpStagger = {
-  initial: { opacity: 0, y: 40 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, ease: "easeOut" }
-};
-
 const slideInFromBottom = {
   initial: { opacity: 0, y: 80 },
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.8, ease: "easeOut" }
 };
 
-// Reusable animated section component
 const AnimatedSection = ({ children, animation, delay = 0 }: {
   children: React.ReactNode;
   animation: any;
@@ -82,27 +75,67 @@ export default function LandingPage() {
   const [mode, setMode] = React.useState<PaletteMode>('dark');
 
   const LPtheme = createTheme(getLPTheme(mode));
-
   const toggleColorMode = () => {
     setMode(prev => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  const { scrollYProgress } = useScroll();
+  const sectionIds = [
+    'section-1',
+    'section-2',
+    'section-3',
+    'section-4',
+    'section-5',
+    'section-6',
+    // 'section-7',
+  ];
+
+  const [activeSection, setActiveSection] = useState(0);
+
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+
+    sectionIds.forEach((id, index) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setActiveSection(index);
+            }
+          });
+        },
+        { threshold: 0.5 }
+      );
+
+      observer.observe(el);
+      observers.push(observer);
+    });
+
+    return () => {
+      observers.forEach((observer) => observer.disconnect());
+    };
+  }, []);
 
   return (
     <>
-      {/* <motion.div
-        className="progress-bar"
-        style={{ scaleX }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      /> */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '4px',
+          width: `${((activeSection + 1) / sectionIds.length) * 100}%`,
+          backgroundColor: mode === 'dark' ? '#FF6201' : '#FF6201',
+          zIndex: 200,
+          transition: 'width 0.3s ease',
+        }}
+      />
 
-      {/* Main Content - Always rendered, no fade-in animation */}
       <ThemeProvider theme={LPtheme}>
         <CssBaseline />
-        {/* Main content zIndex is 100 */}
+
         <Box
           sx={{
             position: 'relative',
@@ -110,75 +143,74 @@ export default function LandingPage() {
             '& > *': {
               position: 'relative',
               zIndex: 1
-            }
+            },
+            overflowY: 'scroll',
+            height: '100vh',
           }}
         >
-          {/* AppBar zIndex is 110 (above banner and confetti) */}
           <AppAppBar mode={mode} toggleColorMode={toggleColorMode} />
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-          >
-            <Hero />
-          </motion.div>
-
           <Box
-            sx={{
-              bgcolor: 'background.default',
-              position: 'relative',
-              '&::before': {
-                content: '""',
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                height: '100%',
-                background: mode === 'dark'
-                  ? 'linear-gradient(180deg, rgba(9,14,16,0) 0%, rgba(9,14,16,1) 100%)'
-                  : 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%)',
-                pointerEvents: 'none',
-                zIndex: 0
-              }
-            }}
+            id="section-1"
           >
-            <AnimatedSection animation={fadeInUp}>
-              <LogoCollection />
-            </AnimatedSection>
-
-            <AnimatedSection animation={fadeInLeft} delay={0.2}>
-              <Box id="highlights"><Highlights /></Box>
-            </AnimatedSection>
-
-            <AnimatedSection animation={scaleIn} delay={0.1}>
-              <Box id="terminal"><Panel /></Box>
-            </AnimatedSection>
-
-            <AnimatedSection animation={fadeInRight} delay={0.2}>
-              <Box id="insights"><Insights /></Box>
-            </AnimatedSection>
-
-            <AnimatedSection animation={slideInFromBottom} delay={0.3}>
-              <Box id="testimonials"><Testimonials /></Box>
-            </AnimatedSection>
-
-            <AnimatedSection animation={fadeInLeft} delay={0.1}>
-              <FAQ />
-            </AnimatedSection>
-
-            <AnimatedSection animation={scaleIn} delay={0.2}>
-              <Pricing />
-            </AnimatedSection>
-
-            <div>
-              <Footer />
-            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+            >
+              <Hero />
+            </motion.div>
           </Box>
-          {/* FeedbackButton zIndex is 110 (above banner and confetti) */}
+
+          <AnimatedSection animation={fadeInUp}>
+            <Box id="section-1">
+              <LogoCollection />
+            </Box>
+          </AnimatedSection>
+
+          <AnimatedSection animation={fadeInLeft} delay={0.2}>
+            <Box id="section-2">
+              <Highlights />
+            </Box>
+          </AnimatedSection>
+
+          <AnimatedSection animation={scaleIn} delay={0.1}>
+            <Box id="section-3">
+              <Panel />
+            </Box>
+          </AnimatedSection>
+
+          <AnimatedSection animation={fadeInRight} delay={0.2}>
+            <Box id="section-4">
+              <Insights />
+            </Box>
+          </AnimatedSection>
+
+          <AnimatedSection animation={slideInFromBottom} delay={0.3}>
+            <Box id="section-5">
+              <Testimonials />
+            </Box>
+          </AnimatedSection>
+
+          <AnimatedSection animation={fadeInLeft} delay={0.1}>
+            <Box id="section-6">
+              <FAQ />
+            </Box>
+          </AnimatedSection>
+
+{/*           <AnimatedSection animation={scaleIn} delay={0.2}>
+            <Box id="section-7">
+              <Pricing />
+            </Box>
+          </AnimatedSection>
+ */}
+          <Box>
+            <Footer />
+          </Box>
+
           <FeedbackButton />
         </Box>
-      </ThemeProvider >
+      </ThemeProvider>
     </>
   );
 }

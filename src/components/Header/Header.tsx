@@ -155,10 +155,10 @@ const Header = (props) => {
         </h4>
       )}
       <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-        <ToggleColorMode
+        {/* <ToggleColorMode
           mode={theme === 'light' ? 'light' : 'dark'}
           toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')}
-        />
+        /> */}
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>
           <Avatar email={profileData.email} name={profileData.name} size="45" round />
         </Whisper>

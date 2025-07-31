@@ -635,7 +635,7 @@ export const verifyUser = async (req, res) => {
       `;
       await pool.query(updateQuery, [true, email]);
 
-      res.status(200).json({ message: 'Password has been reset successfully.' });
+      res.status(200).json({ message: 'Account has been verified' });
     } else {
       res.status(404).json({ message: 'User not found.' });
     }

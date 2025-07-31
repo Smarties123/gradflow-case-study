@@ -46,6 +46,20 @@ export const notifyError = (message: string) => {
   });
 };
 
+export const notifySuccess = (message: string) => {
+  toast.success(message, {
+    position: "bottom-right",
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    pauseOnHover: false,
+    draggable: true,
+    progress: undefined,
+    theme: "colored",
+    transition: Bounce,
+  });
+};
+
 const App = () => {
   const { user } = useUser();
   const isAuthenticated = !!user;
