@@ -74,6 +74,10 @@ export default function SignUp() {
   const [emailError, setEmailError] = React.useState<string | null>(null);
   const [passwordError, setPasswordError] = React.useState<string | null>(null);
   const [nameError, setNameError] = React.useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
+  const [submittedEmail, setSubmittedEmail] = React.useState<string>('');
+
+
   const isSmallScreen = useMediaQuery('(max-width:600px)');
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -169,15 +173,13 @@ export default function SignUp() {
 
       if (response.ok) {
         const result = await response.json();
-        localStorage.setItem('authToken', result.token);
-        setUser({
-          email: result.user.email,
-          token: result.token,
-          username: result.user.username
-        });
-        localStorage.setItem('isNewUser', 'true');
+        setSubmittedEmail(email);
+
+
+        setSuccessMessage(`Account created! Please check your email (${email}) to verify your account.`);
+
         logEvent(analytics, 'sign_up', { method: 'Email' });
-        window.location.href = '/main';
+
       } else {
         const errorMessage = await response.json(); // Parse the JSON error
         setError(errorMessage.message); // Show the exact message from the backend
@@ -248,7 +250,19 @@ export default function SignUp() {
               Sign Up
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-              {loading ? ( // Show loading spinner
+              {successMessage ? (
+                <Box>
+                  <Typography variant="h6" sx={{ mb: 2 }} color="success.main">
+                    {successMessage}
+                  </Typography>
+                  <Typography variant="body2" sx={{ mb: 2 }}>
+                    Didn’t receive the email?{' '}
+                    <Link href={`/resend-verification?email=${encodeURIComponent(submittedEmail)}`} underline="hover">
+                      Click here to resend verification
+                    </Link>.
+                  </Typography>
+                </Box>
+              ) : loading ? (
                 <CircularProgress sx={{ m: 2 }} />
               ) : (
                 <>

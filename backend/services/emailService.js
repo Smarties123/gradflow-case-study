@@ -27,6 +27,29 @@ export const sendResetPasswordEmail = async (email, token, frontendUrl) => {
   await transporter.sendMail(mailOptions);
 };
 
+
+//TODO: change the links for now
+export const sendVerificationTokenEmail = async (email, token, frontendUrl) => {
+  
+  const verificationUrl = `${frontendUrl}/verify?token=${token}&email=${encodeURIComponent(email)}`;
+
+
+
+
+  const mailOptions = {
+    from: process.env.SMTP_EMAIL,
+    to: email,
+    subject: 'User Verification Code',
+    html: `
+      <p>Below is your user verification code</p>
+      <p>You need to click on the link below to activate your gradflow account</p>
+      <a href="${verificationUrl}">Click Here to Verify</a>
+      <p> Have a great day! </p>
+    `,
+  };
+  await transporter.sendMail(mailOptions);
+};
+
 export const sendEmailsToAllUsers = async () => {
   try {
     const users = await getAllUsers();

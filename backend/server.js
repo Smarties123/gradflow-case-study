@@ -98,6 +98,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 // 2) JSON parser — must come BEFORE any routes that read req.body
 app.use(express.json());
 app.use(logDeleteRoute);
+app.use(cors());
 
 
 // console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
@@ -209,8 +210,6 @@ export async function markUserAsNotMemberByStripeCustomerId(stripeCustomerId) {
 
 
 
-
-app.use(cors());
 
 // app.use('/', sitemapRoutes);
 
