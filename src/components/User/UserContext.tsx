@@ -5,7 +5,8 @@ interface User {
   email: string
   username: string;
   token: string;
-  id: integer;
+  id: number;
+  isMember: boolean;
 }
 
 interface UserContextType {

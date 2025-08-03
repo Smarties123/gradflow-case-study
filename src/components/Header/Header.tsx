@@ -22,6 +22,7 @@ import Avatar from 'react-avatar';
 import Search from './Search';
 import FeedbackPopup from '../Feedback/FeedbackPopup';
 import AwesomeButton from '../../components/AwesomeButton/AwesomeButton';
+import { FaCrown } from 'react-icons/fa';
 
 const Header = (props) => {
   const { user, setUser } = useUser();
@@ -160,7 +161,20 @@ const Header = (props) => {
           toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')}
         /> */}
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>
-          <Avatar email={profileData.email} name={profileData.name} size="45" round />
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <Avatar email={profileData.email} name={profileData.name} size="45" round />
+            {user.isMember && (
+              <FaCrown
+                style={{
+                  position: 'absolute',
+                  top: -6,
+                  right: -6,
+                  color: '#f7c948',
+                  fontSize: 18,
+                }}
+              />
+            )}
+          </div>
         </Whisper>
       </div>
 
