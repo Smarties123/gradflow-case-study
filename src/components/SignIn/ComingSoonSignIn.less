@@ -1,52 +1,70 @@
-.coming-soon-page {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+ .coming-soon-container {
+   display: flex;
+   flex-direction: column;
   align-items: center;
-  height: 100%;
-  padding: 20px;
-  text-align: center;
-  max-width: 100%; /* Ensure it doesn't overflow horizontally */
-  background-color: #333;
+  justify-content: center;
+  padding: 1rem 2rem;
+    text-align: center;
 
-  .coming-soon-message {
-    // color: #333 !important; /* Change color to stand out on white background */
-    font-size: 1.5rem;
-    margin-top: 20px;
-    padding: 0 20px; /* Add padding to prevent text from touching edges */
-    word-wrap: break-word; /* Ensure text wraps */
-  }
-
-  .item {
-    img {
-      height: 200px;
-      max-width: 100%; /* Ensure the image doesn't overflow */
-      object-fit: contain;
+  .coming-soon-image {
+      width: 100%;
+      max-width: 24rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      margin-bottom: 1.5rem;
     }
 
-    .text {
-      margin-top: 20px;
-    }
-  }
+     .coming-soon-message-heading {
+       font-size: 1.5rem;
+       line-height: 2rem;
+  
+       font-weight: 800;
+  
+       color: #1f2937;
+  
+       margin-bottom: 0.5rem;
+  
+     }
 
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .coming-soon-message {
-      font-size: 1.2rem;
-    }
+     @media (min-width: 768px) {
+       .coming-soon-message-heading {
+         font-size: 1.875rem;
+         line-height: 2.25rem;
+       }
+     }
 
-    .item img {
-      height: 180px; /* Reduce image size */
-    }
-  }
+     .coming-soon-message-text {
+       font-size: 1rem;
+       line-height: 1.5rem;
+       color: #4b5563;
+       max-width: 28rem;
+     }
 
-  @media (max-width: 480px) {
-    .coming-soon-message {
-      font-size: 1rem;
-    }
+     .coming-soon-close-button {
+       margin-top: 1.5rem;
+       font-weight: 600;
+     }
 
-    .item img {
-      height: 150px; /* Further reduce image size */
-    }
-  }
+     .custom-modal {
+       border-radius: 0.75rem;
+       overflow: hidden;
+       backdrop-filter: blur(8px);
+       background-color: transparent;
+     }
+
+     .custom-close-button {
+       position: absolute;
+       top: 0.5rem;
+       right: 0.5rem;
+       z-index: 10;
+       padding: 0.25rem;
+       background-color: white;
+       border-radius: 9999px;
+       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+       border: none;
+     }
+.custom-close-button:hover {
+  background-color: #e5e7eb;
 }
+
+ }
