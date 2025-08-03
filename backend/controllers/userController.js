@@ -278,8 +278,8 @@ export const login = async (req, res) => {
         id: user.UserId,
         email: user.Email,
         username: user.Username,
-
-      }
+        isMember: user.IsMember,
+      },
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -417,7 +417,7 @@ export const getUserDetails = async (req, res) => {
   const userId = req.user.userId;
 
   try {
-    const query = 'SELECT "Username", "Email", "PromotionalEmail", "ApplicationEmail", "FeedbackTrigger", "ColumnOrder" FROM "Users" WHERE "UserId" = $1';
+    const query = 'SELECT "Username", "Email", "PromotionalEmail", "ApplicationEmail", "FeedbackTrigger", "ColumnOrder", "IsMember" FROM "Users" WHERE "UserId" = $1';
     const { rows } = await pool.query(query, [userId]);
 
       if (rows.length === 0) {
@@ -430,7 +430,8 @@ export const getUserDetails = async (req, res) => {
         PromotionalEmail: rows[0].PromotionalEmail,  
         ApplicationEmail: rows[0].ApplicationEmail,
         FeedbackTrigger: rows[0].FeedbackTrigger,  // Include FeedbackTrigger in the response
-        ColumnOrder: rows[0].ColumnOrder
+        ColumnOrder: rows[0].ColumnOrder,
+        IsMember: rows[0].IsMember
     });
   } catch (error) {
       console.error(error);
