@@ -376,7 +376,7 @@ const DrawerView = ({
                 notesProgress={notesProgress}
               />
             </FlexboxGrid.Item>
-            <FlexboxGrid.Item>
+            {/* <FlexboxGrid.Item>
               <IoMdTrash
                 className="delete-icon"
                 style={{ cursor: 'pointer', marginLeft: '10px' }}
@@ -387,7 +387,7 @@ const DrawerView = ({
                   }, 500);
                 }}
               />
-            </FlexboxGrid.Item>
+            </FlexboxGrid.Item> */}
           </FlexboxGrid>
         </Drawer.Header>
 
@@ -434,13 +434,30 @@ const DrawerView = ({
           <Grid fluid>
             <Row gutter={10} className="drawer-buttons">
               <Col xs={24} sm={12}>
-                <Button onClick={handleSubmit} appearance="primary" block>
-                  Update
+                {/* <FlexboxGrid.Item>
+              <IoMdTrash
+                className="delete-icon"
+                style={{ cursor: 'pointer', marginLeft: '10px' }}
+                onClick={() => {
+                  onClose();
+                  setTimeout(() => {
+                    triggerDeleteModal(); // call parent handler
+                  }, 500);
+                }}
+              />
+            </FlexboxGrid.Item> */}
+                <Button style={{ backgroundColor: 'red' }} ripple onClick={() => {
+                  onClose();
+                  setTimeout(() => {
+                    triggerDeleteModal(); // call parent handler
+                  }, 500);
+                }} block>
+                  Delete
                 </Button>
               </Col>
               <Col xs={24} sm={12}>
-                <Button onClick={onClose} appearance="subtle" block>
-                  Close
+                <Button onClick={handleSubmit} appearance="primary" block ripple>
+                  Update
                 </Button>
               </Col>
             </Row>
