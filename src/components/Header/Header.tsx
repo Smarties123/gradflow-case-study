@@ -35,6 +35,7 @@ const Header = (props) => {
   const {
     showPremiumModal,
     premiumModal,
+    checkApplicationLimit,
   } = useBoardHandlers(columns, setColumns);
 
   const navigate = useNavigate();
@@ -74,11 +75,15 @@ const Header = (props) => {
   }, [user.token, setColumnOrder]);
 
   const handleCheckPremium = () => {
-    console.log(premiumModal);
-    if (!premiumModal) {
+    const { hasReachedLimit } = checkApplicationLimit();
 
-      handleOpenAddModal();
+    if (hasReachedLimit) {
+      console.log("Application limit reached. Upgrade to Premium to add more.");
+      showPremiumModal(true);
+      return;
     }
+
+    handleOpenAddModal();
   };
 
   const handleOpenAddModal = () => setIsAddModalOpen(true);
@@ -130,13 +135,14 @@ const Header = (props) => {
   };
 
   return (
+    <>
     <Stack className="header" spacing={8} justifyContent="space-between">
       {location.pathname === '/main' && (
         <Stack direction="row" spacing={4} alignItems="flex-start">
           <Search />
           <div className="flex flex-col items-center justify-center w-screen h-screen gap-6">
             <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
-              <AwesomeButton className="header-add-new" onClick={handleOpenAddModal}>
+              <AwesomeButton className="header-add-new" onClick={handleCheckPremium}>
                 <FaPlus style={{ color: 'white', paddingTop: '3px' }} />
                 <span className="visually-hidden">Add New</span>
               </AwesomeButton>
@@ -149,8 +155,16 @@ const Header = (props) => {
             addCardToColumn={addCardToColumn}
             showDropdown={true}
           />
-          <ShareModal isModalOpen={isShareModalOpen} handleCloseModal={handleCloseShareModal} />
-          <FeedbackPopup show={showFeedbackPopup} onClose={handleCloseFeedback} />
+          {isShareModalOpen && (
+            <ShareModal isModalOpen={isShareModalOpen} handleCloseModal={handleCloseShareModal} />
+          )}
+          {showFeedbackPopup && (
+            <FeedbackPopup
+              show={showFeedbackPopup}
+              onClose={handleCloseFeedback}
+              userEmail={profileData.email}
+            />
+          )}   
         </Stack>
       )}
 
@@ -204,14 +218,17 @@ const Header = (props) => {
           initialTab={settingsTab}
         />
       )}
-      {premiumModal && (
+      
+    </Stack>
+    {premiumModal && (
         <PremiumUpgradeModal
           isOpen={premiumModal}
           onClose={() => showPremiumModal(false)}
           featureName="unlimited application tracking"
         />
-      )}
-    </Stack>
+  )
+  }
+    </>   
   );
 };
 
