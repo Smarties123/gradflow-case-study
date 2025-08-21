@@ -6,7 +6,6 @@ import {
   Whisper,
   WhisperInstance,
   Stack,
-  Button,
   ButtonToolbar
 } from 'rsuite';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
@@ -23,15 +22,25 @@ import Search from './Search';
 import FeedbackPopup from '../Feedback/FeedbackPopup';
 import AwesomeButton from '../../components/AwesomeButton/AwesomeButton';
 import { FaCrown } from 'react-icons/fa';
+import { useBoardHandlers } from '@/pages/board/boardComponents/useBoardHandlers';
+import { PremiumUpgradeModal } from '../PremiumUpgradeModal';
 
 const Header = (props) => {
   const { user, setUser } = useUser();
-  const navigate = useNavigate();
   const context = useContext(BoardContext);
+  const location = useLocation();
+
+  const { columns, setColumns, setColumnOrder, addCardToColumn } = context!;
+
+  const {
+    showPremiumModal,
+    premiumModal,
+  } = useBoardHandlers(columns, setColumns);
+
+  const navigate = useNavigate();
   if (!context) {
     console.error('BoardContext is undefined. Make sure you wrap with BoardProvider.');
   }
-  const { setColumnOrder, columns, addCardToColumn } = context!;
 
   // State for settings drawer
   const [settingsTab, setSettingsTab] = useState<'account' | 'membership' | 'notifications'>('account');
@@ -42,7 +51,6 @@ const Header = (props) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
 
-  const { theme, onChangeTheme } = props;
   const trigger = useRef<WhisperInstance>(null);
 
   // Fetch user profile info once
@@ -64,6 +72,14 @@ const Header = (props) => {
       }
     })();
   }, [user.token, setColumnOrder]);
+
+  const handleCheckPremium = () => {
+    console.log(premiumModal);
+    if (!premiumModal) {
+
+      handleOpenAddModal();
+    }
+  };
 
   const handleOpenAddModal = () => setIsAddModalOpen(true);
   const handleCloseAddModal = () => setIsAddModalOpen(false);
@@ -140,13 +156,13 @@ const Header = (props) => {
 
 
       {location.pathname === '/main/table' && (
-        <h4 className="font-semibold text-gray-700 items-center justify-center w-screen h-screen gap-6" style={{ paddingTop: '5px', marginLeft: '-10px' }}>
+        <h4 className="font-semibold text-gray-700" style={{ paddingTop: '5px' }}>
           View All Job Applications
         </h4>
       )}
 
       {location.pathname === '/main/files' && (
-        <h4 className="font-semibold text-gray-700 items-center justify-center w-screen h-screen gap-6" style={{ paddingTop: '5px' }}   >
+        <h4 className="font-semibold text-gray-700" style={{ paddingTop: '5px' }}>
           Upload/Manage your CVs and Cover Letters
         </h4>
       )}
@@ -186,6 +202,13 @@ const Header = (props) => {
             navigate('/main', { replace: true });
           }}
           initialTab={settingsTab}
+        />
+      )}
+      {premiumModal && (
+        <PremiumUpgradeModal
+          isOpen={premiumModal}
+          onClose={() => showPremiumModal(false)}
+          featureName="unlimited application tracking"
         />
       )}
     </Stack>
