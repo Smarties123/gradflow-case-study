@@ -2,7 +2,7 @@
 
 import './Board.less';
 
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -33,6 +33,7 @@ import { useBoardHandlers } from './boardComponents/useBoardHandlers';
 import { useFetchApplications } from './boardComponents/useFetchApplications';
 import { useDragAndDrop } from './boardComponents/useDragAndDrop';
 import Skeleton from 'react-loading-skeleton';
+import { PremiumUpgradeModal } from '@/components/PremiumUpgradeModal';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { deleteCard } from '@/utils/deleteCard';
 
@@ -43,6 +44,7 @@ const Board: React.FC = () => {
   const { columns, setColumns, updateCard, updateStatusLocally } = context!;
 
   const [isDeleteCardModalOpen, setIsDeleteCardModalOpen] = useState(false);
+  const totalApps = columns.reduce((sum, c) => sum + c.cards.length, 0);
 
 
   const {
@@ -54,6 +56,8 @@ const Board: React.FC = () => {
     isModalOpen,
     activeColumn,
     isDeleteModalOpen,
+    showPremiumModal,
+    premiumModal,
     handleIconClick,
     handleTitleChange,
     handleTitleBlur,
@@ -76,6 +80,11 @@ const Board: React.FC = () => {
 
   // Initialize activeId state for DragOverlay
   const [activeId, setActiveId] = useState(null);
+
+  useEffect(() => {
+    console.log("premiumModal changed to", premiumModal);
+  }, [premiumModal]);
+
 
   const { isDraggingCard, onDragStart, handleDragEnd } = useDragAndDrop(handleDeleteCard, setActiveId);
 
@@ -277,6 +286,14 @@ const Board: React.FC = () => {
             />
           )}
 
+
+          <PremiumUpgradeModal
+            isOpen={premiumModal}
+            onClose={() => showPremiumModal(false)}
+            featureName="unlimited application tracking"
+          />
+
+
           {/* DELETE POPUP */}
           {isDeleteCardModalOpen && (
             <DeleteModal
@@ -335,7 +352,3 @@ const Board: React.FC = () => {
 };
 
 export default Board;
-
-function useEffect(arg0: () => () => void, arg1: never[]) {
-  throw new Error('Function not implemented.');
-}
