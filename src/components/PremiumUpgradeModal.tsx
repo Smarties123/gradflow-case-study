@@ -47,32 +47,53 @@ export const PremiumUpgradeModal: React.FC<PremiumModalProps> = ({
 
         {/* Content */}
         <div className="modal-content" id="upgrade-modal">
-          {/* Plan Toggle Button */}
-          <button 
-            onClick={() => setSelectedPlan(selectedPlan === 'monthly' ? 'yearly' : 'monthly')}
-            className="plan-switch-button"
-          >
-            {selectedPlan === 'monthly' ? 'Switch to Yearly' : 'Switch to Monthly'}
-          </button>
-
-          {/* Pricing */}
-          <div className="pricing-info">
-            <div className="pricing-price">
-              £{selectedPlan === 'monthly' ? '2.99' : '30.00'}
-              <span className="pricing-period">
-                /{selectedPlan === 'monthly' ? 'month' : 'year'}
-              </span>
+          {/* Pricing Sections */}
+          <div className="pricing-container">
+            <div
+              className={`pricing-section ${selectedPlan === 'monthly' ? 'selected' : ''}`}
+              onClick={() => setSelectedPlan('monthly')}
+            >
+              <div className="pricing-header">
+                <h3 className="pricing-title">Monthly</h3>
+                {selectedPlan === 'monthly' && (
+                  <div className="selected-indicator">
+                    <Check size={16} />
+                  </div>
+                )}
+              </div>
+              <div className="pricing-price">
+                £2.99
+                {/* <span className="pricing-period">/month</span> */}
+              </div>
             </div>
-            {/* {selectedPlan === 'yearly' && (
-              <p className="pricing-savings">Save £17.99 annually!</p>
-            )} */}
+
+            <div className="pricing-divider"></div>
+
+            <div
+              className={`pricing-section ${selectedPlan === 'yearly' ? 'selected' : ''}`}
+              onClick={() => setSelectedPlan('yearly')}
+            >
+              <div className="pricing-header">
+                <h3 className="pricing-title">Yearly</h3>
+                {selectedPlan === 'yearly' && (
+                  <div className="selected-indicator">
+                    <Check size={16} />
+                  </div>
+                )}
+              </div>
+              <div className="pricing-price">
+                £30.00
+                {/* <span className="pricing-period">/year</span> */}
+              </div>
+              <div className="pricing-savings">Save £5.88!</div>
+            </div>
           </div>
 
           {/* Features */}
           <div className="feature-list-container">
             <h3 className="feature-heading">
               <Zap className="feature-zap-icon" size={20} />
-              What you'll get:
+              What you&apos;ll get:
             </h3>
             <div className="feature-list">
               {premiumFeatures.map((feature, index) => (
