@@ -24,6 +24,7 @@ import AwesomeButton from '../../components/AwesomeButton/AwesomeButton';
 import { FaCrown } from 'react-icons/fa';
 import { useBoardHandlers } from '@/pages/board/boardComponents/useBoardHandlers';
 import { PremiumUpgradeModal } from '../PremiumUpgradeModal';
+import './Search.less';
 
 const Header = (props) => {
   const { user, setUser } = useUser();
@@ -143,7 +144,7 @@ const Header = (props) => {
           <div className="flex flex-col items-center justify-center w-screen h-screen gap-6">
             <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
               <AwesomeButton className="header-add-new" onClick={handleCheckPremium}>
-                <FaPlus style={{ color: 'white', paddingTop: '3px' }} />
+                  {/* <FaPlus style={{ color: 'white', paddingTop: '3px' }} /> */}
                 <span className="visually-hidden">Add New</span>
               </AwesomeButton>
             </ButtonToolbar>
