@@ -143,10 +143,10 @@
   display: flex;
   align-items: stretch;
   gap: 5px;
-  padding: 1.5rem 0;
+  padding: 1.0rem 0;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
 }
 
 .rs-theme-dark .pricing-container {
