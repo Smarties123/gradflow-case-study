@@ -14,6 +14,7 @@ import DeleteModal from '../DeleteStatus/DeleteStatus';
 import './DrawerView.less';
 import { deleteCard } from '../../utils/deleteCard';
 import { IoMdTrash } from 'react-icons/io';
+import '../../pages/dashboard/Styles/Dashboard.less';
 
 const DrawerView = ({
   show,
@@ -427,42 +428,47 @@ const DrawerView = ({
               setAttachFileSelections={setAttachFileSelections}
               handleAttachFiles={handleAttachFiles}
               unusedFilesData={unusedFilesData}
+              isMember={false}
             />
           )}
 
           {/* Drawer Buttons */}
-          <Grid fluid>
-            <Row gutter={10} className="drawer-buttons">
-              <Col xs={24} sm={12}>
-                {/* <FlexboxGrid.Item>
-              <IoMdTrash
-                className="delete-icon"
-                style={{ cursor: 'pointer', marginLeft: '10px' }}
+          {currentView === 'documents' && !user.isMember ? (
+            <div className='overlay-cont'
+            >
+              <h5 style={{ marginBottom: '1rem' }}>Unlock Premium to add cover letters and CVs to your applications</h5>
+              <button
                 onClick={() => {
-                  onClose();
-                  setTimeout(() => {
-                    triggerDeleteModal(); // call parent handler
-                  }, 500);
+                  // Replace with your upgrade handler
+                  console.log('Redirect to premium');
                 }}
-              />
-            </FlexboxGrid.Item> */}
-                <Button style={{ backgroundColor: 'red' }} ripple onClick={() => {
-                  onClose();
-                  setTimeout(() => {
-                    triggerDeleteModal(); // call parent handler
-                  }, 500);
-                }} block>
-                  Delete
-                </Button>
-              </Col>
-              <Col xs={24} sm={12}>
-                <Button onClick={handleSubmit} appearance="primary" block ripple>
-                  Update
-                </Button>
-              </Col>
-            </Row>
-          </Grid>
+                className='upgrade-premium'>
+                Upgrade to Premium
+              </button>
+            </div>
+          ) :
+            <Grid fluid>
+              <Row gutter={10} className="drawer-buttons">
+                <Col xs={24} sm={12}>
+                  <Button style={{ backgroundColor: 'red' }} ripple onClick={() => {
+                    onClose();
+                    setTimeout(() => {
+                      triggerDeleteModal(); // call parent handler
+                    }, 500);
+                  }} block>
+                    Delete
+                  </Button>
+                </Col>
+                <Col xs={24} sm={12}>
+                  <Button onClick={handleSubmit} appearance="primary" block ripple>
+                    Update
+                  </Button>
+                </Col>
+              </Row>
+            </Grid>
+          }
         </Drawer.Body>
+
       </Drawer>
 
       {/* FILE POPUP */}
