@@ -44,7 +44,7 @@ const MembershipTab: React.FC<Props> = ({
       features: [
         'Track up to 20 active applications',
         'Access to basic dashboards',
-        'Store up to 5 CVs & Cover Letters',
+        'Store up to 5 CVs, including Cover Letters',
         'Standard email notifications',
       ],
     };
