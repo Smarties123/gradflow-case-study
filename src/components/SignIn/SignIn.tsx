@@ -345,9 +345,9 @@ export default function SignInSide() {
 
               {verificationError === 'not_verified' && (
                 <Typography color="error" variant="body2" sx={{ mt: 1 }}>
-                  Your account is not verified yet. Please check your email and verify your account. Didn’t receive it?{' '}
-                  <Link href={`/resend-verification?email=${encodeURIComponent(email)}`} sx={{ color: '#1976d2' }}>
-                    Click here for a new token
+                  Your account is not verified yet.
+                  <Link href={`/resend-verification?email=${encodeURIComponent(email ?? '')}`} sx={{ color: '#1976d2' }}>
+                    Please click here to receive a verification email
                   </Link>.
                 </Typography>
               )}
