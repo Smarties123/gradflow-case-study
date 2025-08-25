@@ -1,3 +1,35 @@
+/* Upload Header Styles */
+.upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.upload-count {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+}
+
+.upload-count.at-limit {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
 .scroll-container {
   height: 90vh !important;
   /* Adjust as needed based on the total height */
