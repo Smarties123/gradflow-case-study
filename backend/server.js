@@ -42,9 +42,63 @@ const stripeCon = stripe(STRIPE_SECRET_KEY);
 app.use(cors({
   origin: process.env.CLIENT_ORIGIN,
 }));
+
+
+app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+  } catch (err) {
+    console.error('Webhook signature verification failed.', err.message);
+    return res.sendStatus(400);
+  }
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const email = session.customer_details?.email;
+    const customerId = session.customer;
+
+    try {
+      await markUserAsMemberByEmail(email, customerId);
+    } catch (err) {
+      console.error('Error marking user as member:', err);
+      return res.sendStatus(500);
+    }
+  }
+
+
+  if (
+  event.type === 'customer.subscription.deleted' ||
+  event.type === 'customer.subscription.canceled' ||
+  event.type === 'invoice.payment_failed'
+) {
+  const subscription = event.data.object;
+  
+  try {
+    const customer = await stripeCon.customers.retrieve(subscription.customer);
+
+    await markUserAsNotMemberByStripeCustomerId(customer.id);
+  } catch (err) {
+    console.error('Failed to mark user as not a member:', err);
+    return res.sendStatus(500);
+  }
+}
+
+  res.status(200).json({ received: true });
+});
+
+
+
+
+
+
 // 2) JSON parser — must come BEFORE any routes that read req.body
 app.use(express.json());
 app.use(logDeleteRoute);
+app.use(cors());
 
 
 // console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
@@ -155,55 +209,7 @@ export async function markUserAsNotMemberByStripeCustomerId(stripeCustomerId) {
 }
 
 
-app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  const sig = req.headers['stripe-signature'];
 
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-  } catch (err) {
-    console.error('Webhook signature verification failed.', err.message);
-    return res.sendStatus(400);
-  }
-
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    const email = session.customer_details?.email;
-    const customerId = session.customer;
-
-    try {
-      await markUserAsMemberByEmail(email, customerId);
-    } catch (err) {
-      console.error('Error marking user as member:', err);
-      return res.sendStatus(500);
-    }
-  }
-
-
-  if (
-  event.type === 'customer.subscription.deleted' ||
-  event.type === 'customer.subscription.canceled' ||
-  event.type === 'invoice.payment_failed'
-) {
-  const subscription = event.data.object;
-  
-  try {
-    const customer = await stripeCon.customers.retrieve(subscription.customer);
-
-    await markUserAsNotMemberByStripeCustomerId(customer.id);
-  } catch (err) {
-    console.error('Failed to mark user as not a member:', err);
-    return res.sendStatus(500);
-  }
-}
-
-  res.status(200).json({ received: true });
-});
-
-
-app.use(cors());
-app.use(express.json());
 
 // app.use('/', sitemapRoutes);
 
@@ -237,8 +243,12 @@ app.post('/create-checkout-session', async (req, res) => {
     return res.status(400).json({ error: 'Invalid plan. Use "monthly" or "yearly".' });
   }
 
-
   try {
+
+    const priceId =
+      normalizedPlan === 'monthly'
+        ? process.env.STRIPE_MONTHLY_PRICE_ID
+        : process.env.STRIPE_YEARLY_PRICE_ID;
 
     // 2. Check if customer already exists
     const { data: existingCustomers } = await stripeCon.customers.list({

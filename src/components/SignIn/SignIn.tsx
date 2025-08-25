@@ -57,6 +57,7 @@ const defaultTheme = createTheme(); // This line is missing
 
 export default function SignInSide() {
   const [error, setError] = React.useState<string | null>(null);
+  const [verificationError, setVerificationError] = React.useState<string | null>(null);
   const [emailError, setEmailError] = React.useState<string | null>(null); // Email validation error
   const [passwordError, setPasswordError] = React.useState<string | null>(null); // Password validation error
   const [loading, setLoading] = React.useState(false);
@@ -64,6 +65,8 @@ export default function SignInSide() {
   const isSmallScreen = useMediaQuery('(max-width:600px)');
   const [showPassword, setShowPassword] = React.useState(false);
   const [isComingSoonOpen, setIsComingSoonOpen] = React.useState(false);
+  const [email, setEmail] = React.useState<string | null>(null);
+
 
   // const [isFeedbackPopupOpen, setFeedbackPopupOpen] = useState(false);
 
@@ -182,11 +185,19 @@ export default function SignInSide() {
         }
       } else {
         const errorMessage = await response.text();
+
         if (errorMessage.includes('Google account')) {
           setError('This email is associated with a Google account. Please sign in using Google.');
-        } else {
+        } 
+
+        else if (errorMessage.includes('User Not Verified')) {
+          setVerificationError('not_verified');
+        } 
+        
+        else {
           setError('Account not recognised. Please try again or sign up.');
         }
+
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -259,18 +270,22 @@ export default function SignInSide() {
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    id="email"
-                    label="Email Address"
-                    name="email"
-                    autoComplete="email"
-                    autoFocus
-                    error={!!emailError}
-                    helperText={emailError}
-                  />
+
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)}
+                  error={!!emailError}
+                  helperText={emailError}
+                />
+
                   <Typography
                     variant="caption"
                     sx={{
@@ -327,6 +342,16 @@ export default function SignInSide() {
                   {error}
                 </Typography>
               )}
+
+              {verificationError === 'not_verified' && (
+                <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+                  Your account is not verified yet.
+                  <Link href={`/resend-verification?email=${encodeURIComponent(email ?? '')}`} sx={{ color: '#1976d2' }}>
+                    Please click here to receive a verification email
+                  </Link>.
+                </Typography>
+              )}
+
               <Button
                 type="submit"
                 fullWidth

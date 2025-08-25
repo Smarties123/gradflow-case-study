@@ -3,7 +3,7 @@ import pool from '../config/db.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { sendResetPasswordEmail } from '../services/emailService.js';
+import { sendResetPasswordEmail, sendVerificationTokenEmail } from '../services/emailService.js';
 // userController.js
 
 
@@ -94,14 +94,11 @@ export const signUp = async (req, res) => {
       `, [statusNameId, index + 1, userId]);
     }
 
+    await generateVerificationToken(userId, email);
 
-
-    const token = jwt.sign({ userId, email }, SECRET_KEY, { expiresIn: '1h' });
-
-    res.status(201).json({ userId, token, user: { email, username }, message: 'User created successfully' });
+    res.status(201).json( {message : 'User created successfully'} );
   } catch (error) {
     console.error('Error during signup:', error);
-
 
         // Improved error response
     let errorMessage = 'Server error.';
@@ -112,6 +109,40 @@ export const signUp = async (req, res) => {
     return res.status(500).json({ message: 'Server error.' });
   }
 };
+
+
+export const resendVerification = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required.' });
+  }
+
+  try {
+    const userResult = await pool.query(`
+      SELECT "UserId", "IsVerified" FROM "Users" WHERE "Email" = $1
+    `, [email]);
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    const user = userResult.rows[0];
+    if (user.IsVerified) {
+      return res.status(400).json({ message: 'User is already verified.' });
+    }
+
+    await generateVerificationToken(user.UserId, email);
+
+    return res.status(200).json({ message: 'Verification email resent.' });
+
+  } catch (err) {
+    console.error('Error resending verification email:', err);
+    return res.status(500).json({ message: 'Internal server error.' });
+  }
+};
+
+
 
 export const googleSignUp = async (req, res) => {
   const { username, email, firebaseUid, profilePicture } = req.body;
@@ -229,6 +260,11 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: 'This email is associated with a Google account. Please sign in with Google.' });
     }
 
+    if (!user.IsVerified) {
+      return res.status(401).json({ message: 'User Not Verified' });
+    }
+
+
     const match = await bcrypt.compare(password, user.Password);
     if (!match) {
       return res.status(401).json({ message: 'Incorrect password. Please try again.' });
@@ -327,6 +363,8 @@ export const forgotPassword = async (req, res) => {
     res.status(500).json({ message: 'Server error.' });
   }
 };
+
+
 
 
 // Reset password
@@ -541,5 +579,68 @@ export const getColumnOrder = async (req, res) => {
   } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+export const generateVerificationToken = async (userId, email) => {
+  const verificationToken = crypto.randomBytes(64).toString('hex');
+  const hashedToken = await bcrypt.hash(verificationToken, 10);
+  const expirationTime = new Date(Date.now() + TOKEN_EXPIRATION_MINUTES * 60 * 1000);
+
+  // Update user with token & expiry
+  await pool.query(`
+    UPDATE "Users"
+    SET "VERIFICATION_TOKEN" = $1, "VERIFICATION_TKN_TIME" = $2
+    WHERE "UserId" = $3
+  `, [hashedToken, expirationTime, userId]);
+
+  const frontendUrl = process.env.FRONTEND_URL;
+
+  await sendVerificationTokenEmail(email, verificationToken ,frontendUrl);
+};
+
+
+
+
+// verify user
+export const verifyUser = async (req, res) => {
+  const { email, token } = req.body;
+  const query = 'SELECT "VERIFICATION_TOKEN", "VERIFICATION_TKN_TIME" FROM "Users" WHERE "Email" = $1';
+  const values = [email];
+
+  try {
+    const { rows } = await pool.query(query, values);
+
+    if (rows.length === 1) {
+      const { VERIFICATION_TOKEN,  VERIFICATION_TKN_TIME } = rows[0];
+
+      // Validate token and check if it has expired
+      const isMatch = await bcrypt.compare(token, VERIFICATION_TOKEN);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid token.' });
+      }
+
+      // (Optional) Check if the token has expired
+      if (new Date() > new Date(VERIFICATION_TKN_TIME)) {
+        return res.status(400).json({ message: 'Token has expired.' });
+      }
+
+      // Update the user's verification status
+      const updateQuery = `
+        UPDATE "Users"
+        SET "IsVerified" = $1, "VERIFICATION_TOKEN" = NULL, "VERIFICATION_TKN_TIME" = NULL
+        WHERE "Email" = $2
+      `;
+      await pool.query(updateQuery, [true, email]);
+
+      res.status(200).json({ message: 'Account has been verified' });
+    } else {
+      res.status(404).json({ message: 'User not found.' });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'An error occurred while processing your request.' });
   }
 };
