@@ -158,6 +158,10 @@ export const useBoardHandlers = (columns, setColumns) => {
     };
   };
 
+  const checkUserPremiumStatus = () => {
+    return user?.isMember;
+  };
+
   const handleAddButtonClick = (column: Column) => {
     const { hasReachedLimit } = checkApplicationLimit();
 
@@ -241,6 +245,7 @@ export const useBoardHandlers = (columns, setColumns) => {
     isDeleteModalOpen,
     premiumModal,
     showPremiumModal,
+    checkUserPremiumStatus,
     checkApplicationLimit,
     handleIconClick,
     handleTitleChange,

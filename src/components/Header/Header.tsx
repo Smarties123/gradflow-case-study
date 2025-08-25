@@ -37,6 +37,7 @@ const Header = (props) => {
     showPremiumModal,
     premiumModal,
     checkApplicationLimit,
+    checkUserPremiumStatus,
   } = useBoardHandlers(columns, setColumns);
 
   const navigate = useNavigate();
@@ -78,7 +79,7 @@ const Header = (props) => {
   const handleCheckPremium = () => {
     const { hasReachedLimit } = checkApplicationLimit();
 
-    if (hasReachedLimit) {
+    if (hasReachedLimit && !checkUserPremiumStatus()) {
       console.log("Application limit reached. Upgrade to Premium to add more.");
       showPremiumModal(true);
       return;
