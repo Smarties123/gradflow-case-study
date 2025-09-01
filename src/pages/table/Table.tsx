@@ -17,15 +17,24 @@ const { Column, HeaderCell, Cell } = Table;
 const TableComponent: React.FC = () => {
   const { user } = useUser();
   const { columns, loading } = useBoardData(user);
+
+  // State for table data and filtering
   const [tableData, setTableData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [selectedStatus, setSelectedStatus] = useState('Total Applications');
+
+  // Default status changed to "All Applications"
+  const [selectedStatus, setSelectedStatus] = useState('All Applications');
+
+  // Drawer state for detailed card view
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+
+  // Table layout and sorting state
   const [tableHeight, setTableHeight] = useState(window.innerHeight * 0.8);
   const [sortColumn, setSortColumn] = useState(null);
   const [sortType, setSortType] = useState();
 
+  // Transform board data into flat table format
   useEffect(() => {
     if (!columns) return;
 
@@ -44,20 +53,23 @@ const TableComponent: React.FC = () => {
     setFilteredData(newData);
   }, [columns]);
 
+  // Adjust table height on window resize
   useEffect(() => {
     const handleResize = () => setTableHeight(window.innerHeight * 0.8);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Status filter options (safe for undefined columns)
   const statusOptions = [
     { label: 'All Applications', value: 'All Applications' },
-    ...columns.map(column => ({
+    ...(columns || []).map(column => ({
       label: column.title,
       value: column.title,
     })),
   ];
 
+  // Handle filtering by application stage
   const handleStatusChange = (value) => {
     setSelectedStatus(value);
     setFilteredData(
@@ -65,6 +77,7 @@ const TableComponent: React.FC = () => {
     );
   };
 
+  // Handle column sorting with null-safe deadline handling
   const handleSortColumn = (sortColumn, sortType) => {
     setSortColumn(sortColumn);
     setSortType(sortType);
@@ -74,11 +87,12 @@ const TableComponent: React.FC = () => {
       const valueB = b[sortColumn];
 
       if (sortColumn === 'deadline') {
-        // Sort by Date objects
+        if (!valueA && !valueB) return 0;
+        if (!valueA) return sortType === 'asc' ? 1 : -1;
+        if (!valueB) return sortType === 'asc' ? -1 : 1;
         return sortType === 'asc' ? valueA - valueB : valueB - valueA;
       }
 
-      // For string data, compare directly
       if (valueA < valueB) return sortType === 'asc' ? -1 : 1;
       if (valueA > valueB) return sortType === 'asc' ? 1 : -1;
       return 0;
@@ -87,6 +101,7 @@ const TableComponent: React.FC = () => {
     setFilteredData(sortedData);
   };
 
+  // Open Drawer on row click
   const handleCellClick = (card) => {
     setSelectedCard(null);
     setDrawerOpen(false);
@@ -96,7 +111,7 @@ const TableComponent: React.FC = () => {
     }, 100);
   };
 
-  // Define the ClickableCell component
+  // Clickable cell for opening Drawer
   const ClickableCell = ({ rowData, dataKey, children, ...props }) => (
     <Cell
       {...props}
@@ -107,14 +122,31 @@ const TableComponent: React.FC = () => {
     </Cell>
   );
 
+  // Styled table header for consistency
+  const CustomHeaderCell = ({ children, ...props }) => (
+    <HeaderCell {...props}>
+      <div style={{ 
+        color: '#ffffff', 
+        fontWeight: '700', 
+        textTransform: 'uppercase',
+        fontSize: '13px',
+        letterSpacing: '0.5px'
+      }}>
+        {children}
+      </div>
+    </HeaderCell>
+  );
+
   return (
-    <Panel bodyFill>
+    <Panel bodyFill className="application-table-panel">
+      {/* Toolbar: status title + badge + filter dropdown */}
       <Stack
         className="table-toolbar"
         spacing={6}
         justifyContent="space-between"
         style={{ marginBottom: '10px', flexWrap: 'wrap', alignItems: 'flex-start' }}
       >
+        {/* Left side: selected status and count */}
         <div
           className="category-description"
           style={{
@@ -146,6 +178,7 @@ const TableComponent: React.FC = () => {
           )}
         </div>
 
+        {/* Right side: filter dropdown */}
         <div
           className="select-picker-container"
           style={{
@@ -168,6 +201,7 @@ const TableComponent: React.FC = () => {
         </div>
       </Stack>
 
+      {/* Table body */}
       {loading ? (
         <div>
           <Row>
@@ -183,10 +217,17 @@ const TableComponent: React.FC = () => {
           sortColumn={sortColumn}
           sortType={sortType}
           onSortColumn={handleSortColumn}
+          className="application-table"
+          hover={true}
+          bordered={true}
+          cellBordered={true}
+          headerHeight={50}
+          rowHeight={60}
+          showHeader={true}
         >
-          {/* Logo Column */}
-          <Column width={80} align="center" fixed>
-            <HeaderCell>Logo</HeaderCell>
+          {/* Logo Column with fallback to initial if no logo */}
+          <Column width={100} align="center" fixed>
+            <CustomHeaderCell>Logo</CustomHeaderCell>
             <Cell>
               {rowData => (
                 rowData.logo ? (
@@ -194,45 +235,115 @@ const TableComponent: React.FC = () => {
                     <img
                       src={rowData.logo}
                       alt={`${rowData.name} logo`}
-                      style={{ width: '30px', height: '30px', borderRadius: '50%', margin: '2px', cursor: 'pointer' }}
-                      onClick={() => handleCellClick(rowData.originalCard)}
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCellClick(rowData.originalCard);
+                      }}
                     />
                   </div>
-                ) : null
+                ) : (
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: '32px',
+                      width: '32px',
+                      backgroundColor: '#ff6200',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      margin: '0 auto'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCellClick(rowData.originalCard);
+                    }}
+                  >
+                    {rowData.name?.charAt(0)?.toUpperCase() || '?'}
+                  </div>
+                )
               )}
             </Cell>
           </Column>
 
           {/* Company Name Column */}
           <Column minWidth={160} flexGrow={1} sortable>
-            <HeaderCell>Company Name</HeaderCell>
-            <ClickableCell dataKey="name" />
+            <CustomHeaderCell>Company Name</CustomHeaderCell>
+            <ClickableCell dataKey="name">
+              {rowData => (
+                <span style={{ fontWeight: '600', color: '#ffffff' }}>
+                  {rowData.name}
+                </span>
+              )}
+            </ClickableCell>
           </Column>
 
           {/* Position Column */}
           <Column minWidth={120} flexGrow={1} sortable>
-            <HeaderCell>Position</HeaderCell>
-            <ClickableCell dataKey="position" />
+            <CustomHeaderCell>Position</CustomHeaderCell>
+            <ClickableCell dataKey="position">
+              {rowData => (
+                <span style={{ color: '#e0e0e0' }}>
+                  {rowData.position}
+                </span>
+              )}
+            </ClickableCell>
           </Column>
 
           {/* Application Stage Column */}
           <Column width={160} sortable>
-            <HeaderCell>Application Stage</HeaderCell>
-            <ClickableCell dataKey="stage" />
+            <CustomHeaderCell>Application Stage</CustomHeaderCell>
+            <ClickableCell dataKey="stage">
+              {rowData => (
+                <span
+                  style={{
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    backgroundColor: '#ff6200',
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  {rowData.stage}
+                </span>
+              )}
+            </ClickableCell>
           </Column>
 
-          {/* Deadline Column */}
+          {/* Deadline Column with color-coded dates */}
           <Column width={120} sortable>
-            <HeaderCell>Deadline</HeaderCell>
+            <CustomHeaderCell>Deadline</CustomHeaderCell>
             <ClickableCell dataKey="deadline">
               {rowData => (
-                rowData.deadline ? format(rowData.deadline, 'dd/MM/yyyy') : 'No Deadline'
+                <span
+                  style={{
+                    color: rowData.deadline
+                      ? (rowData.deadline < new Date() ? '#ff4757' : '#ffffff')
+                      : '#888',
+                    fontWeight: rowData.deadline ? '600' : '400'
+                  }}
+                >
+                  {rowData.deadline ? format(rowData.deadline, 'dd/MM/yyyy') : 'No Deadline'}
+                </span>
               )}
             </ClickableCell>
           </Column>
         </Table>
       )}
 
+      {/* Drawer with detailed card view */}
       {selectedCard && (
         <DrawerView
           show={drawerOpen}
