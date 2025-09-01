@@ -17,7 +17,12 @@ export default function Logo({ width, height, style, className = '' }: LogoProps
       <img
         src="/Images/logo.png" 
         alt="Logo"
-        style={{ width: '100%', height: '100%' }}
+        style={{ 
+          width: '100%', 
+          height: '100%', 
+          objectFit: 'contain',
+          objectPosition: 'center'
+        }}
       />
     </div>
   );

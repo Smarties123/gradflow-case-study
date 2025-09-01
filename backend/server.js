@@ -96,8 +96,8 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
 
 // 2) JSON parser — must come BEFORE any routes that read req.body
-// app.use(express.json());
-// app.use(logDeleteRoute);
+app.use(express.json());
+app.use(logDeleteRoute);
 // app.use(cors());
 
 
