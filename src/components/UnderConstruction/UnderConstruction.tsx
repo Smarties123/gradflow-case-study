@@ -9,11 +9,12 @@ const UnderConstruction: React.FC = () => {
     <div className="under-construction-page">
       <div className="container">
         {/* Logo */}
-        <Logo height={92} style={{ marginTop: 0 }} />
+        <Logo height={100} style={{ marginTop: 0 }} />
         <Link
           to="/"
           style={{ textDecoration: 'none', position: 'relative', display: 'inline-block' }}
         >
+
           <span
             style={{ color: '#FF6200', fontWeight: 'bold', fontSize: '20px', position: 'relative' }}
           >
@@ -21,7 +22,6 @@ const UnderConstruction: React.FC = () => {
             {/* <BetaBadge />  */}
           </span>
         </Link>
-        <div className="logo">Gradflow</div>
 
         {/* Main Content */}
         <h2 className="title">
