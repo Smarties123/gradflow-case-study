@@ -206,7 +206,7 @@ const Files = () => {
         file: fileObj.file,
         docType,
         typeId,
-        description: `Uploaded from UI (${fileType})`,
+        description: `Uploaded from Site (${fileType})`,
         applicationsIds:
           fileType === 'CV'
             ? selectedAppCV

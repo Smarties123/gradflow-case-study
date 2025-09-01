@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Modal } from 'rsuite';
 // import { useState } from 'react'; // Import useState here
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -23,7 +24,6 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import IconButton from '@mui/material/IconButton';
 
 import GoogleSignInButton from './OtherSignIn';
-import Dialog from '@mui/material/Dialog';
 import ComingSoonSignIn from './ComingSoonSignIn';
 import { analytics, logEvent } from '../../../firebaseConfig';
 import Logo from '../Logo';
@@ -349,9 +349,9 @@ export default function SignInSide() {
 
               {verificationError === 'not_verified' && (
                 <Typography color="error" variant="body2" sx={{ mt: 1 }}>
-                  Your account is not verified yet. Please check your email and verify your account. Didn’t receive it?{' '}
-                  <Link href={`/resend-verification?email=${encodeURIComponent(email)}`} sx={{ color: '#1976d2' }}>
-                    Click here for a new token
+                  Your account is not verified yet.
+                  <Link href={`/resend-verification?email=${encodeURIComponent(email ?? '')}`} sx={{ color: '#1976d2' }}>
+                    Please click here to receive a verification email
                   </Link>.
                 </Typography>
               )}
@@ -416,9 +416,17 @@ export default function SignInSide() {
         </Grid>
       </Grid>
       {/* <FeedbackButton /> */}
-      <Dialog open={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} fullWidth maxWidth="sm">
-        <ComingSoonSignIn />
-      </Dialog>
+      <Modal
+        open={isComingSoonOpen}
+        onClose={() => setIsComingSoonOpen(false)}
+        size="sm"
+        className="custom-modal"
+
+      >
+        <Modal.Body>
+          <ComingSoonSignIn onClose={() => setIsComingSoonOpen(false)} />
+        </Modal.Body>
+      </Modal>
 
       {/* <OnDemandFeedbackPopup
         show={isFeedbackPopupOpen}
