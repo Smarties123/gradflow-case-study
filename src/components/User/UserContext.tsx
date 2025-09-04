@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 
 // Define the shape of your user data
 interface User {
@@ -13,6 +13,7 @@ interface UserContextType {
   user: User | null;
   setUser: (user: User) => void;
   clearUser: () => void;
+  refetchUser: () => Promise<void>;
 }
 
 // Create the context
@@ -45,8 +46,43 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('user'); // Remove user from localStorage
   };
 
+  const refetchUser = useCallback(async () => {
+    if (!user?.token || !user?.email) {
+      console.error('No user token or email available for refetch');
+      return;
+    }
+
+    try {
+      // Use the profile endpoint to get updated user data
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const updatedUser = {
+          email: result.Email,
+          token: user.token,
+          username: result.Username,
+          id: user.id,
+          isMember: result.IsMember
+        };
+        setUser(updatedUser);
+        console.log('User data refetched successfully:', updatedUser);
+      } else {
+        console.error('Failed to refetch user data:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error refetching user data:', error);
+    }
+  }, [user?.token, user?.email]);
+
   return (
-    <UserContext.Provider value={{ user, setUser, clearUser }}>
+    <UserContext.Provider value={{ user, setUser, clearUser, refetchUser }}>
       {children}
     </UserContext.Provider>
   );

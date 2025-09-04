@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { X, Star, Check, Zap } from 'lucide-react';
+import { loadStripe } from '@stripe/stripe-js';
+import { useUser } from './User/UserContext';
 import './PremiumUpgradeModal.css';
+
+const stripePromise = loadStripe(
+  'pk_test_51R5CfJDcnB3juQw0LrWR9sOPzMLLSVHFt6h3gWJb6V8JqO9xxT8Zb4jtCtnQVbpWJyATkjwCnX5jQ6AXPyt4xW1Z00zj19uhQm'
+);
 
 interface PremiumModalProps {
   isOpen: boolean;
@@ -14,6 +20,59 @@ export const PremiumUpgradeModal: React.FC<PremiumModalProps> = ({
   featureName = 'this premium feature'
 }) => {
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
+  const [loading, setLoading] = useState(false);
+  const { user } = useUser();
+
+  const handleUpgrade = async () => {
+    if (!user?.email) {
+      alert('Please log in to upgrade to premium');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const stripe = await stripePromise;
+      if (!stripe) throw new Error('Stripe failed to load');
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/create-checkout-session`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: user.email,
+            plan: selectedPlan,
+            success_url: `${window.location.origin}/main?success=true`,
+            cancel_url: `${window.location.origin}`,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Server error');
+
+      if (data.code === 30) {
+        alert('You already have an active subscription!');
+        onClose();
+        return;
+      }
+
+      if (data.code === 200 && data.sessionId) {
+        const { error: stripeError } = await stripe.redirectToCheckout({
+          sessionId: data.sessionId,
+        });
+        if (stripeError) throw new Error(stripeError.message);
+        return;
+      }
+
+      throw new Error('Unexpected server response');
+    } catch (err: any) {
+      console.error('Checkout error:', err);
+      alert(`Checkout failed: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -107,8 +166,12 @@ export const PremiumUpgradeModal: React.FC<PremiumModalProps> = ({
 
           {/* CTA Buttons */}
           <div className="cta-buttons-container">
-            <button className="cta-upgrade-button">
-              Upgrade to Premium
+            <button
+              className="cta-upgrade-button"
+              onClick={handleUpgrade}
+              disabled={loading}
+            >
+              {loading ? 'Processing...' : 'Upgrade to Premium'}
             </button>
           </div>
 
