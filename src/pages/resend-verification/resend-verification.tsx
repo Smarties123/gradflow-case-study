@@ -102,7 +102,7 @@ export default function ResendVerification() {
             }}
           >
             <Box sx={{ mb: 2, cursor: 'pointer' }} onClick={() => (window.location.href = '/')}>
-              <Logo style={{ width: '8vw', height: '10vh' }} />
+              <Logo style={{ width: '120px', height: '60px' }} />
             </Box>
             <Typography component="h1" variant="h5">
               Resend Verification Email

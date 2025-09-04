@@ -7,7 +7,11 @@ import { Stack } from 'rsuite';
 const LandingPageBrand = ({ ...props }) => {
     return (
         <Stack className="LandingPageBrand" {...props} style={{ alignItems: 'center', position: 'relative' }}>
-            <Logo height={32} style={{ marginTop: 0 }} />
+            <Logo
+                style={{ width: '60px', height: '60px' }}
+            />
+
+
             <Link to="/" style={{ textDecoration: 'none', position: 'relative', display: 'inline-block' }}>
                 <span style={{ color: '#FF6200', fontWeight: 'bold', fontSize: '20px', position: 'relative' }}>
                     GradFlow

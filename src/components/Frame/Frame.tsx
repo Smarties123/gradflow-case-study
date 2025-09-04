@@ -56,12 +56,31 @@ const Frame = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const tab = params.get('tab');
+  const success = params.get('success');
+  const { refetchUser } = useUser();
 
   useEffect(() => {
     if (tab) {
       setShowSettings(true);
     }
   }, [tab]);
+
+  // Handle successful payment return
+  useEffect(() => {
+    if (success === 'true') {
+      console.log('Payment successful, refetching user data...');
+      console.log('Current user before refetch:', user);
+      refetchUser().then(() => {
+        console.log('User data updated after successful payment');
+        console.log('User membership status:', user?.isMember);
+        // Remove success parameter from URL to prevent refetch on refresh
+        const newUrl = window.location.pathname;
+        window.history.replaceState(null, '', newUrl);
+      }).catch(error => {
+        console.error('Failed to refetch user data after payment:', error);
+      });
+    }
+  }, [success, refetchUser]);
 
   useEffect(() => {
     const isNewUser = localStorage.getItem('isNewUser');

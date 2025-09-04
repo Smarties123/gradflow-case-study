@@ -260,8 +260,8 @@ export default function SignInSide() {
             >
               <Logo
                 style={{
-                  width: '8vw',
-                  height: '10vh'
+                  width: '120px',
+                  height: '60px'
                 }}
               />
             </Box>
