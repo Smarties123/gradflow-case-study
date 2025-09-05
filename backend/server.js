@@ -38,9 +38,14 @@ const STRIPE_SECRET_KEY =
   'sk_test_51R5CfJDcnB3juQw0XDcapLqGVVfw2yncjmtMlAfrmyOCsXWRFlOlkjlxNEgXy9QTa2hF4Kn86fba1UetFHtm2DAX00mx2xTCYJ';
 
 const stripeCon = stripe(STRIPE_SECRET_KEY);
-// 1) CORS — allow only your front end (override in .env per environment)
+// 1) CORS — allow both www and non-www versions
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN,
+  origin: [
+    process.env.CLIENT_ORIGIN,
+    'https://gradflow.org',
+    'https://www.gradflow.org'
+  ],
+  credentials: true
 }));
 
 
@@ -98,7 +103,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 // 2) JSON parser — must come BEFORE any routes that read req.body
 app.use(express.json());
 app.use(logDeleteRoute);
-app.use(cors());
+// app.use(cors());
 
 
 // console.log('BUCKET_NAME:', process.env.BUCKET_NAME);

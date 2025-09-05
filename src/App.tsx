@@ -21,6 +21,7 @@ import PrivacyPolicyGDPR from './components/LandingPage/PrivacyPolicyGDPR';
 import AboutUs from './components/LandingPage/AboutUs';
 import Timeline from './components/LandingPage/TimelinePage';
 import ComingSoon from './components/ComingSoon/ComingSoon';
+import UnderConstruction from './components/UnderConstruction/UnderConstruction';
 import ComingSoonCalendar from './pages/calendar/ComingSoonCalendar';
 import Files from './pages/files/Files';
 import StripeCheckout from './components/StripeCheckout';
@@ -86,6 +87,7 @@ const App = () => {
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR />} />
         <Route path="/comingsoon" element={<ComingSoon />} />
+        <Route path="/under-construction" element={<UnderConstruction />} />
         <Route path="/resend-verification" element={<ResendVerification />} />
         <Route path="/verify" element={<VerifyUser />} />
 
