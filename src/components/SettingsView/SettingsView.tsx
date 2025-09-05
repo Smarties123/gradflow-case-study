@@ -211,6 +211,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 percentCLs={percentCLs}
                 filesLoading={filesLoading}
                 onUpgrade={handleUpgrade}
+                member={user!.isMember}
+
               />
             )}
             {currentView === 'notifications' && (

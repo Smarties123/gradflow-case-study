@@ -119,18 +119,21 @@ const Files = () => {
     fileType: 'CV' | 'CL'
   ) => {
 
-    // Calculate total CV + Cover Letter count
-    const totalCvCount = [...uploadingCvFiles, ...dbCvFiles].length;
-    const totalClCount = [...uploadingCoverLetterFiles, ...dbCoverLetterFiles].length;
-    const totalFilesCount = totalCvCount + totalClCount;
-
-    const remainingSlots = 5 - totalFilesCount;
-
     if (!e.target.files || e.target.files.length === 0) return;
 
-    if (remainingSlots <= 0 && !user?.isMember) {
-      setIsPremiumModalOpen(true);
-      return;
+    // Calculate remaining slots for free users
+    let remainingSlots = Infinity; // Default for premium users (unlimited)
+
+    if (!user?.isMember) {
+      const totalCvCount = [...uploadingCvFiles, ...dbCvFiles].length;
+      const totalClCount = [...uploadingCoverLetterFiles, ...dbCoverLetterFiles].length;
+      const totalFilesCount = totalCvCount + totalClCount;
+      remainingSlots = 5 - totalFilesCount;
+
+      if (remainingSlots <= 0) {
+        setIsPremiumModalOpen(true);
+        return;
+      }
     }
 
     const uploadedFiles = Array.from(e.target.files || []).map((file) => ({
@@ -144,10 +147,10 @@ const Files = () => {
       file // store the actual File object
     }));
 
-
-
-    // Upload only the files that fit within the remaining slots
-    const filesToUpload = uploadedFiles.slice(0, remainingSlots);
+    // For premium users, upload all files. For free users, respect the remaining slots limit.
+    const filesToUpload = user?.isMember
+      ? uploadedFiles
+      : uploadedFiles.slice(0, remainingSlots);
 
     if (fileType === 'CV') {
       setUploadingCvFiles((prev) => [...prev, ...filesToUpload]);
@@ -360,9 +363,11 @@ const Files = () => {
           <div className="upload-card">
               <div className="upload-header">
                 <h4 className="upload-title">Cover Letter</h4>
-                <span className={`upload-count ${cvFiles.length + coverLetterFiles.length >= 5 ? 'at-limit' : ''}`}>
-                  {cvFiles.length + coverLetterFiles.length}/5
-                </span>
+                {!user?.isMember && (
+                  <span className={`upload-count ${!user?.isMember && cvFiles.length + coverLetterFiles.length >= 5 && 'at-limit'}`}>
+                    {!user?.isMember && `${cvFiles.length + coverLetterFiles.length}/5`}
+                  </span>
+                )}
               </div>
             {/* <SelectPicker
               data={applications}

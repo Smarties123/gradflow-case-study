@@ -10,7 +10,7 @@ interface Props {
   percentCLs: number;
   filesLoading: boolean;
   onUpgrade: (plan: 'basic' | 'premium') => void;
-  isMember: boolean;
+  member: boolean;
 }
 
 const MAX_APPLICATIONS = 20;
@@ -24,9 +24,9 @@ const MembershipTab: React.FC<Props> = ({
   percentCLs,
   filesLoading,
   onUpgrade,
-  isMember,
+  member = false,
 }) => {
-  const planDetails = isMember
+  const planDetails = member
     ? {
       title: 'Premium Plan',
       tag: <Tag color="orange">Premium Member</Tag>,
@@ -99,7 +99,7 @@ const MembershipTab: React.FC<Props> = ({
 
       <div className="current-plan-row">
         <div className="col-span-16">
-          <Panel bordered className={`plan-card ${isMember ? 'premium' : 'basic'}`}>
+          <Panel bordered className={`plan-card ${member ? 'premium' : 'basic'}`}>
             <h6 style={{ marginBottom: 5 }}>{planDetails.title}</h6>
             {planDetails.tag}
             <ul style={{ paddingLeft: 16, paddingTop: 10 }}>
@@ -109,7 +109,7 @@ const MembershipTab: React.FC<Props> = ({
             </ul>
           </Panel>
         </div>
-        {!isMember && (
+        {!member && (
           <div>
             <Button style={{ width: '-webkit-fill-available' }} appearance="primary" onClick={() => onUpgrade('premium')}>
               Upgrade To Premium

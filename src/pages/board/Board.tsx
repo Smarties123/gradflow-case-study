@@ -35,7 +35,6 @@ import { useDragAndDrop } from './boardComponents/useDragAndDrop';
 import Skeleton from 'react-loading-skeleton';
 import { PremiumUpgradeModal } from '@/components/PremiumUpgradeModal';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { deleteCard } from '@/utils/deleteCard';
 
 const Board: React.FC = () => {
   const context = useContext(BoardContext);
@@ -44,7 +43,6 @@ const Board: React.FC = () => {
   const { columns, setColumns, updateCard, updateStatusLocally } = context!;
 
   const [isDeleteCardModalOpen, setIsDeleteCardModalOpen] = useState(false);
-  const totalApps = columns.reduce((sum, c) => sum + c.cards.length, 0);
 
 
   const {
@@ -63,8 +61,6 @@ const Board: React.FC = () => {
     handleTitleBlur,
     handleTitleKeyPress,
     handleDropdownClick,
-    handleDropdownOptionSelect,
-    // handleDeleteModal,
     handleDeleteCardOrColumn,
     handleDeleteColumnModal,
     handleDeleteCard,
@@ -104,11 +100,6 @@ const Board: React.FC = () => {
     })
   );
 
-  const { setNodeRef: setBinNodeRef } = useDroppable({
-    id: 'bin',
-  });
-
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const { loading, error } = useFetchApplications(setColumns);
 
@@ -174,19 +165,6 @@ const Board: React.FC = () => {
     onDragStart(event);
   };
 
-  // const handleDragEnd = (event: DragEndEvent) => {
-  //   handleDragEnd(event);
-  // };
-
-  const dropAnimation = {
-    sideEffects: defaultDropAnimationSideEffects({
-      styles: {
-        active: {
-          opacity: '0.5',
-        },
-      },
-    }),
-  };
 
   return (
     <div>

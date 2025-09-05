@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 
 // Define the shape of your user data
 interface User {
@@ -14,6 +14,8 @@ interface UserContextType {
   setUser: (user: User) => void;
   clearUser: () => void;
   refetchUser: () => Promise<void>;
+  showWelcomeToPremium: boolean;
+  setShowWelcomeToPremium: (show: boolean) => void;
 }
 
 // Create the context
@@ -35,6 +37,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
   });
+
+  const [showWelcomeToPremium, setShowWelcomeToPremium] = useState(false);
 
   const setUser = (user: User) => {
     setUserState(user);
@@ -71,6 +75,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           id: user.id,
           isMember: result.IsMember
         };
+
+        // Check if user just upgraded to premium (was false, now true)
+        if (!user.isMember && result.IsMember) {
+          setShowWelcomeToPremium(true);
+        }
+
         setUser(updatedUser);
         console.log('User data refetched successfully:', updatedUser);
       } else {
@@ -79,10 +89,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error('Error refetching user data:', error);
     }
-  }, [user?.token, user?.email]);
+  }, [user?.token, user?.email, user?.isMember]);
 
   return (
-    <UserContext.Provider value={{ user, setUser, clearUser, refetchUser }}>
+    <UserContext.Provider value={{ user, setUser, clearUser, refetchUser, showWelcomeToPremium, setShowWelcomeToPremium }}>
       {children}
     </UserContext.Provider>
   );

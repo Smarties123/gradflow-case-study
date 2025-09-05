@@ -43,6 +43,7 @@ app.use(cors({
   origin: process.env.CLIENT_ORIGIN,
 }));
 
+// Add this at the beginning of your webhook handler for better debugging
 
 app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -51,45 +52,59 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
   let event;
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    console.log(`✅ Webhook signature verified for event: ${event.type}`);
   } catch (err) {
-    console.error('Webhook signature verification failed.', err.message);
+    console.error('❌ Webhook signature verification failed.', err.message);
     return res.sendStatus(400);
   }
+
+  console.log(`🎯 Processing webhook event: ${event.type} [${event.id}]`);
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     const email = session.customer_details?.email;
     const customerId = session.customer;
 
+    console.log(`💳 Checkout completed for email: ${email}, customer: ${customerId}`);
+
+    if (!email) {
+      console.error('❌ No email found in session');
+      return res.sendStatus(400);
+    }
+
     try {
-      await markUserAsMemberByEmail(email, customerId);
+      const result = await markUserAsMemberByEmail(email, customerId);
+      console.log(`✅ Successfully marked user as member:`, result);
     } catch (err) {
-      console.error('Error marking user as member:', err);
+      console.error('❌ Error marking user as member:', err);
       return res.sendStatus(500);
     }
   }
 
-
   if (
-  event.type === 'customer.subscription.deleted' ||
-  event.type === 'customer.subscription.canceled' ||
-  event.type === 'invoice.payment_failed'
-) {
-  const subscription = event.data.object;
-  
-  try {
-    const customer = await stripeCon.customers.retrieve(subscription.customer);
+    event.type === 'customer.subscription.deleted' ||
+    event.type === 'customer.subscription.canceled' ||
+    event.type === 'invoice.payment_failed'
+  ) {
+    const subscription = event.data.object;
+    
+    console.log(`🚫 Processing cancellation/failure for customer: ${subscription.customer}`);
+    
+    try {
+      const customer = await stripeCon.customers.retrieve(subscription.customer);
+      console.log(`📧 Retrieved customer email: ${customer.email}`);
 
-    await markUserAsNotMemberByStripeCustomerId(customer.id);
-  } catch (err) {
-    console.error('Failed to mark user as not a member:', err);
-    return res.sendStatus(500);
+      const result = await markUserAsNotMemberByStripeCustomerId(customer.id);
+      console.log(`✅ Successfully marked user as not a member:`, result);
+    } catch (err) {
+      console.error('❌ Failed to mark user as not a member:', err);
+      return res.sendStatus(500);
+    }
   }
-}
 
+  console.log(`✅ Webhook ${event.type} processed successfully`);
   res.status(200).json({ received: true });
 });
-
 
 
 
