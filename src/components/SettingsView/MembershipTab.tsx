@@ -1,5 +1,5 @@
-import React from 'react';
-import { FlexboxGrid, Col, Panel, Button, Tag } from 'rsuite';
+import React, { useState } from 'react';
+import { FlexboxGrid, Col, Panel, Button, Tag, Modal } from 'rsuite';
 
 interface Props {
   totalApps: number;
@@ -28,6 +28,16 @@ const MembershipTab: React.FC<Props> = ({
   onDowngrade,
   member = false,
 }) => {
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  const handleDowngradeClick = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDowngrade = () => {
+    setShowConfirmModal(false);
+    onDowngrade();
+  };
   const planDetails = member
     ? {
       title: 'Premium Plan',
@@ -119,12 +129,37 @@ const MembershipTab: React.FC<Props> = ({
           </div>
         ) : (
           <div>
-            <Button style={{ width: '-webkit-fill-available' }} appearance="ghost" onClick={onDowngrade}>
+              <Button style={{ width: '-webkit-fill-available' }} appearance="ghost" onClick={handleDowngradeClick}>
               Downgrade to Standard
             </Button>
           </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      <Modal open={showConfirmModal} onClose={() => setShowConfirmModal(false)} size="xs">
+        <Modal.Header>
+          <Modal.Title>Confirm Downgrade</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to downgrade to the Standard plan?</p>
+          <p>You will lose access to premium features including:</p>
+          <ul>
+            <li>Unlimited application tracking</li>
+            <li>Comprehensive dashboard analytics</li>
+            <li>Unlimited CVs & Cover Letters</li>
+            <li>Enhanced email notifications</li>
+          </ul>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => setShowConfirmModal(false)} appearance="subtle">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDowngrade} appearance="primary" color="red">
+            Yes, Downgrade
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
