@@ -315,3 +315,52 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
+app.post('/cancel-subscription', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  try {
+    // Find the customer by email
+    const { data: customers } = await stripeCon.customers.list({
+      email,
+      limit: 1,
+    });
+
+    if (customers.length === 0) {
+      return res.status(404).json({ error: 'Customer not found' });
+    }
+
+    const customer = customers[0];
+
+    // List active subscriptions for the customer
+    const { data: subscriptions } = await stripeCon.subscriptions.list({
+      customer: customer.id,
+      status: 'active',
+    });
+
+    if (subscriptions.length === 0) {
+      return res.status(404).json({ error: 'No active subscription found' });
+    }
+
+    // Cancel the subscription - this will trigger the webhook
+    const subscription = subscriptions[0];
+    await stripeCon.subscriptions.cancel(subscription.id);
+
+    // Mark user as not a member immediately
+    await markUserAsNotMemberByStripeCustomerId(customer.id);
+
+    console.log(`✅ Successfully cancelled subscription for customer: ${customer.id}`);
+    
+    return res.status(200).json({
+      message: 'Subscription cancelled successfully',
+    });
+
+  } catch (err) {
+    console.error('❌ Error cancelling subscription:', err);
+    return res.status(500).json({ error: err.message || 'Internal server error' });
+  }
+});
+

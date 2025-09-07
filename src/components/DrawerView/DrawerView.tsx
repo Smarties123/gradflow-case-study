@@ -428,7 +428,7 @@ const DrawerView = ({
               setAttachFileSelections={setAttachFileSelections}
               handleAttachFiles={handleAttachFiles}
               unusedFilesData={unusedFilesData}
-              isMember={false}
+              isMember={user.isMember}
             />
           )}
 

@@ -14,6 +14,7 @@ import { useFileData } from '@/hooks/useFileData';
 import AccountTab, { SettingsFormData } from './AccountTab';
 import MembershipTab from './MembershipTab';
 import NotificationsTab from './NotificationsTab';
+import { PremiumUpgradeModal } from '../PremiumUpgradeModal';
 import { notifySuccess, notifyError } from '@/App';
 
 interface SettingsViewProps {
@@ -34,6 +35,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
 
   const [currentView, setCurrentView] = useState(initialTab);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
 
   const [formData, setFormData] = useState<SettingsFormData>({
     name: '',
@@ -168,7 +170,32 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   const handleUpgrade = (plan: 'basic' | 'premium') => {
-    toast.info(`Upgrade to ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan`);
+    setPremiumModalOpen(true);
+  };
+
+  const handleDowngrade = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/cancel-subscription`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${user.token}`
+          },
+          body: JSON.stringify({ email: user?.email })
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to cancel subscription');
+      }
+      
+      notifySuccess('Subscription cancelled successfully');
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+      notifyError('Failed to cancel subscription');
+    }
   };
 
   return (
@@ -211,6 +238,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 percentCLs={percentCLs}
                 filesLoading={filesLoading}
                 onUpgrade={handleUpgrade}
+                onDowngrade={handleDowngrade}
                 member={user!.isMember}
 
               />
@@ -232,6 +260,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({
         onNo={() => setDeleteModalOpen(false)}
         showAccountReasons
         title="Delete Account"
+      />
+      <PremiumUpgradeModal
+        isOpen={premiumModalOpen}
+        onClose={() => setPremiumModalOpen(false)}
       />
     </>
   );

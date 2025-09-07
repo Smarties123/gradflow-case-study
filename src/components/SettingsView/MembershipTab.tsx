@@ -10,6 +10,7 @@ interface Props {
   percentCLs: number;
   filesLoading: boolean;
   onUpgrade: (plan: 'basic' | 'premium') => void;
+  onDowngrade: () => void;
   member: boolean;
 }
 
@@ -24,6 +25,7 @@ const MembershipTab: React.FC<Props> = ({
   percentCLs,
   filesLoading,
   onUpgrade,
+  onDowngrade,
   member = false,
 }) => {
   const planDetails = member
@@ -109,10 +111,16 @@ const MembershipTab: React.FC<Props> = ({
             </ul>
           </Panel>
         </div>
-        {!member && (
+        {!member ? (
           <div>
             <Button style={{ width: '-webkit-fill-available' }} appearance="primary" onClick={() => onUpgrade('premium')}>
               Upgrade To Premium
+            </Button>
+          </div>
+        ) : (
+          <div>
+            <Button style={{ width: '-webkit-fill-available' }} appearance="ghost" onClick={onDowngrade}>
+              Downgrade to Standard
             </Button>
           </div>
         )}
