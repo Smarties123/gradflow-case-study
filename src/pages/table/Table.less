@@ -1,40 +1,36 @@
+// TableComponent Styles (styles.less)
+
 .scroll-container {
   height: 80vh;
-
   overflow-y: auto;
-  /* Enables vertical scrolling */
   padding: 10px;
   box-sizing: border-box;
 
-  /* Scrollbar Styles */
-  ::-webkit-scrollbar {
+  // Scrollbar Styles
+  &::-webkit-scrollbar {
     width: 8px;
   }
 
-  ::-webkit-scrollbar-track {
+  &::-webkit-scrollbar-track {
     background: #1e1e1e;
-    /* Dark background for scrollbar track */
     border-radius: 10px;
   }
 
-  ::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     background-color: #ff6200;
-    /* Orange color to match your theme */
     border-radius: 10px;
     border: 2px solid #1e1e1e;
-    /* Adds padding around the thumb */
+
+    &:hover {
+      background-color: #ff7433;
+    }
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: #ff7433;
-    /* Lighter orange on hover */
-  }
-
-  /* Firefox Scrollbar */
+  // Firefox Scrollbar
   scrollbar-width: thin;
   scrollbar-color: #ff6200 #1e1e1e;
 
-  /* Edge Scrollbar */
+  // Edge Scrollbar
   &::-ms-scrollbar {
     width: 8px;
   }
@@ -50,108 +46,430 @@
   }
 }
 
-/* Panel and Table Styling */
-.rs-panel-body {
-  padding: 0;
-  /* Remove padding inside the panel to fit the table perfectly */
+// Application Table Panel
+.application-table-panel {
+  .rs-panel-body {
+    padding: 0;
+  }
 }
 
-.rs-table {
-  border-collapse: collapse;
-  width: 100%;
-  font-size: 14px;
-  color: #fff;
-  /* Set the text color */
+// Table Toolbar Styles
+.table-toolbar {
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+
+  .category-description {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    margin-top: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+
+    h6 {
+      margin: 0;
+    }
+  }
+
+  .controls-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1 1 auto;
+    min-width: 100%;
+    justify-content: flex-end;
+  }
+
+  // Badge styling
+  .rs-badge {
+    background-color: #ff6200 !important;
+    margin-left: 10px;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 15px;
+  }
 }
 
-.rs-table thead {
-  background-color: #2c2c2c;
-  /* Darker background for the header */
+// Column Visibility Dropdown
+.column-visibility-dropdown {
+  .rs-dropdown-toggle {
+    background: transparent;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #333;
+      border-color: #ff6200;
+    }
+  }
+
+  .rs-dropdown-menu {
+    background-color: #2c2c2c;
+    border: 1px solid #444;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    .dropdown-header {
+      padding: 10px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #fff;
+      border-bottom: 1px solid #444;
+    }
+
+    .column-option {
+      margin-bottom: 8px;
+      padding: 0 10px;
+
+      .rs-checkbox {
+        color: #fff;
+
+        .rs-checkbox-checker {
+          .rs-checkbox-wrapper {
+            &:before {
+              border-color: #666;
+              background-color: transparent;
+            }
+
+            &:after {
+              color: #ff6200;
+            }
+          }
+
+          &.rs-checkbox-checked .rs-checkbox-wrapper:before {
+            background-color: #ff6200;
+            border-color: #ff6200;
+          }
+        }
+      }
+    }
+  }
 }
 
-.rs-table th,
-.rs-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #444;
-  /* Subtle border for rows */
+// Application Table Styles
+.application-table {
+  .rs-table {
+    // border-collapse: collapse;
+    width: 100%;
+    font-size: 14px;
+    color: #fff;
+    // background-color: #1e1e1e;
+
+    // Header Styles
+    .rs-table-thead {
+      background-color: #2c2c2c;
+
+      .rs-table-header-row {
+        .rs-table-header-cell {
+          padding: 12px 15px;
+          border-bottom: 2px solid #444;
+          position: relative;
+          background-color: #2c2c2c;
+
+          .rs-table-header-cell-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+          }
+
+          // Sort icons
+          .rs-table-sort {
+            margin-left: auto;
+            
+            .rs-table-sort-up,
+            .rs-table-sort-down {
+              color: #ff6200;
+            }
+          }
+        }
+      }
+    }
+
+    // Body Styles
+    .rs-table-tbody {
+      .rs-table-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: #333;
+        }
+
+        .rs-table-cell {
+          padding: 12px 15px;
+          border-bottom: 1px solid #444;
+          vertical-align: middle;
+
+          // Company logo styles
+          .company-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+
+            img {
+              width: 32px;
+              height: 32px;
+              border-radius: 8px;
+              cursor: pointer;
+              transition: all 0.2s ease;
+
+              &:hover {
+                transform: scale(1.1);
+              }
+            }
+          }
+
+          // Company initial fallback
+          .company-initial {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 32px;
+            width: 32px;
+            background-color: #ff6200;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 auto;
+            transition: all 0.2s ease;
+
+            &:hover {
+              transform: scale(1.1);
+              background-color: #ff7433;
+            }
+          }
+
+          // Company name styling
+          .company-name {
+            font-weight: 600;
+            color: #ffffff;
+          }
+
+          // Position styling
+          .position-text {
+            color: #e0e0e0;
+          }
+
+          // Application stage badge
+          .stage-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-block;
+          }
+
+          // Deadline styling
+          .deadline-text {
+            font-weight: 600;
+
+            &.overdue {
+              color: #ff4757;
+            }
+
+            &.upcoming {
+              color: #ffffff;
+            }
+
+            &.no-deadline {
+              color: #888;
+              font-weight: 400;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
-.rs-table th {
-  position: relative;
-  /* Allows for positioning elements like dropdowns */
-}
-
-.rs-table th input,
-.rs-table th select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  border: 1px solid #444;
-  background-color: #1e1e1e;
-  color: #fff;
-  border-radius: 5px;
-}
-
-/* Ensures dropdown does not overlap */
-.rs-table th .rs-dropdown {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 10px;
-}
-
-.rs-table tbody tr {
-  cursor: pointer;
-  /* Change cursor to indicate clickable rows */
-}
-
-.rs-table tbody tr:hover {
-  background-color: #333;
-  /* Darken background on hover */
-}
-
-.rs-table tbody tr td img {
-  max-width: 40px;
-  /* Ensure logos are not too large */
-  border-radius: 5px;
-  /* Add a subtle border radius to images */
-}
-
-.rs-table tbody tr td {
-  vertical-align: middle;
-  /* Ensure content is vertically centered */
-}
-
+// Input and Select Focus Styles
 .rs-input:focus,
 .rs-select-picker:focus {
   border-color: #ff6200 !important;
-  /* Orange border on focus to match the theme */
+  box-shadow: 0 0 0 2px rgba(255, 98, 0, 0.2) !important;
 }
 
-/* Styling for the category description */
-.category-description {
-  font-size: 16px;
-  font-weight: bold;
-  color: #fff;
+.rs-select-picker {
+  .rs-select-picker-toggle {
+    background-color: #1e1e1e;
+    border-color: #444;
+    color: #fff;
+
+    &:hover {
+      border-color: #ff6200;
+    }
+
+    &.rs-select-picker-toggle-active {
+      border-color: #ff6200;
+    }
+  }
+
+  .rs-select-picker-dropdown {
+    background-color: #2c2c2c;
+    border-color: #444;
+
+    .rs-select-picker-option {
+      color: #fff;
+
+      &:hover {
+        background-color: #ff6200;
+      }
+
+      &.rs-select-picker-option-active {
+        background-color: #ff6200;
+      }
+    }
+  }
 }
 
-
+// Responsive Design
 @media (max-width: 768px) {
   .table-toolbar {
     flex-direction: column;
+
+    .controls-container {
+      margin-top: 10px !important;
+      text-align: left;
+      min-width: 100%;
+      justify-content: flex-start;
+    }
+
+    .category-description {
+      width: 100%;
+      justify-content: flex-start;
+    }
   }
 
-  .select-picker-container {
-    margin-top: 10px !important;
-    text-align: left;
+  .application-table {
+    .rs-table {
+      font-size: 12px;
+
+      .rs-table-header-cell,
+      .rs-table-cell {
+        padding: 8px 10px;
+      }
+    }
   }
 }
 
-.rs-theme-light{
-  .rs-table {
-    color: #8e8e93;
+// Light Theme Support
+.rs-theme-light {
+  .application-table {
+    .rs-table {
+      color: #8e8e93;
+      background-color: #ffffff;
+
+      .rs-table-thead {
+        background-color: #f5f5f7;
+
+        .rs-table-header-cell {
+          background-color: #f5f5f7;
+          border-color: #e5e5e7;
+
+          .rs-table-header-cell-content {
+            color: #1d1d1f;
+          }
+        }
+      }
+
+      .rs-table-tbody {
+        .rs-table-row {
+          &:hover {
+            background-color: #f5f5f7;
+          }
+
+          .rs-table-cell {
+            border-color: #e5e5e7;
+
+            .company-name {
+              color: #1d1d1f;
+            }
+
+            .position-text {
+              color: #8e8e93;
+            }
+
+            .deadline-text {
+              &.upcoming {
+                color: #1d1d1f;
+              }
+            }
+          }
+        }
+      }
+    }
   }
-  .category-description{
-    color:#8e8e93;
+
+  .table-toolbar {
+    .category-description {
+      color: #8e8e93;
+    }
+  }
+
+  .column-visibility-dropdown {
+    .rs-dropdown-toggle {
+      background-color: #ffffff;
+      border-color: #e5e5e7;
+      color: #1d1d1f;
+
+      &:hover {
+        background-color: #f5f5f7;
+      }
+    }
+
+    .rs-dropdown-menu {
+      background-color: #ffffff;
+      border-color: #e5e5e7;
+
+      .dropdown-header {
+        color: #1d1d1f;
+        border-color: #e5e5e7;
+      }
+
+      .column-option {
+        .rs-checkbox {
+          color: #1d1d1f;
+        }
+      }
+    }
+  }
+}
+
+// Loading Skeleton Overrides
+.react-loading-skeleton {
+  background: linear-gradient(90deg, #2c2c2c 25%, #3c3c3c 50%, #2c2c2c 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Light theme skeleton
+.rs-theme-light {
+  .react-loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
   }
 }
