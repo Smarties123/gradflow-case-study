@@ -60,11 +60,11 @@ const AccountTab: React.FC<AccountTabProps> = ({
     </Button>
     <Divider />
 
-    <h5 className="subject-title">Change Password</h5>
+{/*     <h5 className="subject-title">Change Password</h5>
     <Button onClick={onChangePassword} appearance="default" block>
       Change Password
     </Button>
-    <Divider />
+    <Divider /> */}
 
     <h5 className="subject-title">Delete Account</h5>
     <Button
