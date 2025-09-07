@@ -157,7 +157,7 @@ export default function SignInSide() {
           token: result.token,
           username: result.user.username,
           id: result.user.id,
-          isMember: result.user.isMember
+          isMember: result.user.IsMember
         });
 
         console.log("User set in context:", result.user); // Log the user data

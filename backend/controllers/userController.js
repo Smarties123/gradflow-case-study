@@ -278,7 +278,7 @@ export const login = async (req, res) => {
         id: user.UserId,
         email: user.Email,
         username: user.Username,
-        IsMember: user.isMember,
+        IsMember: user.IsMember,
       },
     });
   } catch (error) {
