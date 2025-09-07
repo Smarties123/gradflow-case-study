@@ -226,6 +226,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 onSubmit={handleSubmit}
                 onChangePassword={handleChangePassword}
                 onDeleteClick={() => setDeleteModalOpen(true)}
+                isMember={user!.isMember}
               />
             )}
             {currentView === 'membership' && (
