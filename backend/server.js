@@ -34,8 +34,7 @@ cron.schedule('0 9 * * 3', async () => {
 const app = express();
 
 
-const STRIPE_SECRET_KEY =
-  'sk_test_51R5CfJDcnB3juQw0XDcapLqGVVfw2yncjmtMlAfrmyOCsXWRFlOlkjlxNEgXy9QTa2hF4Kn86fba1UetFHtm2DAX00mx2xTCYJ';
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
 const stripeCon = stripe(STRIPE_SECRET_KEY);
 // 1) CORS — allow both www and non-www versions
