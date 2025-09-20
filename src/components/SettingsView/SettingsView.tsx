@@ -25,6 +25,17 @@ interface SettingsViewProps {
 
 const MAX_APPLICATIONS = 20;
 
+// Rolling milestone helper to incentivize premium users
+const nextMilestone = (count: number): number => {
+  if (count < 10) return 10;
+  if (count < 25) return 25;
+  if (count < 50) return 50;
+  if (count < 100) return 100;
+  // After 100, set the next goal to the next 50 multiple
+  const step = 50;
+  return Math.ceil((count + 1) / step) * step;
+};
+
 const SettingsView: React.FC<SettingsViewProps> = ({
   show,
   onClose,
@@ -91,7 +102,9 @@ const SettingsView: React.FC<SettingsViewProps> = ({
     f.fileType.toLowerCase().includes('letter')
   ).length;
 
-  const percentApps = Math.min((totalApps / MAX_APPLICATIONS) * 100, 100);
+  const isPremium = !!user?.isMember;
+  const appsGoal = isPremium ? nextMilestone(totalApps) : MAX_APPLICATIONS;
+  const percentApps = Math.min((totalApps / appsGoal) * 100, 100);
   const percentCVs = filesLoading
     ? 0
     : Math.min((cvCount / MAX_APPLICATIONS) * 100, 100);
@@ -241,7 +254,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
                 onUpgrade={handleUpgrade}
                 onDowngrade={handleDowngrade}
                 member={user!.isMember}
-
+                appsGoal={appsGoal}
               />
             )}
             {currentView === 'notifications' && (

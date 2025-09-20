@@ -12,6 +12,7 @@ interface Props {
   onUpgrade: (plan: 'basic' | 'premium') => void;
   onDowngrade: () => void;
   member: boolean;
+  appsGoal?: number; // rolling target for premium incentive
 }
 
 const MAX_APPLICATIONS = 20;
@@ -27,6 +28,7 @@ const MembershipTab: React.FC<Props> = ({
   onUpgrade,
   onDowngrade,
   member = false,
+  appsGoal,
 }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -91,7 +93,9 @@ const MembershipTab: React.FC<Props> = ({
               <span>{item.label}</span>
               <span>
                 {item.count}
-                {item.label === 'Applications' ? ` / ${MAX_APPLICATIONS}` : ''}
+                {item.label === 'Applications'
+                  ? ` / ${member ? '∞' : MAX_APPLICATIONS}`
+                  : ''}
               </span>
             </div>
             <div className="liquid-bar">
@@ -100,6 +104,11 @@ const MembershipTab: React.FC<Props> = ({
                 style={{ width: `${item.percent}%` }}
               />
             </div>
+            {item.label === 'Applications' && member && (
+              <div className="usage-tip">
+                Next milestone: {appsGoal ?? MAX_APPLICATIONS} applications — keep going!
+              </div>
+            )}
           </div>
         ))}
       </div>
