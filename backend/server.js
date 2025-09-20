@@ -16,6 +16,7 @@ import logoDevProxy from './services/logoDevProxy.js';
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
 import logDeleteRoute from './services/logDeleteService.js';  // Import the log delete service
 import stripe from 'stripe';
+import { authenticateToken } from './middleware/authMiddleware.js';
 
 
 
@@ -314,11 +315,26 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-app.post('/cancel-subscription', async (req, res) => {
+app.post('/cancel-subscription', authenticateToken, async (req, res) => {
   const { email } = req.body;
+
+  if (!req.user || !req.user.email) {
+    return res.status(403).json({ error: 'Invalid authentication token' });
+  }
 
   if (!email) {
     return res.status(400).json({ error: 'Email is required' });
+  }
+
+  if (typeof email !== 'string') {
+    return res.status(400).json({ error: 'Email must be a string' });
+  }
+
+  const tokenEmail = req.user.email.toLowerCase();
+  const requestEmail = email.toLowerCase();
+
+  if (tokenEmail !== requestEmail) {
+    return res.status(403).json({ error: 'You are not authorized to cancel this subscription' });
   }
 
   try {
