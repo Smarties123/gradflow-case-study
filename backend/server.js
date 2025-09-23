@@ -15,7 +15,14 @@ import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
 import logDeleteRoute from './services/logDeleteService.js';  // Import the log delete service
-import stripe from 'stripe';
+import {
+  constructStripeEvent,
+  retrieveStripeCustomer,
+  markUserAsMemberByEmail,
+  markUserAsNotMemberByStripeCustomerId,
+  createCheckoutSessionForPlan,
+  cancelUserSubscription
+} from './services/paymentService.js';
 import { authenticateToken } from './middleware/authMiddleware.js';
 
 
@@ -35,9 +42,7 @@ cron.schedule('0 9 * * 3', async () => {
 const app = express();
 
 
-const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
-const stripeCon = stripe(STRIPE_SECRET_KEY);
 // 1) CORS — allow both www and non-www versions
 app.use(cors({
   origin: [
@@ -56,7 +61,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    event = constructStripeEvent(req.body, sig, endpointSecret);
     console.log(`✅ Webhook signature verified for event: ${event.type}`);
   } catch (err) {
     console.error('❌ Webhook signature verification failed.', err.message);
@@ -96,7 +101,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     console.log(`🚫 Processing cancellation/failure for customer: ${subscription.customer}`);
     
     try {
-      const customer = await stripeCon.customers.retrieve(subscription.customer);
+      const customer = await retrieveStripeCustomer(subscription.customer);
       console.log(`📧 Retrieved customer email: ${customer.email}`);
 
       const result = await markUserAsNotMemberByStripeCustomerId(customer.id);
@@ -177,70 +182,8 @@ app.get('/test-cors', (req, res) => {
 });
 
 
-export async function markUserAsMemberByEmail(email, stripeCustomerId) {
-  if (!email) throw new Error('Email is required');
-
-  try {
-    const result = await pool.query(
-      `UPDATE "Users" 
-       SET "IsMember" = $1, "StripeCustomerId" = $2 
-       WHERE "Email" = $3 
-       RETURNING *`,
-      [true, stripeCustomerId, email]
-    );
-
-    if (result.rowCount === 0) {
-      console.warn('No user found with email:', email);
-      return null;
-    }
-
-    console.log(`User ${email} marked as member:`);
-    return result.rows[0];
-  } catch (err) {
-    console.error('Error updating user membership:', err);
-    throw err;
-  }
-}
 
 
-export async function markUserAsNotMemberByStripeCustomerId(stripeCustomerId, userId) {
-  if (!stripeCustomerId && !userId) throw new Error('customerID or userID is required');
-
-  const values = [false];
-  let whereClause = '';
-
-  if (stripeCustomerId && userId) {
-    values.push(stripeCustomerId, userId);
-    whereClause = '"StripeCustomerId" = $2 OR "UserId" = $3';
-  } else if (stripeCustomerId) {
-    values.push(stripeCustomerId);
-    whereClause = '"StripeCustomerId" = $2';
-  } else {
-    values.push(userId);
-    whereClause = '"UserId" = $2';
-  }
-
-  try {
-    const result = await pool.query(
-      `UPDATE "Users" 
-       SET "IsMember" = $1, "StripeCustomerId" = NULL
-       WHERE ${whereClause}
-       RETURNING *`,
-      values
-    );
-
-    if (result.rowCount === 0) {
-      console.warn('No user found with customerId or userId:', stripeCustomerId ?? userId);
-      return null;
-    }
-
-    console.log(`User ${result.rows[0].Email} marked as not a member:`);
-    return result.rows[0];
-  } catch (err) {
-    console.error(`Error updating user membership: for user ${stripeCustomerId ?? userId}`, err);
-    throw err;
-  }
-}
 
 
 
@@ -270,61 +213,30 @@ app.listen(port, () => {
 app.post('/create-checkout-session', async (req, res) => {
   const { email, plan, success_url, cancel_url } = req.body;
 
-  // 1. Validate plan
-  const normalizedPlan = plan?.toLowerCase();
-  if (!['monthly', 'yearly'].includes(normalizedPlan)) {
-    return res.status(400).json({ error: 'Invalid plan. Use "monthly" or "yearly".' });
-  }
-
   try {
-
-    const priceId =
-      normalizedPlan === 'monthly'
-        ? process.env.STRIPE_MONTHLY_PRICE_ID
-        : process.env.STRIPE_YEARLY_PRICE_ID;
-
-    // 2. Check if customer already exists
-    const { data: existingCustomers } = await stripeCon.customers.list({
+    const result = await createCheckoutSessionForPlan({
       email,
-      limit: 1,
+      plan,
+      successUrl: success_url,
+      cancelUrl: cancel_url,
     });
 
-    console.log(existingCustomers);
-
-    if (existingCustomers.length > 0) {
-      // Stop here - email already has a Stripe customer
-      console.log("you are an existing customer");
-      
+    if (result.alreadyActive) {
       return res.status(200).json({
         code: 30,
-        message: 'Customer already exists with an active subscription.',
+        message: result.message || 'Customer already exists with an active subscription.',
       });
     }
 
-    // 3. Create new customer
-    const customer = await stripeCon.customers.create({
-      email,
-      description: `Customer for ${normalizedPlan} subscription`,
-    });
-
-    // 4. Create checkout session
-    const session = await stripeCon.checkout.sessions.create({
-      payment_method_types: ['card'],
-      mode: 'subscription',
-      customer: customer.id,
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url,
-      cancel_url,
-    });
-
     return res.status(200).json({
       code: 200,
-      sessionId: session.id,
+      sessionId: result.sessionId,
     });
-
   } catch (err) {
     console.error('Stripe error:', err);
-    return res.status(500).json({ error: err.message || 'Internal server error' });
+    const status = Number.isInteger(err.statusCode) ? err.statusCode : 500;
+    const message = err.message || 'Internal server error';
+    return res.status(status).json({ error: message });
   }
 });
 
@@ -346,115 +258,31 @@ app.post('/cancel-subscription', authenticateToken, async (req, res) => {
     return res.status(403).json({ error: 'You are not authorized to cancel this subscription' });
   }
 
-  const dbUserId = req.user.userId;
-
-  const getSubscriptionsNeedingCancellation = async (customerId) => {
-    const subscriptions = [];
-    let startingAfter;
-
-    do {
-      const response = await stripeCon.subscriptions.list({
-        customer: customerId,
-        status: 'all',
-        limit: 100,
-        ...(startingAfter ? { starting_after: startingAfter } : {}),
-      });
-
-      const activeSubscriptions = response.data.filter(
-        (subscription) => subscription.status !== 'canceled' && subscription.status !== 'incomplete_expired'
-      );
-
-      subscriptions.push(...activeSubscriptions);
-      startingAfter = response.has_more ? response.data[response.data.length - 1].id : undefined;
-    } while (startingAfter);
-
-    return subscriptions;
-  };
-
-  const findCustomerWithActiveSubscription = async (searchEmail) => {
-    if (!searchEmail) return null;
-
-    let startingAfter;
-
-    do {
-      const response = await stripeCon.customers.list({
-        email: searchEmail,
-        limit: 100,
-        ...(startingAfter ? { starting_after: startingAfter } : {}),
-      });
-
-      for (const candidate of response.data) {
-        const candidateSubscriptions = await getSubscriptionsNeedingCancellation(candidate.id);
-        if (candidateSubscriptions.length > 0) {
-          return { customer: candidate, subscriptions: candidateSubscriptions };
-        }
-      }
-
-      startingAfter = response.has_more ? response.data[response.data.length - 1].id : undefined;
-    } while (startingAfter);
-
-    return null;
-  };
-
   try {
-    const userQuery = await pool.query(
-      'SELECT "StripeCustomerId", "Email" FROM "Users" WHERE "UserId" = $1',
-      [dbUserId]
-    );
-
-    if (userQuery.rowCount === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const dbUser = userQuery.rows[0];
-    let stripeCustomerId = dbUser.StripeCustomerId;
-    let subscriptionsToCancel = [];
-
-    const attachSubscriptionsForCustomer = async (customerId) => {
-      if (!customerId) return [];
-      try {
-        return await getSubscriptionsNeedingCancellation(customerId);
-      } catch (error) {
-        console.warn(`Failed to list subscriptions for customer ${customerId}:`, error.message);
-        return [];
-      }
-    };
-
-    subscriptionsToCancel = await attachSubscriptionsForCustomer(stripeCustomerId);
-
-    if (!stripeCustomerId || subscriptionsToCancel.length === 0) {
-      const normalizedEmailForSearch = (dbUser.Email || requestEmail || tokenEmail).toLowerCase();
-      const fallback = await findCustomerWithActiveSubscription(normalizedEmailForSearch);
-      if (fallback) {
-        stripeCustomerId = fallback.customer.id;
-        subscriptionsToCancel = fallback.subscriptions;
-      }
-    }
-
-    if (!stripeCustomerId) {
-      return res.status(404).json({ error: 'No Stripe customer with an active subscription found' });
-    }
-
-    if (subscriptionsToCancel.length === 0) {
-      await markUserAsNotMemberByStripeCustomerId(stripeCustomerId, dbUserId);
-      return res.status(200).json({ message: 'Subscription already cancelled' });
-    }
-
-    for (const subscription of subscriptionsToCancel) {
-      await stripeCon.subscriptions.cancel(subscription.id);
-    }
-
-    await markUserAsNotMemberByStripeCustomerId(stripeCustomerId, dbUserId);
-
-    console.log(`Successfully cancelled ${subscriptionsToCancel.length} subscription(s) for customer: ${stripeCustomerId}`);
+    const result = await cancelUserSubscription({
+      userId: req.user.userId,
+      tokenEmail,
+      requestEmail,
+    });
 
     return res.status(200).json({
-      message: 'Subscription cancelled successfully',
+      message: result.message,
     });
   } catch (err) {
-    console.error('Error cancelling subscription:', err);
-    return res.status(500).json({ error: err.message || 'Internal server error' });
+    const status = err.statusCode || 500;
+    const message = err.message || 'Internal server error';
+    return res.status(status).json({ error: message });
   }
 });
+
+
+
+
+
+
+
+
+
+
 
 
