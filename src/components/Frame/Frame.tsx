@@ -24,6 +24,7 @@ import OnDemandFeedbackPopup from '../Feedback/OnDemandFeedback';
 import { useUser } from '@/components/User/UserContext'; // Adjust the import path as needed
 import NewButton from '../NewButton/NewButton';
 import UpdatedButton from '../UpdateButton/UpdatedButton';
+import { WelcomeToPremiumModal } from '../WelcomeToPremiumModal';
 
 const { getHeight, on } = DOMHelper;
 
@@ -56,12 +57,31 @@ const Frame = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const tab = params.get('tab');
+  const success = params.get('success');
+  const { refetchUser, showWelcomeToPremium, setShowWelcomeToPremium } = useUser();
 
   useEffect(() => {
     if (tab) {
       setShowSettings(true);
     }
   }, [tab]);
+
+  // Handle successful payment return
+  useEffect(() => {
+    if (success === 'true') {
+      console.log('Payment successful, refetching user data...');
+      console.log('Current user before refetch:', user);
+      refetchUser().then(() => {
+        console.log('User data updated after successful payment');
+        console.log('User membership status:', user?.isMember);
+        // Remove success parameter from URL to prevent refetch on refresh
+        const newUrl = window.location.pathname;
+        window.history.replaceState(null, '', newUrl);
+      }).catch(error => {
+        console.error('Failed to refetch user data after payment:', error);
+      });
+    }
+  }, [success, refetchUser]);
 
   useEffect(() => {
     const isNewUser = localStorage.getItem('isNewUser');
@@ -156,7 +176,6 @@ const Frame = () => {
                   title={
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                       <span>Panel</span>
-                      <UpdatedButton />
                     </div>
                   }
                   to="/main"
@@ -165,17 +184,21 @@ const Frame = () => {
                   animate={animate} // Pass the animate state
                 />
                 <NavItem
-                  title="Table"
-                  to="table"
+                  title={
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                      <span>Table</span>
+                      <UpdatedButton />
+                    </div>
+                  }
+                  to="/main/table"
                   eventKey="table"
                   icon={<Icon as={LuTable2} />}
-                  animate={animate} // Pass the animate state
+                  animate={animate} 
                 />
                 <NavItem
                   title={
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                       <span>Dashboard</span>
-                      <UpdatedButton />
                     </div>
                   }
                   to="/main/dashboard"
@@ -244,6 +267,10 @@ const Frame = () => {
           onClose={() => setFeedbackPopupOpen(false)}
         />
 
+        <WelcomeToPremiumModal
+          isOpen={showWelcomeToPremium}
+          onClose={() => setShowWelcomeToPremium(false)}
+        />
 
       </Container>
     </CustomProvider>

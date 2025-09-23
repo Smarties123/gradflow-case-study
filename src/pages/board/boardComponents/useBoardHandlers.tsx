@@ -18,6 +18,7 @@ export const useBoardHandlers = (columns, setColumns) => {
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+  const [premiumModal, showPremiumModal] = useState<boolean>(false);
 
   // Deleting Column
   const [columnToDelete, setColumnToDelete] = useState<number | null>(null);
@@ -145,7 +146,31 @@ export const useBoardHandlers = (columns, setColumns) => {
     setIsDrawerOpen(true);
   };
 
+  const checkApplicationLimit = () => {
+    const totalApps = columns.reduce((sum, c) => sum + c.cards.length, 0);
+    const MAX_APPLICATIONS = user?.isMember ? Infinity : 3;
+
+    return {
+      totalApps,
+      maxApps: MAX_APPLICATIONS,
+      hasReachedLimit: totalApps >= MAX_APPLICATIONS,
+      isAtLimit: totalApps >= MAX_APPLICATIONS
+    };
+  };
+
+  const checkUserPremiumStatus = () => {
+    return user?.isMember;
+  };
+
   const handleAddButtonClick = (column: Column) => {
+    const { hasReachedLimit } = checkApplicationLimit();
+
+    if (hasReachedLimit) {
+      console.log("Application limit reached. Upgrade to Premium to add more.");
+      showPremiumModal(true);
+      return;
+    }
+
     setActiveColumn(column);
     setIsModalOpen(true);
   };
@@ -218,6 +243,10 @@ export const useBoardHandlers = (columns, setColumns) => {
     showMoveModal,
     selectedColumnId,
     isDeleteModalOpen,
+    premiumModal,
+    showPremiumModal,
+    checkUserPremiumStatus,
+    checkApplicationLimit,
     handleIconClick,
     handleTitleChange,
     handleTitleBlur,

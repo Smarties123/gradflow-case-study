@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
 
 // Define the shape of your user data
 interface User {
@@ -6,12 +6,16 @@ interface User {
   username: string;
   token: string;
   id: number;
+  isMember: boolean;
 }
 
 interface UserContextType {
   user: User | null;
   setUser: (user: User) => void;
   clearUser: () => void;
+  refetchUser: () => Promise<void>;
+  showWelcomeToPremium: boolean;
+  setShowWelcomeToPremium: (show: boolean) => void;
 }
 
 // Create the context
@@ -34,6 +38,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
+  const [showWelcomeToPremium, setShowWelcomeToPremium] = useState(false);
+
   const setUser = (user: User) => {
     setUserState(user);
     localStorage.setItem('user', JSON.stringify(user)); // Persist user in localStorage
@@ -44,8 +50,49 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('user'); // Remove user from localStorage
   };
 
+  const refetchUser = useCallback(async () => {
+    if (!user?.token || !user?.email) {
+      console.error('No user token or email available for refetch');
+      return;
+    }
+
+    try {
+      // Use the profile endpoint to get updated user data
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const updatedUser = {
+          email: result.Email,
+          token: user.token,
+          username: result.Username,
+          id: user.id,
+          isMember: result.IsMember
+        };
+
+        // Check if user just upgraded to premium (was false, now true)
+        if (!user.isMember && result.IsMember) {
+          setShowWelcomeToPremium(true);
+        }
+
+        setUser(updatedUser);
+        console.log('User data refetched successfully:', updatedUser);
+      } else {
+        console.error('Failed to refetch user data:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error refetching user data:', error);
+    }
+  }, [user?.token, user?.email, user?.isMember]);
+
   return (
-    <UserContext.Provider value={{ user, setUser, clearUser }}>
+    <UserContext.Provider value={{ user, setUser, clearUser, refetchUser, showWelcomeToPremium, setShowWelcomeToPremium }}>
       {children}
     </UserContext.Provider>
   );

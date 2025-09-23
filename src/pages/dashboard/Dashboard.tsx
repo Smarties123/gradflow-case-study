@@ -5,6 +5,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import './styles.less';
 import '../../components/skelton.less';
+import './Styles/Dashboard.less';
 
 /* Chart Imports */
 import FunnelChart from './FunnelChart';
@@ -39,6 +40,7 @@ export const AnimateInView: React.FC<{ children: React.ReactNode; delay?: number
 
 const Dashboard: React.FC = () => {
   const { user } = useUser();
+  const isPremium = user?.isMember === true;
   const { columns, loading } = useBoardData(user);
   const [selectedDateRange, setSelectedDateRange] = useState<[Date, Date] | null>(null);
   const maxHeight = '500px'; // Set your desired max height here
@@ -233,55 +235,115 @@ const Dashboard: React.FC = () => {
           </AnimateInView>
         </Col>
       </Row>
-      <Row>
-        <Col xs={24}>
-          <AnimateInView delay={0.1}>
-            <Panel style={{ background: 'none', margin: '10px 0px' }}>
-              <LineChartComponent
-                key={keyForCharts}
-                columns={filteredColumns}
-                title="Application Activity"
-                dateRange={selectedDateRange}
-                isLight={isLight}
-              />
-            </Panel>
-          </AnimateInView>
+      {isPremium ? (
+        <>
+          <Row>
+            <Col xs={24}>
+              <AnimateInView delay={0.1}>
+                <Panel style={{ background: 'none', margin: '10px 0px' }}>
+                  <LineChartComponent
+                    key={keyForCharts}
+                    columns={filteredColumns}
+                    title="Application Activity"
+                    dateRange={selectedDateRange}
+                    isLight={isLight}
+                  />
+                </Panel>
+              </AnimateInView>
+            </Col>
+          </Row>
 
-        </Col>
-      </Row>
-      <Row gutter={16}>
-        <Col xs={24} md={12}>
-          <AnimateInView delay={0.1}>
+          <Row gutter={16}>
+            <Col xs={24} md={12}>
+              <AnimateInView delay={0.1}>
+                <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', overflow: 'hidden' }}>
+                  <FunnelChart
+                    key={keyForCharts}
+                    data={funnelData}
+                    title="Recruitment Funnel"
+                    style={{ height: '100%', maxHeight }}
+                    isLight={isLight}
+                  />
+                </Panel>
+              </AnimateInView>
+            </Col>
 
-            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', overflow: 'hidden' }}>
-              <FunnelChart
-                key={keyForCharts}
-                data={funnelData}
-                title="Recruitment Funnel"
-                style={{ height: '100%', maxHeight }}
-                isLight={isLight}
-              />
-            </Panel>
-          </AnimateInView>
+            <Col xs={24} md={12}>
+              <AnimateInView delay={0.1}>
+                <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', overflow: 'hidden', maxHeight: 535 }}>
+                  <RadarChartComponent
+                    key={keyForCharts}
+                    data={funnelData}
+                    title="Performance Radar"
+                    style={{ height: '100%' }}
+                    isLight={isLight}
+                  />
+                </Panel>
+              </AnimateInView>
+            </Col>
+          </Row>
+        </>
+      ) : (
 
-        </Col>
-        <Col xs={24} md={12}>
-          <AnimateInView delay={0.1}>
+          <div style={{ position: 'relative' }}>
+            {/* Blurred Content */}
+            <div style={{ filter: 'blur(16px)', pointerEvents: 'none' }}>
+              <Row>
+                <Col xs={24}>
+                  <Panel style={{ background: 'none', margin: '10px 0px' }}>
+                    <LineChartComponent
+                      key={keyForCharts}
+                      columns={filteredColumns}
+                      title="Application Activity"
+                      dateRange={selectedDateRange}
+                      isLight={isLight}
+                    />
+                  </Panel>
+                </Col>
+              </Row>
 
-            <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', overflow: 'hidden', maxHeight: 535 }}>
-              <RadarChartComponent
-                key={keyForCharts}
-                data={funnelData}
-                title="Performance Radar"
-                style={{ height: '100%' }}
-                isLight={isLight}
-              />
-            </Panel>
-          </AnimateInView>
+              <Row gutter={16}>
+                <Col xs={24} md={12}>
+                  <Panel style={{ background: 'none', margin: '10px 0px', height: '100%' }}>
+                    <FunnelChart
+                      key={keyForCharts}
+                      data={funnelData}
+                      title="Recruitment Funnel"
+                      style={{ height: '100%', maxHeight }}
+                      isLight={isLight}
+                    />
+                  </Panel>
+                </Col>
+                <Col xs={24} md={12}>
+                  <Panel style={{ background: 'none', margin: '10px 0px', height: '100%', maxHeight: 535 }}>
+                    <RadarChartComponent
+                      key={keyForCharts}
+                      data={funnelData}
+                      title="Performance Radar"
+                      style={{ height: '100%' }}
+                      isLight={isLight}
+                    />
+                  </Panel>
+                </Col>
+              </Row>
+          </div>
 
-        </Col>
-      </Row>
-    </div >
+          {/* Overlay with Upgrade Button */}
+          <div className='overlay-cont'
+          >
+            <h4 style={{ marginBottom: '1rem' }}>Upgrade to Premium to unlock these insights</h4>
+            <button
+              onClick={() => {
+                // Replace with your upgrade handler
+                console.log('Redirect to premium');
+              }}
+              className='upgrade-premium'>
+              Upgrade to Premium
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

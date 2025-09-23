@@ -238,7 +238,7 @@ export default function SignUp() {
             >
               <Logo
                 style={{
-                  width: '8vw',
+                  width: '6vw',
                   height: '10vh'
                 }}
               />

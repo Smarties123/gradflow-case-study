@@ -183,6 +183,12 @@
     .fill-cl {
       background-color: #7C41E3;
     }
+
+    .usage-tip {
+      margin-top: 6px;
+      color: @text-tertiary;
+      font-size: 0.8rem;
+    }
   }
 
   @keyframes wave {
@@ -191,6 +197,207 @@
     }
     100% {
       background-position: 50px 0;
+    }
+  }
+}
+
+/* ----------------------------------------
+   Account Tab Styling
+   ---------------------------------------- */
+.account-tab {
+  .profile-section {
+    margin-bottom: @spacing-lg * 1.5;
+    
+    .avatar-container {
+      display: flex;
+      align-items: center;
+      gap: @spacing-md;
+      padding: @spacing-lg;
+      background: @background-secondary;
+      border: 1px solid #444444;
+      border-radius: @radius;
+      margin-bottom: @spacing-lg;
+      position: relative;
+      
+      .profile-avatar {
+        flex-shrink: 0;
+        position: relative;
+      }
+      
+      .crown-icon {
+        position: absolute;
+        top: @spacing-md;
+        left: 65px;
+        color: #f7c948;
+        font-size: 20px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        z-index: 2;
+      }
+      
+      .profile-info {
+        flex-grow: 1;
+        
+        .profile-name {
+          margin: 0 0 @spacing-sm 0;
+          color: @text-primary;
+          font-size: 1.25rem;
+          font-weight: 600;
+        }
+        
+        .profile-email {
+          margin: 0;
+          color: @text-tertiary;
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+  
+  .form-section {
+    margin-bottom: @spacing-lg;
+    
+    .form-group {
+      margin-bottom: @spacing-md;
+      
+      .form-label {
+        display: block;
+        margin-bottom: @spacing-sm;
+        color: @text-primary;
+        font-weight: 500;
+        font-size: 0.875rem;
+      }
+      
+      .form-input {
+        background: @background-secondary;
+        border: 1px solid #444444;
+        border-radius: @radius;
+        color: @text-primary;
+        padding: @spacing-sm @spacing-md;
+        
+        &:focus {
+          border-color: #FF6200;
+          box-shadow: 0 0 0 2px rgba(255, 98, 0, 0.2);
+        }
+        
+        &::placeholder {
+          color: @text-tertiary;
+        }
+      }
+    }
+    
+    .save-button {
+      margin-top: @spacing-md;
+      background: #FF6200;
+      border-color: #FF6200;
+      border-radius: @radius;
+      padding: @spacing-sm @spacing-lg;
+      font-weight: 600;
+      
+      &:hover {
+        background: darken(#FF6200, 10%);
+        border-color: darken(#FF6200, 10%);
+      }
+    }
+  }
+  
+  .section-divider {
+    margin: (@spacing-lg * 1.5) 0;
+    border-color: #444444;
+  }
+  
+  .security-section, .danger-section {
+    margin-bottom: @spacing-lg;
+    
+    .action-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: @spacing-md;
+      padding: @spacing-lg;
+      background: @background-secondary;
+      border: 1px solid #444444;
+      border-radius: @radius;
+      
+      .action-info {
+        flex-grow: 1;
+        
+        .action-title {
+          margin: 0 0 @spacing-sm 0;
+          color: @text-primary;
+          font-size: 1rem;
+          font-weight: 600;
+        }
+        
+        .action-description {
+          margin: 0;
+          color: @text-tertiary;
+          font-size: 0.875rem;
+          line-height: 1.4;
+        }
+      }
+      
+      .action-button {
+        flex-shrink: 0;
+        background: transparent;
+        border: 1px solid #666666;
+        color: @text-primary;
+        border-radius: @radius;
+        padding: @spacing-sm @spacing-md;
+        
+        &:hover {
+          border-color: @text-primary;
+          background: rgba(255, 255, 255, 0.05);
+        }
+      }
+    }
+  }
+  
+  .danger-section {
+    .danger-title {
+      color: #ff4757;
+    }
+    
+    .danger-card {
+      border-color: rgba(255, 71, 87, 0.3);
+      background: rgba(255, 71, 87, 0.05);
+      
+      .delete-button {
+        background: #ff4757;
+        border-color: #ff4757;
+        color: #fff;
+        border-radius: @radius;
+        padding: @spacing-sm @spacing-md;
+        font-weight: 600;
+        
+        &:hover {
+          background: darken(#ff4757, 10%);
+          border-color: darken(#ff4757, 10%);
+        }
+      }
+    }
+  }
+}
+
+/* ----------------------------------------
+   Responsive Design for Account Tab
+   ---------------------------------------- */
+@media (max-width: 768px) {
+  .account-tab {
+    .profile-section .avatar-container {
+      flex-direction: column;
+      text-align: center;
+      gap: @spacing-md;
+    }
+    
+    .security-section .action-card,
+    .danger-section .action-card {
+      flex-direction: column;
+      align-items: stretch;
+      gap: @spacing-md;
+      
+      .action-button, .delete-button {
+        width: 100%;
+      }
     }
   }
 }
