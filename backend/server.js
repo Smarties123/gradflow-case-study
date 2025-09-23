@@ -203,31 +203,44 @@ export async function markUserAsMemberByEmail(email, stripeCustomerId) {
 }
 
 
-export async function markUserAsNotMemberByStripeCustomerId(stripeCustomerId) {
-  if (!stripeCustomerId) throw new Error('customerID is required');
+export async function markUserAsNotMemberByStripeCustomerId(stripeCustomerId, userId) {
+  if (!stripeCustomerId && !userId) throw new Error('customerID or userID is required');
+
+  const values = [false];
+  let whereClause = '';
+
+  if (stripeCustomerId && userId) {
+    values.push(stripeCustomerId, userId);
+    whereClause = '"StripeCustomerId" = $2 OR "UserId" = $3';
+  } else if (stripeCustomerId) {
+    values.push(stripeCustomerId);
+    whereClause = '"StripeCustomerId" = $2';
+  } else {
+    values.push(userId);
+    whereClause = '"UserId" = $2';
+  }
 
   try {
     const result = await pool.query(
       `UPDATE "Users" 
        SET "IsMember" = $1, "StripeCustomerId" = NULL
-       WHERE "StripeCustomerId" = $2
+       WHERE ${whereClause}
        RETURNING *`,
-      [false, stripeCustomerId]
+      values
     );
 
     if (result.rowCount === 0) {
-      console.warn('No user found with customerId:', stripeCustomerId);
+      console.warn('No user found with customerId or userId:', stripeCustomerId ?? userId);
       return null;
     }
 
     console.log(`User ${result.rows[0].Email} marked as not a member:`);
     return result.rows[0];
   } catch (err) {
-    console.error(`Error updating user membership: for user ${stripeCustomerId}`, err);
+    console.error(`Error updating user membership: for user ${stripeCustomerId ?? userId}`, err);
     throw err;
   }
 }
-
 
 
 
@@ -318,16 +331,12 @@ app.post('/create-checkout-session', async (req, res) => {
 app.post('/cancel-subscription', authenticateToken, async (req, res) => {
   const { email } = req.body;
 
-  if (!req.user || !req.user.email) {
+  if (!req.user || !req.user.email || !req.user.userId) {
     return res.status(403).json({ error: 'Invalid authentication token' });
   }
 
-  if (!email) {
+  if (!email || typeof email !== 'string') {
     return res.status(400).json({ error: 'Email is required' });
-  }
-
-  if (typeof email !== 'string') {
-    return res.status(400).json({ error: 'Email must be a string' });
   }
 
   const tokenEmail = req.user.email.toLowerCase();
@@ -337,45 +346,115 @@ app.post('/cancel-subscription', authenticateToken, async (req, res) => {
     return res.status(403).json({ error: 'You are not authorized to cancel this subscription' });
   }
 
+  const dbUserId = req.user.userId;
+
+  const getSubscriptionsNeedingCancellation = async (customerId) => {
+    const subscriptions = [];
+    let startingAfter;
+
+    do {
+      const response = await stripeCon.subscriptions.list({
+        customer: customerId,
+        status: 'all',
+        limit: 100,
+        ...(startingAfter ? { starting_after: startingAfter } : {}),
+      });
+
+      const activeSubscriptions = response.data.filter(
+        (subscription) => subscription.status !== 'canceled' && subscription.status !== 'incomplete_expired'
+      );
+
+      subscriptions.push(...activeSubscriptions);
+      startingAfter = response.has_more ? response.data[response.data.length - 1].id : undefined;
+    } while (startingAfter);
+
+    return subscriptions;
+  };
+
+  const findCustomerWithActiveSubscription = async (searchEmail) => {
+    if (!searchEmail) return null;
+
+    let startingAfter;
+
+    do {
+      const response = await stripeCon.customers.list({
+        email: searchEmail,
+        limit: 100,
+        ...(startingAfter ? { starting_after: startingAfter } : {}),
+      });
+
+      for (const candidate of response.data) {
+        const candidateSubscriptions = await getSubscriptionsNeedingCancellation(candidate.id);
+        if (candidateSubscriptions.length > 0) {
+          return { customer: candidate, subscriptions: candidateSubscriptions };
+        }
+      }
+
+      startingAfter = response.has_more ? response.data[response.data.length - 1].id : undefined;
+    } while (startingAfter);
+
+    return null;
+  };
+
   try {
-    // Find the customer by email
-    const { data: customers } = await stripeCon.customers.list({
-      email,
-      limit: 1,
-    });
+    const userQuery = await pool.query(
+      'SELECT "StripeCustomerId", "Email" FROM "Users" WHERE "UserId" = $1',
+      [dbUserId]
+    );
 
-    if (customers.length === 0) {
-      return res.status(404).json({ error: 'Customer not found' });
+    if (userQuery.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    const customer = customers[0];
+    const dbUser = userQuery.rows[0];
+    let stripeCustomerId = dbUser.StripeCustomerId;
+    let subscriptionsToCancel = [];
 
-    // List active subscriptions for the customer
-    const { data: subscriptions } = await stripeCon.subscriptions.list({
-      customer: customer.id,
-      status: 'active',
-    });
+    const attachSubscriptionsForCustomer = async (customerId) => {
+      if (!customerId) return [];
+      try {
+        return await getSubscriptionsNeedingCancellation(customerId);
+      } catch (error) {
+        console.warn(`Failed to list subscriptions for customer ${customerId}:`, error.message);
+        return [];
+      }
+    };
 
-    if (subscriptions.length === 0) {
-      return res.status(404).json({ error: 'No active subscription found' });
+    subscriptionsToCancel = await attachSubscriptionsForCustomer(stripeCustomerId);
+
+    if (!stripeCustomerId || subscriptionsToCancel.length === 0) {
+      const normalizedEmailForSearch = (dbUser.Email || requestEmail || tokenEmail).toLowerCase();
+      const fallback = await findCustomerWithActiveSubscription(normalizedEmailForSearch);
+      if (fallback) {
+        stripeCustomerId = fallback.customer.id;
+        subscriptionsToCancel = fallback.subscriptions;
+      }
     }
 
-    // Cancel the subscription - this will trigger the webhook
-    const subscription = subscriptions[0];
-    await stripeCon.subscriptions.cancel(subscription.id);
+    if (!stripeCustomerId) {
+      return res.status(404).json({ error: 'No Stripe customer with an active subscription found' });
+    }
 
-    // Mark user as not a member immediately
-    await markUserAsNotMemberByStripeCustomerId(customer.id);
+    if (subscriptionsToCancel.length === 0) {
+      await markUserAsNotMemberByStripeCustomerId(stripeCustomerId, dbUserId);
+      return res.status(200).json({ message: 'Subscription already cancelled' });
+    }
 
-    console.log(`✅ Successfully cancelled subscription for customer: ${customer.id}`);
-    
+    for (const subscription of subscriptionsToCancel) {
+      await stripeCon.subscriptions.cancel(subscription.id);
+    }
+
+    await markUserAsNotMemberByStripeCustomerId(stripeCustomerId, dbUserId);
+
+    console.log(`Successfully cancelled ${subscriptionsToCancel.length} subscription(s) for customer: ${stripeCustomerId}`);
+
     return res.status(200).json({
       message: 'Subscription cancelled successfully',
     });
-
   } catch (err) {
-    console.error('❌ Error cancelling subscription:', err);
+    console.error('Error cancelling subscription:', err);
     return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 });
+
 

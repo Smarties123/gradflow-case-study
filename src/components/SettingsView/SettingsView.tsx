@@ -41,7 +41,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   onClose,
   initialTab = 'account'
 }) => {
-  const { user } = useUser();
+  const { user, refetchUser } = useUser();
   const navigate = useNavigate();
 
   const [currentView, setCurrentView] = useState(initialTab);
@@ -199,12 +199,25 @@ const SettingsView: React.FC<SettingsViewProps> = ({
           body: JSON.stringify({ email: user?.email })
         }
       );
-      
+
       if (!response.ok) {
-        throw new Error('Failed to cancel subscription');
+        const errorBody = await response.text();
+        throw new Error(errorBody || 'Failed to cancel subscription');
       }
-      
-      notifySuccess('Subscription cancelled successfully');
+
+      let message = 'Subscription cancelled successfully';
+
+      try {
+        const payload = await response.json();
+        if (payload?.message) {
+          message = payload.message;
+        }
+      } catch (parseError) {
+        console.warn('Could not parse cancellation response:', parseError);
+      }
+
+      await refetchUser();
+      notifySuccess(message);
     } catch (error) {
       console.error('Error cancelling subscription:', error);
       notifyError('Failed to cancel subscription');
@@ -284,3 +297,4 @@ const SettingsView: React.FC<SettingsViewProps> = ({
 };
 
 export default SettingsView;
+
