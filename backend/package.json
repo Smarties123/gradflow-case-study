@@ -13,6 +13,7 @@
   "dependencies": {
     "@react-spring/web": "^9.7.5",
     "aws-sdk": "^2.1401.0",
+    "axios": "^1.12.2",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

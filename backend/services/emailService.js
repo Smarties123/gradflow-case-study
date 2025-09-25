@@ -4,6 +4,7 @@ import { getAllUsers } from '../controllers/userController.js';
 import pool from '../config/db.js';
 import { motivationalQuotes } from './motivationalQuotes.js';
 
+
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
@@ -101,24 +102,40 @@ If you didn’t request this, you can ignore this email.`;
 
 
 //TODO: change the links for now
-export const sendVerificationTokenEmail = async (email, token, frontendUrl) => {
-  
-  const verificationUrl = `${frontendUrl}/verify?token=${token}&email=${encodeURIComponent(email)}`;
+// ---------- Verification ----------
+export const sendVerificationTokenEmail = async (email, token, frontendUrlArg) => {
+  const base = frontendUrlArg || FRONTEND_URL;
+  const verificationUrl = buildUrl(
+    base,
+    `/verify?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`
+  );
 
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.5;">
+      <p>Welcome to GradFlow! Click the button below to verify your account:</p>
+      <div style="margin:16px 0;">
+        ${ctaButton(verificationUrl, 'Verify My Account')}
+      </div>
+      ${copyBlock(verificationUrl)}
+      <p style="color:#777;margin-top:20px;">If you didn’t create an account, you can ignore this email.</p>
+    </div>
+  `;
 
+  const text = `Welcome to GradFlow!
 
+Verify your account:
+${verificationUrl}
+
+If you didn’t create an account, ignore this email.`;
 
   const mailOptions = {
     from: process.env.SMTP_EMAIL,
     to: email,
-    subject: 'User Verification Code',
-    html: `
-      <p>Below is your user verification code</p>
-      <p>You need to click on the link below to activate your gradflow account</p>
-      <a href="${verificationUrl}">Click Here to Verify</a>
-      <p> Have a great day! </p>
-    `,
+    subject: 'Verify your account',
+    html,
+    text,
   };
+
   await transporter.sendMail(mailOptions);
 };
 
