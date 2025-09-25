@@ -12,20 +12,92 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendResetPasswordEmail = async (email, token, frontendUrl) => {
+// --- Frontend URL helper ---
+const FRONTEND_URL =
+  process.env.FRONTEND_URL ||
+  process.env.CLIENT_ORIGIN ||
+  'http://localhost:3100';
+
+// Build an absolute URL safely.
+function buildUrl(base, pathOrUrl) {
+  try {
+    // If pathOrUrl is absolute, URL() will just return it.
+    return new URL(pathOrUrl, base).toString();
+  } catch {
+    return `${base}`.replace(/\/+$/, '') + '/' + String(pathOrUrl).replace(/^\/+/, '');
+  }
+}
+
+// Outlook-friendly CTA button (table-based, inline CSS, with MSO fallback).
+function ctaButton(href, label) {
+  return `
+  <!--[if mso]>
+  <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="${href}" style="height:44px;v-text-anchor:middle;width:220px;" arcsize="10%" strokecolor="#7C41E3" fillcolor="#7C41E3">
+    <w:anchorlock/>
+    <center style="color:#ffffff;font-family:Arial,sans-serif;font-size:16px;font-weight:bold;">
+      ${label}
+    </center>
+  </v:roundrect>
+  <![endif]-->
+  <![if !mso]>
+  <a href="${href}" target="_blank" rel="noopener"
+     style="display:inline-block;background:#7C41E3;border-radius:6px;color:#fff;
+            font-weight:bold;text-decoration:none;padding:12px 20px;">
+    ${label}
+  </a>
+  <![endif]>
+  `;
+}
+
+// A visible, copyable link block (no JS — email clients block it)
+function copyBlock(href) {
+  return `
+    <p style="margin:16px 0 6px 0;font-weight:bold;">Or copy & paste this link:</p>
+    <div style="background:#f6f6f6;border:1px solid #e0e0e0;border-radius:6px;
+                padding:10px 12px;font-family:Courier,monospace;font-size:13px;
+                word-break:break-all;">
+      ${href}
+    </div>
+  `;
+}
+
+// ---------- Reset Password ----------
+export const sendResetPasswordEmail = async (email, token, frontendUrlArg) => {
+  const base = frontendUrlArg || FRONTEND_URL;
+  // If your reset route uses path params:
+  const resetPath = `/reset-password/${encodeURIComponent(token)}`;
+  const resetUrl = buildUrl(base, resetPath);
+
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;color:#333;line-height:1.5;">
+      <p>Your password reset token will expire in 15 minutes.</p>
+      <p>Use the button below to reset your password:</p>
+      <div style="margin:16px 0;">
+        ${ctaButton(resetUrl, 'Reset Password')}
+      </div>
+      ${copyBlock(resetUrl)}
+      <p style="color:#777;margin-top:20px;">If you didn’t request this, you can ignore this email.</p>
+    </div>
+  `;
+
+  const text = `Your password reset token expires in 15 minutes.
+
+Reset your password:
+${resetUrl}
+
+If you didn’t request this, you can ignore this email.`;
+
   const mailOptions = {
     from: process.env.SMTP_EMAIL,
     to: email,
-    subject: 'Password Reset Verification Code',
-    html: `
-      <p>Your password reset token will expire in 15 minutes.</p>
-      <p>You can reset your password by clicking the following link:</p>
-      <a href="${frontendUrl}/reset-password/${token}">${frontendUrl}/reset-password/${token}</a>
-      <p> Have a great day! </p>
-    `,
+    subject: 'Reset your password',
+    html,
+    text,
   };
+
   await transporter.sendMail(mailOptions);
 };
+
 
 
 //TODO: change the links for now
