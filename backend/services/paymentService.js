@@ -169,7 +169,7 @@ const ensureCustomerForCheckout = async (email) => {
   return { customer: fallbackCustomer, hasActiveSubscription: false };
 };
 
-export const createCheckoutSessionForPlan = async ({ email, plan, successUrl, cancelUrl }) => {
+export const createCheckoutSessionForPlan = async ({ email, plan, successUrl, cancelUrl, couponId }) => {
   if (!email || typeof email !== 'string') {
     const error = new Error('Email is required to create a checkout session.');
     error.statusCode = 400;
@@ -214,14 +214,21 @@ export const createCheckoutSessionForPlan = async ({ email, plan, successUrl, ca
     customerId = newCustomer.id;
   }
 
-  const session = await stripeClient.checkout.sessions.create({
+  const sessionConfig = {
     payment_method_types: ['card'],
     mode: 'subscription',
+    allow_promotion_codes: true,
     customer: customerId,
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: successUrl,
     cancel_url: cancelUrl,
-  });
+  };
+
+  if (couponId) {
+    sessionConfig.discounts = [{ coupon: couponId }];
+  }
+
+  const session = await stripeClient.checkout.sessions.create(sessionConfig);
 
   return {
     alreadyActive: false,
@@ -273,7 +280,7 @@ export const cancelUserSubscription = async ({ userId, tokenEmail, requestEmail 
 
   if (subscriptionsToCancel.length === 0) {
     await markUserAsNotMemberByStripeCustomerId(stripeCustomerId, userId);
-    return { message: 'Subscription already cancelled' };
+    return { message: 'Subscription cancelled' };
   }
 
   for (const subscription of subscriptionsToCancel) {

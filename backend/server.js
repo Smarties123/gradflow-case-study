@@ -211,7 +211,7 @@ app.listen(port, () => {
 
 
 app.post('/create-checkout-session', async (req, res) => {
-  const { email, plan, success_url, cancel_url } = req.body;
+  const { email, plan, success_url, cancel_url, couponId } = req.body;
 
   try {
     const result = await createCheckoutSessionForPlan({
@@ -219,6 +219,7 @@ app.post('/create-checkout-session', async (req, res) => {
       plan,
       successUrl: success_url,
       cancelUrl: cancel_url,
+      couponId,
     });
 
     if (result.alreadyActive) {

@@ -4,9 +4,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import { useUser } from './User/UserContext';
 import './PremiumUpgradeModal.css';
 
-const stripePromise = loadStripe(
-  'pk_test_51R5CfJDcnB3juQw0LrWR9sOPzMLLSVHFt6h3gWJb6V8JqO9xxT8Zb4jtCtnQVbpWJyATkjwCnX5jQ6AXPyt4xW1Z00zj19uhQm'
-);
+const stripePromise =
+  loadStripe(process.env.STRIPE__SECRET_KEY || '');
 
 interface PremiumModalProps {
   isOpen: boolean;
@@ -152,7 +151,7 @@ export const PremiumUpgradeModal: React.FC<PremiumModalProps> = ({
                 )}
               </div>
               <div className="pricing-price">
-                £30.00
+                £29.99
                 {/* <span className="pricing-period">/year</span> */}
               </div>
               <div className="pricing-savings">Save £5.88!</div>
