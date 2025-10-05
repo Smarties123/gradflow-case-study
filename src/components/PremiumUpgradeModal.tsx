@@ -4,8 +4,12 @@ import { loadStripe } from '@stripe/stripe-js';
 import { useUser } from './User/UserContext';
 import './PremiumUpgradeModal.css';
 
-const stripePromise =
-  loadStripe(process.env.STRIPE__SECRET_KEY || '');
+const publishableKey =
+  process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY ||
+  process.env.STRIPE_PUBLISHABLE_KEY ||
+  '';
+
+const stripePromise = loadStripe(publishableKey);
 
 interface PremiumModalProps {
   isOpen: boolean;
