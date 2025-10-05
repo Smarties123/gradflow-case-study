@@ -151,12 +151,16 @@ export default function SignInSide() {
 
       if (response.ok) {
         const result = await response.json();
+        console.log("Login result:", result); // Log the result for debugging
         setUser({
           email: result.user.email,
           token: result.token,
           username: result.user.username,
-          id: result.user.id
+          id: result.user.id,
+          isMember: result.user.IsMember
         });
+
+        console.log("User set in context:", result.user); // Log the user data
 
         // if (result.user.feedbackTrigger) {
         //   setFeedbackPopupOpen(true); // Trigger the feedback popup
@@ -256,8 +260,8 @@ export default function SignInSide() {
             >
               <Logo
                 style={{
-                  width: '8vw',
-                  height: '10vh'
+                  width: '120px',
+                  height: '60px'
                 }}
               />
             </Box>

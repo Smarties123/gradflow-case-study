@@ -6,7 +6,6 @@ import {
   Whisper,
   WhisperInstance,
   Stack,
-  Button,
   ButtonToolbar
 } from 'rsuite';
 import HelpOutlineIcon from '@rsuite/icons/HelpOutline';
@@ -22,15 +21,29 @@ import Avatar from 'react-avatar';
 import Search from './Search';
 import FeedbackPopup from '../Feedback/FeedbackPopup';
 import AwesomeButton from '../../components/AwesomeButton/AwesomeButton';
+import { FaCrown } from 'react-icons/fa';
+import { useBoardHandlers } from '@/pages/board/boardComponents/useBoardHandlers';
+import { PremiumUpgradeModal } from '../PremiumUpgradeModal';
+import './Search.less';
 
 const Header = (props) => {
   const { user, setUser } = useUser();
-  const navigate = useNavigate();
   const context = useContext(BoardContext);
+  const location = useLocation();
+
+  const { columns, setColumns, setColumnOrder, addCardToColumn } = context!;
+
+  const {
+    showPremiumModal,
+    premiumModal,
+    checkApplicationLimit,
+    checkUserPremiumStatus,
+  } = useBoardHandlers(columns, setColumns);
+
+  const navigate = useNavigate();
   if (!context) {
     console.error('BoardContext is undefined. Make sure you wrap with BoardProvider.');
   }
-  const { setColumnOrder, columns, addCardToColumn } = context!;
 
   // State for settings drawer
   const [settingsTab, setSettingsTab] = useState<'account' | 'membership' | 'notifications'>('account');
@@ -41,7 +54,6 @@ const Header = (props) => {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
 
-  const { theme, onChangeTheme } = props;
   const trigger = useRef<WhisperInstance>(null);
 
   // Fetch user profile info once
@@ -63,6 +75,18 @@ const Header = (props) => {
       }
     })();
   }, [user.token, setColumnOrder]);
+
+  const handleCheckPremium = () => {
+    const { hasReachedLimit } = checkApplicationLimit();
+
+    if (hasReachedLimit && !checkUserPremiumStatus()) {
+      console.log("Application limit reached. Upgrade to Premium to add more.");
+      showPremiumModal(true);
+      return;
+    }
+
+    handleOpenAddModal();
+  };
 
   const handleOpenAddModal = () => setIsAddModalOpen(true);
   const handleCloseAddModal = () => setIsAddModalOpen(false);
@@ -113,14 +137,15 @@ const Header = (props) => {
   };
 
   return (
+    <>
     <Stack className="header" spacing={8} justifyContent="space-between">
       {location.pathname === '/main' && (
         <Stack direction="row" spacing={4} alignItems="flex-start">
           <Search />
           <div className="flex flex-col items-center justify-center w-screen h-screen gap-6">
             <ButtonToolbar style={{ display: 'flex', gap: '3px', height: '40px' }}>
-              <AwesomeButton className="header-add-new" onClick={handleOpenAddModal}>
-                <FaPlus style={{ color: 'white', paddingTop: '3px' }} />
+              <AwesomeButton className="header-add-new" onClick={handleCheckPremium}>
+                  {/* <FaPlus style={{ color: 'white', paddingTop: '3px' }} /> */}
                 <span className="visually-hidden">Add New</span>
               </AwesomeButton>
             </ButtonToolbar>
@@ -132,20 +157,28 @@ const Header = (props) => {
             addCardToColumn={addCardToColumn}
             showDropdown={true}
           />
-          <ShareModal isModalOpen={isShareModalOpen} handleCloseModal={handleCloseShareModal} />
-          <FeedbackPopup show={showFeedbackPopup} onClose={handleCloseFeedback} />
+          {isShareModalOpen && (
+            <ShareModal isModalOpen={isShareModalOpen} handleCloseModal={handleCloseShareModal} />
+          )}
+          {showFeedbackPopup && (
+            <FeedbackPopup
+              show={showFeedbackPopup}
+              onClose={handleCloseFeedback}
+              userEmail={profileData.email}
+            />
+          )}   
         </Stack>
       )}
 
 
       {location.pathname === '/main/table' && (
-        <h4 className="font-semibold text-gray-700 items-center justify-center w-screen h-screen gap-6" style={{ paddingTop: '5px', marginLeft: '-10px' }}>
+        <h4 className="font-semibold text-gray-700" style={{ paddingTop: '5px' }}>
           View All Job Applications
         </h4>
       )}
 
       {location.pathname === '/main/files' && (
-        <h4 className="font-semibold text-gray-700 items-center justify-center w-screen h-screen gap-6" style={{ paddingTop: '5px' }}   >
+        <h4 className="font-semibold text-gray-700" style={{ paddingTop: '5px' }}>
           Upload/Manage your CVs and Cover Letters
         </h4>
       )}
@@ -160,7 +193,20 @@ const Header = (props) => {
           toggleColorMode={() => onChangeTheme(theme === 'light' ? 'dark' : 'light')}
         /> */}
         <Whisper placement="bottomEnd" trigger="click" ref={trigger} speaker={renderAdminSpeaker}>
-          <Avatar email={profileData.email} name={profileData.name} size="45" round />
+          <div style={{ position: 'relative', display: 'inline-block' }}>
+            <Avatar email={profileData.email} name={profileData.name} size="45" round />
+            {user.isMember && (
+              <FaCrown
+                style={{
+                  position: 'absolute',
+                  top: -6,
+                  right: -6,
+                  color: '#f7c948',
+                  fontSize: 18,
+                }}
+              />
+            )}
+          </div>
         </Whisper>
       </div>
 
@@ -174,7 +220,17 @@ const Header = (props) => {
           initialTab={settingsTab}
         />
       )}
+      
     </Stack>
+    {premiumModal && (
+        <PremiumUpgradeModal
+          isOpen={premiumModal}
+          onClose={() => showPremiumModal(false)}
+          featureName="unlimited application tracking"
+        />
+  )
+  }
+    </>   
   );
 };
 

@@ -1,9 +1,14 @@
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import { sendEmailsToAllUsers } from './services/emailService.js';
 // import { sendApplicationStatusEmail } from './services/emailService.js';
 
 import cron from 'node-cron';
-dotenv.config(); 
+// Ensure we read backend/.env regardless of CWD
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: resolve(__dirname, '.env') }); 
 
 import express from 'express';
 import cors from 'cors';
@@ -15,7 +20,16 @@ import statusRoutes from './routes/statusRoutes.js';
 import logoDevProxy from './services/logoDevProxy.js'; 
 // import sitemapRoutes from './routes/sitemapRoutes.js';  // Import the sitemap route
 import logDeleteRoute from './services/logDeleteService.js';  // Import the log delete service
-import stripe from 'stripe';
+import {
+  constructStripeEvent,
+  retrieveStripeCustomer,
+  markUserAsMemberByEmail,
+  markUserAsNotMemberByStripeCustomerId,
+  createCheckoutSessionForPlan,
+  cancelUserSubscription,
+  getResolvedWebhookSecret
+} from './services/paymentService.js';
+import { authenticateToken } from './middleware/authMiddleware.js';
 
 
 
@@ -34,10 +48,7 @@ cron.schedule('0 9 * * 3', async () => {
 const app = express();
 
 
-const STRIPE_SECRET_KEY =
-  'sk_test_51R5CfJDcnB3juQw0XDcapLqGVVfw2yncjmtMlAfrmyOCsXWRFlOlkjlxNEgXy9QTa2hF4Kn86fba1UetFHtm2DAX00mx2xTCYJ';
 
-const stripeCon = stripe(STRIPE_SECRET_KEY);
 // 1) CORS — allow both www and non-www versions
 app.use(cors({
   origin: [
@@ -48,53 +59,120 @@ app.use(cors({
   credentials: true
 }));
 
-
-app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+// Stripe webhook handler(s) — accept both /webhook and /api/stripe/webhook
+const stripeWebhookHandler = async (req, res) => {
+  const endpointSecret = getResolvedWebhookSecret();
   const sig = req.headers['stripe-signature'];
 
   let event;
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    event = constructStripeEvent(req.body, sig, endpointSecret);
+    console.log(`✅ Webhook signature verified for event: ${event.type}`);
   } catch (err) {
-    console.error('Webhook signature verification failed.', err.message);
+    console.error('❌ Webhook signature verification failed.', err.message);
     return res.sendStatus(400);
   }
 
+  console.log(`🎯 Processing webhook event: ${event.type} [${event.id}]`);
+
+  // 1) Checkout completed → mark as member
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const email = session.customer_details?.email;
+    let email = session.customer_details?.email || session.customer_email || null;
     const customerId = session.customer;
 
+    console.log(`💳 Checkout completed for email: ${email}, customer: ${customerId}`);
+
+    if (!email && customerId) {
+      try {
+        const customer = await retrieveStripeCustomer(customerId);
+        email = customer?.email ?? null;
+      } catch (e) {
+        console.error('❌ Failed to retrieve customer for email fallback:', e?.message || e);
+      }
+    }
+
+    if (!email) {
+      console.error('❌ No email found in session or customer record');
+      return res.sendStatus(400);
+    }
+
     try {
-      await markUserAsMemberByEmail(email, customerId);
+      const result = await markUserAsMemberByEmail(String(email).toLowerCase(), customerId);
+      console.log(`✅ Successfully marked user as member:`, result);
     } catch (err) {
-      console.error('Error marking user as member:', err);
+      console.error('❌ Error marking user as member:', err);
       return res.sendStatus(500);
     }
   }
 
-
-  if (
-  event.type === 'customer.subscription.deleted' ||
-  event.type === 'customer.subscription.canceled' ||
-  event.type === 'invoice.payment_failed'
-) {
-  const subscription = event.data.object;
-  
-  try {
-    const customer = await stripeCon.customers.retrieve(subscription.customer);
-
-    await markUserAsNotMemberByStripeCustomerId(customer.id);
-  } catch (err) {
-    console.error('Failed to mark user as not a member:', err);
-    return res.sendStatus(500);
+  // 2) Invoice payment succeeded → defensive mark as member
+  if (event.type === 'invoice.payment_succeeded') {
+    try {
+      const invoice = event.data.object;
+      const customerId = invoice.customer;
+      if (customerId) {
+        const customer = await retrieveStripeCustomer(customerId);
+        if (customer?.email) {
+          await markUserAsMemberByEmail(String(customer.email).toLowerCase(), customer.id);
+          console.log(`✅ Marked user as member via invoice.payment_succeeded for ${customer.email}`);
+        }
+      }
+    } catch (err) {
+      console.error('❌ Error updating member on invoice.payment_succeeded:', err);
+      // do not 500 the webhook for non-critical fallback
+    }
   }
-}
 
-  res.status(200).json({ received: true });
-});
+  // 3) Subscription lifecycle updates
+  if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
+    try {
+      const subscription = event.data.object;
+      const status = subscription.status;
+      const customerId = subscription.customer;
+      const customer = customerId ? await retrieveStripeCustomer(customerId) : null;
+      const email = customer?.email ? String(customer.email).toLowerCase() : null;
+      const activeStatuses = new Set(['active', 'trialing']);
+      if (email) {
+        if (activeStatuses.has(status)) {
+          await markUserAsMemberByEmail(email, customerId);
+          console.log(`✅ Marked user as member via subscription ${status} for ${email}`);
+        } else if (['canceled', 'unpaid', 'incomplete_expired'].includes(status)) {
+          await markUserAsNotMemberByStripeCustomerId(customerId);
+          console.log(`🚫 Marked user as not member via subscription ${status} for ${email}`);
+        }
+      }
+    } catch (err) {
+      console.error('❌ Error handling subscription lifecycle event:', err);
+      // non-fatal
+    }
+  }
 
+  // 4) Cancellation/failure
+  if (
+    event.type === 'customer.subscription.deleted' ||
+    event.type === 'customer.subscription.canceled' ||
+    event.type === 'invoice.payment_failed'
+  ) {
+    const obj = event.data.object;
+    const customerId = obj.customer;
+    console.log(`🚫 Processing cancellation/failure for customer: ${customerId}`);
+    try {
+      const result = await markUserAsNotMemberByStripeCustomerId(customerId);
+      console.log(`✅ Successfully marked user as not a member:`, result);
+    } catch (err) {
+      console.error('❌ Failed to mark user as not a member:', err);
+      return res.sendStatus(500);
+    }
+  }
+
+  console.log(`✅ Webhook ${event.type} processed successfully`);
+  return res.status(200).json({ received: true });
+};
+
+// Accept both legacy and new webhook paths (based on your logs)
+app.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhookHandler);
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhookHandler);
 
 
 
@@ -162,56 +240,7 @@ app.get('/test-cors', (req, res) => {
 });
 
 
-export async function markUserAsMemberByEmail(email, stripeCustomerId) {
-  if (!email) throw new Error('Email is required');
 
-  try {
-    const result = await pool.query(
-      `UPDATE "Users" 
-       SET "IsMember" = $1, "StripeCustomerId" = $2 
-       WHERE "Email" = $3 
-       RETURNING *`,
-      [true, stripeCustomerId, email]
-    );
-
-    if (result.rowCount === 0) {
-      console.warn('No user found with email:', email);
-      return null;
-    }
-
-    console.log(`User ${email} marked as member:`);
-    return result.rows[0];
-  } catch (err) {
-    console.error('Error updating user membership:', err);
-    throw err;
-  }
-}
-
-
-export async function markUserAsNotMemberByStripeCustomerId(stripeCustomerId) {
-  if (!stripeCustomerId) throw new Error('customerID is required');
-
-  try {
-    const result = await pool.query(
-      `UPDATE "Users" 
-       SET "IsMember" = $1, "StripeCustomerId" = NULL
-       WHERE "StripeCustomerId" = $2
-       RETURNING *`,
-      [false, stripeCustomerId]
-    );
-
-    if (result.rowCount === 0) {
-      console.warn('No user found with customerId:', stripeCustomerId);
-      return null;
-    }
-
-    console.log(`User ${result.rows[0].Email} marked as not a member:`);
-    return result.rows[0];
-  } catch (err) {
-    console.error(`Error updating user membership: for user ${stripeCustomerId}`, err);
-    throw err;
-  }
-}
 
 
 
@@ -240,63 +269,79 @@ app.listen(port, () => {
 
 
 app.post('/create-checkout-session', async (req, res) => {
-  const { email, plan, success_url, cancel_url } = req.body;
-
-  // 1. Validate plan
-  const normalizedPlan = plan?.toLowerCase();
-  if (!['monthly', 'yearly'].includes(normalizedPlan)) {
-    return res.status(400).json({ error: 'Invalid plan. Use "monthly" or "yearly".' });
-  }
+  const { email, plan, success_url, cancel_url, couponId } = req.body;
 
   try {
-
-    const priceId =
-      normalizedPlan === 'monthly'
-        ? process.env.STRIPE_MONTHLY_PRICE_ID
-        : process.env.STRIPE_YEARLY_PRICE_ID;
-
-    // 2. Check if customer already exists
-    const { data: existingCustomers } = await stripeCon.customers.list({
+    const result = await createCheckoutSessionForPlan({
       email,
-      limit: 1,
+      plan,
+      successUrl: success_url,
+      cancelUrl: cancel_url,
+      couponId,
     });
 
-    console.log(existingCustomers);
-
-    if (existingCustomers.length > 0) {
-      // Stop here - email already has a Stripe customer
-      console.log("you are an existing customer");
-      
+    if (result.alreadyActive) {
       return res.status(200).json({
         code: 30,
-        message: 'Customer already exists with an active subscription.',
+        message: result.message || 'Customer already exists with an active subscription.',
       });
     }
 
-    // 3. Create new customer
-    const customer = await stripeCon.customers.create({
-      email,
-      description: `Customer for ${normalizedPlan} subscription`,
+    return res.status(200).json({
+      code: 200,
+      sessionId: result.sessionId,
     });
+  } catch (err) {
+    console.error('Stripe error:', err);
+    const status = Number.isInteger(err.statusCode) ? err.statusCode : 500;
+    const message = err.message || 'Internal server error';
+    return res.status(status).json({ error: message });
+  }
+});
 
-    // 4. Create checkout session
-    const session = await stripeCon.checkout.sessions.create({
-      payment_method_types: ['card'],
-      mode: 'subscription',
-      customer: customer.id,
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url,
-      cancel_url,
+app.post('/cancel-subscription', authenticateToken, async (req, res) => {
+  const { email } = req.body;
+
+  if (!req.user || !req.user.email || !req.user.userId) {
+    return res.status(403).json({ error: 'Invalid authentication token' });
+  }
+
+  if (!email || typeof email !== 'string') {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  const tokenEmail = req.user.email.toLowerCase();
+  const requestEmail = email.toLowerCase();
+
+  if (tokenEmail !== requestEmail) {
+    return res.status(403).json({ error: 'You are not authorized to cancel this subscription' });
+  }
+
+  try {
+    const result = await cancelUserSubscription({
+      userId: req.user.userId,
+      tokenEmail,
+      requestEmail,
     });
 
     return res.status(200).json({
-      code: 200,
-      sessionId: session.id,
+      message: result.message,
     });
-
   } catch (err) {
-    console.error('Stripe error:', err);
-    return res.status(500).json({ error: err.message || 'Internal server error' });
+    const status = err.statusCode || 500;
+    const message = err.message || 'Internal server error';
+    return res.status(status).json({ error: message });
   }
 });
+
+
+
+
+
+
+
+
+
+
+
 

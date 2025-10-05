@@ -11,6 +11,7 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "target": "esnext",
+    "node": true,
     "module": "esnext",
     "jsx": "react",
     "skipLibCheck": true,

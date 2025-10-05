@@ -1,19 +1,97 @@
 .search-input {
   margin-left: -5px;
-  width: 300px;
-}
+  border-radius: 16px;
+  width: 320px;
+  position: relative;
+  
+  .rs-input-group {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 
-.rs-input {
-  background-color: #1a1a1a;
-  /* Dark theme background */
-  color: white;
+    &:hover {
+      border-color: rgba(124, 65, 227, 0.3);
+      box-shadow: 0 6px 25px rgba(124, 65, 227, 0.15);
+      transform: translateY(-1px);
+    }
+
+    &:focus-within {
+      border-color: rgba(124, 65, 227, 0.5);
+      box-shadow: 0 0 0 3px rgba(124, 65, 227, 0.1), 0 8px 30px rgba(124, 65, 227, 0.2);
+      transform: translateY(-2px);
+    }
+  }
+
+  .rs-input-group-button {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(124, 65, 227, 0.1);
+      color: #7C41E3;
+    }
+
+    svg {
+      font-size: 16px;
+      transition: transform 0.3s ease;
+    }
+
+    &:hover svg {
+      transform: scale(1.1);
+    }
+  }
+
+  .rs-input {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+      font-weight: 400;
+    }
+
+    &:focus {
+      outline: none;
+      color: #ffffff;
+    }
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(124, 65, 227, 0.1), rgba(155, 89, 182, 0.1));
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  &:focus-within::after {
+    opacity: 1;
+  }
 }
 
 .rs-input-group-addon {
-  background-color: #1a1a1a;
-  color: #fff;
-}
-
-.rs-input-group-button {
-  background-color: #4e4e4e;
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  border: none;
 }

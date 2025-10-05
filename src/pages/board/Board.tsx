@@ -2,7 +2,7 @@
 
 import './Board.less';
 
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -33,8 +33,8 @@ import { useBoardHandlers } from './boardComponents/useBoardHandlers';
 import { useFetchApplications } from './boardComponents/useFetchApplications';
 import { useDragAndDrop } from './boardComponents/useDragAndDrop';
 import Skeleton from 'react-loading-skeleton';
+import { PremiumUpgradeModal } from '@/components/PremiumUpgradeModal';
 import 'react-loading-skeleton/dist/skeleton.css';
-import { deleteCard } from '@/utils/deleteCard';
 
 const Board: React.FC = () => {
   const context = useContext(BoardContext);
@@ -54,13 +54,13 @@ const Board: React.FC = () => {
     isModalOpen,
     activeColumn,
     isDeleteModalOpen,
+    showPremiumModal,
+    premiumModal,
     handleIconClick,
     handleTitleChange,
     handleTitleBlur,
     handleTitleKeyPress,
     handleDropdownClick,
-    handleDropdownOptionSelect,
-    // handleDeleteModal,
     handleDeleteCardOrColumn,
     handleDeleteColumnModal,
     handleDeleteCard,
@@ -76,6 +76,11 @@ const Board: React.FC = () => {
 
   // Initialize activeId state for DragOverlay
   const [activeId, setActiveId] = useState(null);
+
+  useEffect(() => {
+    console.log("premiumModal changed to", premiumModal);
+  }, [premiumModal]);
+
 
   const { isDraggingCard, onDragStart, handleDragEnd } = useDragAndDrop(handleDeleteCard, setActiveId);
 
@@ -95,11 +100,6 @@ const Board: React.FC = () => {
     })
   );
 
-  const { setNodeRef: setBinNodeRef } = useDroppable({
-    id: 'bin',
-  });
-
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const { loading, error } = useFetchApplications(setColumns);
 
@@ -165,19 +165,6 @@ const Board: React.FC = () => {
     onDragStart(event);
   };
 
-  // const handleDragEnd = (event: DragEndEvent) => {
-  //   handleDragEnd(event);
-  // };
-
-  const dropAnimation = {
-    sideEffects: defaultDropAnimationSideEffects({
-      styles: {
-        active: {
-          opacity: '0.5',
-        },
-      },
-    }),
-  };
 
   return (
     <div>
@@ -277,6 +264,14 @@ const Board: React.FC = () => {
             />
           )}
 
+
+          <PremiumUpgradeModal
+            isOpen={premiumModal}
+            onClose={() => showPremiumModal(false)}
+            featureName="unlimited application tracking"
+          />
+
+
           {/* DELETE POPUP */}
           {isDeleteCardModalOpen && (
             <DeleteModal
@@ -335,7 +330,3 @@ const Board: React.FC = () => {
 };
 
 export default Board;
-
-function useEffect(arg0: () => () => void, arg1: never[]) {
-  throw new Error('Function not implemented.');
-}

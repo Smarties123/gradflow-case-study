@@ -6,6 +6,7 @@ import './Files.less';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { v4 as uuidv4 } from 'uuid';
 import FilePopup from '../../components/FilePopup/FilePopup';
+import { PremiumUpgradeModal } from '../../components/PremiumUpgradeModal';
 
 import { useUser } from '../../components/User/UserContext';
 import { useBoardData } from '../../hooks/useBoardData';
@@ -21,6 +22,8 @@ const Files = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false);
+  const [premiumFeatureName, setPremiumFeatureName] = useState('');
 
   const [applications, setApplications] = useState([]);
   const [selectedAppCV, setSelectedAppCV] = useState(null);
@@ -115,6 +118,24 @@ const Files = () => {
     e: React.ChangeEvent<HTMLInputElement>,
     fileType: 'CV' | 'CL'
   ) => {
+
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    // Calculate remaining slots for free users
+    let remainingSlots = Infinity; // Default for premium users (unlimited)
+
+    if (!user?.isMember) {
+      const totalCvCount = [...uploadingCvFiles, ...dbCvFiles].length;
+      const totalClCount = [...uploadingCoverLetterFiles, ...dbCoverLetterFiles].length;
+      const totalFilesCount = totalCvCount + totalClCount;
+      remainingSlots = 5 - totalFilesCount;
+
+      if (remainingSlots <= 0) {
+        setIsPremiumModalOpen(true);
+        return;
+      }
+    }
+
     const uploadedFiles = Array.from(e.target.files || []).map((file) => ({
       id: uuidv4(),
       name: file.name,
@@ -126,32 +147,19 @@ const Files = () => {
       file // store the actual File object
     }));
 
-    let remainingSlots = 0
-  
+    // For premium users, upload all files. For free users, respect the remaining slots limit.
+    const filesToUpload = user?.isMember
+      ? uploadedFiles
+      : uploadedFiles.slice(0, remainingSlots);
+
     if (fileType === 'CV') {
-      const totalCvCount = [...uploadingCvFiles, ...dbCvFiles].length;
-      remainingSlots = 5 - totalCvCount;
-  
-      if (remainingSlots <= 0) {
-        alert('You can only upload up to 5 CVs.');
-        return;
-      }
-  
-      setUploadingCvFiles((prev) => [...prev, ...uploadedFiles.slice(0, remainingSlots)]);
+      setUploadingCvFiles((prev) => [...prev, ...filesToUpload]);
     } else {
-      const totalClCount = [...uploadingCoverLetterFiles, ...dbCoverLetterFiles].length;
-      remainingSlots = 5 - totalClCount;
-  
-      if (remainingSlots <= 0) {
-        alert('You can only upload up to 5 Cover Letters.');
-        return;
-      }
-  
-      setUploadingCoverLetterFiles((prev) => [...prev, ...uploadedFiles.slice(0, remainingSlots)]);
+      setUploadingCoverLetterFiles((prev) => [...prev, ...filesToUpload]);
     }
   
     // Animate + upload only the allowed files
-    uploadedFiles.slice(0, remainingSlots).forEach((fileObj) => animateUpload(fileObj, fileType));
+    filesToUpload.forEach((fileObj) => animateUpload(fileObj, fileType));
   
     // Reset the input value to allow re-selection
     e.target.value = '';
@@ -316,7 +324,9 @@ const Files = () => {
         {/* CV Column */}
         <Col xs={12}>
           <div className="upload-card">
-            <h4 className="upload-title">CV</h4>
+              <div className="upload-header">
+                <h4 className="upload-title">CV</h4>
+              </div>
             {/* <SelectPicker
               data={applications}
               placeholder="Select Application (optional)"
@@ -351,7 +361,14 @@ const Files = () => {
         {/* Cover Letter Column */}
         <Col xs={12}>
           <div className="upload-card">
-            <h4 className="upload-title">Cover Letter</h4>
+              <div className="upload-header">
+                <h4 className="upload-title">Cover Letter</h4>
+                {!user?.isMember && (
+                  <span className={`upload-count ${!user?.isMember && cvFiles.length + coverLetterFiles.length >= 5 && 'at-limit'}`}>
+                    {!user?.isMember && `${cvFiles.length + coverLetterFiles.length}/5`}
+                  </span>
+                )}
+              </div>
             {/* <SelectPicker
               data={applications}
               placeholder="Select Application (optional)"
@@ -400,6 +417,12 @@ const Files = () => {
         onLocalUpdate={handleLocalFileUpdate}
         readOnly={false}
       />
+
+        <PremiumUpgradeModal
+          isOpen={isPremiumModalOpen}
+          onClose={() => setIsPremiumModalOpen(false)}
+          featureName={premiumFeatureName}
+        />
      </div> 
     </div>
   );

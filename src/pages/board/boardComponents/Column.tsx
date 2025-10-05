@@ -103,7 +103,7 @@ const ColumnComponent: React.FC<ColumnProps> = ({
       </div>
 
       <AwesomeButton className="addNew" onClick={() => handleAddButtonClick(column)}>
-        <span>+  Add New</span>
+        <span>Add New</span>
       </AwesomeButton>
 
       <div ref={setCardsRef} className="droppable-area">

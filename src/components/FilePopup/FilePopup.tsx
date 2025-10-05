@@ -157,6 +157,29 @@ const FilePopup = ({
                   options={documentOptions}
                   value={documentOptions.find((opt) => opt.value === docType)}
                   onChange={(selected) => setDocType(selected.value)}
+                    styles={{
+                      control: (provided) => ({
+                        ...provided,
+                        backgroundColor: 'transparent',
+                        color: 'white'
+                      }),
+                      singleValue: (provided) => ({
+                        ...provided,
+                        color: 'white'
+                      }),
+                      menu: (provided) => ({
+                        ...provided,
+                        backgroundColor: 'black'
+                      }),
+                      option: (provided, state) => ({
+                        ...provided,
+                        backgroundColor: state.isSelected ? '#333' : 'black',
+                        color: 'white',
+                        '&:hover': {
+                          backgroundColor: '#555'
+                        }
+                      })
+                    }}
                 />
               )}
             </div>

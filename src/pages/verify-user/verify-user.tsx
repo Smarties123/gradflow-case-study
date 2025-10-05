@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import Link from '@mui/material/Link';
 import { Container, Typography, Box, Alert, CircularProgress } from '@mui/material';
 
 const VerifyUser = () => {
@@ -8,12 +9,15 @@ const VerifyUser = () => {
 
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [verificationError, setVerificationError] = React.useState<string | null>(null);
   const [verifying, setVerifying] = useState(true);
+
+  const token = searchParams.get('token');
+  const email = searchParams.get('email');
 
   useEffect(() => {
     const verify = async () => {
-      const token = searchParams.get('token');
-      const email = searchParams.get('email');
+
 
       if (!token || !email) {
         setError('Invalid or missing verification details.');
@@ -22,8 +26,6 @@ const VerifyUser = () => {
       }
 
       try {
-        console.log(email);
-        console.log(token);
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/verify-user`, {
           method: 'POST',
           headers: {
@@ -42,7 +44,8 @@ const VerifyUser = () => {
         localStorage.setItem('isNewUser', 'true');
         setTimeout(() => navigate('/SignIn'), 2000);
       } catch (err) {
-        setError(err.message);
+         setVerificationError('not_verified');
+
       } finally {
         setVerifying(false);
       }
@@ -65,6 +68,14 @@ const VerifyUser = () => {
         <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
       ) : (
         <Alert severity="success" sx={{ mt: 2 }}>{message}</Alert>
+      )}
+      {verificationError === 'not_verified' && (
+        <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+          Your Account Is Still Not Verified. THe link provided earlier may have expired.
+          <Link href={`/resend-verification?email=${encodeURIComponent(email ?? '')}`} sx={{ color: '#1976d2' }}>
+            Please click here to receive a verification email
+          </Link>.
+        </Typography>
       )}
     </Container>
   );

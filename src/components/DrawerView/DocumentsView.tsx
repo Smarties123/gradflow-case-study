@@ -20,11 +20,18 @@ const DocumentsView = ({
   attachFileSelections,
   setAttachFileSelections,
   handleAttachFiles,
-  unusedFilesData
+  unusedFilesData,
+  isMember = false
 }) => {
   return (
-    <div className="document-section">
-      {/* Existing files for this application */}
+    <div
+      className="document-section"
+      style={{
+        filter: isMember ? 'none' : 'blur(16px)',
+        pointerEvents: isMember ? 'auto' : 'none',
+      }}
+    >
+      {/* Existing files */}
       {appFiles.length > 0 && (
         <div style={{ marginBottom: '1rem' }}>
           <h5>Existing Files for this Application:</h5>
@@ -40,7 +47,6 @@ const DocumentsView = ({
               onMouseEnter={() => setHoveredFileId(file.fileId)}
               onMouseLeave={() => setHoveredFileId(null)}
             >
-              {/* Left side: Icon + filename (click to open) */}
               <div
                 style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
                 onClick={() => openFile(file)}
@@ -51,15 +57,8 @@ const DocumentsView = ({
                 </span>
               </div>
 
-              {/* Right side: Remove + Delete icons (only visible on hover) */}
               {hoveredFileId === file.fileId && (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <IoMdRemove
                     style={{ cursor: 'pointer' }}
                     onClick={() => handleRemove(file)}
@@ -98,7 +97,7 @@ const DocumentsView = ({
 
       <Grid fluid>
         <Row gutter={20}>
-          {/* CV Section */}
+          {/* CV */}
           <Col xs={24}>
             <div className={`document-card ${formData.cv ? 'cv-uploaded' : ''}`}>
               <h4 className="document-title">CV</h4>
@@ -125,7 +124,6 @@ const DocumentsView = ({
                 </div>
               </label>
 
-              {/* Uploaded CV display */}
               {formData.cv && (
                 <Row style={{ display: 'grid', marginBottom: '30px' }}>
                   <Col xs="auto">
@@ -150,13 +148,12 @@ const DocumentsView = ({
         </Row>
 
         <Row gutter={20}>
-          {/* Cover Letter Section */}
+          {/* Cover Letter */}
           <Col xs={24}>
             <div
               id="coverLetter"
-              className={`document-card ${
-                formData.coverLetter ? 'coverLetter-uploaded' : ''
-              }`}
+              className={`document-card ${formData.coverLetter ? 'coverLetter-uploaded' : ''
+                }`}
             >
               <h4 className="document-title">Cover Letter</h4>
               <label htmlFor="coverLetterUpload" className="upload-label">
@@ -182,7 +179,6 @@ const DocumentsView = ({
                 </div>
               </label>
 
-              {/* Uploaded Cover Letter display */}
               {formData.coverLetter && (
                 <Row style={{ display: 'grid', marginBottom: '30px' }}>
                   <Col xs="auto">

@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe(
-    'pk_test_51R5CfJDcnB3juQw0LrWR9sOPzMLLSVHFt6h3gWJb6V8JqO9xxT8Zb4jtCtnQVbpWJyATkjwCnX5jQ6AXPyt4xW1Z00zj19uhQm'
-); // TODO: move to env or config file
+const publishableKey =
+  process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY ||
+  process.env.STRIPE_PUBLISHABLE_KEY ||
+  '';
+
+const stripePromise = loadStripe(publishableKey);
 
 const StripeCheckout: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -13,6 +16,7 @@ const StripeCheckout: React.FC = () => {
     const [params] = useSearchParams();
     const email = params.get('email');
     const plan = params.get('plan');
+    const coupon = params.get('coupon');
 
     const navigate = useNavigate();
 
@@ -37,6 +41,7 @@ const StripeCheckout: React.FC = () => {
                         body: JSON.stringify({
                             email,
                             plan,
+                            couponId: coupon,
                             success_url: `${window.location.origin}/main`,
                             cancel_url: `${window.location.origin}`,
                         }),
@@ -72,7 +77,7 @@ const StripeCheckout: React.FC = () => {
         };
 
         checkout();
-    }, [email, plan, navigate]);
+    }, [email, plan, coupon, navigate]);
 
     return (
         <div style={{ padding: 20 }}>

@@ -30,7 +30,7 @@ const tiers = [
   {
     title: 'Premium Plan ',
     subheader: 'Best Value',
-    price: '49.99',
+    price: '29.99',
     timePeriod: 'per year',
     description: [
       'Unlimited application tracking for complete flexibility',
@@ -44,7 +44,7 @@ const tiers = [
   },
   {
     title: 'Premium Plan',
-    price: '4.99', // Assuming free; adjust accordingly
+    price: '2.99', // Assuming free; adjust accordingly
     timePeriod: 'per month',
     description: [
       'Unlimited application tracking for complete flexibility',
