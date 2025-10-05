@@ -26,7 +26,8 @@ jobs:
         echo "REACT_APP_API_URL=${{ secrets.REACT_APP_API_URL }}" >> .env
         echo "REACT_APP_S3_BUCKET=${{ secrets.REACT_APP_S3_BUCKET }}" >> .env
         echo "REACT_APP_S3_REGION=${{ secrets.REACT_APP_S3_REGION }}" >> .env
-
+        echo "REACT_APP_STRIPE_PUBLISHABLE_KEY=${{ secrets.REACT_APP_STRIPE_PUBLISHABLE_KEY }}" >> .env
+        echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env
     - name: Install dependencies
       run: npm install
 
