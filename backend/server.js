@@ -185,7 +185,6 @@ app.use(logDeleteRoute);
 
 
 // Test email route
-// TO RUN IT: 
 /*
 Uncomment the function below 
 run node server.js 
