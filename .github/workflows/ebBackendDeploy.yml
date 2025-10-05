@@ -31,6 +31,7 @@ jobs:
           curl --fail http://localhost:3001/health || exit 1
         env:
           NODE_ENV: production
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
       
       - name: Stop server after check
         working-directory: backend
