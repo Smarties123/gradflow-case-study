@@ -1,10 +1,34 @@
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import stripe from 'stripe';
 import pool from '../config/db.js';
 
-dotenv.config();
+// Ensure backend/.env is loaded
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: resolve(__dirname, '../.env') });
 
-const stripeClient = stripe(process.env.STRIPE_SECRET_KEY);
+// Utility to resolve env vars for test/live modes with sensible fallbacks
+const getStripeMode = () =>
+  (process.env.STRIPE_MODE || '').toLowerCase() === 'live' ||
+  (process.env.STRIPE_SECRET_KEY || '').startsWith('sk_live')
+    ? 'live'
+    : 'test';
+
+const envByMode = (baseName) => {
+  const mode = getStripeMode().toUpperCase();
+  const byMode = process.env[`${baseName}_${mode}`];
+  if (byMode) return byMode;
+  return process.env[baseName];
+};
+
+const resolvedSecretKey = envByMode('STRIPE_SECRET_KEY');
+if (!resolvedSecretKey) {
+  throw new Error('Missing Stripe secret key. Set STRIPE_SECRET_KEY or STRIPE_SECRET_KEY_TEST/LIVE');
+}
+
+const stripeClient = stripe(resolvedSecretKey);
 
 const NON_ACTIVE_STATUSES = new Set(['canceled', 'incomplete_expired']);
 
@@ -19,21 +43,23 @@ export const retrieveStripeCustomer = async (customerId) => {
 export async function markUserAsMemberByEmail(email, stripeCustomerId) {
   if (!email) throw new Error('Email is required');
 
+  const normalizedEmail = String(email).toLowerCase();
+
   try {
     const result = await pool.query(
       `UPDATE "Users" 
        SET "IsMember" = $1, "StripeCustomerId" = $2 
-       WHERE "Email" = $3 
+       WHERE LOWER("Email") = LOWER($3) 
        RETURNING *`,
-      [true, stripeCustomerId, email]
+      [true, stripeCustomerId, normalizedEmail]
     );
 
     if (result.rowCount === 0) {
-      console.warn('No user found with email:', email);
+      console.warn('No user found with email:', normalizedEmail);
       return null;
     }
 
-    console.log(`User ${email} marked as member:`);
+    console.log(`User ${normalizedEmail} marked as member:`);
     return result.rows[0];
   } catch (err) {
     console.error('Error updating user membership:', err);
@@ -185,8 +211,8 @@ export const createCheckoutSessionForPlan = async ({ email, plan, successUrl, ca
 
   const priceId =
     normalizedPlan === 'monthly'
-      ? process.env.STRIPE_MONTHLY_PRICE_ID
-      : process.env.STRIPE_YEARLY_PRICE_ID;
+      ? envByMode('STRIPE_MONTHLY_PRICE_ID')
+      : envByMode('STRIPE_YEARLY_PRICE_ID');
 
   if (!priceId) {
     const error = new Error(`Missing price id for plan: ${normalizedPlan}`);
@@ -296,5 +322,9 @@ export const cancelUserSubscription = async ({ userId, tokenEmail, requestEmail 
 };
 
 export { stripeClient };
+
+// Helper to resolve webhook secret consistently with mode
+export const getResolvedWebhookSecret = () => envByMode('STRIPE_WEBHOOK_SECRET');
+
 
 

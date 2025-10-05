@@ -1,9 +1,14 @@
 import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import { sendEmailsToAllUsers } from './services/emailService.js';
 // import { sendApplicationStatusEmail } from './services/emailService.js';
 
 import cron from 'node-cron';
-dotenv.config(); 
+// Ensure we read backend/.env regardless of CWD
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: resolve(__dirname, '.env') }); 
 
 import express from 'express';
 import cors from 'cors';
@@ -21,7 +26,8 @@ import {
   markUserAsMemberByEmail,
   markUserAsNotMemberByStripeCustomerId,
   createCheckoutSessionForPlan,
-  cancelUserSubscription
+  cancelUserSubscription,
+  getResolvedWebhookSecret
 } from './services/paymentService.js';
 import { authenticateToken } from './middleware/authMiddleware.js';
 
@@ -53,10 +59,9 @@ app.use(cors({
   credentials: true
 }));
 
-// Add this at the beginning of your webhook handler for better debugging
-
-app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+// Stripe webhook handler(s) — accept both /webhook and /api/stripe/webhook
+const stripeWebhookHandler = async (req, res) => {
+  const endpointSecret = getResolvedWebhookSecret();
   const sig = req.headers['stripe-signature'];
 
   let event;
@@ -70,20 +75,30 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
   console.log(`🎯 Processing webhook event: ${event.type} [${event.id}]`);
 
+  // 1) Checkout completed → mark as member
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    const email = session.customer_details?.email;
+    let email = session.customer_details?.email || session.customer_email || null;
     const customerId = session.customer;
 
     console.log(`💳 Checkout completed for email: ${email}, customer: ${customerId}`);
 
+    if (!email && customerId) {
+      try {
+        const customer = await retrieveStripeCustomer(customerId);
+        email = customer?.email ?? null;
+      } catch (e) {
+        console.error('❌ Failed to retrieve customer for email fallback:', e?.message || e);
+      }
+    }
+
     if (!email) {
-      console.error('❌ No email found in session');
+      console.error('❌ No email found in session or customer record');
       return res.sendStatus(400);
     }
 
     try {
-      const result = await markUserAsMemberByEmail(email, customerId);
+      const result = await markUserAsMemberByEmail(String(email).toLowerCase(), customerId);
       console.log(`✅ Successfully marked user as member:`, result);
     } catch (err) {
       console.error('❌ Error marking user as member:', err);
@@ -91,20 +106,59 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     }
   }
 
+  // 2) Invoice payment succeeded → defensive mark as member
+  if (event.type === 'invoice.payment_succeeded') {
+    try {
+      const invoice = event.data.object;
+      const customerId = invoice.customer;
+      if (customerId) {
+        const customer = await retrieveStripeCustomer(customerId);
+        if (customer?.email) {
+          await markUserAsMemberByEmail(String(customer.email).toLowerCase(), customer.id);
+          console.log(`✅ Marked user as member via invoice.payment_succeeded for ${customer.email}`);
+        }
+      }
+    } catch (err) {
+      console.error('❌ Error updating member on invoice.payment_succeeded:', err);
+      // do not 500 the webhook for non-critical fallback
+    }
+  }
+
+  // 3) Subscription lifecycle updates
+  if (event.type === 'customer.subscription.created' || event.type === 'customer.subscription.updated') {
+    try {
+      const subscription = event.data.object;
+      const status = subscription.status;
+      const customerId = subscription.customer;
+      const customer = customerId ? await retrieveStripeCustomer(customerId) : null;
+      const email = customer?.email ? String(customer.email).toLowerCase() : null;
+      const activeStatuses = new Set(['active', 'trialing']);
+      if (email) {
+        if (activeStatuses.has(status)) {
+          await markUserAsMemberByEmail(email, customerId);
+          console.log(`✅ Marked user as member via subscription ${status} for ${email}`);
+        } else if (['canceled', 'unpaid', 'incomplete_expired'].includes(status)) {
+          await markUserAsNotMemberByStripeCustomerId(customerId);
+          console.log(`🚫 Marked user as not member via subscription ${status} for ${email}`);
+        }
+      }
+    } catch (err) {
+      console.error('❌ Error handling subscription lifecycle event:', err);
+      // non-fatal
+    }
+  }
+
+  // 4) Cancellation/failure
   if (
     event.type === 'customer.subscription.deleted' ||
     event.type === 'customer.subscription.canceled' ||
     event.type === 'invoice.payment_failed'
   ) {
-    const subscription = event.data.object;
-    
-    console.log(`🚫 Processing cancellation/failure for customer: ${subscription.customer}`);
-    
+    const obj = event.data.object;
+    const customerId = obj.customer;
+    console.log(`🚫 Processing cancellation/failure for customer: ${customerId}`);
     try {
-      const customer = await retrieveStripeCustomer(subscription.customer);
-      console.log(`📧 Retrieved customer email: ${customer.email}`);
-
-      const result = await markUserAsNotMemberByStripeCustomerId(customer.id);
+      const result = await markUserAsNotMemberByStripeCustomerId(customerId);
       console.log(`✅ Successfully marked user as not a member:`, result);
     } catch (err) {
       console.error('❌ Failed to mark user as not a member:', err);
@@ -113,8 +167,12 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
   }
 
   console.log(`✅ Webhook ${event.type} processed successfully`);
-  res.status(200).json({ received: true });
-});
+  return res.status(200).json({ received: true });
+};
+
+// Accept both legacy and new webhook paths (based on your logs)
+app.post('/webhook', express.raw({ type: 'application/json' }), stripeWebhookHandler);
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhookHandler);
 
 
 
