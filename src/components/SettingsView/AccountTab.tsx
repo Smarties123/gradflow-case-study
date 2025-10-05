@@ -109,7 +109,11 @@ const AccountTab: React.FC<AccountTabProps> = ({
       </div>
     </div>
 
-    <Divider className="section-divider" />
+{/*     <h5 className="subject-title">Change Password</h5>
+    <Button onClick={onChangePassword} appearance="default" block>
+      Change Password
+    </Button>
+    <Divider /> */}
 
     {/* Danger Zone */}
     <div className="danger-section">
