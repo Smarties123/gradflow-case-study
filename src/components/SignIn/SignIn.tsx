@@ -53,7 +53,7 @@ function Copyright(props) {
 }
 
 
-const defaultTheme = createTheme(); // This line is missing
+const defaultTheme = createTheme();
 
 export default function SignInSide() {
   const [error, setError] = React.useState<string | null>(null);
