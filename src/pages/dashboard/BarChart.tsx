@@ -23,6 +23,7 @@ ChartJS.register(
   Legend
 );
 
+
 interface BarChartProps {
   title: string;
   dateRange: [Date, Date] | null;
