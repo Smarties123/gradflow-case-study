@@ -184,7 +184,6 @@ app.use(logDeleteRoute);
 // app.use(cors());
 
 
-// console.log('BUCKET_NAME:', process.env.BUCKET_NAME);
 // Test email route
 // TO RUN IT: 
 /*
