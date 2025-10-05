@@ -6,7 +6,7 @@ import { sendApplicationStatusEmail } from './emailService.js';
 dotenv.config();
 
 
-import pool from '../config/db.js'; // Adjust the path based on your folder structure
+import pool from '../config/db.js';
 
 // Function to get user by email
 async function getUserByEmail(email) {
