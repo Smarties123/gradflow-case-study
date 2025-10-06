@@ -198,12 +198,12 @@ export default function LandingPage() {
             </Box>
           </AnimatedSection>
 
-{/*           <AnimatedSection animation={scaleIn} delay={0.2}>
+          <AnimatedSection animation={scaleIn} delay={0.2}>
             <Box id="section-7">
               <Pricing />
             </Box>
           </AnimatedSection>
- */}
+
           <Box>
             <Footer />
           </Box>

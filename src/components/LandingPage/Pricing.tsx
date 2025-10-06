@@ -36,7 +36,6 @@ const tiers = [
       'Unlimited application tracking for complete flexibility',
       'Comprehensive dashboard analytics and insights',
       'Unlimited CVs & Cover Letters',
-      'Enhanced email notifications with customization options',
       'Assign up to 5 applications to a CV/CL'
     ],
     buttonText: 'Upgrade to Premium',
@@ -50,7 +49,6 @@ const tiers = [
       'Unlimited application tracking for complete flexibility',
       'Comprehensive dashboard analytics and insights',
       'Unlimited CVs & Cover Letters',
-      'Enhanced email notifications with customization options',
       'Assign up to 5 applications to a CV/CL'
     ],
     buttonText: 'Upgrade to Premium',
