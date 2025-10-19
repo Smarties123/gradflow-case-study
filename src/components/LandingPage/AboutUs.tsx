@@ -212,79 +212,33 @@ export default function AboutUs() {
               </IconButton> */}
             </Box>
 
-            {/* Team Cards */}
-            <Grid container spacing={4}>
-              {teamData.map((member, idx) => {
-                const buttonColor = linkedinButtonColors[idx % linkedinButtonColors.length];
-
-                return (
-                  <Grid
-                    item
-                    xs={12}
-                    sm={6}
-                    md={4}
-                    key={idx}
-                    // Card fade/slide-in animation using Framer Motion
-                    component={motion.div}
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: idx * 0.1 }}
-                    viewport={{ once: true }}
-                  >
-                    <Card
-                      elevation={3}
-                      sx={{
-                        // Hover effect: slight lift and bigger shadow
-                        transition: "transform 0.3s, box-shadow 0.3s",
-                        "&:hover": {
-                          transform: "translateY(-6px)",
-                          boxShadow: 6
-                        }
-                      }}
-                    >
-                      {/* Image */}
-                      <CardMedia
-                        component="img"
-                        alt={member.name}
-                        height="240"
-                        image={member.image}
-                        style={{ objectFit: "cover" }}
-                      />
-                      <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                          {member.name}
-                        </Typography>
-
-                        {/* Role + LinkedIn Button in one row */}
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between"
-                          }}
-                        >
-                          <Typography variant="subtitle2" color="text.secondary">
-                            {member.role}
-                          </Typography>
-                          <SocialIcon style={{
-                            maxWidth: "35px",
-                            maxHeight: "35px",
-                            cursor: "pointer"
-                          }}
-                            network="linkedin" onClick={() => window.open(member.linkedInLink, "_blank")} />
-                        </Box>
-
-                        <Box marginTop={1}>
-                          <Typography variant="body2" color="text.primary">
-                            {member.description}
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
+            {/* Team Photo */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
+                mb: 2,
+              }}
+              component={motion.div}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              <Box
+                component="img"
+                src="/Images/group-photo-1.jpg"
+                alt="GradFlow team group photo"
+                sx={{
+                  width: "100%",
+                  maxWidth: 900,
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  objectFit: "cover",
+                }}
+              />
+            </Box>
           </Box>
         </Container>
       </Box >
