@@ -246,7 +246,7 @@ export const sendApplicationStatusEmail = async (email, userId) => {
     <table width="100%" style="margin-bottom: 20px;">
       <tr>
         <td align="left">
-          <img src="https://i.imgur.com/ctEoTCl.png" alt="GradFlow Logo" style="height: 50px;">
+          <img src="${buildUrl(FRONTEND_URL, '/Images/logo.png')}" alt="GradFlow Logo" style="height: 50px;">
         </td>
         <td align="right" style="text-align: right;">
           <h2 style="margin: 0; color: #333;">Weekly Career Digest</h2>
