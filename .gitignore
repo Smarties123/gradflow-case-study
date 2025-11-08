@@ -47,3 +47,4 @@ assets
 # local env
 backend/.env
 .env".env" 
+.env
