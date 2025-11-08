@@ -1,0 +1,7 @@
+backend/
+.github/
+scripts/
+*.md
+**/*.test.*
+**/__tests__/
+.env

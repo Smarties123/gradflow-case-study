@@ -5,14 +5,29 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');  // Add this
 const webpack = require('webpack');
 const dotenv = require('dotenv');
 
-// Load environment variables from .env file
-const env = dotenv.config().parsed;
+// Load environment variables from .env (if present) and merge with process.env
+// Only expose public, client-safe keys to the bundle to avoid leaking secrets.
+const result = dotenv.config();
+const fileEnv = (result && result.parsed) || {};
 
-// Create an object of environment variables to pass to DefinePlugin
-const envKeys = Object.keys(env).reduce((prev, next) => {
-  prev[`process.env.${next}`] = JSON.stringify(env[next]);
-  return prev;
-}, {});
+// Allowlist of keys that are safe to expose to the client
+const isPublicKey = (key) => key.startsWith('REACT_APP_') || key === 'STRIPE_PUBLISHABLE_KEY';
+
+const fromFile = Object.keys(fileEnv)
+  .filter(isPublicKey)
+  .reduce((acc, key) => {
+    acc[`process.env.${key}`] = JSON.stringify(fileEnv[key]);
+    return acc;
+  }, {});
+
+const fromProcess = Object.keys(process.env)
+  .filter(isPublicKey)
+  .reduce((acc, key) => {
+    acc[`process.env.${key}`] = JSON.stringify(process.env[key]);
+    return acc;
+  }, {});
+
+const envKeys = { ...fromFile, ...fromProcess };
 
 module.exports = {
   entry: './src/index.tsx',
