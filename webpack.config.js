@@ -13,21 +13,23 @@ const fileEnv = (result && result.parsed) || {};
 // Allowlist of keys that are safe to expose to the client
 const isPublicKey = (key) => key.startsWith('REACT_APP_') || key === 'STRIPE_PUBLISHABLE_KEY';
 
-const fromFile = Object.keys(fileEnv)
-  .filter(isPublicKey)
-  .reduce((acc, key) => {
-    acc[`process.env.${key}`] = JSON.stringify(fileEnv[key]);
-    return acc;
-  }, {});
+// Build a plain object we will assign to process.env at compile time
+const publicEnv = {};
 
-const fromProcess = Object.keys(process.env)
+Object.keys(fileEnv)
   .filter(isPublicKey)
-  .reduce((acc, key) => {
-    acc[`process.env.${key}`] = JSON.stringify(process.env[key]);
-    return acc;
-  }, {});
+  .forEach((key) => {
+    publicEnv[key] = fileEnv[key];
+  });
 
-const envKeys = { ...fromFile, ...fromProcess };
+Object.keys(process.env)
+  .filter(isPublicKey)
+  .forEach((key) => {
+    publicEnv[key] = process.env[key];
+  });
+
+// Always include NODE_ENV for libraries that branch on it
+publicEnv.NODE_ENV = process.env.NODE_ENV || 'development';
 
 module.exports = {
   entry: './src/index.tsx',
@@ -100,7 +102,9 @@ module.exports = {
       filename: '[name].css',
       chunkFilename: '[id].css',
     }),
-    new webpack.DefinePlugin(envKeys),
+    new webpack.DefinePlugin({
+      'process.env': JSON.stringify(publicEnv)
+    }),
 
     // now copy everything in public/ (except index.html) into build/
     new CopyWebpackPlugin({
