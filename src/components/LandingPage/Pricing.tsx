@@ -228,11 +228,10 @@ export default function Pricing() {
                   fullWidth
                   variant={tier.buttonVariant as 'outlined' | 'contained'}
                   onClick={() => {
-                    let plan = '';
-                    if (tier.title === 'Free Plan') plan = 'free';
-                    else if (tier.title === 'Premium Plan (Monthly)') plan = 'monthly';
-                    else if (tier.title === 'Premium Plan ') plan = 'yearly';
-                    handleCheckout(plan);
+                    if (tier.title === 'Free Plan') {
+                      // Redirect to HAD Technologies for "Get Started for Free"
+                      window.open("https://hadtechnologies.org", "_blank");
+                    }
                   }}>
 
                   {tier.buttonText}

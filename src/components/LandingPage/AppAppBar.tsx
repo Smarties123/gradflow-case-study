@@ -145,7 +145,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
             </MenuItem>
           </Box>
 
-          {/* Sign-in/Sign-up Buttons (Desktop) */}
+          {/* Case Study Button (Desktop) */}
           <Box
             sx={{
               display: { xs: 'none', md: 'flex' },
@@ -158,19 +158,11 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
             {/* <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} /> */}
             <Button
               color="primary"
-              variant="outlined"
-              href="/SignUp"
-              className="animated-button"
-            >
-              Sign Up
-            </Button>
-            <Button
-              color="primary"
               variant="contained"
-              href="/SignIn"
+              href="/case-study"
               className="animated-button"
             >
-              Sign In
+              Case Study
             </Button>
           </Box>
 
@@ -240,18 +232,10 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
                   color="primary"
                   variant="contained"
                   fullWidth
-                  href="/SignUp"
+                  href="/case-study"
+                  onClick={() => setOpen(false)}
                 >
-                  Sign Up
-                </Button>
-                <Button
-                  sx={{ mt: 1 }}
-                  color="primary"
-                  variant="outlined"
-                  fullWidth
-                  href="/SignIn"
-                >
-                  Sign In
+                  Case Study
                 </Button>
               </Box>
             </Drawer>
