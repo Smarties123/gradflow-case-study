@@ -10,22 +10,12 @@ import Hero from './Hero';
 import getLPTheme from './getLPTheme';
 import './Styles/LandingPageStyles.css';
 import Box from '@mui/material/Box';
-import LogoCollection from './LogoCollection';
 import Panel from './Panel';
 import Insights from './Insights';
 import Testimonials from './Testimonials';
-import { Divider } from '@mui/material';
 import Highlights from './Highlights';
 import Footer from './Footer';
-import FeedbackButton from '../../components/FeedbackButton/FeedbackButton';
-import Pricing from './Pricing';
 import FAQ from './FAQ';
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 60 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.8, ease: "easeOut" }
-};
 
 const fadeInLeft = {
   initial: { opacity: 0, x: -60 },
@@ -162,11 +152,6 @@ export default function LandingPage() {
             </motion.div>
           </Box>
 
-          <AnimatedSection animation={fadeInUp}>
-            <Box id="section-1">
-              <LogoCollection />
-            </Box>
-          </AnimatedSection>
 
           <AnimatedSection animation={fadeInLeft} delay={0.2}>
             <Box id="section-2">
@@ -198,17 +183,11 @@ export default function LandingPage() {
             </Box>
           </AnimatedSection>
 
-          <AnimatedSection animation={scaleIn} delay={0.2}>
-            <Box id="section-7">
-              <Pricing />
-            </Box>
-          </AnimatedSection>
+
 
           <Box>
             <Footer />
           </Box>
-
-          <FeedbackButton />
         </Box>
       </ThemeProvider>
     </>

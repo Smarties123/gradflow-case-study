@@ -19,6 +19,7 @@ import { BoardProvider } from './pages/board/BoardContext';
 import TermsAndConditions from './components/LandingPage/TermsAndConditions';
 import PrivacyPolicyGDPR from './components/LandingPage/PrivacyPolicyGDPR';
 import AboutUs from './components/LandingPage/AboutUs';
+import CaseStudy from './components/LandingPage/CaseStudy';
 import Timeline from './components/LandingPage/TimelinePage';
 import ComingSoon from './components/ComingSoon/ComingSoon';
 import UnderConstruction from './components/UnderConstruction/UnderConstruction';
@@ -79,11 +80,10 @@ const App = () => {
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/AboutUs" element={<AboutUs />} />
+        <Route path="/case-study" element={<CaseStudy />} />
         <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
         <Route path="/privacy-policy-GDPR" element={<PrivacyPolicyGDPR />} />
         <Route path="/comingsoon" element={<ComingSoon />} />

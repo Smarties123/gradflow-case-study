@@ -170,9 +170,9 @@ export default function Hero() {
                     left: "100%",
                   }
                 }}
-                onClick={() => window.location.href = "/signup"}
+                onClick={() => window.open("https://hadtechnologies.org", "_blank")}
               >
-                Get Started for Free
+                Join the Waitlist
               </Button>
             </motion.div>
           </Box>

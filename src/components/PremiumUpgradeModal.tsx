@@ -8,7 +8,7 @@ const publishableKey =
   process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY ||
   process.env.STRIPE_PUBLISHABLE_KEY;
 
-const stripePromise = loadStripe(publishableKey);
+const stripePromise = publishableKey ? loadStripe(publishableKey) : null;
 
 interface PremiumModalProps {
   isOpen: boolean;
@@ -38,6 +38,9 @@ export const PremiumUpgradeModal: React.FC<PremiumModalProps> = ({
 
     setLoading(true);
     try {
+      if (!stripePromise) {
+        throw new Error('Stripe publishable key is not configured. Please set REACT_APP_STRIPE_PUBLISHABLE_KEY or STRIPE_PUBLISHABLE_KEY environment variable.');
+      }
       const stripe = await stripePromise;
       if (!stripe) throw new Error('Stripe failed to load');
 

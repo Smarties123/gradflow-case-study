@@ -12,16 +12,13 @@ const fetchData = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        registeredUsers: 100,
-        applicationsMade: 3000,
-        offersMade: 40,
+        registeredUsers: 25,
+        applicationsMade: 300,
+        offersMade: 5,
       });
     }, 1000);
   });
 };
-
-// Function to round up to the next multiple of 10
-const roundUpToNextTen = (value) => Math.ceil(value / 10) * 10;
 
 const StatCard = ({ title, value, isLoaded, delay }) => {
   const ref = React.useRef(null);
@@ -146,9 +143,9 @@ export default function CountUpSection() {
     const getData = async () => {
       const apiData = await fetchData();
       setData({
-        registeredUsers: roundUpToNextTen(apiData.registeredUsers),
-        applicationsMade: roundUpToNextTen(apiData.applicationsMade),
-        offersMade: roundUpToNextTen(apiData.offersMade),
+        registeredUsers: apiData.registeredUsers,
+        applicationsMade: apiData.applicationsMade,
+        offersMade: apiData.offersMade,
       });
       setIsLoaded(true);
     };
