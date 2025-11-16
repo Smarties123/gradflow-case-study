@@ -97,18 +97,8 @@ export default function SignUp() {
 
 
   const checkIfUserExists = async (email: string, username: string) => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/check-exists`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, username }),
-      });
-      const result = await response.json();
-      return result; // Return an object { emailExists: boolean, usernameExists: boolean }
-    } catch (error) {
-      console.error('Error checking existing user:', error);
-      return { emailExists: false, usernameExists: false };
-    }
+    // In demo mode, always allow signup
+    return { emailExists: false, usernameExists: false };
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -162,28 +152,23 @@ export default function SignUp() {
 
     setLoading(true);
 
-    console.log(username, email, password, createdAt)
-
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, createdAt }),
+      // In demo mode, just set user and redirect
+      setUser({
+        email: email,
+        token: 'demo-token-12345',
+        username: username,
+        id: 1,
+        isMember: true
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        setSubmittedEmail(email);
-
-
-        setSuccessMessage(`Account created! Please check your email (${email}) to verify your account.`);
-
-        logEvent(analytics, 'sign_up', { method: 'Email' });
-
-      } else {
-        const errorMessage = await response.json(); // Parse the JSON error
-        setError(errorMessage.message); // Show the exact message from the backend
-      }
+      // In demo mode, just redirect to main
+      setSuccessMessage(`Account created! Redirecting to dashboard...`);
+      setShowSuccessMessage(true);
+      logEvent(analytics, 'sign_up', { method: 'Email' });
+      setTimeout(() => {
+        window.location.href = '/main';
+      }, 1000);
     } catch (err) {
       setError('An error occurred during signup. Please try again later.');
     } finally {

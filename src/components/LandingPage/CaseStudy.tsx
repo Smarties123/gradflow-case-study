@@ -608,9 +608,9 @@ export default function CaseStudy() {
                       borderWidth: "2px",
                     },
                   }}
-                  onClick={() => window.open("https://hadtechnologies.org", "_blank")}
+                  onClick={() => window.location.href = "/main"}
                 >
-                  Join Waitlist
+                  Demo
                 </Button>
               </Box>
             </Card>

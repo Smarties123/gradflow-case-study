@@ -57,36 +57,19 @@ const SettingsView: React.FC<SettingsViewProps> = ({
     dailyUpdates: false
   });
 
-  // fetch profile on open
+  // fetch profile on open - in demo mode use user context
   useEffect(() => {
-    if (!show) return;
-    (async () => {
-      try {
-        const res = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/users/profile`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${user.token}`
-            }
-          }
-        );
-        if (!res.ok) throw new Error('Fetch failed');
-        const data = await res.json();
-        setFormData({
-          name: data.Username,
-          email: data.Email,
-          promotionalEmails: data.PromotionalEmail ?? false,
-          applicationUpdates: data.ApplicationEmail ?? false,
-          weeklyUpdates: data.WeeklyUpdates ?? false,
-          dailyUpdates: data.DailyUpdates ?? false
-        });
-      } catch (err) {
-        console.error(err);
-        notifyError('Could not load your settings.');
-      }
-    })();
-  }, [show, user.token]);
+    if (!show || !user) return;
+    // In demo mode, use user context data
+    setFormData({
+      name: user.username,
+      email: user.email,
+      promotionalEmails: false,
+      applicationUpdates: false,
+      weeklyUpdates: false,
+      dailyUpdates: false
+    });
+  }, [show, user]);
 
   useEffect(() => {
     if (show) setCurrentView('account');
@@ -117,25 +100,9 @@ const SettingsView: React.FC<SettingsViewProps> = ({
     setFormData(prev => ({ ...prev, [name]: value }));
 
   const handleSubmit = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/users/profile`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`
-          },
-          body: JSON.stringify(formData)
-        }
-      );
-      if (!res.ok) throw new Error(await res.text());
-      notifySuccess('Settings saved successfully');
-      onClose();
-    } catch (err) {
-      console.error(err);
-      notifyError('Failed to save settings');
-    }
+    // In demo mode, just show success message
+    notifySuccess('Settings saved successfully (demo mode)');
+    onClose();
   };
 
   const handleChangePassword = () => {
@@ -144,42 +111,9 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   const handleDeleteAccount = async (reason: string) => {
-    try {
-      await fetch(
-        `${process.env.REACT_APP_API_URL}/api/log-delete-account-reason`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`
-          },
-          body: JSON.stringify({
-            userId: user.id,
-            email: formData.email,
-            name: formData.name,
-            reason
-          })
-        }
-      );
-      const delRes = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/users/profile`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`
-          }
-        }
-      );
-      if (!delRes.ok) throw new Error('Delete failed');
-      notifySuccess('Your account has been deleted');
-      navigate('/');
-    } catch (err) {
-      console.error(err);
-      notifyError('Could not delete account');
-    } finally {
-      setDeleteModalOpen(false);
-    }
+    // In demo mode, just show message
+    notifySuccess('Account deletion is disabled in demo mode');
+    setDeleteModalOpen(false);
   };
 
   const handleUpgrade = (plan: 'basic' | 'premium') => {
@@ -187,41 +121,8 @@ const SettingsView: React.FC<SettingsViewProps> = ({
   };
 
   const handleDowngrade = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/cancel-subscription`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`
-          },
-          body: JSON.stringify({ email: user?.email })
-        }
-      );
-
-      if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(errorBody || 'Failed to cancel subscription');
-      }
-
-      let message = 'Subscription cancelled successfully';
-
-      try {
-        const payload = await response.json();
-        if (payload?.message) {
-          message = payload.message;
-        }
-      } catch (parseError) {
-        console.warn('Could not parse cancellation response:', parseError);
-      }
-
-      await refetchUser();
-      notifySuccess(message);
-    } catch (error) {
-      console.error('Error cancelling subscription:', error);
-      notifyError('Failed to cancel subscription');
-    }
+    // In demo mode, just show message
+    notifySuccess('Subscription cancellation is disabled in demo mode');
   };
 
   return (

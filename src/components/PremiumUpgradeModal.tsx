@@ -26,68 +26,9 @@ export const PremiumUpgradeModal: React.FC<PremiumModalProps> = ({
   const { user } = useUser();
 
   const handleUpgrade = async () => {
-    console.log('🚀 handleUpgrade called');
-    console.log('📧 User email:', user?.email);
-    console.log('🌐 API URL:', process.env.REACT_APP_API_URL);
-    
-    if (!user?.email) {
-      console.log('❌ No user email found');
-      alert('Please log in to upgrade to premium');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      if (!stripePromise) {
-        throw new Error('Stripe publishable key is not configured. Please set REACT_APP_STRIPE_PUBLISHABLE_KEY or STRIPE_PUBLISHABLE_KEY environment variable.');
-      }
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error('Stripe failed to load');
-
-      const apiUrl = `${process.env.REACT_APP_API_URL}/create-checkout-session`;
-      console.log('📡 Making request to:', apiUrl);
-      
-      const requestBody = {
-        email: user.email,
-        plan: selectedPlan,
-        success_url: `${window.location.origin}/main?success=true`,
-        cancel_url: `${window.location.origin}`,
-      };
-      console.log('📦 Request body:', requestBody);
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody),
-      });
-
-      console.log('📊 Response status:', response.status, response.statusText);
-      const data = await response.json();
-      console.log('📋 Response data:', data);
-      
-      if (!response.ok) throw new Error(data.error || 'Server error');
-
-      if (data.code === 30) {
-        alert('You already have an active subscription!');
-        onClose();
-        return;
-      }
-
-      if (data.code === 200 && data.sessionId) {
-        const { error: stripeError } = await stripe.redirectToCheckout({
-          sessionId: data.sessionId,
-        });
-        if (stripeError) throw new Error(stripeError.message);
-        return;
-      }
-
-      throw new Error('Unexpected server response');
-    } catch (err: any) {
-      console.error('Checkout error:', err);
-      alert(`Checkout failed: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
+    // In demo mode, show message that this is a demo
+    alert('This is a demo version. Premium features are already enabled!');
+    onClose();
   };
 
   if (!isOpen) return null;

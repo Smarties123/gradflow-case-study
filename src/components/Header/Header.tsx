@@ -59,22 +59,12 @@ const Header = (props) => {
   // Fetch user profile info once
   const [profileData, setProfileData] = useState({ email: '', name: '' });
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        const data = await res.json();
-        setProfileData({ email: data.Email, name: data.Username });
-        setColumnOrder(data.ColumnOrder);
-      } catch (err) {
-        console.error('Failed to fetch profile', err);
-      }
-    })();
-  }, [user.token, setColumnOrder]);
+    // In demo mode, use dummy user data
+    if (user) {
+      setProfileData({ email: user.email, name: user.username });
+      setColumnOrder([]);
+    }
+  }, [user, setColumnOrder]);
 
   const handleCheckPremium = () => {
     const { hasReachedLimit } = checkApplicationLimit();

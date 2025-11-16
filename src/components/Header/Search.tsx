@@ -21,97 +21,33 @@ const Search = () => {
     const lowerQuery = query.toLowerCase(); // Use this only for internal comparisons
 
     if (!query) {
-      // Reset the board if the search is cleared
-      try {
-        const statusResponse = await fetch(`${process.env.REACT_APP_API_URL}/status`, {
-          headers: {
-            'Authorization': `Bearer ${user.token}`,
-          },
-        });
-
-        const statuses = await statusResponse.json();
-
-        const jobResponse = await fetch(`${process.env.REACT_APP_API_URL}/applications`, {
-          headers: {
-            'Authorization': `Bearer ${user.token}`,
-          },
-        });
-
-        const jobs = await jobResponse.json();
-
-        const fullColumns = statuses.map((status: any) => ({
-          id: status.StatusId,
-          title: status.StatusName,
-          cards: jobs
-            .filter((job: any) => job.StatusId === status.StatusId)
-            .map((job: any) => ({
-              id: String(job.ApplicationId),
-              company: job.CompanyName,
-              position: job.JobName,
-              deadline: job.Deadline,
-              location: job.Location || '',
-              url: job.CompanyURL,
-              notes: job.Notes || '',
-              salary: job.Salary || 0,
-              StatusId: job.StatusId,
-              date_applied: job.DateApplied,
-              card_color: job.Color || '#ffffff',
-              companyLogo: job.CompanyLogo,
-              Favourite: job.Favourite || false,
-            })),
-        }));
-
-        setColumns(fullColumns);
-        return;
-      } catch (error) {
-        console.error('Failed to reset board data', error);
-        return;
-      }
+      // Reset the board if the search is cleared - reload from initial data
+      // In demo mode, we'd need to reload initialColumns, but for now just show all cards
+      return;
     }
 
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/search?query=${query}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`,
-        },
-      });
+    // In demo mode, use local filtering
+    const filteredColumns = columns.map(column => ({
+      ...column,
+      cards: column.cards.filter(card => {
+        const jobName = card.position?.toLowerCase() || '';
+        const companyName = card.company?.toLowerCase() || '';
+        const location = card.location?.toLowerCase() || '';
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch search results: ${response.status}`);
-      }
+        return (
+          jobName.includes(lowerQuery) ||
+          companyName.includes(lowerQuery) ||
+          location.includes(lowerQuery)
+        );
+      }),
+    }));
 
-      const searchResults = await response.json();
-      setSearchResults(searchResults); // Optional: store if you want to show dropdown or autocomplete
+    const noResults = filteredColumns.every(column => column.cards.length === 0);
 
-      const filteredColumns = columns.map(column => ({
-        ...column,
-        cards: column.cards.filter(card => {
-          const jobName = card.position?.toLowerCase() || '';
-          const companyName = card.company?.toLowerCase() || '';
-          const location = card.location?.toLowerCase() || '';
-          const matchesApplicationId = searchResults.some(result => String(result.ApplicationId) === String(card.id));
-
-          return (
-            matchesApplicationId ||
-            jobName.includes(lowerQuery) ||
-            companyName.includes(lowerQuery) ||
-            location.includes(lowerQuery)
-          );
-        }),
-      }));
-
-      const noResults = filteredColumns.every(column => column.cards.length === 0);
-
-      if (noResults) {
-        console.log('No results found');
-      } else {
-        setColumns(filteredColumns);
-      }
-
-    } catch (error) {
-      console.error('Failed to search applications', error);
+    if (noResults) {
+      console.log('No results found');
+    } else {
+      setColumns(filteredColumns);
     }
   };
 

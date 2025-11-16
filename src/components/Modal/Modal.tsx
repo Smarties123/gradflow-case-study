@@ -7,6 +7,7 @@ import dayjs from 'dayjs';
 import Github from '@uiw/react-color-github';  // Import the color picker
 import 'animate.css';
 import { useTransition, animated } from 'react-spring'; // ✅ Import useTransition
+import { generateCardId } from '@/data/dummyData';
 
 
 const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
@@ -38,31 +39,10 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
 
 
     useEffect(() => {
-        if (company.length > 2 && !suggestionSelected) {  // Only fetch suggestions if no suggestion was selected
-            const fetchCompanySuggestions = async () => {
-                try {
-                    const response = await fetch(`${process.env.REACT_APP_API_URL}/company-search?q=${company}`, {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        setCompanySuggestions(data);
-                        setShowSuggestions(true);  // Show the suggestions
-                    } else {
-                        console.error('Failed to fetch company suggestions');
-                    }
-                } catch (error) {
-                    console.error('Error fetching company suggestions:', error);
-                }
-            };
-            fetchCompanySuggestions();
-        } else {
-            setCompanySuggestions([]);
-            setShowSuggestions(false);  // Hide the suggestions if input is too short
-        }
-    }, [company, suggestionSelected]);  // Include suggestionSelected in the dependency array
+        // In demo mode, disable company search suggestions
+        setCompanySuggestions([]);
+        setShowSuggestions(false);
+    }, [company, suggestionSelected]);
 
     // useEffect(() => {
     //     const handleAnimationEnd = () => {
@@ -177,7 +157,11 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (validateForm()) {
+            // Generate local ID for new card
+            const newCardId = generateCardId();
+            
             const card = {
+                id: newCardId,
                 company,
                 position,
                 deadline: deadline ? dayjs(deadline).format('YYYY-MM-DD') : null,
@@ -186,66 +170,17 @@ const Modal = ({ isOpen, onClose, activeColumn, columns, theme }) => {
                 companyLogo: companyLogo || null,
                 date_applied: dayjs().format('YYYY-MM-DD'),
                 card_color: selectedColor,
-                userId: user ? user.id : null,
-                statusId: activeColumn ? activeColumn.id : selectedColumn,
+                notes: '',
+                salary: 0,
+                interview_stage: '',
+                data_applied: dayjs().format('YYYY-MM-DD'),
+                job_id: Number(newCardId),
+                Favourite: false,
             };
 
-            try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/addjob`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${user.token}`,
-                    },
-                    body: JSON.stringify(card),
-                });
-
-                if (response.ok) {
-                    const savedCard = await response.json();
-                    console.log("Saved card data:", savedCard);
-
-                    const newCardId = savedCard.job?.ApplicationId;
-                    if (newCardId) {
-
-                        addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, { ...card, id: String(newCardId) });
-                        handleClose();
-                        // setModalVisible(false);
-                        await fetchCardDetails(newCardId);  // Wait for background fetch
-                    }
-                } else {
-                    console.error('Failed to add job');
-                }
-                // Close modal regardless of success or failure in adding job
-                // setModalAnimation({ opacity: 0, transform: 'scale(0.8)' });
-                // setTimeout(onClose, 200); // Delay the onClose handler to allow animation to complete
-            } catch (err) {
-                console.error('Error adding job:', err);
-                // Close modal even if there's an error
-                // setModalAnimation({ opacity: 0, transform: 'scale(0.8)' });
-                handleClose();
-            }
-        }
-    };
-
-    // Fetch the full card details in the background and update it locally
-    const fetchCardDetails = async (id) => {
-        try {
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${id}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`
-                },
-            });
-
-            if (response.ok) {
-                const fullCardData = await response.json();
-                console.log("Fetched full card data:", fullCardData);
-                updateCard(id, fullCardData);
-            } else {
-                console.error('Failed to fetch the full card data');
-            }
-        } catch (error) {
-            console.error('Error fetching card details:', error);
+            // In demo mode, just add to local state
+            addCardToColumn(activeColumn ? activeColumn.id : selectedColumn, card);
+            handleClose();
         }
     };
 

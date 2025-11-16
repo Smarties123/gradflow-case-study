@@ -92,34 +92,8 @@ const Frame = () => {
   }, []);
 
   useEffect(() => {
-    const checkFeedbackTrigger = async () => {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/profile`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        const data = await response.json();
-
-        if (data.FeedbackTrigger) {
-          setFeedbackPopupOpen(true);
-          await fetch(`${process.env.REACT_APP_API_URL}/api/users/disable-feedback`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${user.token}`
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Failed to check feedback trigger', error);
-      }
-    };
-
-    if (user && user.token) {
-      checkFeedbackTrigger();
-    }
+    // In demo mode, skip feedback trigger check
+    // No API calls needed
   }, [user]); // Use `user` as the dependency instead of `user.token`
 
 

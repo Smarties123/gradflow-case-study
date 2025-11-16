@@ -51,28 +51,8 @@ const CardComponent = ({
 
     setIsFavorited(newFavoriteStatus);
 
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/applications/${card.id}/favorite`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`,
-          },
-          body: JSON.stringify({ isFavorited: newFavoriteStatus }),
-        }
-      );
-
-      if (response.ok) {
-        const updatedCard = await response.json();
-        onFavoriteToggle(updatedCard.application);
-      } else {
-        console.error('Failed to update favorite status');
-      }
-    } catch (error) {
-      console.error('Error updating favorite status:', error);
-    }
+    // In demo mode, just update local state
+    onFavoriteToggle({ ...card, Favourite: newFavoriteStatus });
   };
 
   const handleCardClick = () => {

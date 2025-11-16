@@ -280,36 +280,14 @@ const DrawerView = ({
         companyLogo: formData.companyLogo
       };
 
-      if (!user?.token) {
-        throw new Error('User not authenticated');
-      }
-
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/applications/${card.id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`
-          },
-          body: JSON.stringify(updatedData)
-        }
-      );
-
-      if (response.ok) {
-        const updatedCard = await response.json();
-
-        // If the status changed, update locally
-        if (updatedData.statusId !== card.StatusId) {
-          updateStatusLocally(card.id, updatedData.statusId);
-        } else {
-          updateCard(card.id, updatedData);
-        }
-        onClose();
+      // In demo mode, just update local state
+      // If the status changed, update locally
+      if (updatedData.statusId !== card.StatusId) {
+        updateStatusLocally(card.id, updatedData.statusId);
       } else {
-        const errorText = await response.text();
-        console.error('Failed to update the card:', errorText);
+        updateCard(card.id, updatedData);
       }
+      onClose();
     } catch (error) {
       console.error('Error updating card:', error);
     }

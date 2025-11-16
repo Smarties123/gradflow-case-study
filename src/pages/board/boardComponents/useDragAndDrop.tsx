@@ -30,29 +30,14 @@ export const useDragAndDrop = (handleDeleteCard, setActiveId) => {
         const overId = over.id;
 
         if (overId === 'bin') {
-            // Handle deletion
-            try {
-                const response = await fetch(`${process.env.REACT_APP_API_URL}/applications/${activeId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${user.token}`,
-                    },
-                });
-
-                if (response.ok) {
-                    handleDeleteCard(Number(activeId));
-                } else {
-                    console.error('Failed to delete the card.');
-                }
-            } catch (error) {
-                console.error('Error deleting the card:', error);
-            }
+            // In demo mode, just delete locally
+            handleDeleteCard(Number(activeId));
         } else {
             // Delegate the rest of the logic to onDragEnd in BoardContext
 
-            // If a column was dragged, save the new order to the backend
+            // If a column was dragged, update local state only
             if (event.active.data?.current?.type === 'column') {
-                if (!user || !event.over) return;
+                if (!event.over) return;
                 // Compute the new column order based on the drag event
                 const activeId = Number(event.active.id);
                 const overId = Number(event.over.id);
@@ -65,18 +50,7 @@ export const useDragAndDrop = (handleDeleteCard, setActiveId) => {
                     const newColumnOrder = newColumns.map(col => col.id);
                     setColumns(newColumns);
                     setColumnOrder(newColumnOrder);
-                    try {
-                        await fetch(`${process.env.REACT_APP_API_URL}/api/users/columnorder`, {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${user.token}`,
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ columnOrder: newColumnOrder }),
-                        });
-                    } catch (error) {
-                        console.error('Failed to save column order:', error);
-                    }
+                    // In demo mode, no backend save needed
                 }
             }
             await onDragEnd(event);

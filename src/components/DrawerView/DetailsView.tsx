@@ -21,28 +21,9 @@ const DetailsView = ({
 
 
   useEffect(() => {
-    const trimmed = formData.company.trim();
-
-    if (hasTyped && trimmed.length > 3 && !suggestionSelected) {
-      const timeout = setTimeout(() => {
-        fetch(`${process.env.REACT_APP_API_URL}/company-search?q=${encodeURIComponent(trimmed)}`)
-          .then((res) => res.ok ? res.json() : [])
-          .then((data) => {
-            setCompanySuggestions(data.slice(0, 5));
-            setShowSuggestions(data.length > 0);
-          })
-          .catch((err) => {
-            console.error(err);
-            setCompanySuggestions([]);
-            setShowSuggestions(false);
-          });
-      }, 300);
-
-      return () => clearTimeout(timeout);
-    } else {
-      setShowSuggestions(false);
-      setCompanySuggestions([]);
-    }
+    // In demo mode, disable company search suggestions
+    setShowSuggestions(false);
+    setCompanySuggestions([]);
   }, [formData.company, suggestionSelected, hasTyped]);
 
 

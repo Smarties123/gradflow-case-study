@@ -41,34 +41,12 @@ export const useBoardHandlers = (columns, setColumns) => {
         return;
       }
 
-      // Update local state
+      // Update local state only in demo mode
       setColumns(prev =>
         prev.map(col =>
           col.id === editingColumnId ? { ...col, title: newTitle } : col
         )
       );
-
-      // Send the updated column name to the backend
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/status/${editingColumnId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user?.token}`,
-          },
-          body: JSON.stringify({ statusName: newTitle }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to update column name');
-        }
-
-        const updatedStatus = await response.json();
-        console.log('StatusName updated:', updatedStatus);
-
-      } catch (error) {
-        console.error('Error updating column name:', error);
-      }
 
       setEditingColumnId(null);
     }
@@ -93,24 +71,8 @@ export const useBoardHandlers = (columns, setColumns) => {
         return;
       }
 
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/status/${columnId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${user?.token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to delete column');
-        }
-
-        setColumns(prevColumns => prevColumns.filter(col => col.id !== columnId));
-        // alert('Column deleted successfully');
-      } catch (error) {
-        console.error('Error deleting column:', error);
-        // alert('Failed to delete column');
-      }
+      // In demo mode, just update local state
+      setColumns(prevColumns => prevColumns.filter(col => col.id !== columnId));
       setColumnToDelete(-1);
     }
     setShowDropdown(null);
@@ -189,32 +151,18 @@ export const useBoardHandlers = (columns, setColumns) => {
   const handleAddNewColumn = async () => {
     const newColumnTitle = 'NEW STATUS';
 
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/status`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.token}`,
-        },
-        body: JSON.stringify({ statusName: newColumnTitle }),
-      });
+    // Generate a new ID for the column (use max existing ID + 1)
+    const maxId = Math.max(...columns.map(col => col.id), 0);
+    const newColumnId = maxId + 1;
 
-      if (!response.ok) {
-        throw new Error('Failed to create new column');
-      }
+    const newColumn: Column = {
+      id: newColumnId,
+      title: newColumnTitle,
+      cards: [],
+    };
 
-      const newStatus = await response.json();
-
-      const newColumn: Column = {
-        id: newStatus.status.StatusId,
-        title: newStatus.status.StatusName,
-        cards: [],
-      };
-
-      setColumns(prevColumns => [...prevColumns, newColumn]);
-    } catch (error) {
-      console.error('Error creating new column:', error);
-    }
+    // In demo mode, just update local state
+    setColumns(prevColumns => [...prevColumns, newColumn]);
   };
 
   const handleUpdateStatus = newStatus => {

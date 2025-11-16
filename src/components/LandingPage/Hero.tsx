@@ -170,9 +170,9 @@ export default function Hero() {
                     left: "100%",
                   }
                 }}
-                onClick={() => window.open("https://hadtechnologies.org", "_blank")}
+                onClick={() => window.location.href = "/main"}
               >
-                Join the Waitlist
+                Demo
               </Button>
             </motion.div>
           </Box>

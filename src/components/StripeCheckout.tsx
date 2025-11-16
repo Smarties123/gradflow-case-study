@@ -20,65 +20,9 @@ const StripeCheckout: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Bail early if required params are missing
-        if (!email || !plan) {
-            setError('Missing email or plan');
-            setLoading(false);
-            return;
-        }
-
-        const checkout = async () => {
-            try {
-                if (!stripePromise) {
-                    throw new Error('Stripe publishable key is not configured. Please set REACT_APP_STRIPE_PUBLISHABLE_KEY or STRIPE_PUBLISHABLE_KEY environment variable.');
-                }
-                const stripe = await stripePromise;
-                if (!stripe) throw new Error('Stripe failed to load');
-
-                const response = await fetch(
-                    `${process.env.REACT_APP_API_URL}/create-checkout-session`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email,
-                            plan,
-                            couponId: coupon,
-                            success_url: `${window.location.origin}/main`,
-                            cancel_url: `${window.location.origin}`,
-                        }),
-                    }
-                );
-
-                const data = await response.json();
-                if (!response.ok) throw new Error(data.error || 'Server error');
-
-                // ─── Handle the custom codes from backend ──────────────────────────
-                if (data.code === 30) {
-                    // Customer already subscribed → send them where you want
-                    navigate('/main?existing=true');
-                    return;
-                }
-
-                if (data.code === 200 && data.sessionId) {
-                    const { error: stripeError } = await stripe.redirectToCheckout({
-                        sessionId: data.sessionId,
-                    });
-                    if (stripeError) throw new Error(stripeError.message);
-                    return; // Normal flow continues in Stripe-hosted page
-                }
-
-                // Unknown response shape
-                throw new Error('Unexpected server response');
-            } catch (err: any) {
-                console.error('Checkout error:', err);
-                setError(err.message || 'Checkout failed');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        checkout();
+        // In demo mode, just redirect to main
+        setLoading(false);
+        navigate('/main?demo=true');
     }, [email, plan, coupon, navigate]);
 
     return (

@@ -143,66 +143,19 @@ export default function SignInSide() {
     setLoading(true); // Start loading
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/users/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+      // In demo mode, any email/password works
+      // Use dummy user data
+      setUser({
+        email: email || 'demo@gradflow.com',
+        token: 'demo-token-12345',
+        username: email?.split('@')[0] || 'Demo User',
+        id: 1,
+        isMember: true
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        console.log("Login result:", result); // Log the result for debugging
-        setUser({
-          email: result.user.email,
-          token: result.token,
-          username: result.user.username,
-          id: result.user.id,
-          isMember: result.user.IsMember
-        });
+      logEvent(analytics, 'login', { method: 'Email' }); // Log the login event
 
-        console.log("User set in context:", result.user); // Log the user data
-
-        // if (result.user.feedbackTrigger) {
-        //   setFeedbackPopupOpen(true); // Trigger the feedback popup
-        //   await fetch(`${process.env.REACT_APP_API_URL}/api/users/disable-feedback`, {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //       'Authorization': `Bearer ${result.token}`
-        //     },
-        //     body: JSON.stringify({ userId: result.user.id, feedbackTrigger: false })
-        //   });
-        // }
-
-
-
-        logEvent(analytics, 'login', { method: 'Email' }); // Log the login event
-
-        const plan = localStorage.getItem("pendingPlan");
-        if (plan) {
-          console.log("Pending Plan being passthrough", localStorage.getItem("pendingPlan"));
-          window.location.href = `/checkout?plan=${plan}&email=${email}`;
-          localStorage.removeItem("pendingPlan")
-        } else {
-          window.location.href = '/main';
-
-        }
-      } else {
-        const errorMessage = await response.text();
-
-        if (errorMessage.includes('Google account')) {
-          setError('This email is associated with a Google account. Please sign in using Google.');
-        } 
-
-        else if (errorMessage.includes('User Not Verified')) {
-          setVerificationError('not_verified');
-        } 
-        
-        else {
-          setError('Account not recognised. Please try again or sign up.');
-        }
-
-      }
+      window.location.href = '/main';
     } catch (err) {
       setError('An error occurred. Please try again.');
     } finally {

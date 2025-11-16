@@ -1,195 +1,96 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '../components/User/UserContext';
-
+import { dummyFileTypes, initialFiles, generateFileId } from '../data/dummyData';
 
 type CreateFileBody = {
   typeId: number;          // 1 for CV, 2 for CL, etc.
-  fileUrl: string;         // final S3 https link
+  fileUrl: string;         // Blob URL in demo mode
   fileName: string;        
   extens?: string;
   description?: string;
   applicationsIds?: number[];  // (Optional) to link this file to apps
 };
 
-
-
-
 export function useFileData() {
   const { user } = useUser();
-  const [files, setFiles] = useState([]);
-  const [fileTypes, setFileTypes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [files, setFiles] = useState<any[]>(initialFiles);
+  const [fileTypes, setFileTypes] = useState(dummyFileTypes);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAllFileTypes = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/files/types`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch file types');
-      }
-      const data = await response.json();
-      setFileTypes(data);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message);
-    }
-  };
+  // In demo mode, file types are static
+  // No need to fetch
 
-  const fetchAllFiles = async () => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/files`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch files');
-      }
-      const data = await response.json();
-      setFiles(data);
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Create file
+  // Create file - stores in local state with Blob URL
   const createFile = async (body: CreateFileBody) => {
-    if (!user?.token) return;
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/files`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`,
-        },
-        body: JSON.stringify(body),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to create file record');
-      }
-      await refetch();
-    } catch (error) {
-      console.error('Error creating file:', error);
-    }
+    const newFile = {
+      fileId: generateFileId(),
+      typeId: body.typeId,
+      fileUrl: body.fileUrl, // This will be a Blob URL
+      fileName: body.fileName,
+      extens: body.extens || '',
+      description: body.description || '',
+      applicationsIds: body.applicationsIds || [],
+      createdAt: new Date().toISOString(),
+    };
+    
+    setFiles(prev => [...prev, newFile]);
+    return newFile;
   };
 
-  // Delete file
+  // Delete file - removes from local state and revokes Blob URL
   const deleteFile = async (fileId: number) => {
-    if (!user?.token) return;
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/files/${fileId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        throw new Error('Failed to delete file record');
-      }
-      // If your backend also calls s3.deleteObject, 
-      // the S3 object will be removed as well.
-
-      // Refresh local list
-      await refetch();
-    } catch (error) {
-      console.error('Error deleting file:', error);
+    const fileToDelete = files.find(f => f.fileId === fileId);
+    if (fileToDelete && fileToDelete.fileUrl.startsWith('blob:')) {
+      // Revoke the Blob URL to free memory
+      URL.revokeObjectURL(fileToDelete.fileUrl);
     }
+    setFiles(prev => prev.filter(f => f.fileId !== fileId));
   };
 
-  // Update file (return the updated row from server)
+  // Update file - updates local state
   const updateFile = async (fileId: number, updateData: any) => {
-    if (!user?.token) return null;
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/files/${fileId}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${user.token}`,
-          },
-          body: JSON.stringify(updateData),
-        }
-      );
-      if (!response.ok) {
-        throw new Error('Failed to update file');
-      }
-      const data = await response.json();
-      await refetch();
-      return data.file; // The updated row from server
-    } catch (error) {
-      console.error('Error updating file:', error);
-      return null;
-    }
+    setFiles(prev => 
+      prev.map(f => 
+        f.fileId === fileId ? { ...f, ...updateData } : f
+      )
+    );
+    const updated = files.find(f => f.fileId === fileId);
+    return updated ? { ...updated, ...updateData } : null;
   };
 
-
-  // Re-fetch everything
+  // Re-fetch everything - no-op in demo mode
   const refetch = async () => {
-    if (!user?.token) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    await fetchAllFileTypes();
-    await fetchAllFiles();
+    // In demo mode, files are stored in state, no refetch needed
+    setLoading(false);
   };
 
-  // Get a presigned upload URL from your server
+  // Get a presigned upload URL - returns mock data in demo mode
   const getPresignedUploadUrl = async (
     fileName: string,
     fileMime: string,
     docType: string
   ) => {
-    if (!user?.token) throw new Error('No user token, cannot upload');
-    const res = await fetch(
-      `${process.env.REACT_APP_API_URL}/files/presigned-upload`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${user.token}`,
-        },
-        body: JSON.stringify({ fileName, fileMime, docType }),
-      }
-    );
-    if (!res.ok) {
-      throw new Error('Failed to obtain presigned URL');
-    }
-    return res.json(); // { uploadUrl, objectKey }
+    // In demo mode, return mock data
+    return {
+      uploadUrl: 'demo-upload-url',
+      objectKey: `demo/${docType}/${fileName}`,
+    };
   };
 
   const uploadFileToS3 = async (
     uploadUrl: string,
     file: File
   ) => {
-    // Use fetch PUT (or Axios with progress events)
-    const res = await fetch(uploadUrl, {
-      method: 'PUT',
-      headers: { 'Content-Type': file.type },
-      body: file,
-    });
-    if (!res.ok) {
-      throw new Error('File upload to S3 failed');
-    }
-    // No return needed; if no error, it succeeded
+    // In demo mode, this is a no-op
+    // Files are stored as Blob URLs instead
+    return Promise.resolve();
   };
 
 
 
-    // ----------------------------------------------------------
-  //  3) Combined flow: "uploadAndCreateFile"
-  //     - get presigned URL
-  //     - PUT file to S3
-  //     - create DB record
-  // ----------------------------------------------------------
+  // Combined flow: "uploadAndCreateFile"
+  // In demo mode: creates Blob URL and stores in local state
   const uploadAndCreateFile = async ({
     file,
     docType,   // 'cv' or 'cl'
@@ -205,36 +106,22 @@ export function useFileData() {
   }) => {
     if (!file) return;
     try {
-      // 1) Get presigned upload URL
-      const { uploadUrl, objectKey } = await getPresignedUploadUrl(
-        file.name,
-        file.type,
-        docType
-      );
+      // In demo mode, create a Blob URL instead of uploading to S3
+      const fileUrl = URL.createObjectURL(file);
   
-      // 2) Upload file to S3
-      await uploadFileToS3(uploadUrl, file);
-  
-      // 3) Build final S3 link from your bucket name & region
-      const s3Bucket = process.env.REACT_APP_S3_BUCKET;
-      const s3Region = process.env.REACT_APP_S3_REGION;
-      console.log('s3Bucket:', s3Bucket, 's3Region:', s3Region);
-
-      const fileUrl = `https://${s3Bucket}.s3.${s3Region}.amazonaws.com/${objectKey}`;
-  
-      // NEW: parse extension from the file name
+      // Parse extension from the file name
       let extension = '';
       if (file.name.includes('.')) {
         const parts = file.name.split('.');
         extension = parts[parts.length - 1]; // e.g. "pdf" or "docx"
       }
   
-      // 4) Create file in DB
+      // Create file record in local state
       await createFile({
         typeId,
-        fileUrl,
+        fileUrl, // Blob URL
         fileName: file.name,
-        extens: extension,   // pass the extension here
+        extens: extension,
         description,
         applicationsIds
       });
@@ -244,18 +131,12 @@ export function useFileData() {
     }
   };
 
-
-  // ----------------------------------------------------------
-  //  useEffect: fetch data on mount if token present
-  // ----------------------------------------------------------
+  // Initialize file types on mount
   useEffect(() => {
-    if (!user?.token) {
-      setLoading(false);
-      return;
-    }
-    refetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+    setFileTypes(dummyFileTypes);
+    setFiles(initialFiles);
+    setLoading(false);
+  }, []);
 
   // Return everything
   return {
