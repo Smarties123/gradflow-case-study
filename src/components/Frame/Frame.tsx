@@ -10,19 +10,16 @@ import Brand from '../Brand';
 import { Icon } from '@rsuite/icons';
 import { HiOutlineViewBoards } from 'react-icons/hi';
 import { LuTable2 } from 'react-icons/lu';
-import { MdContacts, MdDashboard } from 'react-icons/md';
+import { MdDashboard, MdArticle } from 'react-icons/md';
 import { TbFiles } from 'react-icons/tb';
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import { CiSettings } from 'react-icons/ci';
-import SettingsView from '../SettingsView/SettingsView'; // Adjust the path according to your project structure
-import { handleButtonClick } from '../FeedbackButton/FeedbackButton';
-import { useLocation } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import TutorialPopup from '../TutorialPopup/TutorialPopup'; // Adjust the path if necessary
+import SettingsView from '../SettingsView/SettingsView';
+import { useLocation, useNavigate } from 'react-router-dom';
+import TutorialPopup from '../TutorialPopup/TutorialPopup';
 import FeedbackPopup from '../Feedback/FeedbackPopup';
 import OnDemandFeedbackPopup from '../Feedback/OnDemandFeedback';
-import { useUser } from '@/components/User/UserContext'; // Adjust the import path as needed
-import NewButton from '../NewButton/NewButton';
+import { useUser } from '@/components/User/UserContext';
 import UpdatedButton from '../UpdateButton/UpdatedButton';
 import { WelcomeToPremiumModal } from '../WelcomeToPremiumModal';
 
@@ -42,15 +39,15 @@ const NavItem = ({ title, eventKey, animate, ...rest }) => {
 };
 
 const Frame = () => {
-  const { user } = useUser(); // Access user from context
+  const { user, refetchUser, showWelcomeToPremium, setShowWelcomeToPremium } = useUser();
   const navigate = useNavigate();
 
   const [expand, setExpand] = useState(true);
   const [windowHeight, setWindowHeight] = useState(getHeight(window));
   const [theme, setTheme] = useState<'light' | 'dark' | 'high-contrast'>('dark');
   const [showSettings, setShowSettings] = useState(false);
-  const [animate, setAnimate] = useState(true); // State to control animation
-  const [showTutorial, setShowTutorial] = useState(false); // State to control tutorial popup visibility
+  const [animate, setAnimate] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
   const [isFeedbackPopupOpen, setFeedbackPopupOpen] = useState(false);
 
@@ -58,7 +55,6 @@ const Frame = () => {
   const params = new URLSearchParams(location.search);
   const tab = params.get('tab');
   const success = params.get('success');
-  const { refetchUser, showWelcomeToPremium, setShowWelcomeToPremium } = useUser();
 
   useEffect(() => {
     if (tab) {
@@ -81,7 +77,7 @@ const Frame = () => {
         console.error('Failed to refetch user data after payment:', error);
       });
     }
-  }, [success, refetchUser]);
+  }, [success, refetchUser, user]);
 
   useEffect(() => {
     const isNewUser = localStorage.getItem('isNewUser');
@@ -90,13 +86,6 @@ const Frame = () => {
       localStorage.removeItem('isNewUser'); // Remove the flag after showing the tutorial
     }
   }, []);
-
-  useEffect(() => {
-    // In demo mode, skip feedback trigger check
-    // No API calls needed
-  }, [user]); // Use `user` as the dependency instead of `user.token`
-
-
 
   useEffect(() => {
     const updateExpand = () => {
@@ -155,7 +144,7 @@ const Frame = () => {
                   to="/main"
                   eventKey="panel"
                   icon={<Icon as={HiOutlineViewBoards} />}
-                  animate={animate} // Pass the animate state
+                  animate={animate}
                 />
                 <NavItem
                   title={
@@ -178,15 +167,8 @@ const Frame = () => {
                   to="/main/dashboard"
                   eventKey="dashboard"
                   icon={<Icon as={MdDashboard} />}
-                  animate={animate} // Pass the animate state
+                  animate={animate}
                 />
-                {/* <NavItem
-                  title="Contacts"
-                  to="/main/calendar"
-                  eventKey="contacts"
-                  icon={<Icon as={MdContacts} />}
-                  animate={animate} // Pass the animate state
-                /> */}
                 <NavItem
                   title="Files"
                   to="/main/files"
@@ -199,6 +181,16 @@ const Frame = () => {
             </Sidenav.Body>
 
             <Nav>
+              {/* Case Study */}
+              <Nav.Item
+                title="Case Study"
+                onClick={() => window.location.href = "/case-study"}
+                eventKey="case-study"
+                icon={<Icon as={MdArticle} />}
+              >
+                Case Study
+              </Nav.Item>
+
               {/* Feedback */}
               <Nav.Item
                 title="Feedback"

@@ -145,7 +145,7 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
             </MenuItem>
           </Box>
 
-          {/* Case Study Button (Desktop) */}
+          {/* Case Study and Demo Buttons (Desktop) */}
           <Box
             sx={{
               display: { xs: 'none', md: 'flex' },
@@ -156,6 +156,14 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
             }}
           >
             {/* <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} /> */}
+            <Button
+              color="primary"
+              variant="outlined"
+              onClick={() => window.location.href = "/main"}
+              className="animated-button"
+            >
+              Demo
+            </Button>
             <Button
               color="primary"
               variant="contained"
@@ -227,7 +235,18 @@ function AppAppBar({ mode, toggleColorMode }: AppAppBarProps) {
               </MenuItem>
 
               <Divider sx={{ my: 1 }} />
-              <Box>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Button
+                  color="primary"
+                  variant="outlined"
+                  fullWidth
+                  onClick={() => {
+                    setOpen(false);
+                    window.location.href = "/main";
+                  }}
+                >
+                  Demo
+                </Button>
                 <Button
                   color="primary"
                   variant="contained"
